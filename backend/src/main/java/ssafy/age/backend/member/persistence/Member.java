@@ -33,11 +33,8 @@ public class Member {
         this.phoneNumber = phoneNumber;
     }
 
-    public void updatePassword(String password) {
+    public void updateMember(String password, String phoneNumber) {
         this.password = password;
-    }
-
-    public void updatePhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 }

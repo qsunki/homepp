@@ -24,6 +24,10 @@ public class MemberController {
         return mapper.toResponseDto(member);
     }
 
-
+    @PatchMapping("/update")
+    public MemberResponseDto updateMember(@RequestBody MemberRequestDto memberRequestDto) {
+        Member member = memberService.updateMember(mapper.toMember(memberRequestDto));
+        return mapper.toResponseDto(member);
+    }
 
 }

@@ -26,23 +26,21 @@ public class MemberService {
         return memberRepository.findByUsername(username);
     }
 
-    public Member updatePassword(Member member) {
-        Member foundMember = memberRepository.findByUsername(member.getUsername());
-        foundMember.updatePassword(member.getPassword());
-        return foundMember;
-    }
-
-    public Member updatePhoneNumber(Member member) {
-        Member foundMember = memberRepository.findByUsername(member.getUsername());
-        foundMember.updatePassword(member.getPassword());
-        return foundMember;
+    public Member updateMember(Member member) {
+        try {
+            Member foundMember = memberRepository.findByUsername(member.getUsername());
+            foundMember.updateMember(foundMember.getPassword(), foundMember.getPhoneNumber());
+            return foundMember;
+        } catch(Exception e) {
+            throw new RuntimeException("회원 정보 변경 시 오류 발생");
+        }
     }
 
     public void deleteMember(Member member) {
         try {
             memberRepository.delete(memberRepository.findByUsername(member.getUsername()));
         } catch(Exception e) {
-            throw new RuntimeException("삭제 시 오류 발생");
+            throw new RuntimeException("회원 삭제 시 오류 발생");
         }
     }
 
