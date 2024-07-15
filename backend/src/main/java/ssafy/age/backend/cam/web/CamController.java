@@ -15,14 +15,12 @@ public class CamController {
 
     private final CamService camService;
 
-//    @GetMapping
-//    public String cams() {
-//        return "";
-//    }
-
     @PostMapping
-    public ResponseEntity<Cam> createCam(@RequestBody Cam cam) {
-        return ResponseEntity.ok(camService.saveCam(cam));
+    public ResponseEntity<?> createCam(@RequestBody CamCreateDto camCreateDto) {
+        Cam cam = Cam.builder().name(camCreateDto.name).ip(camCreateDto.ip).build();
+        Cam saved = camService.saveCam(cam);
+        CamResponseDto res = new CamResponseDto(saved.getName(), saved.getIp());
+        return ResponseEntity.ok(res);
     }
 
     @GetMapping

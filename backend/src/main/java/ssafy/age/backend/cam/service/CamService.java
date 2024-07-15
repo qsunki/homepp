@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.cam.persistence.CamRepository;
+import ssafy.age.backend.cam.web.CamResponseDto;
 
 import java.util.List;
 
@@ -13,7 +14,8 @@ public class CamService {
     private final CamRepository camRepository;
 
    public Cam saveCam(Cam cam) {
-       return camRepository.save(cam);
+       Cam save = camRepository.save(cam);
+       return save;
    }
 
     public List<Cam> getAllCams() {

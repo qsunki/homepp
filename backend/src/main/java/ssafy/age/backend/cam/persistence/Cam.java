@@ -1,14 +1,14 @@
 package ssafy.age.backend.cam.persistence;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Cam {
     @Id
     @Column(name = "cam_id")
