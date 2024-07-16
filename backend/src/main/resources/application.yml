@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: homepp
+  profiles:
+    active: local
