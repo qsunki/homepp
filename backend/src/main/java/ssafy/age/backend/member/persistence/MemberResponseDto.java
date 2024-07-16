@@ -6,6 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MemberResponseDto {
-    private String username;
+    private String email;
     private String phoneNumber;
 }

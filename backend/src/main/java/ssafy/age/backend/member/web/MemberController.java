@@ -20,7 +20,7 @@ public class MemberController {
 
     @GetMapping
     public MemberResponseDto findMember(@RequestBody MemberRequestDto memberRequestDto) {
-        Member member = memberService.findByUsername(memberRequestDto.getUsername());
+        Member member = memberService.findByEmail(memberRequestDto.getEmail());
         return mapper.toResponseDto(member);
     }
 
@@ -41,4 +41,5 @@ public class MemberController {
         Member member = mapper.toMember(memberRequestDto);
         memberService.deleteMember(member);
     }
+
 }

@@ -22,14 +22,15 @@ public class MemberService {
         return memberRepository.findAll();
     }
 
-    public Member findByUsername(String username) {
-        return memberRepository.findByUsername(username);
+    public Member findByEmail(String username) {
+        return memberRepository.findByEmail(username);
     }
 
     public Member updateMember(Member member) {
         try {
-            Member foundMember = memberRepository.findByUsername(member.getUsername());
+            Member foundMember = memberRepository.findByEmail(member.getEmail());
             foundMember.updateMember(member.getPassword(), member.getPhoneNumber());
+            memberRepository.save(foundMember);
             return foundMember;
         } catch(Exception e) {
             throw new RuntimeException("회원 정보 변경 시 오류 발생");
@@ -38,10 +39,9 @@ public class MemberService {
 
     public void deleteMember(Member member) {
         try {
-            memberRepository.delete(memberRepository.findByUsername(member.getUsername()));
+            memberRepository.delete(memberRepository.findByEmail(member.getEmail()));
         } catch(Exception e) {
             throw new RuntimeException("회원 삭제 시 오류 발생");
         }
     }
-
 }

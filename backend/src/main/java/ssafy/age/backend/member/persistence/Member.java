@@ -20,7 +20,7 @@ public class Member {
     private Long id;
 
     @Column(nullable = false)
-    private String username;
+    private String email;
 
     @Column(nullable = false)
     private String password;
@@ -32,8 +32,8 @@ public class Member {
     @Column(nullable = false)
     private String phoneNumber;
 
-    public Member(String username, String password, String phoneNumber) {
-        this.username = username;
+    public Member(String email, String password, String phoneNumber) {
+        this.email = email;
         this.password = password;
         this.phoneNumber = phoneNumber;
     }
