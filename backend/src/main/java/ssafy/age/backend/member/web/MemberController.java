@@ -18,6 +18,12 @@ public class MemberController {
     private final MemberService memberService;
     private final MemberMapper mapper = MemberMapper.INSTANCE;
 
+    @GetMapping
+    public MemberResponseDto findMember(@RequestBody MemberRequestDto memberRequestDto) {
+        Member member = memberService.findByUsername(memberRequestDto.getUsername());
+        return mapper.toResponseDto(member);
+    }
+
     @PostMapping
     public MemberResponseDto joinMember(@RequestBody MemberRequestDto memberRequestDto) {
         Member member = memberService.joinMember(mapper.toMember(memberRequestDto));
@@ -30,4 +36,9 @@ public class MemberController {
         return mapper.toResponseDto(member);
     }
 
+    @DeleteMapping
+    public void deleteMember(@RequestBody MemberRequestDto memberRequestDto) {
+        Member member = mapper.toMember(memberRequestDto);
+        memberService.deleteMember(member);
+    }
 }

@@ -2,6 +2,10 @@ package ssafy.age.backend.member.persistence;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+
+import java.sql.Date;
 
 @Getter
 @Entity
@@ -21,8 +25,9 @@ public class Member {
     @Column(nullable = false)
     private String password;
 
+    @CreationTimestamp
     @Column
-    private String createdAt;
+    private Date createdAt;
 
     @Column(nullable = false)
     private String phoneNumber;

@@ -29,7 +29,7 @@ public class MemberService {
     public Member updateMember(Member member) {
         try {
             Member foundMember = memberRepository.findByUsername(member.getUsername());
-            foundMember.updateMember(foundMember.getPassword(), foundMember.getPhoneNumber());
+            foundMember.updateMember(member.getPassword(), member.getPhoneNumber());
             return foundMember;
         } catch(Exception e) {
             throw new RuntimeException("회원 정보 변경 시 오류 발생");
