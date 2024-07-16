@@ -15,7 +15,15 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     public Member joinMember(Member member) {
-        return memberRepository.save(member);
+        try {
+            if (!checkDuplicatedEmail(member.getEmail())
+                    || !checkDuplicatedPhoneNumber(member.getPhoneNumber())) {
+                throw new Exception();
+            }
+            return memberRepository.save(member);
+        } catch (Exception e) {
+            throw new RuntimeException("회원 가입 오류 발생");
+        }
     }
 
     public List<Member> findAll() {
