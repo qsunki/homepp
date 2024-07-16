@@ -18,13 +18,13 @@ public class MemberController {
     private final MemberService memberService;
     private final MemberMapper mapper = MemberMapper.INSTANCE;
 
-    @PostMapping("/")
+    @PostMapping
     public MemberResponseDto joinMember(@RequestBody MemberRequestDto memberRequestDto) {
         Member member = memberService.joinMember(mapper.toMember(memberRequestDto));
         return mapper.toResponseDto(member);
     }
 
-    @PatchMapping("/")
+    @PatchMapping
     public MemberResponseDto updateMember(@RequestBody MemberRequestDto memberRequestDto) {
         Member member = memberService.updateMember(mapper.toMember(memberRequestDto));
         return mapper.toResponseDto(member);
