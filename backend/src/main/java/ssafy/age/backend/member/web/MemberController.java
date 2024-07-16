@@ -42,4 +42,21 @@ public class MemberController {
         memberService.deleteMember(member);
     }
 
+    @GetMapping("/{email}")
+    public MemberResponseDto findByEmail(@PathVariable String email) {
+        Member member = memberService.findByEmail(email);
+        return mapper.toResponseDto(member);
+    }
+
+    // 사용할 수 있으면 true, 없으면 false
+    @GetMapping("/emails/{email}")
+    public boolean checkDuplicatedEmail(@PathVariable String email) {
+        return memberService.checkDuplicatedEmail(email);
+    }
+
+    // 사용할 수 있으면 true, 없으면 false
+    @GetMapping("/phone-numbers/{phoneNumber}")
+    public boolean checkDuplicatedPhoneNumber(@PathVariable String phoneNumber) {
+        return memberService.checkDuplicatedPhoneNumber(phoneNumber);
+    }
 }

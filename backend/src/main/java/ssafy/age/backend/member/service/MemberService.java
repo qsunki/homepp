@@ -44,4 +44,13 @@ public class MemberService {
             throw new RuntimeException("회원 삭제 시 오류 발생");
         }
     }
+
+    public boolean checkDuplicatedEmail(String email) {
+        return memberRepository.findByEmail(email) == null;
+    }
+
+    public boolean checkDuplicatedPhoneNumber(String phoneNumber) {
+        return memberRepository.findByPhoneNumber(phoneNumber) == null;
+    }
+
 }
