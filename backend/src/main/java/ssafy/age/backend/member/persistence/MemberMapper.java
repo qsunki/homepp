@@ -8,10 +8,18 @@ import org.mapstruct.factory.Mappers;
 public interface MemberMapper {
     MemberMapper INSTANCE = Mappers.getMapper(MemberMapper.class);
 
-    // MemberRequestDto -> Member mapping
+    // MemberRequestDto -> MemberDto mapping
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
-    Member toMember(MemberRequestDto memberRequestDto);
-    // Member -> MemberResponseDto
-    MemberResponseDto toResponseDto(Member member);
+    @Mapping(target = "roles", ignore = true)
+    MemberDto toMemberDto(MemberRequestDto memberRequestDto);
+
+    // MemberDto -> Member mapping
+    Member toMember(MemberDto memberDto);
+
+    // Member -> MemberDto mapping
+    MemberDto toMemberDto(Member member);
+
+    // MemberDto -> MemberResponseDto
+    MemberResponseDto toResponseDto(MemberDto memberDto);
 }

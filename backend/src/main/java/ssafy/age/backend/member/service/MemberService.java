@@ -2,51 +2,46 @@ package ssafy.age.backend.member.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ssafy.age.backend.member.persistence.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class MemberService {
+public class MemberService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
+    private final MemberMapper mapper = MemberMapper.INSTANCE;
 
-    public Member joinMember(Member member) {
+    public MemberDto findByEmail(String email) {
+        return mapper.toMemberDto(memberRepository.findByEmail(email));
+    }
+
+    public MemberDto updateMember(MemberDto memberDto) {
         try {
-            if (!checkDuplicatedEmail(member.getEmail())
-                    || !checkDuplicatedPhoneNumber(member.getPhoneNumber())) {
-                throw new Exception();
-            }
-            return memberRepository.save(member);
-        } catch (Exception e) {
-            throw new RuntimeException("회원 가입 오류 발생");
-        }
-    }
-
-    public List<Member> findAll() {
-        return memberRepository.findAll();
-    }
-
-    public Member findByEmail(String username) {
-        return memberRepository.findByEmail(username);
-    }
-
-    public Member updateMember(Member member) {
-        try {
+            Member member = mapper.toMember(memberDto);
             Member foundMember = memberRepository.findByEmail(member.getEmail());
             foundMember.updateMember(member.getPassword(), member.getPhoneNumber());
             memberRepository.save(foundMember);
-            return foundMember;
+            return mapper.toMemberDto(foundMember);
         } catch(Exception e) {
             throw new RuntimeException("회원 정보 변경 시 오류 발생");
         }
     }
 
-    public void deleteMember(Member member) {
+    public void deleteMember(MemberDto memberDto) {
         try {
+            Member member = mapper.toMember(memberDto);
             memberRepository.delete(memberRepository.findByEmail(member.getEmail()));
         } catch(Exception e) {
             throw new RuntimeException("회원 삭제 시 오류 발생");
@@ -61,4 +56,24 @@ public class MemberService {
         return memberRepository.findByPhoneNumber(phoneNumber) == null;
     }
 
+    @Override
+    @Transactional
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        try {
+            return memberRepository.findByEmail(username); 
+        } catch(Exception e) {
+            throw new RuntimeException("회원 찾지 못함");
+        }
+    }
+
+    // DB 에 User 값이 존재한다면 UserDetails 객체로 만들어서 리턴
+    private UserDetails createUserDetails(Member member) {
+        GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(member.getAuthorities().toString());
+
+        return new User(
+                String.valueOf(member.getId()),
+                member.getPassword(),
+                Collections.singleton(grantedAuthority)
+        );
+    }
 }

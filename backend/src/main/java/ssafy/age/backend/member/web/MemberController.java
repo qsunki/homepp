@@ -3,10 +3,9 @@ package ssafy.age.backend.member.web;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ssafy.age.backend.member.persistence.Member;
-import ssafy.age.backend.member.persistence.MemberMapper;
-import ssafy.age.backend.member.persistence.MemberRequestDto;
-import ssafy.age.backend.member.persistence.MemberResponseDto;
+import ssafy.age.backend.auth.service.AuthService;
+import ssafy.age.backend.auth.persistence.TokenDto;
+import ssafy.age.backend.member.persistence.*;
 import ssafy.age.backend.member.service.MemberService;
 
 @Slf4j
@@ -16,36 +15,37 @@ import ssafy.age.backend.member.service.MemberService;
 public class MemberController {
 
     private final MemberService memberService;
+    private final AuthService authService;
     private final MemberMapper mapper = MemberMapper.INSTANCE;
 
     @GetMapping
     public MemberResponseDto findMember(@RequestBody MemberRequestDto memberRequestDto) {
-        Member member = memberService.findByEmail(memberRequestDto.getEmail());
-        return mapper.toResponseDto(member);
+        MemberDto memberDto = memberService.findByEmail(memberRequestDto.getEmail());
+        return mapper.toResponseDto(memberDto);
     }
 
     @PostMapping
     public MemberResponseDto joinMember(@RequestBody MemberRequestDto memberRequestDto) {
-        Member member = memberService.joinMember(mapper.toMember(memberRequestDto));
-        return mapper.toResponseDto(member);
+        MemberDto memberDto = authService.joinMember(mapper.toMemberDto(memberRequestDto));
+        return mapper.toResponseDto(memberDto);
     }
 
     @PatchMapping
     public MemberResponseDto updateMember(@RequestBody MemberRequestDto memberRequestDto) {
-        Member member = memberService.updateMember(mapper.toMember(memberRequestDto));
-        return mapper.toResponseDto(member);
+        MemberDto memberDto = memberService.updateMember(mapper.toMemberDto(memberRequestDto));
+        return mapper.toResponseDto(memberDto);
     }
 
     @DeleteMapping
     public void deleteMember(@RequestBody MemberRequestDto memberRequestDto) {
-        Member member = mapper.toMember(memberRequestDto);
-        memberService.deleteMember(member);
+        MemberDto memberDto = mapper.toMemberDto(memberRequestDto);
+        memberService.deleteMember(memberDto);
     }
 
     @GetMapping("/{email}")
     public MemberResponseDto findByEmail(@PathVariable String email) {
-        Member member = memberService.findByEmail(email);
-        return mapper.toResponseDto(member);
+        MemberDto memberDto = memberService.findByEmail(email);
+        return mapper.toResponseDto(memberDto);
     }
 
     // 사용할 수 있으면 true, 없으면 false
@@ -58,5 +58,11 @@ public class MemberController {
     @GetMapping("/phone-numbers/{phoneNumber}")
     public boolean checkDuplicatedPhoneNumber(@PathVariable String phoneNumber) {
         return memberService.checkDuplicatedPhoneNumber(phoneNumber);
+    }
+
+    @PostMapping("/login")
+    public TokenDto login(@RequestBody MemberRequestDto memberRequestDto) {
+        MemberDto memberDto = mapper.toMemberDto(memberRequestDto);
+        return authService.login(memberDto);
     }
 }

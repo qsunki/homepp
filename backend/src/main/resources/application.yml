@@ -1,0 +1,7 @@
+jwt:
+  secret: d8c02ed35fda0c0ffa4dc7f37117972390f3f6672103bbcadb684985aff2e1de
+spring:
+  redis:
+    data:
+      host: localhost
+      port: 6379
