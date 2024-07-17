@@ -1,8 +1,11 @@
-package ssafy.age.backend.member.persistence;
+package ssafy.age.backend.member.service;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
+import ssafy.age.backend.member.persistence.Member;
+import ssafy.age.backend.member.web.MemberRequestDto;
+import ssafy.age.backend.member.web.MemberResponseDto;
 
 @Mapper
 public interface MemberMapper {

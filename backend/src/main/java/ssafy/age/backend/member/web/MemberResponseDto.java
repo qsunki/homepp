@@ -1,4 +1,4 @@
-package ssafy.age.backend.member.persistence;
+package ssafy.age.backend.member.web;
 
 import lombok.Getter;
 import lombok.Setter;

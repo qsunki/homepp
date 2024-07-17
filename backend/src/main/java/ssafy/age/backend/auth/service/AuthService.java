@@ -1,6 +1,10 @@
 package ssafy.age.backend.auth.service;
 
+import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -12,6 +16,10 @@ import ssafy.age.backend.auth.repository.RefreshTokenRepository;
 import ssafy.age.backend.auth.persistence.TokenDto;
 import ssafy.age.backend.auth.persistence.TokenProvider;
 import ssafy.age.backend.member.persistence.*;
+import ssafy.age.backend.member.service.MemberDto;
+import ssafy.age.backend.member.service.MemberMapper;
+
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +30,7 @@ public class AuthService {
     private final TokenProvider tokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
     private final MemberMapper mapper = MemberMapper.INSTANCE;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Transactional
     public MemberDto joinMember(MemberDto memberDto) {
@@ -87,4 +96,23 @@ public class AuthService {
                 .build();
     }
 
+    @Transactional
+    public boolean logout(TokenDto tokenDto){
+        System.out.println(tokenDto.getAccessToken());
+        if (!tokenProvider.validateToken(tokenDto.getAccessToken())) {
+            return false;
+        }
+        // memberId를 찾기 위함
+        Authentication authentication = tokenProvider.getAuthentication(tokenDto.getAccessToken());
+        //redis에서 해당 id로 저장된 refresh token 확인 후 있으면 삭제
+        if (redisTemplate.opsForValue().get("RT:" + authentication.getName()) != null) {
+            redisTemplate.delete("RT" + authentication.getName());
+        }
+
+        Long expiration = tokenProvider.getExpiration(tokenDto.getAccessToken());
+        redisTemplate.opsForValue()
+                .set(tokenDto.getAccessToken(), "logout", expiration, TimeUnit.MILLISECONDS);
+
+        return true;
+    }
 }

@@ -3,12 +3,14 @@ package ssafy.age.backend.member.web;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ssafy.age.backend.auth.persistence.RefreshTokenDto;
 import ssafy.age.backend.auth.persistence.TokenMapper;
 import ssafy.age.backend.auth.service.AuthService;
 import ssafy.age.backend.auth.persistence.TokenDto;
-import ssafy.age.backend.member.persistence.*;
+import ssafy.age.backend.member.service.MemberDto;
+import ssafy.age.backend.member.service.MemberMapper;
 import ssafy.age.backend.member.service.MemberService;
 
 @Slf4j
@@ -73,5 +75,16 @@ public class MemberController {
     @PostMapping("/reissue")
     public TokenDto reissue(@RequestBody @Valid RefreshTokenDto refreshTokenDto) {
         return authService.reissue(tokenMapper.toTokenDto(refreshTokenDto));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@RequestBody @Valid TokenDto tokenDto) {
+        boolean isSuccess = authService.logout(tokenDto);
+        if (isSuccess) {
+            return ResponseEntity.ok().build();
+        }
+        else {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

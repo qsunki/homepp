@@ -1,25 +1,21 @@
-package ssafy.age.backend.member.persistence;
+package ssafy.age.backend.member.service;
 
-import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Data;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import ssafy.age.backend.member.persistence.Member;
 
+import java.sql.Date;
 import java.util.Collections;
+import java.util.List;
 
-@Getter
-@AllArgsConstructor
-@NoArgsConstructor
-public class MemberRequestDto {
-
-    @NotBlank
+@Data
+public class MemberDto {
+    private Long id;
     private String email;
-
-    @NotBlank
     private String password;
-
+    private Date createdAt;
     private String phoneNumber;
+    private List<String> roles;
 
     public Member toMember(PasswordEncoder passwordEncoder) {
         return Member.builder()
