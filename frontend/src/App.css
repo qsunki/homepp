@@ -5,7 +5,7 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: "Do Hyeon", sans-serif;
+  font-family: 'Do Hyeon', sans-serif;
   height: 100%;
 }
 
@@ -20,5 +20,5 @@ a,
 li,
 span,
 div {
-  font-family: "Do Hyeon", sans-serif;
+  font-family: 'Do Hyeon', sans-serif;
 }
