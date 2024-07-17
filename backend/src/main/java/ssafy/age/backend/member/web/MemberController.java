@@ -3,7 +3,6 @@ package ssafy.age.backend.member.web;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ssafy.age.backend.auth.persistence.RefreshTokenDto;
 import ssafy.age.backend.auth.persistence.TokenMapper;
@@ -78,13 +77,7 @@ public class MemberController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestBody @Valid TokenDto tokenDto) {
-        boolean isSuccess = authService.logout(tokenDto);
-        if (isSuccess) {
-            return ResponseEntity.ok().build();
-        }
-        else {
-            return ResponseEntity.badRequest().build();
-        }
+    public void logout(@RequestBody @Valid TokenDto tokenDto) {
+        authService.logout(tokenDto);
     }
 }

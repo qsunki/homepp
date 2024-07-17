@@ -97,9 +97,9 @@ public class AuthService {
     }
 
     @Transactional
-    public boolean logout(TokenDto tokenDto){
+    public void logout(TokenDto tokenDto){
         if (!tokenProvider.validateToken(tokenDto.getAccessToken())) {
-            return false;
+            throw new RuntimeException("로그아웃 예외 발생");
         }
         // memberId를 찾기 위함
         Authentication authentication = tokenProvider.getAuthentication(tokenDto.getAccessToken());
@@ -111,7 +111,5 @@ public class AuthService {
         Long expiration = tokenProvider.getExpiration(tokenDto.getAccessToken());
         redisTemplate.opsForValue()
                 .set(tokenDto.getAccessToken(), "logout", expiration, TimeUnit.MILLISECONDS);
-
-        return true;
     }
 }
