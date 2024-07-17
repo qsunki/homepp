@@ -98,7 +98,6 @@ public class AuthService {
 
     @Transactional
     public boolean logout(TokenDto tokenDto){
-        System.out.println(tokenDto.getAccessToken());
         if (!tokenProvider.validateToken(tokenDto.getAccessToken())) {
             return false;
         }
