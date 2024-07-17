@@ -65,15 +65,4 @@ public class MemberService implements UserDetailsService {
             throw new RuntimeException("회원 찾지 못함");
         }
     }
-
-    // DB 에 User 값이 존재한다면 UserDetails 객체로 만들어서 리턴
-    private UserDetails createUserDetails(Member member) {
-        GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(member.getAuthorities().toString());
-
-        return new User(
-                String.valueOf(member.getId()),
-                member.getPassword(),
-                Collections.singleton(grantedAuthority)
-        );
-    }
 }

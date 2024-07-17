@@ -15,5 +15,14 @@ public class MemberDto {
     private String password;
     private Date createdAt;
     private String phoneNumber;
-    private List<String> roles = new ArrayList<>();
+    private List<String> roles;
+
+    public Member toMember(PasswordEncoder passwordEncoder) {
+        return Member.builder()
+                .email(email)
+                .password(passwordEncoder.encode(password))
+                .phoneNumber(phoneNumber)
+                .roles(Collections.singletonList("ROLE_USER"))
+                .build();
+    }
 }

@@ -39,17 +39,6 @@ public class Member implements UserDetails {
     @Column(nullable = false)
     private String phoneNumber;
 
-    public Member(String email, String password, String phoneNumber) {
-        this.email = email;
-        this.password = password;
-        this.phoneNumber = phoneNumber;
-    }
-
-    public void updateMember(String password, String phoneNumber) {
-        this.password = password;
-        this.phoneNumber = phoneNumber;
-    }
-
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
     private List<String> roles = new ArrayList<>();
@@ -59,6 +48,17 @@ public class Member implements UserDetails {
         return this.roles.stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
+    }
+
+    public Member(String email, String password, String phoneNumber) {
+        this.email = email;
+        this.password = password;
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void updateMember(String password, String phoneNumber) {
+        this.password = password;
+        this.phoneNumber = phoneNumber;
     }
 
     @Override

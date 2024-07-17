@@ -28,11 +28,8 @@ public class AuthService {
         if (memberRepository.existsByEmail(memberDto.getEmail())) {
             throw new RuntimeException("계정 인증 도중 오류 발생");
         }
-        System.out.println(memberDto.toString());
 
-        Member member = mapper.toMember(memberDto);
-        member.updateMember(passwordEncoder.encode(member.getPassword()), member.getPhoneNumber());
-
+        Member member = memberDto.toMember(passwordEncoder);
         return mapper.toMemberDto(memberRepository.save(member));
     }
 
@@ -49,18 +46,17 @@ public class AuthService {
         Member member = memberRepository.findByEmail(memberDto.getEmail());
 
         // 3. 인증 정보를 기반으로 JWT 토큰 생성
-        String accessToken = tokenProvider.generateAccessToken(authentication);
-        String refreshToken = tokenProvider.generateRefreshToken(authentication);
+        TokenDto token = tokenProvider.generateTokenDto(authentication);
 
         // 4. Redis에  RefreshToken 저장
         refreshTokenRepository.save(
-                new RefreshToken(refreshToken, member.getId())
+                new RefreshToken(token.getRefreshToken(), member.getId())
         );
 
         // 5. 토큰 발급
         return TokenDto.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
+                .accessToken(token.getAccessToken())
+                .refreshToken(token.getRefreshToken())
                 .memberId(member.getId())
                 .build();
     }
@@ -81,11 +77,11 @@ public class AuthService {
         Authentication authentication = tokenProvider.getAuthentication(refreshToken);
 
         // 3. 새로운 Access Token 생성
-        String accessToken = tokenProvider.generateAccessToken(authentication);
+        TokenDto accessToken = tokenProvider.generateTokenDto(authentication);
 
         // Token 재발급
         return TokenDto.builder()
-                .accessToken(accessToken)
+                .accessToken(accessToken.getAccessToken())
                 .refreshToken(refreshToken)
                 .memberId(member.getId())
                 .build();
