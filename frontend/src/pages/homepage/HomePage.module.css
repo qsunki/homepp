@@ -1,133 +1,133 @@
 .homepage {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-  
-  .mainContent {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    max-width: 1440px;
-    padding: 20px;
-  }
-  
-  .leftSection {
-    flex: 2;
-    position: relative;
-  }
-  
-  .mainImage {
-    width: 100%;
-    height: auto;
-  }
-  
-  .liveButton {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    padding: 10px 20px;
-    background-color: rgba(0, 0, 0, 0.7);
-    color: white;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-  }
-  
-  .liveButtonIcon {
-    margin-left: 10px;
-  }
-  
-  .rightSection {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    background-color: #f7f7f7;
-    justify-content: space-between;
-  }
-  
-  .incidentLog {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    padding: 20px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-  
-  .incidentHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-    cursor: pointer;
-  }
-  
-  .incidentHeader h2 {
-    margin: 0;
-  }
-  
-  .more {
-    color: blue;
-  }
-  
-  .chatBox {
-    display: flex;
-    align-items: center;
-    background-color: #f7f7f7;
-    padding: 10px;
-    border-radius: 10px;
-    margin-bottom: 10px;
-    cursor: pointer;
-  }
-  
-  .chatBoxText {
-    margin: 0;
-    flex: 1;
-    font-weight: bold;
-    font-size: 1.2em;
-  }
-  
-  .chatBotImage {
-    width: 50px;
-    height: 50px;
-  }
-  
-  .incidentLogDetails {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    width: 100%;
-  }
-  
-  .logItem {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    border: 1px solid #ddd;
-    padding: 10px;
-    border-radius: 5px;
-    flex: 1;
-    margin: 0 5px;
-    height: 100px; /* 고정 높이 설정 */
-  }
-  
-  .logItem img {
-    width: 40px;
-    height: 40px;
-    margin-bottom: 5px;
-  }
-  
-  .logItem span {
-    font-weight: bold;
-  }
-  
-  .logItem p {
-    margin: 0;
-  }
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.mainContent {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1440px;
+  padding: 20px;
+}
+
+.leftSection {
+  flex: 2;
+  position: relative;
+}
+
+.mainImage {
+  width: 100%;
+  height: auto;
+}
+
+.liveButton {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 10px 20px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.liveButtonIcon {
+  margin-left: 10px;
+}
+
+.rightSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background-color: #f7f7f7;
+  justify-content: space-between;
+}
+
+.incidentLog {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.incidentHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.incidentHeader h2 {
+  margin: 0;
+}
+
+.more {
+  color: blue;
+}
+
+.chatBox {
+  display: flex;
+  align-items: center;
+  background-color: #f7f7f7;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.chatBoxText {
+  margin: 0;
+  flex: 1;
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
+.chatBotImage {
+  width: 50px;
+  height: 50px;
+}
+
+.incidentLogDetails {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+}
+
+.logItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 5px;
+  flex: 1;
+  margin: 0 5px;
+  height: 100px; /* 고정 높이 설정 */
+}
+
+.logItem img {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 5px;
+}
+
+.logItem span {
+  font-weight: bold;
+}
+
+.logItem p {
+  margin: 0;
+}

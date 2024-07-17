@@ -3,15 +3,24 @@ import { Link, useNavigate } from 'react-router-dom';
 import styles from './Navbar.module.css';
 import logo from '../../asset/icon/logo.png';
 import mypage from '../../asset/Navbar/mypage.png';
-import alertbell from '../../asset/Navbar/alertbell.png'; // alertbell 아이콘 추가
-import { FaTrashAlt, FaArrowRight } from 'react-icons/fa'; // 내장된 아이콘 추가
+import alertbell from '../../asset/Navbar/alertbell.png';
+import { FaTrashAlt, FaArrowRight, FaBars } from 'react-icons/fa';
 
 const Navbar = () => {
   const [toggleMenu, setToggleMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [notifications, setNotifications] = useState([
-    { id: 1, message: 'Notification 1' },
-    { id: 2, message: 'Notification 2' },
+    {
+      id: 1,
+      message: 'Notification 1',
+      timestamp: new Date(new Date().getTime() - 60000),
+    },
+    {
+      id: 2,
+      message: 'Notification 2',
+      timestamp: new Date(new Date().getTime() - 3600000),
+    },
   ]);
 
   const navigate = useNavigate();
@@ -22,6 +31,7 @@ const Navbar = () => {
       if (navRef.current && !navRef.current.contains(event.target)) {
         setToggleMenu(false);
         setShowNotifications(false);
+        setShowProfileMenu(false);
       }
     };
 
@@ -32,12 +42,23 @@ const Navbar = () => {
     };
   }, [navRef]);
 
+  useEffect(() => {
+    if (!toggleMenu) {
+      setShowNotifications(false);
+      setShowProfileMenu(false);
+    }
+  }, [toggleMenu]);
+
   const handleToggleMenu = () => {
     setToggleMenu(!toggleMenu);
   };
 
   const handleShowNotifications = () => {
     setShowNotifications(!showNotifications);
+  };
+
+  const handleToggleProfileMenu = () => {
+    setShowProfileMenu(!showProfileMenu);
   };
 
   const handleDeleteNotification = (id) => {
@@ -50,8 +71,26 @@ const Navbar = () => {
     navigate('/videodetail');
   };
 
+  const handleLogout = () => {
+    console.log('Logout');
+  };
+
   const notificationCount =
     notifications.length > 99 ? '99+' : notifications.length;
+
+  const timeSince = (date) => {
+    const seconds = Math.floor((new Date() - date) / 1000);
+    let interval = Math.floor(seconds / 3600);
+
+    if (interval > 1) {
+      return `${interval} hours ago`;
+    }
+    interval = Math.floor(seconds / 60);
+    if (interval > 1) {
+      return `${interval} minutes ago`;
+    }
+    return `${Math.floor(seconds)} seconds ago`;
+  };
 
   return (
     <nav className={styles.navbar} ref={navRef}>
@@ -60,7 +99,10 @@ const Navbar = () => {
           <img src={logo} alt="Logo" />
         </Link>
       </div>
-      <ul className={styles.navLinks}>
+      <div className={styles.hamburgerIcon} onClick={handleToggleMenu}>
+        <FaBars />
+      </div>
+      <ul className={`${styles.navLinks} ${toggleMenu ? styles.show : ''}`}>
         <li>
           <Link to="/">About</Link>
         </li>
@@ -68,7 +110,68 @@ const Navbar = () => {
           <Link to="/live-video">Live Video</Link>
         </li>
         <li>
-          <Link to="/incident-log">Incident Log</Link>
+          <Link to="/videolist">Incident Log</Link>
+        </li>
+        <li className={`${styles.menuItem} ${styles.mobileOnly}`}>
+          <div
+            className={styles.menuItemHeader}
+            onClick={handleShowNotifications}
+          >
+            <img
+              src={alertbell}
+              alt="Alert Bell"
+              className={styles.alertBellIcon}
+            />
+            Alerts&nbsp;&nbsp;
+            {notificationCount > 0 && (
+              <span className={styles.notificationCount}>
+                {notificationCount}
+              </span>
+            )}
+          </div>
+          {showNotifications && (
+            <div className={styles.subMenu}>
+              {notifications.map((notification) => (
+                <div key={notification.id} className={styles.notificationItem}>
+                  <span className={styles.notificationTimestamp}>
+                    {timeSince(notification.timestamp)}
+                  </span>
+                  <p className={styles.notificationMessage}>
+                    {notification.message}
+                  </p>
+                  <div className={styles.notificationActions}>
+                    <button onClick={handleNavigate}>
+                      <FaArrowRight />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteNotification(notification.id)}
+                    >
+                      <FaTrashAlt />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </li>
+        <li className={`${styles.menuItem} ${styles.mobileOnly}`}>
+          <div
+            className={styles.menuItemHeader}
+            onClick={handleToggleProfileMenu}
+          >
+            <img src={mypage} alt="MyPage" className={styles.profileIcon} />
+            MyPage
+          </div>
+          {showProfileMenu && (
+            <div className={styles.subMenu}>
+              <Link to="/mypage" className={styles.subMenuLink}>
+                MyPage
+              </Link>
+              <button className={styles.logoutButton} onClick={handleLogout}>
+                Logout
+              </button>
+            </div>
+          )}
         </li>
       </ul>
       <div className={styles.navIcons}>
@@ -87,15 +190,22 @@ const Navbar = () => {
           <div className={styles.notifications}>
             {notifications.map((notification) => (
               <div key={notification.id} className={styles.notificationItem}>
-                <p>{notification.message}</p>
-                <button onClick={handleNavigate}>
-                  <FaArrowRight />
-                </button>
-                <button
-                  onClick={() => handleDeleteNotification(notification.id)}
-                >
-                  <FaTrashAlt />
-                </button>
+                <span className={styles.notificationTimestamp}>
+                  {timeSince(notification.timestamp)}
+                </span>
+                <p className={styles.notificationMessage}>
+                  {notification.message}
+                </p>
+                <div className={styles.notificationActions}>
+                  <button onClick={handleNavigate}>
+                    <FaArrowRight />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteNotification(notification.id)}
+                  >
+                    <FaTrashAlt />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -103,13 +213,13 @@ const Navbar = () => {
         <img
           src={mypage}
           alt="MyPage"
-          onClick={handleToggleMenu}
+          onClick={handleToggleProfileMenu}
           className={styles.profileIcon}
         />
-        {toggleMenu && (
+        {showProfileMenu && (
           <div className={styles.dropdownMenu}>
             <Link to="/mypage">MyPage</Link>
-            <button onClick={() => console.log('Logout')}>Logout</button>
+            <button onClick={handleLogout}>Logout</button>
           </div>
         )}
       </div>
