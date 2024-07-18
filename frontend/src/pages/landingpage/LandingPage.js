@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import characterImage from '../../asset/landingpage/character_bg.png';
 import laptop from '../../asset/landingpage/laptop.png';
 import notification from '../../asset/landingpage/notification.png';
@@ -7,16 +7,31 @@ import shield from '../../asset/landingpage/shield.png';
 import webCamera from '../../asset/landingpage/webCamera.png';
 import characterHead from '../../asset/landingpage/character_head.png';
 import style from './LandingPage.module.css';
+import Navbar from '../../components/Navbar/Navbar';
+import Footer from '../../components/Footer/Footer';
+import { SignIn } from '../../components/SignIn/SignIn';
 
 function LandingPage() {
+  const [isSignInVisible, setSignInVisible] = useState(false);
+
+  const openSignInPopup = () => {
+    setSignInVisible(true);
+  };
+
+  const closeSignInPopup = () => {
+    setSignInVisible(false);
+  };
+
   return (
     <div className={style.landingPage}>
-      {/* <Navbar /> */}
+      <Navbar />
       <div className={style.info}>
         <div className={style.textSection}>
           <h1>간단한 솔루션으로</h1>
           <h1>홈 보안을 강화하세요!</h1>
-          <button className={style.buttonSignIn}>바로 보호하기</button>
+          <button className={style.buttonSignIn} onClick={openSignInPopup}>
+            바로 보호하기
+          </button>
         </div>
         <img className={style.imageSection} src={characterImage} alt="Robot" />
       </div>
@@ -71,7 +86,7 @@ function LandingPage() {
           <img className={style.adIcon2} src={webCamera} alt="카메라 아이콘" />
         </div>
         <div className={style.callToAction}>
-          <button className={style.buttonSignIn}>
+          <button className={style.buttonSignIn} onClick={openSignInPopup}>
             우리 집 보안 강화하러 가기
           </button>
           <img
@@ -81,7 +96,8 @@ function LandingPage() {
           />
         </div>
       </div>
-      {/* <Footer /> */}
+      <Footer />
+      {isSignInVisible && <SignIn onClose={closeSignInPopup} />}
     </div>
   );
 }
