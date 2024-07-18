@@ -103,7 +103,7 @@
 }
 
 .adItem {
-  width: 100vw;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -111,13 +111,15 @@
 }
 
 .adItem2 {
-  width: 100vw;
+  width: calc(100% + 20px); /* 부모 요소 너비에 더하기 20px */
   display: flex;
   align-items: center;
   justify-content: flex-end;
   background-color: #bde3ff;
   padding: 70px 0;
-  margin-left: calc(-50vw + 50%);
+  margin-left: -10px; /* 부모 요소의 왼쪽 여백 제거 */
+  margin-right: -10px; /* 부모 요소의 오른쪽 여백 제거 */
+  box-sizing: border-box; /* 패딩과 테두리를 포함하여 요소 크기 계산 */
 }
 
 .adIcon {
