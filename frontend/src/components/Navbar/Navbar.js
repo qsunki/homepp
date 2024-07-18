@@ -21,6 +21,16 @@ const Navbar = () => {
       message: 'Notification 2',
       timestamp: new Date(new Date().getTime() - 3600000),
     },
+    {
+      id: 3,
+      message: 'Notification 3',
+      timestamp: new Date(new Date().getTime() - 7200000),
+    },
+    {
+      id: 4,
+      message: 'Notification 4',
+      timestamp: new Date(new Date().getTime() - 10800000),
+    },
   ]);
 
   const navigate = useNavigate();
@@ -55,10 +65,12 @@ const Navbar = () => {
 
   const handleShowNotifications = () => {
     setShowNotifications(!showNotifications);
+    if (!showNotifications) setShowProfileMenu(false); // 알림을 열 때 마이페이지 닫기
   };
 
   const handleToggleProfileMenu = () => {
     setShowProfileMenu(!showProfileMenu);
+    if (!showProfileMenu) setShowNotifications(false); // 마이페이지를 열 때 알림 닫기
   };
 
   const handleDeleteNotification = (id) => {
@@ -131,26 +143,35 @@ const Navbar = () => {
           </div>
           {showNotifications && (
             <div className={styles.subMenu}>
-              {notifications.map((notification) => (
-                <div key={notification.id} className={styles.notificationItem}>
-                  <span className={styles.notificationTimestamp}>
-                    {timeSince(notification.timestamp)}
-                  </span>
-                  <p className={styles.notificationMessage}>
-                    {notification.message}
-                  </p>
-                  <div className={styles.notificationActions}>
-                    <button onClick={handleNavigate}>
-                      <FaArrowRight />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteNotification(notification.id)}
-                    >
-                      <FaTrashAlt />
-                    </button>
+              {notifications.length === 0 ? (
+                <p className={styles.noNotifications}>알림이 없습니다.</p>
+              ) : (
+                notifications.map((notification) => (
+                  <div
+                    key={notification.id}
+                    className={styles.notificationItem}
+                  >
+                    <span className={styles.notificationTimestamp}>
+                      {timeSince(notification.timestamp)}
+                    </span>
+                    <p className={styles.notificationMessage}>
+                      {notification.message}
+                    </p>
+                    <div className={styles.notificationActions}>
+                      <button onClick={handleNavigate}>
+                        <FaArrowRight />
+                      </button>
+                      <button
+                        onClick={() =>
+                          handleDeleteNotification(notification.id)
+                        }
+                      >
+                        <FaTrashAlt />
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           )}
         </li>
@@ -188,26 +209,35 @@ const Navbar = () => {
         </div>
         {showNotifications && (
           <div className={styles.notifications}>
-            {notifications.map((notification) => (
-              <div key={notification.id} className={styles.notificationItem}>
-                <span className={styles.notificationTimestamp}>
-                  {timeSince(notification.timestamp)}
-                </span>
-                <p className={styles.notificationMessage}>
-                  {notification.message}
-                </p>
-                <div className={styles.notificationActions}>
-                  <button onClick={handleNavigate}>
-                    <FaArrowRight />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteNotification(notification.id)}
-                  >
-                    <FaTrashAlt />
-                  </button>
+            {notifications.length === 0 ? (
+              <p className={styles.noNotifications}>알림이 없습니다.</p>
+            ) : (
+              notifications.map((notification, index) => (
+                <div
+                  key={notification.id}
+                  className={`${styles.notificationItem} ${
+                    index === 2 ? styles.partialItem : ''
+                  }`}
+                >
+                  <span className={styles.notificationTimestamp}>
+                    {timeSince(notification.timestamp)}
+                  </span>
+                  <p className={styles.notificationMessage}>
+                    {notification.message}
+                  </p>
+                  <div className={styles.notificationActions}>
+                    <button onClick={handleNavigate}>
+                      <FaArrowRight />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteNotification(notification.id)}
+                    >
+                      <FaTrashAlt />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         )}
         <img
