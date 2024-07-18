@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../../components/Navbar/Navbar';
-import Footer from '../../components/Footer/Footer';
 import ChatBot from '../../components/ChatBot/ChatBot';
 import styles from './HomePage.module.css';
 
@@ -30,7 +28,6 @@ const HomePage = () => {
 
   return (
     <div className={styles.homepage}>
-      <Navbar />
       <main className={styles.mainContent}>
         <div className={styles.leftSection}>
           <img
@@ -87,7 +84,6 @@ const HomePage = () => {
           {showChatBot && <ChatBot />}
         </div>
       </main>
-      <Footer />
     </div>
   );
 };

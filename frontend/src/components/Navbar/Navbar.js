@@ -10,6 +10,7 @@ const Navbar = () => {
   const [toggleMenu, setToggleMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [visibleNotifications, setVisibleNotifications] = useState(2);
   const [notifications, setNotifications] = useState([
     {
       id: 1,
@@ -28,13 +29,20 @@ const Navbar = () => {
     },
     {
       id: 4,
-      message: 'Notification 5',
+      message: 'Notification 4',
       timestamp: new Date(new Date().getTime() - 10800000),
     },
+    {
+      id: 5,
+      message: 'Notification 5',
+      timestamp: new Date(new Date().getTime() - 14400000),
+    },
   ]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태 제어
 
   const navigate = useNavigate();
   const navRef = useRef();
+  const notificationsRef = useRef();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -53,6 +61,19 @@ const Navbar = () => {
   }, [navRef]);
 
   useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768 && toggleMenu) {
+        setToggleMenu(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [toggleMenu]);
+
+  useEffect(() => {
     if (!toggleMenu) {
       setShowNotifications(false);
       setShowProfileMenu(false);
@@ -66,6 +87,11 @@ const Navbar = () => {
   const handleShowNotifications = () => {
     setShowNotifications(!showNotifications);
     if (!showNotifications) setShowProfileMenu(false); // 알림을 열 때 마이페이지 닫기
+    if (toggleMenu) {
+      setVisibleNotifications(2); // 햄버거 메뉴에서는 2개의 알림만 표시
+    } else {
+      setVisibleNotifications(notifications.length); // 일반 화면에서는 모든 알림 표시
+    }
   };
 
   const handleToggleProfileMenu = () => {
@@ -79,12 +105,27 @@ const Navbar = () => {
     );
   };
 
-  const handleNavigate = () => {
-    navigate('/videodetail');
+  const handleNavigate = (url) => {
+    if (!isLoggedIn) {
+      alert('로그인이 필요합니다.'); // 로그인 팝업 대신 알림으로 처리
+    } else {
+      navigate(url);
+    }
   };
 
   const handleLogout = () => {
+    setIsLoggedIn(false); // 임시 로그아웃 처리
     console.log('Logout');
+  };
+
+  const handleScroll = () => {
+    if (notificationsRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } =
+        notificationsRef.current;
+      if (scrollTop + clientHeight >= scrollHeight) {
+        setVisibleNotifications((prev) => prev + 2);
+      }
+    }
   };
 
   const notificationCount =
@@ -106,10 +147,8 @@ const Navbar = () => {
 
   return (
     <nav className={styles.navbar} ref={navRef}>
-      <div className={styles.logo}>
-        <Link to="/home">
-          <img src={logo} alt="Logo" />
-        </Link>
+      <div className={styles.logo} onClick={() => handleNavigate('/home')}>
+        <img src={logo} alt="Logo" />
       </div>
       <div className={styles.hamburgerIcon} onClick={handleToggleMenu}>
         <FaBars />
@@ -119,138 +158,200 @@ const Navbar = () => {
           <Link to="/">About</Link>
         </li>
         <li>
-          <Link to="/live-video">Live Video</Link>
+          <a onClick={() => handleNavigate('/live-video')}>Live Video</a>
         </li>
         <li>
-          <Link to="/videolist">Incident Log</Link>
+          <a onClick={() => handleNavigate('/videolist')}>Incident Log</a>
         </li>
-        <li className={`${styles.menuItem} ${styles.mobileOnly}`}>
-          <div
-            className={styles.menuItemHeader}
-            onClick={handleShowNotifications}
-          >
-            <img
-              src={alertbell}
-              alt="Alert Bell"
-              className={styles.alertBellIcon}
-            />
-            Alerts&nbsp;&nbsp;
-            {notificationCount > 0 && (
-              <span className={styles.notificationCount}>
-                {notificationCount}
-              </span>
-            )}
-          </div>
-          {showNotifications && (
-            <div className={styles.subMenu}>
-              {notifications.length === 0 ? (
-                <p className={styles.noNotifications}>알림이 없습니다.</p>
-              ) : (
-                notifications.map((notification) => (
+        {toggleMenu && !isLoggedIn && (
+          <li>
+            <button
+              className={`${styles.btn} ${styles.btnOffset} ${styles.btnLogin}`}
+              onClick={() => alert('Login Popup')}
+            >
+              Login
+            </button>
+          </li>
+        )}
+        {toggleMenu && isLoggedIn && (
+          <>
+            <li>
+              <div
+                className={styles.notificationIcon}
+                onClick={handleShowNotifications}
+              >
+                <img
+                  src={alertbell}
+                  alt="Alert Bell"
+                  className={styles.alertBellIcon}
+                />
+                <span className={styles.alertText}>Alert</span>
+                {notificationCount > 0 && (
                   <div
-                    key={notification.id}
-                    className={styles.notificationItem}
+                    className={`${styles.notificationCount} ${styles.notificationCountMenu}`}
                   >
-                    <span className={styles.notificationTimestamp}>
-                      {timeSince(notification.timestamp)}
-                    </span>
-                    <p className={styles.notificationMessage}>
-                      {notification.message}
-                    </p>
-                    <div className={styles.notificationActions}>
-                      <button onClick={handleNavigate}>
-                        <FaArrowRight />
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleDeleteNotification(notification.id)
-                        }
-                      >
-                        <FaTrashAlt />
-                      </button>
-                    </div>
+                    {notificationCount}
                   </div>
-                ))
+                )}
+              </div>
+              {showNotifications && (
+                <div
+                  className={styles.subMenu}
+                  ref={notificationsRef}
+                  onScroll={handleScroll}
+                >
+                  {notifications.length === 0 ? (
+                    <p className={styles.noNotifications}>No notifications</p>
+                  ) : (
+                    <div className={styles.notificationsWrapper}>
+                      {notifications
+                        .slice(0, visibleNotifications)
+                        .map((notification) => (
+                          <div
+                            key={notification.id}
+                            className={styles.notificationItem}
+                          >
+                            <span className={styles.notificationTimestamp}>
+                              {timeSince(notification.timestamp)}
+                            </span>
+                            <p className={styles.notificationMessage}>
+                              {notification.message}
+                            </p>
+                            <div className={styles.notificationActions}>
+                              <button
+                                onClick={() => handleNavigate('/videodetail')}
+                              >
+                                <FaArrowRight />
+                              </button>
+                              <button
+                                onClick={() =>
+                                  handleDeleteNotification(notification.id)
+                                }
+                              >
+                                <FaTrashAlt />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </div>
               )}
-            </div>
-          )}
-        </li>
-        <li className={`${styles.menuItem} ${styles.mobileOnly}`}>
-          <div
-            className={styles.menuItemHeader}
-            onClick={handleToggleProfileMenu}
-          >
-            <img src={mypage} alt="MyPage" className={styles.profileIcon} />
-            MyPage
-          </div>
-          {showProfileMenu && (
-            <div className={styles.subMenu}>
-              <Link to="/mypage" className={styles.subMenuLink}>
+            </li>
+            <li>
+              <div
+                className={styles.menuItemHeader}
+                onClick={handleToggleProfileMenu}
+              >
+                <img src={mypage} alt="MyPage" className={styles.profileIcon} />
                 MyPage
-              </Link>
-              <button className={styles.logoutButton} onClick={handleLogout}>
-                Logout
-              </button>
-            </div>
-          )}
-        </li>
+              </div>
+              {showProfileMenu && (
+                <div className={styles.subMenu}>
+                  <Link to="/mypage" className={styles.subMenuLink}>
+                    MyPage
+                  </Link>
+                  <button
+                    className={styles.logoutButton}
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </li>
+          </>
+        )}
       </ul>
       <div className={styles.navIcons}>
-        <div className={styles.notificationIcon}>
-          <img
-            src={alertbell}
-            alt="Alert Bell"
-            onClick={handleShowNotifications}
-            className={styles.alertBellIcon}
-          />
-          {notificationCount > 0 && (
-            <div className={styles.notificationCount}>{notificationCount}</div>
-          )}
-        </div>
-        {showNotifications && (
-          <div className={styles.notifications}>
-            {notifications.length === 0 ? (
-              <p className={styles.noNotifications}>알림이 없습니다.</p>
-            ) : (
-              notifications.map((notification, index) => (
-                <div
-                  key={notification.id}
-                  className={`${styles.notificationItem} ${
-                    index === 2 ? styles.partialItem : ''
-                  }`}
-                >
-                  <span className={styles.notificationTimestamp}>
-                    {timeSince(notification.timestamp)}
-                  </span>
-                  <p className={styles.notificationMessage}>
-                    {notification.message}
-                  </p>
-                  <div className={styles.notificationActions}>
-                    <button onClick={handleNavigate}>
-                      <FaArrowRight />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteNotification(notification.id)}
-                    >
-                      <FaTrashAlt />
-                    </button>
-                  </div>
+        <button
+          onClick={() => setIsLoggedIn(!isLoggedIn)}
+          className={styles.toggleLoginBtn}
+        >
+          {isLoggedIn ? 'Switch to Logout' : 'Switch to Login'}
+        </button>
+        {isLoggedIn ? (
+          <>
+            <div
+              className={styles.notificationIcon}
+              onClick={handleShowNotifications}
+            >
+              <img
+                src={alertbell}
+                alt="Alert Bell"
+                className={styles.alertBellIcon}
+              />
+              {notificationCount > 0 && (
+                <div className={styles.notificationCount}>
+                  {notificationCount}
                 </div>
-              ))
+              )}
+            </div>
+            {showNotifications && (
+              <div
+                className={styles.notifications}
+                ref={notificationsRef}
+                onScroll={handleScroll}
+              >
+                {notifications.length === 0 ? (
+                  <p className={styles.noNotifications}>No notifications</p>
+                ) : (
+                  <div className={styles.notificationsWrapper}>
+                    {notifications
+                      .slice(0, visibleNotifications)
+                      .map((notification) => (
+                        <div
+                          key={notification.id}
+                          className={styles.notificationItem}
+                        >
+                          <span className={styles.notificationTimestamp}>
+                            {timeSince(notification.timestamp)}
+                          </span>
+                          <p className={styles.notificationMessage}>
+                            {notification.message}
+                          </p>
+                          <div className={styles.notificationActions}>
+                            <button
+                              onClick={() => handleNavigate('/videodetail')}
+                            >
+                              <FaArrowRight />
+                            </button>
+                            <button
+                              onClick={() =>
+                                handleDeleteNotification(notification.id)
+                              }
+                            >
+                              <FaTrashAlt />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </div>
             )}
-          </div>
-        )}
-        <img
-          src={mypage}
-          alt="MyPage"
-          onClick={handleToggleProfileMenu}
-          className={styles.profileIcon}
-        />
-        {showProfileMenu && (
-          <div className={styles.dropdownMenu}>
-            <Link to="/mypage">MyPage</Link>
-            <button onClick={handleLogout}>Logout</button>
-          </div>
+            <img
+              src={mypage}
+              alt="MyPage"
+              onClick={handleToggleProfileMenu}
+              className={styles.profileIcon}
+            />
+            {showProfileMenu && (
+              <div className={styles.dropdownMenu}>
+                <Link to="/mypage">MyPage</Link>
+                <button onClick={handleLogout}>Logout</button>
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            <button
+              className={`${styles.btn} ${styles.btnOffset} ${styles.btnLogin}`}
+              onClick={() => alert('Login Popup')}
+            >
+              Login
+            </button>
+          </>
         )}
       </div>
     </nav>
