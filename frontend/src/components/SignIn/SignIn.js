@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import styles from './SignIn.module.css';
 import backArrow from '../../asset/signin/backarrow.png';
@@ -19,6 +19,20 @@ export const SignIn = ({ onClose }) => {
   const handleKakaoLogin = () => {
     // 여기에 Kakao 로그인 API 호출 코드 추가
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (event.target.classList.contains(styles.overlay)) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [onClose]);
 
   return (
     <div className={styles.overlay}>
