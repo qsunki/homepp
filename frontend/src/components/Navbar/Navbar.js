@@ -28,7 +28,7 @@ const Navbar = () => {
     },
     {
       id: 4,
-      message: 'Notification 4',
+      message: 'Notification 5',
       timestamp: new Date(new Date().getTime() - 10800000),
     },
   ]);
