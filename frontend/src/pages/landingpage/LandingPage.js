@@ -7,8 +7,6 @@ import shield from '../../asset/landingpage/shield.png';
 import webCamera from '../../asset/landingpage/webCamera.png';
 import characterHead from '../../asset/landingpage/character_head.png';
 import style from './LandingPage.module.css';
-import Navbar from '../../components/Navbar/Navbar';
-import Footer from '../../components/Footer/Footer';
 import { SignIn } from '../../components/SignIn/SignIn';
 
 function LandingPage() {
@@ -24,7 +22,6 @@ function LandingPage() {
 
   return (
     <div className={style.landingPage}>
-      <Navbar />
       <div className={style.info}>
         <div className={style.textSection}>
           <h1>간단한 솔루션으로</h1>
@@ -96,7 +93,6 @@ function LandingPage() {
           />
         </div>
       </div>
-      <Footer />
       {isSignInVisible && <SignIn onClose={closeSignInPopup} />}
     </div>
   );
