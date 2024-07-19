@@ -17,14 +17,17 @@ import java.util.stream.Collectors;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
-@Builder
 @Table(name = "member")
+@Builder
 public class Member implements UserDetails {
+
     @Id
     @Column(name = "member_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column
+    private String username;
 
     @Column(nullable = false)
     private String email;
@@ -43,17 +46,19 @@ public class Member implements UserDetails {
     @Builder.Default
     private List<String> roles = new ArrayList<>();
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.roles.stream()
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
-    }
-
-    public Member(String email, String password, String phoneNumber) {
+    public Member(Long id, String username, String email, String password, Date createdAt, String phoneNumber, List<String> roles) {
+        this.id = id;
+        this.username = username;
         this.email = email;
         this.password = password;
+        this.createdAt = createdAt;
         this.phoneNumber = phoneNumber;
+        this.roles = roles;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return this.roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
     }
 
     public void updateMember(String password, String phoneNumber) {
