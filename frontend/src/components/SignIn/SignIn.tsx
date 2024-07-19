@@ -1,16 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import styles from './SignIn.module.css';
 import backArrow from '../../asset/signin/backarrow.png';
 import naverLogin from '../../asset/signin/naverlogin.png';
 import kakaoLogin from '../../asset/signin/kakaologin.png';
+import { SignUp } from '../SignUp/SignUp';
 
-export const SignIn = ({ onClose }) => {
+interface SignInProps {
+  onClose: () => void;
+}
+
+export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showSignUp, setShowSignUp] = useState(false);
 
-  const handleUsernameChange = (e) => setUsername(e.target.value);
-  const handlePasswordChange = (e) => setPassword(e.target.value);
+  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setUsername(e.target.value);
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setPassword(e.target.value);
 
   const handleNaverLogin = () => {
     // 여기에 Naver 로그인 API 호출 코드 추가
@@ -20,9 +27,17 @@ export const SignIn = ({ onClose }) => {
     // 여기에 Kakao 로그인 API 호출 코드 추가
   };
 
+  const handleSignUpClick = () => {
+    setShowSignUp(true);
+  };
+
+  const handleSignUpClose = () => {
+    setShowSignUp(false);
+  };
+
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (event.target.classList.contains(styles.overlay)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if ((event.target as Element).classList.contains(styles.overlay)) {
         onClose();
       }
     };
@@ -35,8 +50,8 @@ export const SignIn = ({ onClose }) => {
   }, [onClose]);
 
   return (
-    <div className={styles.overlay}>
-      <div className={styles.popup}>
+    <div className={styles.overlay} onClick={onClose}>
+      <div className={styles.popup} onClick={(e) => e.stopPropagation()}>
         <button className={styles.closeIcon} onClick={onClose}>
           <img className={styles.backArrow} alt="backArrow" src={backArrow} />
         </button>
@@ -69,7 +84,7 @@ export const SignIn = ({ onClose }) => {
           <div className={styles.buttonText}>로그인하기</div>
         </button>
 
-        <button className={styles.signUpButton}>
+        <button className={styles.signUpButton} onClick={handleSignUpClick}>
           <div className={styles.buttonText}>
             계정이 없으신가요? 간편가입하기
           </div>
@@ -99,10 +114,10 @@ export const SignIn = ({ onClose }) => {
           <span className={styles.kakaoLoginText}>카카오로 시작하기</span>
         </button>
       </div>
+
+      {showSignUp && <SignUp onClose={handleSignUpClose} />}
     </div>
   );
 };
 
-SignIn.propTypes = {
-  onClose: PropTypes.func.isRequired,
-};
+export default SignIn;

@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './LiveVideo.module.css';
 
-const LiveVideo = () => {
+const LiveVideo: React.FC = () => {
   return (
     <div className={styles.liveVideo}>
       <main className={styles.mainContent}>

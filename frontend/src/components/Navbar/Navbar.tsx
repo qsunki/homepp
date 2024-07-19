@@ -1,17 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useUserStore } from '../../store/userStore'; // Zustand 스토어 가져오기
 import styles from './Navbar.module.css';
 import logo from '../../asset/icon/logo.png';
 import mypage from '../../asset/Navbar/mypage.png';
 import alertbell from '../../asset/Navbar/alertbell.png';
 import { FaTrashAlt, FaArrowRight, FaBars } from 'react-icons/fa';
 
-const Navbar = () => {
+interface Notification {
+  id: number;
+  message: string;
+  timestamp: Date;
+}
+
+const Navbar: React.FC = () => {
   const [toggleMenu, setToggleMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [visibleNotifications, setVisibleNotifications] = useState(2);
-  const [notifications, setNotifications] = useState([
+  const [notifications, setNotifications] = useState<Notification[]>([
     {
       id: 1,
       message: 'Notification 1',
@@ -38,15 +45,16 @@ const Navbar = () => {
       timestamp: new Date(new Date().getTime() - 14400000),
     },
   ]);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태 제어
+
+  const { isLoggedIn, login, logout } = useUserStore(); // Zustand 스토어에서 로그인 상태 가져오기
 
   const navigate = useNavigate();
-  const navRef = useRef();
-  const notificationsRef = useRef();
+  const navRef = useRef<HTMLDivElement>(null);
+  const notificationsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (navRef.current && !navRef.current.contains(event.target)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(event.target as Node)) {
         setToggleMenu(false);
         setShowNotifications(false);
         setShowProfileMenu(false);
@@ -82,30 +90,29 @@ const Navbar = () => {
 
   const handleToggleMenu = () => {
     setToggleMenu(!toggleMenu);
+    setShowNotifications(false);
+    setShowProfileMenu(false);
   };
 
   const handleShowNotifications = () => {
-    setShowNotifications(!showNotifications);
-    if (!showNotifications) setShowProfileMenu(false); // 알림을 열 때 마이페이지 닫기
-    if (toggleMenu) {
-      setVisibleNotifications(2); // 햄버거 메뉴에서는 2개의 알림만 표시
-    } else {
-      setVisibleNotifications(notifications.length); // 일반 화면에서는 모든 알림 표시
-    }
+    setShowNotifications((prev) => !prev);
+    setToggleMenu(false); // 알림 버튼을 클릭하면 햄버거 메뉴 닫기
+    setShowProfileMenu(false);
   };
 
   const handleToggleProfileMenu = () => {
     setShowProfileMenu(!showProfileMenu);
-    if (!showProfileMenu) setShowNotifications(false); // 마이페이지를 열 때 알림 닫기
+    setToggleMenu(false); // 마이페이지 버튼을 클릭하면 햄버거 메뉴 닫기
+    setShowNotifications(false);
   };
 
-  const handleDeleteNotification = (id) => {
+  const handleDeleteNotification = (id: number) => {
     setNotifications(
       notifications.filter((notification) => notification.id !== id)
     );
   };
 
-  const handleNavigate = (url) => {
+  const handleNavigate = (url: string) => {
     if (!isLoggedIn) {
       alert('로그인이 필요합니다.'); // 로그인 팝업 대신 알림으로 처리
     } else {
@@ -114,7 +121,7 @@ const Navbar = () => {
   };
 
   const handleLogout = () => {
-    setIsLoggedIn(false); // 임시 로그아웃 처리
+    logout(); // Zustand를 통해 로그아웃 처리
     console.log('Logout');
   };
 
@@ -131,8 +138,8 @@ const Navbar = () => {
   const notificationCount =
     notifications.length > 99 ? '99+' : notifications.length;
 
-  const timeSince = (date) => {
-    const seconds = Math.floor((new Date() - date) / 1000);
+  const timeSince = (date: Date) => {
+    const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
     let interval = Math.floor(seconds / 3600);
 
     if (interval > 1) {
@@ -150,10 +157,8 @@ const Navbar = () => {
       <div className={styles.logo} onClick={() => handleNavigate('/home')}>
         <img src={logo} alt="Logo" />
       </div>
-      <div className={styles.hamburgerIcon} onClick={handleToggleMenu}>
-        <FaBars />
-      </div>
-      <ul className={`${styles.navLinks} ${toggleMenu ? styles.show : ''}`}>
+
+      <ul className={styles.navLinks}>
         <li>
           <Link to="/">About</Link>
         </li>
@@ -163,114 +168,12 @@ const Navbar = () => {
         <li>
           <a onClick={() => handleNavigate('/videolist')}>Incident Log</a>
         </li>
-        {toggleMenu && !isLoggedIn && (
-          <li>
-            <button
-              className={`${styles.btn} ${styles.btnOffset} ${styles.btnLogin}`}
-              onClick={() => alert('Login Popup')}
-            >
-              Login
-            </button>
-          </li>
-        )}
-        {toggleMenu && isLoggedIn && (
-          <>
-            <li>
-              <div
-                className={styles.notificationIcon}
-                onClick={handleShowNotifications}
-              >
-                <img
-                  src={alertbell}
-                  alt="Alert Bell"
-                  className={styles.alertBellIcon}
-                />
-                <span className={styles.alertText}>Alert</span>
-                {notificationCount > 0 && (
-                  <div
-                    className={`${styles.notificationCount} ${styles.notificationCountMenu}`}
-                  >
-                    {notificationCount}
-                  </div>
-                )}
-              </div>
-              {showNotifications && (
-                <div
-                  className={styles.subMenu}
-                  ref={notificationsRef}
-                  onScroll={handleScroll}
-                >
-                  {notifications.length === 0 ? (
-                    <p className={styles.noNotifications}>No notifications</p>
-                  ) : (
-                    <div className={styles.notificationsWrapper}>
-                      {notifications
-                        .slice(0, visibleNotifications)
-                        .map((notification) => (
-                          <div
-                            key={notification.id}
-                            className={styles.notificationItem}
-                          >
-                            <span className={styles.notificationTimestamp}>
-                              {timeSince(notification.timestamp)}
-                            </span>
-                            <p className={styles.notificationMessage}>
-                              {notification.message}
-                            </p>
-                            <div className={styles.notificationActions}>
-                              <button
-                                onClick={() => handleNavigate('/videodetail')}
-                              >
-                                <FaArrowRight />
-                              </button>
-                              <button
-                                onClick={() =>
-                                  handleDeleteNotification(notification.id)
-                                }
-                              >
-                                <FaTrashAlt />
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </li>
-            <li>
-              <div
-                className={styles.menuItemHeader}
-                onClick={handleToggleProfileMenu}
-              >
-                <img src={mypage} alt="MyPage" className={styles.profileIcon} />
-                MyPage
-              </div>
-              {showProfileMenu && (
-                <div className={styles.subMenu}>
-                  <Link to="/mypage" className={styles.subMenuLink}>
-                    MyPage
-                  </Link>
-                  <button
-                    className={styles.logoutButton}
-                    onClick={handleLogout}
-                  >
-                    Logout
-                  </button>
-                </div>
-              )}
-            </li>
-          </>
-        )}
       </ul>
-      <div className={styles.navIcons}>
-        <button
-          onClick={() => setIsLoggedIn(!isLoggedIn)}
-          className={styles.toggleLoginBtn}
-        >
-          {isLoggedIn ? 'Switch to Logout' : 'Switch to Login'}
-        </button>
-        {isLoggedIn ? (
+
+      <div
+        className={`${styles.navIcons} ${isLoggedIn ? styles.loggedIn : ''}`}
+      >
+        {isLoggedIn && (
           <>
             <div
               className={styles.notificationIcon}
@@ -281,11 +184,18 @@ const Navbar = () => {
                 alt="Alert Bell"
                 className={styles.alertBellIcon}
               />
-              {notificationCount > 0 && (
-                <div className={styles.notificationCount}>
-                  {notificationCount}
-                </div>
-              )}
+              {typeof notificationCount === 'string' &&
+                parseInt(notificationCount) > 0 && (
+                  <div className={styles.notificationCount}>
+                    {notificationCount}
+                  </div>
+                )}
+              {typeof notificationCount === 'number' &&
+                notificationCount > 0 && (
+                  <div className={styles.notificationCount}>
+                    {notificationCount}
+                  </div>
+                )}
             </div>
             {showNotifications && (
               <div
@@ -343,17 +253,31 @@ const Navbar = () => {
               </div>
             )}
           </>
-        ) : (
-          <>
-            <button
-              className={`${styles.btn} ${styles.btnOffset} ${styles.btnLogin}`}
-              onClick={() => alert('Login Popup')}
-            >
-              Login
-            </button>
-          </>
+        )}
+        {!isLoggedIn && (
+          <button onClick={login} className={styles.toggleLoginBtn}>
+            Login
+          </button>
         )}
       </div>
+
+      <div className={styles.hamburgerIcon} onClick={handleToggleMenu}>
+        <FaBars />
+      </div>
+
+      <ul
+        className={`${styles.navLinksMobile} ${toggleMenu ? styles.show : ''}`}
+      >
+        <li>
+          <Link to="/">About</Link>
+        </li>
+        <li>
+          <a onClick={() => handleNavigate('/live-video')}>Live Video</a>
+        </li>
+        <li>
+          <a onClick={() => handleNavigate('/videolist')}>Incident Log</a>
+        </li>
+      </ul>
     </nav>
   );
 };

@@ -9,7 +9,7 @@ import characterHead from '../../asset/landingpage/character_head.png';
 import style from './LandingPage.module.css';
 import { SignIn } from '../../components/SignIn/SignIn';
 
-function LandingPage() {
+const LandingPage: React.FC = () => {
   const [isSignInVisible, setSignInVisible] = useState(false);
 
   const openSignInPopup = () => {
@@ -96,6 +96,6 @@ function LandingPage() {
       {isSignInVisible && <SignIn onClose={closeSignInPopup} />}
     </div>
   );
-}
+};
 
 export default LandingPage;

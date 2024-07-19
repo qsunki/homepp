@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useUserStore } from '../../store/userStore';
 import ChatBot from '../../components/ChatBot/ChatBot';
 import styles from './HomePage.module.css';
 
@@ -10,9 +11,16 @@ import temperature from '../../asset/hompage/temperature.png';
 import humidity from '../../asset/hompage/humidity.png';
 import character from '../../asset/icon/character.png';
 
-const HomePage = () => {
+const HomePage: React.FC = () => {
   const [showChatBot, setShowChatBot] = useState(false);
   const navigate = useNavigate();
+  const { isLoggedIn } = useUserStore();
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      navigate('/signin');
+    }
+  }, [isLoggedIn, navigate]);
 
   const handleChatBotToggle = () => {
     setShowChatBot(!showChatBot);
@@ -25,6 +33,10 @@ const HomePage = () => {
   const handleIncidentLogClick = () => {
     navigate('/videolist');
   };
+
+  if (!isLoggedIn) {
+    return null; // 또는 로딩 스피너를 반환하거나 필요한 내용을 추가
+  }
 
   return (
     <div className={styles.homepage}>

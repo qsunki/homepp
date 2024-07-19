@@ -1,3 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 기존 CSS 코드 */
 * {
   box-sizing: border-box;
 }

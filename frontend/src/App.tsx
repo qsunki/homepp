@@ -9,12 +9,12 @@ import LiveVideo from './pages/livevideo/LiveVideo';
 import VideoList from './pages/videolist/VideoList';
 import './App.css';
 
-function App() {
+const App: React.FC = () => {
   return (
     <Router>
-      <div className="pageContainer">
+      <div className="flex flex-col min-h-screen">
         <Navbar />
-        <div className="contentWrap">
+        <div className="flex-grow">
           <Routes>
             <Route path="/home" element={<HomePage />} />
             <Route path="/mypage" element={<MyPage />} />
@@ -27,6 +27,6 @@ function App() {
       </div>
     </Router>
   );
-}
+};
 
 export default App;
