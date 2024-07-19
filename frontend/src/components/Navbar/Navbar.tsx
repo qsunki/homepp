@@ -1,11 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useUserStore } from '../../store/userStore'; // Zustand 스토어 가져오기
-import styles from './Navbar.module.css';
 import logo from '../../asset/icon/logo.png';
-import mypage from '../../asset/Navbar/mypage.png';
-import alertbell from '../../asset/Navbar/alertbell.png';
-import { FaTrashAlt, FaArrowRight, FaBars } from 'react-icons/fa';
+import {
+  FaBars,
+  FaBell,
+  FaUser,
+  FaSignOutAlt,
+  FaTrashAlt,
+  FaArrowRight,
+} from 'react-icons/fa';
 
 interface Notification {
   id: number;
@@ -16,48 +20,44 @@ interface Notification {
 const Navbar: React.FC = () => {
   const [toggleMenu, setToggleMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [visibleNotifications, setVisibleNotifications] = useState(2);
   const [notifications, setNotifications] = useState<Notification[]>([
     {
       id: 1,
       message: 'Notification 1',
-      timestamp: new Date(new Date().getTime() - 60000),
+      timestamp: new Date(),
     },
     {
       id: 2,
       message: 'Notification 2',
-      timestamp: new Date(new Date().getTime() - 3600000),
+      timestamp: new Date(),
     },
     {
       id: 3,
       message: 'Notification 3',
-      timestamp: new Date(new Date().getTime() - 7200000),
+      timestamp: new Date(),
     },
     {
       id: 4,
       message: 'Notification 4',
-      timestamp: new Date(new Date().getTime() - 10800000),
+      timestamp: new Date(),
     },
     {
       id: 5,
       message: 'Notification 5',
-      timestamp: new Date(new Date().getTime() - 14400000),
+      timestamp: new Date(),
     },
   ]);
 
   const { isLoggedIn, login, logout } = useUserStore(); // Zustand 스토어에서 로그인 상태 가져오기
-
   const navigate = useNavigate();
+  const location = useLocation(); // 페이지 이동 감지
   const navRef = useRef<HTMLDivElement>(null);
-  const notificationsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (navRef.current && !navRef.current.contains(event.target as Node)) {
         setToggleMenu(false);
         setShowNotifications(false);
-        setShowProfileMenu(false);
       }
     };
 
@@ -81,29 +81,20 @@ const Navbar: React.FC = () => {
     };
   }, [toggleMenu]);
 
+  // 페이지 이동 시 네비바 메뉴 닫기
   useEffect(() => {
-    if (!toggleMenu) {
-      setShowNotifications(false);
-      setShowProfileMenu(false);
-    }
-  }, [toggleMenu]);
+    setToggleMenu(false);
+    setShowNotifications(false);
+  }, [location]);
 
   const handleToggleMenu = () => {
     setToggleMenu(!toggleMenu);
     setShowNotifications(false);
-    setShowProfileMenu(false);
   };
 
   const handleShowNotifications = () => {
     setShowNotifications((prev) => !prev);
-    setToggleMenu(false); // 알림 버튼을 클릭하면 햄버거 메뉴 닫기
-    setShowProfileMenu(false);
-  };
-
-  const handleToggleProfileMenu = () => {
-    setShowProfileMenu(!showProfileMenu);
-    setToggleMenu(false); // 마이페이지 버튼을 클릭하면 햄버거 메뉴 닫기
-    setShowNotifications(false);
+    setToggleMenu(false);
   };
 
   const handleDeleteNotification = (id: number) => {
@@ -114,29 +105,16 @@ const Navbar: React.FC = () => {
 
   const handleNavigate = (url: string) => {
     if (!isLoggedIn) {
-      alert('로그인이 필요합니다.'); // 로그인 팝업 대신 알림으로 처리
+      alert('로그인이 필요합니다.');
     } else {
       navigate(url);
     }
   };
 
   const handleLogout = () => {
-    logout(); // Zustand를 통해 로그아웃 처리
+    logout();
     console.log('Logout');
   };
-
-  const handleScroll = () => {
-    if (notificationsRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } =
-        notificationsRef.current;
-      if (scrollTop + clientHeight >= scrollHeight) {
-        setVisibleNotifications((prev) => prev + 2);
-      }
-    }
-  };
-
-  const notificationCount =
-    notifications.length > 99 ? '99+' : notifications.length;
 
   const timeSince = (date: Date) => {
     const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
@@ -153,76 +131,92 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className={styles.navbar} ref={navRef}>
-      <div className={styles.logo} onClick={() => handleNavigate('/home')}>
-        <img src={logo} alt="Logo" />
+    <nav
+      className="flex items-center justify-between px-5 h-16 bg-white shadow-md relative z-50"
+      ref={navRef}
+    >
+      <div className="cursor-pointer" onClick={() => navigate('/home')}>
+        <img src={logo} alt="Logo" className="h-10" />
       </div>
 
-      <ul className={styles.navLinks}>
+      <ul className="hidden md:flex space-x-4">
         <li>
-          <Link to="/">About</Link>
+          <Link
+            to="/"
+            className="text-black font-bold"
+            onClick={() => setToggleMenu(false)}
+          >
+            About
+          </Link>
         </li>
         <li>
-          <a onClick={() => handleNavigate('/live-video')}>Live Video</a>
+          <Link
+            to="/home"
+            className="text-black font-bold"
+            onClick={() => setToggleMenu(false)}
+          >
+            Home
+          </Link>
         </li>
         <li>
-          <a onClick={() => handleNavigate('/videolist')}>Incident Log</a>
+          <a
+            onClick={() => handleNavigate('/live-video')}
+            className="text-black font-bold cursor-pointer"
+          >
+            Live Video
+          </a>
+        </li>
+        <li>
+          <a
+            onClick={() => handleNavigate('/videolist')}
+            className="text-black font-bold cursor-pointer"
+          >
+            Incident Log
+          </a>
         </li>
       </ul>
 
-      <div
-        className={`${styles.navIcons} ${isLoggedIn ? styles.loggedIn : ''}`}
-      >
-        {isLoggedIn && (
+      <div className="flex items-center space-x-4">
+        {isLoggedIn ? (
           <>
-            <div
-              className={styles.notificationIcon}
-              onClick={handleShowNotifications}
-            >
-              <img
-                src={alertbell}
-                alt="Alert Bell"
-                className={styles.alertBellIcon}
-              />
-              {typeof notificationCount === 'string' &&
-                parseInt(notificationCount) > 0 && (
-                  <div className={styles.notificationCount}>
-                    {notificationCount}
-                  </div>
-                )}
-              {typeof notificationCount === 'number' &&
-                notificationCount > 0 && (
-                  <div className={styles.notificationCount}>
-                    {notificationCount}
-                  </div>
-                )}
-            </div>
-            {showNotifications && (
+            <div className="relative">
               <div
-                className={styles.notifications}
-                ref={notificationsRef}
-                onScroll={handleScroll}
+                onClick={handleShowNotifications}
+                className="relative cursor-pointer"
               >
-                {notifications.length === 0 ? (
-                  <p className={styles.noNotifications}>No notifications</p>
-                ) : (
-                  <div className={styles.notificationsWrapper}>
-                    {notifications
-                      .slice(0, visibleNotifications)
-                      .map((notification) => (
-                        <div
+                <FaBell className="text-xl" />
+                {notifications.length > 0 && (
+                  <div className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs w-4 h-4 flex items-center justify-center">
+                    {notifications.length}
+                  </div>
+                )}
+              </div>
+              {showNotifications && (
+                <div className="absolute right-0 mt-2 w-80 bg-white border border-gray-200 shadow-lg rounded-lg overflow-hidden z-50">
+                  <div className="p-2 bg-gray-100 font-bold">Notifications</div>
+                  <ul className="max-h-60 overflow-y-auto scrollbar-hide">
+                    {notifications.length === 0 ? (
+                      <li className="p-2 text-center text-gray-500">
+                        No notifications
+                      </li>
+                    ) : (
+                      notifications.map((notification) => (
+                        <li
                           key={notification.id}
-                          className={styles.notificationItem}
+                          className="p-2 border-b border-gray-200 hover:bg-gray-100 flex justify-between items-center"
                         >
-                          <span className={styles.notificationTimestamp}>
-                            {timeSince(notification.timestamp)}
-                          </span>
-                          <p className={styles.notificationMessage}>
-                            {notification.message}
-                          </p>
-                          <div className={styles.notificationActions}>
+                          <div>
+                            <div className="text-sm font-semibold">
+                              {notification.message}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {timeSince(notification.timestamp)}
+                            </div>
+                          </div>
+                          <div className="flex space-x-2">
                             <button
                               onClick={() => handleNavigate('/videodetail')}
+                              className="text-blue-500 hover:text-blue-700 transition-colors"
                             >
                               <FaArrowRight />
                             </button>
@@ -230,52 +224,79 @@ const Navbar: React.FC = () => {
                               onClick={() =>
                                 handleDeleteNotification(notification.id)
                               }
+                              className="text-red-500 hover:text-red-700 transition-colors"
                             >
                               <FaTrashAlt />
                             </button>
                           </div>
-                        </div>
-                      ))}
-                  </div>
-                )}
-              </div>
-            )}
-            <img
-              src={mypage}
-              alt="MyPage"
-              onClick={handleToggleProfileMenu}
-              className={styles.profileIcon}
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                </div>
+              )}
+            </div>
+            <FaUser
+              className="text-xl cursor-pointer"
+              onClick={() => navigate('/mypage')}
             />
-            {showProfileMenu && (
-              <div className={styles.dropdownMenu}>
-                <Link to="/mypage">MyPage</Link>
-                <button onClick={handleLogout}>Logout</button>
-              </div>
-            )}
+            <FaSignOutAlt
+              className="text-xl cursor-pointer"
+              onClick={handleLogout}
+            />
           </>
-        )}
-        {!isLoggedIn && (
-          <button onClick={login} className={styles.toggleLoginBtn}>
+        ) : (
+          <button
+            onClick={login}
+            className="px-3 py-1 border border-gray-300 rounded text-gray-700"
+          >
             Login
           </button>
         )}
-      </div>
-
-      <div className={styles.hamburgerIcon} onClick={handleToggleMenu}>
-        <FaBars />
+        <FaBars
+          className="text-xl cursor-pointer md:hidden"
+          onClick={handleToggleMenu}
+        />
       </div>
 
       <ul
-        className={`${styles.navLinksMobile} ${toggleMenu ? styles.show : ''}`}
+        className={`absolute top-16 left-0 bg-white w-full shadow-lg p-5 flex flex-col items-center space-y-2 md:hidden ${
+          toggleMenu ? 'block' : 'hidden'
+        }`}
       >
         <li>
-          <Link to="/">About</Link>
+          <Link
+            to="/"
+            className="text-black font-bold"
+            onClick={() => setToggleMenu(false)}
+          >
+            About
+          </Link>
         </li>
         <li>
-          <a onClick={() => handleNavigate('/live-video')}>Live Video</a>
+          <Link
+            to="/home"
+            className="text-black font-bold"
+            onClick={() => setToggleMenu(false)}
+          >
+            Home
+          </Link>
         </li>
         <li>
-          <a onClick={() => handleNavigate('/videolist')}>Incident Log</a>
+          <a
+            onClick={() => handleNavigate('/live-video')}
+            className="text-black font-bold cursor-pointer"
+          >
+            Live Video
+          </a>
+        </li>
+        <li>
+          <a
+            onClick={() => handleNavigate('/videolist')}
+            className="text-black font-bold cursor-pointer"
+          >
+            Incident Log
+          </a>
         </li>
       </ul>
     </nav>

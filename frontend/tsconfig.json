@@ -1,22 +1,21 @@
 {
-    "compilerOptions": {
-      "target": "ESNext",
-      "module": "ESNext",
-      "jsx": "react-jsx",
-      "strict": true,
-      "moduleResolution": "node",
-      "esModuleInterop": true,
-      "skipLibCheck": true,
-      "forceConsistentCasingInFileNames": true,
-      "baseUrl": "./", // baseUrl을 설정하여 경로를 간단하게 만들 수 있습니다.
-      "paths": {
-        "@components/*": ["src/components/*"],
-        "@pages/*": ["src/pages/*"],
-        "@assets/*": ["src/assets/*"],
-        "@store/*": ["src/store/*"],
-        "@utils/*": ["src/utils/*"]
-      }
-    },
-    "include": ["src", "declarations.d.ts"]
-  }
-  
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "jsx": "react-jsx",
+    "strict": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": "./src", // baseUrl을 설정하여 경로를 간단하게 만들 수 있습니다.
+    "paths": {
+      "@components/*": ["src/components/*"],
+      "@pages/*": ["src/pages/*"],
+      "@assets/*": ["src/assets/*"],
+      "@store/*": ["src/store/*"],
+      "@utils/*": ["src/utils/*"]
+    }
+  },
+  "include": ["src", "declarations.d.ts"]
+}
