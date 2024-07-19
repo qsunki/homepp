@@ -16,7 +16,7 @@ public class FCMToken {
 
     private String token;
 
-    public FCMToken(String value) {
+    public FCMToken(String token) {
         this.token = token;
     }
 }
