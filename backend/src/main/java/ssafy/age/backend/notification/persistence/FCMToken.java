@@ -14,9 +14,9 @@ public class FCMToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String value;
+    private String token;
 
     public FCMToken(String value) {
-        this.value = value;
+        this.token = token;
     }
 }
