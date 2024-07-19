@@ -3,11 +3,10 @@ package ssafy.age.backend.cam.persistence;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "cam")
 @Builder
 public class Cam {
     @Id
@@ -15,7 +14,23 @@ public class Cam {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String name;
+
+    @Column
     private String ip;
-    private String status;
+
+    @Column
+    private CamStatus status;
+
+    @Column
+    private Long homeId;
+
+    public Cam(Long id, String name, String ip, CamStatus status, Long homeId) {
+        this.id = id;
+        this.name = name;
+        this.ip = ip;
+        this.status = status;
+        this.homeId = homeId;
+    }
 }
