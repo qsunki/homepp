@@ -7,7 +7,7 @@ import shield from '../../asset/landingpage/shield.png';
 import webCamera from '../../asset/landingpage/webCamera.png';
 import characterHead from '../../asset/landingpage/character_head.png';
 import style from './LandingPage.module.css';
-import { SignIn } from '../../components/SignIn/SignIn';
+import { SignIn } from '../../components/SignIn';
 
 const LandingPage: React.FC = () => {
   const [isSignInVisible, setSignInVisible] = useState(false);
