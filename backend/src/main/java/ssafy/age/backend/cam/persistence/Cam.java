@@ -33,4 +33,11 @@ public class Cam {
         this.status = status;
         this.homeId = homeId;
     }
+
+    public void updateCam(String name, String ip, CamStatus status, Long homeId) {
+        this.name = name;
+        this.ip = ip;
+        this.status = status;
+        this.homeId = homeId;
+    }
 }

@@ -26,9 +26,15 @@ public class CamController {
                 .toList();
     }
 
-    @PostMapping
-    public CamResponseDto addCam(@RequestBody CamRequestDto camRequestDto) {
+    @PatchMapping("/{camId}")
+    public CamResponseDto updateCam(@PathVariable Long camId, @RequestBody CamRequestDto camRequestDto) {
         CamDto camDto = camMapper.toCamDto(camRequestDto);
-        return camMapper.toCamResponseDto(camService.addCam(camDto));
+        return camMapper.toCamResponseDto(camService.updateCam(camId, camDto));
     }
+
+    @DeleteMapping("/{camId}")
+    public void deleteCam(@PathVariable Long camId) {
+        camService.deleteCam(camId);
+    }
+
 }
