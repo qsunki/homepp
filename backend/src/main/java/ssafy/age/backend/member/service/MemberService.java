@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.*;
 
 @Slf4j
@@ -29,7 +30,7 @@ public class MemberService implements UserDetailsService {
             memberRepository.save(foundMember);
             return mapper.toMemberDto(foundMember);
         } catch(Exception e) {
-            throw new RuntimeException("회원 정보 변경 시 오류 발생");
+            throw new MemberNotFoundException();
         }
     }
 
@@ -38,7 +39,7 @@ public class MemberService implements UserDetailsService {
             Member member = mapper.toMember(memberDto);
             memberRepository.delete(memberRepository.findByEmail(member.getEmail()));
         } catch(Exception e) {
-            throw new RuntimeException("회원 삭제 시 오류 발생");
+            throw new MemberNotFoundException();
         }
     }
 
@@ -56,7 +57,7 @@ public class MemberService implements UserDetailsService {
         try {
             return memberRepository.findByEmail(username); 
         } catch(Exception e) {
-            throw new RuntimeException("회원 찾지 못함");
+            throw new MemberNotFoundException();
         }
     }
 }

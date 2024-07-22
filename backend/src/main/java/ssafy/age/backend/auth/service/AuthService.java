@@ -11,10 +11,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ssafy.age.backend.auth.exception.InvalidTokenException;
+import ssafy.age.backend.auth.exception.TokenNotFoundException;
 import ssafy.age.backend.auth.persistence.RefreshToken;
 import ssafy.age.backend.auth.repository.RefreshTokenRepository;
 import ssafy.age.backend.auth.persistence.TokenDto;
 import ssafy.age.backend.auth.persistence.TokenProvider;
+import ssafy.age.backend.member.exception.MemberDuplicateEntityException;
 import ssafy.age.backend.member.persistence.*;
 import ssafy.age.backend.member.service.MemberDto;
 import ssafy.age.backend.member.service.MemberMapper;
@@ -35,7 +38,7 @@ public class AuthService {
     @Transactional
     public MemberDto joinMember(MemberDto memberDto) {
         if (memberRepository.existsByEmail(memberDto.getEmail())) {
-            throw new RuntimeException("계정 인증 도중 오류 발생");
+            throw new MemberDuplicateEntityException();
         }
 
         Member member = memberDto.toMember(passwordEncoder);
@@ -50,7 +53,8 @@ public class AuthService {
 
         // 2. 실제로 검증 (사용자 비밀번호 체크) 이 이루어지는 부분
         //    authenticate 메서드가 실행이 될 때 CustomUserDetailsService 에서 만들었던 loadUserByUsername 메서드가 실행됨
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        Authentication authentication = authenticationManagerBuilder.getObject()
+                                        .authenticate(authenticationToken);
 
         Member member = memberRepository.findByEmail(memberDto.getEmail());
 
@@ -75,9 +79,10 @@ public class AuthService {
     public TokenDto reissue(TokenDto tokenDto) {
         // 1. Redis에 Refresh Token이 저장되어 있는지 확인
         RefreshToken foundTokenInfo = refreshTokenRepository.findById(tokenDto.getRefreshToken())
-                .orElseThrow(() -> new RuntimeException("계정 인증 도중 오류 발생"));
+                .orElseThrow(TokenNotFoundException::new);
 
-        Member member = memberRepository.findById(foundTokenInfo.getMemberId());
+        Member member = memberRepository.findById(foundTokenInfo.getMemberId())
+                .orElseThrow(RuntimeException::new);
 
         String refreshToken = foundTokenInfo.getRefreshToken();
         tokenProvider.validateToken(refreshToken);
@@ -98,9 +103,7 @@ public class AuthService {
 
     @Transactional
     public void logout(TokenDto tokenDto){
-        if (!tokenProvider.validateToken(tokenDto.getAccessToken())) {
-            throw new RuntimeException("로그아웃 예외 발생");
-        }
+        tokenProvider.validateToken(tokenDto.getAccessToken());
         // memberId를 찾기 위함
         Authentication authentication = tokenProvider.getAuthentication(tokenDto.getAccessToken());
         //redis에서 해당 id로 저장된 refresh token 확인 후 있으면 삭제

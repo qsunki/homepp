@@ -1,14 +1,9 @@
 package ssafy.age.backend.auth.persistence;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Builder
-@Getter
-@AllArgsConstructor
-@NoArgsConstructor
+@Data
 public class TokenDto {
     private Long memberId;
     private String grantType;
