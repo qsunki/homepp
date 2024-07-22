@@ -3,7 +3,6 @@ package ssafy.age.backend.member.persistence;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,9 +25,6 @@ public class Member implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
-    private String username;
-
     @Column(nullable = false)
     private String email;
 
@@ -46,9 +42,8 @@ public class Member implements UserDetails {
     @Builder.Default
     private List<String> roles = new ArrayList<>();
 
-    public Member(Long id, String username, String email, String password, Date createdAt, String phoneNumber, List<String> roles) {
+    public Member(Long id, String email, String password, Date createdAt, String phoneNumber, List<String> roles) {
         this.id = id;
-        this.username = username;
         this.email = email;
         this.password = password;
         this.createdAt = createdAt;
