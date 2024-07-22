@@ -1,11 +1,9 @@
 package ssafy.age.backend.auth.persistence;
 
 import jakarta.validation.constraints.NotEmpty;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Data;
 
-@Getter
-@NoArgsConstructor
+@Data
 public class RefreshTokenDto {
 
     @NotEmpty

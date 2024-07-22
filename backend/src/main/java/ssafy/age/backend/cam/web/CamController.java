@@ -16,7 +16,7 @@ import java.util.List;
 public class CamController {
 
     private final CamService camService;
-    private final CamMapper camMapper;
+    private final CamMapper camMapper = CamMapper.INSTANCE;
 
     @GetMapping
     public List<CamResponseDto> getAllCams() {
