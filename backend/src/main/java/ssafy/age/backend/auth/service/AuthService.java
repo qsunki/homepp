@@ -50,7 +50,8 @@ public class AuthService {
 
         // 2. 실제로 검증 (사용자 비밀번호 체크) 이 이루어지는 부분
         //    authenticate 메서드가 실행이 될 때 CustomUserDetailsService 에서 만들었던 loadUserByUsername 메서드가 실행됨
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        Authentication authentication = authenticationManagerBuilder.getObject()
+                                        .authenticate(authenticationToken);
 
         Member member = memberRepository.findByEmail(memberDto.getEmail());
 
@@ -75,9 +76,10 @@ public class AuthService {
     public TokenDto reissue(TokenDto tokenDto) {
         // 1. Redis에 Refresh Token이 저장되어 있는지 확인
         RefreshToken foundTokenInfo = refreshTokenRepository.findById(tokenDto.getRefreshToken())
-                .orElseThrow(() -> new RuntimeException("계정 인증 도중 오류 발생"));
+                .orElseThrow(RuntimeException::new);
 
-        Member member = memberRepository.findById(foundTokenInfo.getMemberId());
+        Member member = memberRepository.findById(foundTokenInfo.getMemberId())
+                .orElseThrow(RuntimeException::new);
 
         String refreshToken = foundTokenInfo.getRefreshToken();
         tokenProvider.validateToken(refreshToken);
