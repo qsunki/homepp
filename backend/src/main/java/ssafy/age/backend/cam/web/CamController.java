@@ -26,6 +26,11 @@ public class CamController {
                 .toList();
     }
 
+    @PostMapping
+    public CamResponseDto createCam() {
+        return camMapper.toCamResponseDto(camService.createCam());
+    }
+
     @PatchMapping("/{camId}")
     public CamResponseDto updateCam(@PathVariable Long camId, @RequestBody CamRequestDto camRequestDto) {
         CamDto camDto = camMapper.toCamDto(camRequestDto);

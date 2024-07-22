@@ -21,6 +21,11 @@ public class CamService {
                 .toList();
     }
 
+    public CamDto createCam() {
+        Cam saved = camRepository.save(Cam.builder().build());
+        return camMapper.toCamDto(saved);
+    }
+
     public CamDto updateCam(Long camId, CamDto camDto) {
         Cam cam = camRepository.findById(camId)
                 .orElseThrow(RuntimeException::new);
