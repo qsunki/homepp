@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '../store/useUserStore';
 import ChatBot from '../components/ChatBot';
-import livevideo_default from '../asset/hompage/livevideo_default.png';
-import arrow_right_circle from '../asset/hompage/arrow-right-circle.svg';
-import alert from '../asset/hompage/alert.png';
-import temperature from '../asset/hompage/temperature.png';
-import humidity from '../asset/hompage/humidity.png';
+import livevideo_default from '../asset/homepage/livevideodefault.png';
+import arrow_right_circle from '../asset/homepage/arrowrightcircle.svg';
+import alert from '../asset/homepage/alert.png';
+import temperature from '../asset/homepage/temperature.png';
+import humidity from '../asset/homepage/humidity.png';
 import character from '../asset/icon/character.png';
 import { FiVideo } from 'react-icons/fi'; // react-icons에서 아이콘 가져오기
 

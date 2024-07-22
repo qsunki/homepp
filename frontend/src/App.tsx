@@ -7,6 +7,7 @@ import HomePage from './pages/HomePage';
 import MyPage from './pages/MyPage';
 import LiveVideo from './pages/LiveVideo';
 import VideoList from './pages/VideoList';
+import VideoDetail from 'pages/VideoDetail';
 import './App.css';
 
 const App: React.FC = () => {
@@ -20,6 +21,7 @@ const App: React.FC = () => {
             <Route path="/mypage" element={<MyPage />} />
             <Route path="/live-video" element={<LiveVideo />} />
             <Route path="/videolist" element={<VideoList />} />
+            <Route path="/video/:id" element={<VideoDetail />} />
             <Route path="/" element={<LandingPage />} />
           </Routes>
         </div>
