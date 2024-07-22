@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useUserStore } from '../../store/userStore'; // Zustand 스토어 가져오기
+import { useUserStore } from '../../store/useUserStore'; // Zustand 스토어 가져오기
 import styles from './Navbar.module.css';
 import logo from '../../asset/icon/logo.png';
 import mypage from '../../asset/Navbar/mypage.png';

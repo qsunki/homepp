@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUserStore } from '../../store/userStore';
+import { useUserStore } from '../../store/useUserStore';
 import ChatBot from '../../components/ChatBot/ChatBot';
 import styles from './HomePage.module.css';
 

@@ -1,17 +1,38 @@
 import React, { useEffect, useState } from 'react';
 import { useUserStore } from 'store/useUserStore'; // Zustand 스토어 가져오기
-import { useSignUpStore } from 'store/useSignUpStore'; // Zustand 스토어 가져오기
 import backArrow from '../asset/signup/backarrow.png';
 
 interface SignUpProps {
   onClose: () => void;
 }
 
-export const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
-  const { checkboxes, setCheckboxes } = useUserStore();
-  const { step, nextStep, prevStep, resetSteps, height } = useSignUpStore();
-  const [allChecked, setAllChecked] = useState(false);
+const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
+  // Zustand 스토어에서 상태와 함수를 가져옵니다.
+  const {
+    checkboxes,
+    setCheckboxes,
+    step,
+    nextStep,
+    prevStep,
+    resetSteps,
+    height,
+  } = useUserStore();
 
+  // 로컬 상태를 정의합니다.
+  const [allChecked, setAllChecked] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const [passwordValidations, setPasswordValidations] = useState({
+    length: false,
+    hasNumber: false,
+    hasLetter: false,
+  });
+
+  // 모든 체크박스가 체크되어 있는지 확인합니다.
   useEffect(() => {
     const allChecked =
       checkboxes.privacyPolicy &&
@@ -21,6 +42,19 @@ export const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
     setAllChecked(allChecked);
   }, [checkboxes]);
 
+  // 비밀번호 조건을 확인합니다.
+  useEffect(() => {
+    const length = password.length >= 8 && password.length <= 20;
+    const hasNumber = /\d/.test(password);
+    const hasLetter = /[a-zA-Z]/.test(password);
+    setPasswordValidations({
+      length,
+      hasNumber,
+      hasLetter,
+    });
+  }, [password]);
+
+  // "모두 동의" 체크박스를 변경합니다.
   const handleAllCheckedChange = () => {
     const newCheckedState = !allChecked;
     setAllChecked(newCheckedState);
@@ -32,6 +66,7 @@ export const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
     });
   };
 
+  // 개별 체크박스를 변경합니다.
   const handleCheckboxChange = (name: keyof typeof checkboxes) => {
     const newCheckboxes = {
       ...checkboxes,
@@ -47,6 +82,7 @@ export const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
     setAllChecked(allChecked);
   };
 
+  // 팝업을 닫습니다.
   const handleClose = () => {
     if (step === 1) {
       setCheckboxes({
@@ -63,6 +99,7 @@ export const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
     }
   };
 
+  // 팝업을 최종적으로 닫습니다.
   const handleFinalClose = () => {
     setCheckboxes({
       privacyPolicy: false,
@@ -73,6 +110,73 @@ export const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
     setAllChecked(false);
     resetSteps();
     onClose();
+  };
+
+  // 다음 단계로 넘어갑니다.
+  const handleNextStep = () => {
+    setErrorMessage('');
+    if (step === 1) {
+      if (!checkboxes.age || !checkboxes.terms || !checkboxes.privacyPolicy) {
+        setErrorMessage('필수항목에 모두 동의해주세요.');
+        return;
+      }
+    } else if (step === 2) {
+      if (
+        !phoneNumber.startsWith('010') ||
+        phoneNumber.replace(/-/g, '').length !== 11
+      ) {
+        setErrorMessage('휴대폰 번호를 확인해주세요.');
+        return;
+      }
+    } else if (step === 3) {
+      // 이메일 형식 검증
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailPattern.test(email)) {
+        setErrorMessage('이메일을 확인해주세요.');
+        return;
+      }
+    } else if (step === 4) {
+      if (password !== confirmPassword) {
+        setErrorMessage('비밀번호를 확인해주세요.');
+        return;
+      }
+      if (
+        !passwordValidations.length ||
+        !passwordValidations.hasNumber ||
+        !passwordValidations.hasLetter
+      ) {
+        setErrorMessage('비밀번호가 조건을 충족하지 않습니다.');
+        return;
+      }
+    }
+    nextStep();
+  };
+
+  // 휴대폰 번호 입력 시 형식을 적용합니다.
+  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, ''); // 숫자가 아닌 문자는 제거
+    let formattedValue = value;
+
+    if (value.length > 3 && value.length <= 7) {
+      formattedValue = `${value.slice(0, 3)}-${value.slice(3)}`;
+    } else if (value.length > 7) {
+      formattedValue = `${value.slice(0, 3)}-${value.slice(3, 7)}-${value.slice(
+        7,
+        11
+      )}`;
+    }
+
+    setPhoneNumber(formattedValue);
+  };
+
+  // Enter 키를 눌렀을 때 버튼을 클릭하는 함수입니다.
+  const handleKeyPress = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+    action: () => void
+  ) => {
+    if (e.key === 'Enter') {
+      action();
+    }
   };
 
   return (
@@ -152,9 +256,12 @@ export const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                 [선택] 광고성 정보 수신 및 마케팅 활용 동의 보기
               </span>
             </label>
+            {errorMessage && (
+              <div className="text-red-500 text-xs mb-4">{errorMessage}</div>
+            )}
             <button
               className="w-full bg-blue-600 text-white py-2 rounded mt-6"
-              onClick={nextStep}
+              onClick={handleNextStep}
             >
               동의하고 가입하기
             </button>
@@ -180,11 +287,17 @@ export const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                 type="text"
                 className="border rounded w-full py-2 px-3"
                 placeholder="휴대폰 번호"
+                value={phoneNumber}
+                onChange={handlePhoneNumberChange}
+                onKeyPress={(e) => handleKeyPress(e, handleNextStep)}
               />
+              {errorMessage && (
+                <div className="text-red-500 text-xs mb-4">{errorMessage}</div>
+              )}
             </div>
             <button
               className="w-full bg-blue-600 text-white py-2 rounded mt-6"
-              onClick={nextStep}
+              onClick={handleNextStep}
             >
               다음
             </button>
@@ -210,12 +323,18 @@ export const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                 type="email"
                 className="border rounded w-full py-2 px-3"
                 placeholder="이메일"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onKeyPress={(e) => handleKeyPress(e, handleNextStep)}
               />
+              {errorMessage && (
+                <div className="text-red-500 text-xs mb-4">{errorMessage}</div>
+              )}
             </div>
 
             <button
               className="w-full bg-blue-600 text-white py-2 rounded mt-6"
-              onClick={nextStep}
+              onClick={handleNextStep}
             >
               다음
             </button>
@@ -226,6 +345,8 @@ export const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
             <div className="text-center mb-8">
               <p className="text-4xl font-bold">
                 <span className="block text-xl mt-2">
+                  로그인에 사용할
+                  <br />
                   비밀번호를 설정해주세요.
                 </span>
               </p>
@@ -239,7 +360,57 @@ export const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                 type="password"
                 className="border rounded w-full py-2 px-3"
                 placeholder="비밀번호"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyPress={(e) =>
+                  handleKeyPress(e, () => {
+                    if (password !== confirmPassword) {
+                      setErrorMessage('비밀번호를 확인해주세요.');
+                      return;
+                    }
+                    if (
+                      !passwordValidations.length ||
+                      !passwordValidations.hasNumber ||
+                      !passwordValidations.hasLetter
+                    ) {
+                      setErrorMessage('비밀번호가 조건을 충족하지 않습니다.');
+                      return;
+                    }
+                    // 회원가입 완료 처리 로직 추가
+                    alert('회원가입이 완료되었습니다.');
+                    handleFinalClose();
+                  })
+                }
               />
+              <div className="flex text-xs mt-1 space-x-4">
+                <div
+                  className={
+                    passwordValidations.hasLetter
+                      ? 'text-blue-600'
+                      : 'text-gray-500'
+                  }
+                >
+                  영문포함 ✔
+                </div>
+                <div
+                  className={
+                    passwordValidations.hasNumber
+                      ? 'text-blue-600'
+                      : 'text-gray-500'
+                  }
+                >
+                  숫자포함 ✔
+                </div>
+                <div
+                  className={
+                    passwordValidations.length
+                      ? 'text-blue-600'
+                      : 'text-gray-500'
+                  }
+                >
+                  8~20자 이내 ✔
+                </div>
+              </div>
             </div>
             <div className="mb-4">
               <label className="block mb-2 text-sm" htmlFor="confirmPassword">
@@ -250,11 +421,47 @@ export const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                 type="password"
                 className="border rounded w-full py-2 px-3"
                 placeholder="비밀번호 확인"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                onKeyPress={(e) =>
+                  handleKeyPress(e, () => {
+                    if (password !== confirmPassword) {
+                      setErrorMessage('비밀번호를 확인해주세요.');
+                      return;
+                    }
+                    if (
+                      !passwordValidations.length ||
+                      !passwordValidations.hasNumber ||
+                      !passwordValidations.hasLetter
+                    ) {
+                      setErrorMessage('비밀번호가 조건을 충족하지 않습니다.');
+                      return;
+                    }
+                    // 회원가입 완료 처리 로직 추가
+                    alert('회원가입이 완료되었습니다.');
+                    handleFinalClose();
+                  })
+                }
               />
             </div>
+            {errorMessage && (
+              <div className="text-red-500 text-xs mb-4">{errorMessage}</div>
+            )}
             <button
               className="w-full bg-blue-600 text-white py-2 rounded mt-6"
               onClick={() => {
+                if (password !== confirmPassword) {
+                  setErrorMessage('비밀번호를 확인해주세요.');
+                  return;
+                }
+                if (
+                  !passwordValidations.length ||
+                  !passwordValidations.hasNumber ||
+                  !passwordValidations.hasLetter
+                ) {
+                  setErrorMessage('비밀번호가 조건을 충족하지 않습니다.');
+                  return;
+                }
                 // 회원가입 완료 처리 로직 추가
                 alert('회원가입이 완료되었습니다.');
                 handleFinalClose();
@@ -268,3 +475,5 @@ export const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
     </div>
   );
 };
+
+export default SignUp;
