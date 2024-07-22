@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import characterImage from '../asset/landingpage/character_bg.png';
+import characterImage from '../asset/landingpage/characterbg.png';
 import laptop from '../asset/landingpage/laptop.png';
 import notification from '../asset/landingpage/notification.png';
 import clock from '../asset/landingpage/clock.png';
 import shield from '../asset/landingpage/shield.png';
 import webCamera from '../asset/landingpage/webCamera.png';
-import characterHead from '../asset/landingpage/character_head.png';
+import characterHead from '../asset/landingpage/characterhead.png';
 import { SignIn } from '../components/SignIn';
 
 const LandingPage: React.FC = () => {
