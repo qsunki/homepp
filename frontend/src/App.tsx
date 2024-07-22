@@ -1,12 +1,12 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
-import Footer from './components/Footer/Footer';
-import LandingPage from './pages/landingpage/LandingPage';
+import Footer from './components/Footer';
+import LandingPage from './pages/LandingPage';
 import HomePage from './pages/HomePage';
-import MyPage from './pages/mypage/MyPage';
-import LiveVideo from './pages/livevideo/LiveVideo';
-import VideoList from './pages/videolist/VideoList';
+import MyPage from './pages/MyPage';
+import LiveVideo from './pages/LiveVideo';
+import VideoList from './pages/VideoList';
 import './App.css';
 
 const App: React.FC = () => {

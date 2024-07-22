@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '../store/useUserStore';
-import ChatBot from '../components/ChatBot/ChatBot';
+import ChatBot from '../components/ChatBot';
 import livevideo_default from '../asset/hompage/livevideo_default.png';
 import arrow_right_circle from '../asset/hompage/arrow-right-circle.svg';
 import alert from '../asset/hompage/alert.png';
