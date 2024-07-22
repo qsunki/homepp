@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer/Footer';
 import LandingPage from './pages/landingpage/LandingPage';
-import HomePage from './pages/homepage/HomePage';
+import HomePage from './pages/HomePage';
 import MyPage from './pages/mypage/MyPage';
 import LiveVideo from './pages/livevideo/LiveVideo';
 import VideoList from './pages/videolist/VideoList';
