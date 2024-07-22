@@ -15,7 +15,7 @@ import ssafy.age.backend.notification.persistence.FCMTokenRepository;
 @RequiredArgsConstructor
 public class FCMService {
 
-    private FCMTokenRepository fcmTokenRepository;
+    private final FCMTokenRepository fcmTokenRepository;
 
     public FCMTokenDto save(FCMTokenDto token) {
         FCMToken fcmToken = new FCMToken(token.value);
