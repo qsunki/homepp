@@ -2,6 +2,7 @@ package ssafy.age.backend.cam.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ssafy.age.backend.cam.exception.CamNotFoundException;
 import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.cam.persistence.CamRepository;
 
@@ -23,7 +24,7 @@ public class CamService {
 
     public CamDto updateCam(Long camId, CamDto camDto) {
         Cam cam = camRepository.findById(camId)
-                .orElseThrow(RuntimeException::new);
+                .orElseThrow(CamNotFoundException::new);
         cam.updateCam(camDto.getName(),
                       camDto.getIp(),
                       camDto.getStatus(),
@@ -35,7 +36,7 @@ public class CamService {
         try {
             camRepository.deleteById(camId);
         } catch (Exception e) {
-            throw new RuntimeException("캠 삭제 시 오류 발생");
+            throw new CamNotFoundException();
         }
     }
 }
