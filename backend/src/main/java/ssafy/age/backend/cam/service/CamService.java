@@ -4,41 +4,38 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.cam.persistence.CamRepository;
-import ssafy.age.backend.cam.web.CamResponseDto;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class CamService {
+
     private final CamRepository camRepository;
+    private final CamMapper camMapper = CamMapper.INSTANCE;
 
-   public Cam saveCam(Cam cam) {
-       Cam save = camRepository.save(cam);
-       return save;
-   }
-
-    public List<Cam> getAllCams() {
-        return camRepository.findAll();
+    public List<CamDto> getAllCams() {
+        List<Cam> camList = camRepository.findAll();
+        return camList.stream()
+                .map(camMapper::toCamDto)
+                .toList();
     }
 
-   public Cam getCamById(Long id) {
-       return camRepository.findById(id).orElse(null);
-   }
+    public CamDto updateCam(Long camId, CamDto camDto) {
+        Cam cam = camRepository.findById(camId)
+                .orElseThrow(RuntimeException::new);
+        cam.updateCam(camDto.getName(),
+                      camDto.getIp(),
+                      camDto.getStatus(),
+                      camDto.getHomeId());
+        return camMapper.toCamDto(camRepository.save(cam));
+    }
 
-   public void deleteCam(Long id) {
-       camRepository.deleteById(id);
-   }
-
-
-    public Cam updateCam(long id, Cam camDetails) {
-       Cam cam = camRepository.findById(id).orElse(null);
-       if(cam != null){
-           cam.setName(camDetails.getName());
-           cam.setIp(camDetails.getIp());
-           cam.setStatus(camDetails.getStatus());
-           camRepository.save(cam);
-       }
-        return cam;
+    public void deleteCam(Long camId) {
+        try {
+            camRepository.deleteById(camId);
+        } catch (Exception e) {
+            throw new RuntimeException("캠 삭제 시 오류 발생");
+        }
     }
 }
