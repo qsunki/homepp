@@ -32,7 +32,7 @@ public class Member implements UserDetails {
     private String password;
 
     @CreationTimestamp
-    @Column
+    @Column//TODO: 타입수정
     private Date createdAt;
 
     @Column(nullable = false)

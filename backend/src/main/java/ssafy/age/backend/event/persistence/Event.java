@@ -20,15 +20,15 @@ public class Event {
     private Long id;
 
     @Column
-    private Date occurredAt;
+    private Date occurredAt;//TODO: LocalDateTime으로 할 것
 
     @Column
     private EventType type;
 
-    @Column
+    @Column//TODO: 연관관계 수정
     private Long camId;
 
-    @Column
+    @Column//TODO: 연관관계 수정
     private Long videoId;
 
     public Event(Long id, Date occurredAt, EventType type, Long camId, Long videoId) {

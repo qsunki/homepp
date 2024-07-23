@@ -5,7 +5,7 @@ import ssafy.age.backend.cam.persistence.CamStatus;
 
 @Data
 public class CamDto {
-    private Long id;
+    private Long id;//TODO: camId로 변경
     private String name;
     private String ip;
     private CamStatus status;

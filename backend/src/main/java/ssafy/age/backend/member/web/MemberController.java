@@ -36,6 +36,7 @@ public class MemberController {
     }
 
     @PatchMapping
+    //TODO: Patch용 DTO분리
     public MemberResponseDto updateMember(@RequestBody MemberRequestDto memberRequestDto) {
         MemberDto memberDto = memberService.updateMember(memberMapper.toMemberDto(memberRequestDto));
         return memberMapper.toResponseDto(memberDto);

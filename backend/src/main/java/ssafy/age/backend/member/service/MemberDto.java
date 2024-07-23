@@ -13,9 +13,9 @@ public class MemberDto {
     private Long id;
     private String email;
     private String password;
-    private Date createdAt;
+    private Date createdAt;//TODO: 타입수정
     private String phoneNumber;
-    private List<String> roles;
+    private List<String> roles;//TODO: 필요?
 
     public Member toMember(PasswordEncoder passwordEncoder) {
         return Member.builder()

@@ -8,7 +8,7 @@ import java.util.Date;
 @Data
 public class EventResponseDto {
 
-    private Date occurredAt;
+    private Date occurredAt;//TODO: 타입수정
     private EventType type;
     private Long camId;
     private Long videoId;

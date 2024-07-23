@@ -17,7 +17,7 @@ public class Cam {
     @Column(nullable = false)
     private String name;
 
-    @Column
+    @Column//TODO: 지워도 됨
     private String ip;
 
     @Column
@@ -34,6 +34,7 @@ public class Cam {
         this.homeId = homeId;
     }
 
+//TODO: 없애기
     public void updateCam(String name, String ip, CamStatus status, Long homeId) {
         this.name = name;
         this.ip = ip;

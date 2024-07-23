@@ -8,6 +8,8 @@ import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.stereotype.Component;
 import ssafy.age.backend.envInfo.service.EnvInfoDto;
 import ssafy.age.backend.envInfo.service.EnvInfoService;
+import ssafy.age.backend.event.service.EventDto;
+import ssafy.age.backend.event.service.EventService;
 
 @Component
 @RequiredArgsConstructor
@@ -28,7 +30,7 @@ public class CamMessageHandler {
                 envInfoService.save(envInfoDto);
             } else if (jsonNode.has("event")) {
                 EventDto eventDto = objectMapper.convertValue(jsonNode.get("event"), EventDto.class);
-                eventService.handleEvnet(eventDto);
+                eventService.handleEvent(eventDto);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

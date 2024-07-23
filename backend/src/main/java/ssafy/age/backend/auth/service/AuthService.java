@@ -26,6 +26,8 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
+//TODO: 현재 사용자의 이메일 반환하는 메소드 추가
+//TODO: 파라미터 입력, 출력 컨벤션 다시 정의하기
 public class AuthService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final MemberRepository memberRepository;

@@ -7,6 +7,7 @@ import ssafy.age.backend.notification.service.FCMService;
 import ssafy.age.backend.notification.service.FCMTokenDto;
 
 @Controller
+//TODO: URL 수정
 public class FCMController {
 
     private FCMService fcmService;

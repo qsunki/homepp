@@ -24,7 +24,7 @@ public class CamService {
                 .toList();
     }
 
-    public CamDto updateCam(Long camId, CamDto camDto) {
+    public CamDto updateCam(Long camId, CamDto camDto) {//TODO: 파라미터 수정할 것
         Cam cam = camRepository.findById(camId)
                 .orElseThrow(CamNotFoundException::new);
         cam.updateCam(camDto.getName(),

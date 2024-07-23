@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class CamResponseDto {
-    private Long id;
+    private Long id;//TODO: camId
     private String name;
-    private Long homeId;
+    private Long homeId;//TODO: home삭제
 }

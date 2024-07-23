@@ -9,7 +9,7 @@ import java.util.Date;
 public class EventDto {
 
     private Long id;
-    private Date occurredAt;
+    private Date occurredAt;//TODO: 타입수정
     private EventType type;
     private Long camId;
     private Long videoId;

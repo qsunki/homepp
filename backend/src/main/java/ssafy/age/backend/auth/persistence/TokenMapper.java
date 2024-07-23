@@ -5,6 +5,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 @Mapper
+//TODO: 필드 몇개 없다면 직접해주기 @Mapping ignore가 넘 많음
 public interface TokenMapper {
     TokenMapper INSTANCE = Mappers.getMapper(TokenMapper.class);
 
