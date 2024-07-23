@@ -1,23 +1,38 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useVideoStore } from '../store/useVideoStore';
-import allIcon from '../asset/filter/all.png';
 import fireIcon from '../asset/filter/fire.png';
 import soundIcon from '../asset/filter/sound.png';
 import thiefIcon from '../asset/filter/thief.png';
+import Filter from './filter/Filter'; // 필터 컴포넌트 임포트
+
+interface Alert {
+  type: 'fire' | 'intrusion' | 'loud';
+}
+
+interface Video {
+  id: number;
+  title: string;
+  timestamp: string;
+  thumbnail: string;
+  alerts: Alert[];
+}
 
 interface DetailListProps {
   showLiveThumbnail?: boolean;
-  liveThumbnailUrl?: string;
+  videos: Video[];
+  selectedTypes: string[]; // 필터링된 유형
+  onTypeToggle: (type: string) => void; // 필터 토글 함수
 }
 
 const DetailList: React.FC<DetailListProps> = ({
   showLiveThumbnail = false,
-  liveThumbnailUrl = '',
+  videos,
+  selectedTypes,
+  onTypeToggle,
 }) => {
   const navigate = useNavigate();
-  const { filteredVideos, setSelectedVideoId, filter, setFilter } =
-    useVideoStore();
+  const { liveThumbnailUrl, setSelectedVideoId } = useVideoStore();
 
   const handleVideoClick = (videoId: number) => {
     setSelectedVideoId(videoId);
@@ -61,43 +76,10 @@ const DetailList: React.FC<DetailListProps> = ({
           )}
         </div>
       )}
-      <div className="flex justify-around mb-4">
-        <button
-          className={`p-2 rounded ${
-            filter === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-200'
-          }`}
-          onClick={() => setFilter('all')}
-        >
-          <img className="w-5 h-5" src={allIcon} alt="All" />
-        </button>
-        <button
-          className={`p-2 rounded ${
-            filter === 'fire' ? 'bg-blue-500 text-white' : 'bg-gray-200'
-          }`}
-          onClick={() => setFilter('fire')}
-        >
-          <img className="w-5 h-5" src={fireIcon} alt="Fire" />
-        </button>
-        <button
-          className={`p-2 rounded ${
-            filter === 'intrusion' ? 'bg-blue-500 text-white' : 'bg-gray-200'
-          }`}
-          onClick={() => setFilter('intrusion')}
-        >
-          <img className="w-5 h-5" src={thiefIcon} alt="Intrusion" />
-        </button>
-        <button
-          className={`p-2 rounded ${
-            filter === 'loud' ? 'bg-blue-500 text-white' : 'bg-gray-200'
-          }`}
-          onClick={() => setFilter('loud')}
-        >
-          <img className="w-5 h-5" src={soundIcon} alt="Loud" />
-        </button>
-      </div>
-
+      {/* 필터 컴포넌트 추가 */}
+      <Filter selectedTypes={selectedTypes} onTypeToggle={onTypeToggle} />
       <div className="overflow-y-auto h-[400px] scrollbar-hide">
-        {filteredVideos.map((video) => (
+        {videos.map((video) => (
           <div
             key={video.id}
             className="flex items-center mb-4 cursor-pointer"

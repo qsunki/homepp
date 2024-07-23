@@ -17,8 +17,8 @@ interface VideoState {
   filteredVideos: Video[];
   selectedVideoId: number;
   setSelectedVideoId: (id: number) => void;
-  filter: 'all' | 'fire' | 'intrusion' | 'loud';
-  setFilter: (filter: 'all' | 'fire' | 'intrusion' | 'loud') => void;
+  selectedTypes: string[];
+  setSelectedTypes: (types: string[]) => void;
   isPlaying: boolean;
   setIsPlaying: (isPlaying: boolean) => void;
   volume: number;
@@ -92,9 +92,9 @@ export const useVideoStore = create<VideoState>((set, get) => ({
   filteredVideos: initialVideos,
   selectedVideoId: initialVideos[0].id,
   setSelectedVideoId: (id) => set({ selectedVideoId: id }),
-  filter: 'all',
-  setFilter: (filter) => {
-    set({ filter });
+  selectedTypes: [],
+  setSelectedTypes: (types) => {
+    set({ selectedTypes: types });
     get().updateFilteredVideos();
   },
   isPlaying: false,
@@ -104,13 +104,13 @@ export const useVideoStore = create<VideoState>((set, get) => ({
   liveThumbnailUrl: '',
   setLiveThumbnailUrl: (url) => set({ liveThumbnailUrl: url }),
   updateFilteredVideos: () => {
-    const { videos, filter } = get();
-    if (filter === 'all') {
+    const { videos, selectedTypes } = get();
+    if (selectedTypes.length === 0) {
       set({ filteredVideos: videos });
     } else {
       set({
         filteredVideos: videos.filter((video) =>
-          video.alerts.some((alert) => alert.type === filter)
+          video.alerts.some((alert) => selectedTypes.includes(alert.type))
         ),
       });
     }
