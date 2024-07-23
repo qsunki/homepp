@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
-import {
-  FaCalendarAlt,
-  FaFire,
-  FaLock,
-  FaVolumeUp,
-  FaExclamationCircle,
-} from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import 'tw-elements/dist/css/tw-elements.min.css';
+import styles from './VideoList.module.css';
+import thiefIcon from 'asset/filter/thief.png';
+import fireIcon from 'asset/filter/fire.png';
+import soundIcon from 'asset/filter/sound2.png';
 
 interface Video {
   id: number;
@@ -17,265 +16,271 @@ interface Video {
   type: string[];
   date: Date;
   camera: string;
+  title: string;
 }
 
-const videoData: Video[] = [
-  {
-    id: 1,
-    thumbnail: '',
-    startTime: '08:55:22AM',
-    length: '1:14',
-    type: ['fire'],
-    date: new Date('2024-07-11T08:55:22'),
-    camera: '1',
-  },
-  {
-    id: 2,
-    thumbnail: '',
+const videoData: Video[] = Array.from({ length: 20 }, (_, idx) => {
+  const date = new Date();
+  date.setDate(date.getDate() - Math.floor(idx / 3));
+  return {
+    id: idx,
+    thumbnail: 'https://via.placeholder.com/150',
     startTime: '07:28:31AM',
     length: '2:38',
-    type: ['intrusion'],
-    date: new Date('2024-07-11T07:28:31'),
-    camera: '2',
-  },
-  {
-    id: 3,
-    thumbnail: '',
-    startTime: '07:28:31AM',
-    length: '2:38',
-    type: ['sound'],
-    date: new Date('2024-07-11T07:28:31'),
-    camera: '3',
-  },
-  {
-    id: 4,
-    thumbnail: '',
-    startTime: '07:28:31AM',
-    length: '2:38',
-    type: ['fire'],
-    date: new Date('2024-07-10T07:28:31'),
-    camera: '1',
-  },
-  {
-    id: 5,
-    thumbnail: '',
-    startTime: '07:28:31AM',
-    length: '2:38',
-    type: ['intrusion'],
-    date: new Date('2024-07-10T07:28:31'),
-    camera: '2',
-  },
-  {
-    id: 6,
-    thumbnail: '',
-    startTime: '07:28:31AM',
-    length: '2:38',
-    type: ['sound'],
-    date: new Date('2024-07-10T07:28:31'),
-    camera: '3',
-  },
-  {
-    id: 7,
-    thumbnail: '',
-    startTime: '07:28:31AM',
-    length: '2:38',
-    type: ['fire'],
-    date: new Date('2024-07-09T07:28:31'),
-    camera: '1',
-  },
-  {
-    id: 8,
-    thumbnail: '',
-    startTime: '07:28:31AM',
-    length: '2:38',
-    type: ['intrusion'],
-    date: new Date('2024-07-09T07:28:31'),
-    camera: '2',
-  },
-  {
-    id: 9,
-    thumbnail: '',
-    startTime: '07:28:31AM',
-    length: '2:38',
-    type: ['sound'],
-    date: new Date('2024-07-09T07:28:31'),
-    camera: '3',
-  },
-  {
-    id: 10,
-    thumbnail: '',
-    startTime: '07:28:31AM',
-    length: '2:38',
-    type: ['fire'],
-    date: new Date('2024-07-08T07:28:31'),
-    camera: '1',
-  },
-];
+    type: ['Fire', 'Intrusion', 'Loud Noise'].slice(0, (idx % 3) + 1),
+    date: date,
+    camera: `Camera ${(idx % 3) + 1}`,
+    title: `Sample Video ${idx + 1}`,
+  };
+});
 
 const VideoList: React.FC = () => {
-  const [filterType, setFilterType] = useState<string>('');
   const [filterDateRange, setFilterDateRange] = useState<
-    [Date | null | undefined, Date | null | undefined]
-  >([new Date(new Date().setMonth(new Date().getMonth() - 1)), new Date()]);
-  const [filterCamera, setFilterCamera] = useState<string>('');
-  const [showMore, setShowMore] = useState<{ [key: string]: boolean }>({});
-  const [showDatePicker, setShowDatePicker] = useState(false);
+    [Date | null, Date | null]
+  >([null, null]);
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const [selectedCamera, setSelectedCamera] = useState<string>('All Cameras');
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [showFilters, setShowFilters] = useState(false); // 모바일 필터 버튼 상태
+  const navigate = useNavigate();
 
-  const filterVideos = (videos: Video[]) => {
-    return videos.filter((video) => {
-      const matchType = filterType ? video.type.includes(filterType) : true;
-      const matchDate =
-        filterDateRange[0] && filterDateRange[1]
-          ? video.date >= filterDateRange[0] && video.date <= filterDateRange[1]
-          : true;
-      const matchCamera = filterCamera ? video.camera === filterCamera : true;
-      return matchType && matchDate && matchCamera;
-    });
+  const toggleCalendar = () => {
+    setShowCalendar(!showCalendar);
   };
 
-  const getIcon = (type: string) => {
-    switch (type) {
-      case 'fire':
-        return <FaFire className="text-red-500" />;
-      case 'intrusion':
-        return <FaLock className="text-gray-500" />;
-      case 'sound':
-        return <FaVolumeUp className="text-yellow-500" />;
-      default:
-        return null;
+  const handleDateChange = (dates: [Date | null, Date | null]) => {
+    setFilterDateRange(dates);
+  };
+
+  const handleTypeToggle = (type: string) => {
+    setSelectedTypes((prevSelectedTypes) =>
+      prevSelectedTypes.includes(type)
+        ? prevSelectedTypes.filter((t) => t !== type)
+        : [...prevSelectedTypes, type]
+    );
+  };
+
+  const handleCameraChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedCamera(event.target.value);
+  };
+
+  const handleVideoClick = (id: number) => {
+    navigate(`/video/${id}`);
+  };
+
+  const toggleFilters = () => {
+    setShowFilters(!showFilters);
+  };
+
+  const filteredVideos = videoData.filter((video) => {
+    const matchesType =
+      selectedTypes.length === 0 ||
+      selectedTypes.some((type) => video.type.includes(type));
+    const matchesCamera =
+      selectedCamera === 'All Cameras' || video.camera === selectedCamera;
+    const matchesDateRange =
+      !filterDateRange[0] ||
+      !filterDateRange[1] ||
+      (video.date >= filterDateRange[0] && video.date <= filterDateRange[1]);
+    return matchesType && matchesCamera && matchesDateRange;
+  });
+
+  const groupedVideos = filteredVideos.reduce((acc, video) => {
+    const dateKey = video.date.toDateString();
+    if (!acc[dateKey]) {
+      acc[dateKey] = [];
     }
-  };
-
-  const sortedVideos = videoData.sort(
-    (a, b) => b.date.getTime() - a.date.getTime()
-  );
-
-  const uniqueDates = Array.from(
-    new Set(sortedVideos.map((video) => video.date.toDateString()))
-  );
-
-  const handleShowMore = (date: string) => {
-    setShowMore((prev) => ({ ...prev, [date]: !prev[date] }));
-  };
+    acc[dateKey].push(video);
+    return acc;
+  }, {} as Record<string, Video[]>);
 
   return (
-    <div className="p-4">
-      <div className="flex flex-wrap space-x-4 mb-4 items-center">
-        <select
-          value={filterType}
-          onChange={(e) => setFilterType(e.target.value)}
-          className="p-2 border border-gray-300 rounded"
-        >
-          <option value="">All Types</option>
-          <option value="fire">Fire</option>
-          <option value="intrusion">Intrusion</option>
-          <option value="sound">Sound</option>
-        </select>
-        <select
-          value={filterCamera}
-          onChange={(e) => setFilterCamera(e.target.value)}
-          className="p-2 border border-gray-300 rounded"
-        >
-          <option value="">All Cameras</option>
-          {Array.from(new Set(videoData.map((video) => video.camera))).map(
-            (camera) => (
-              <option key={camera} value={camera}>
-                Camera {camera}
-              </option>
-            )
-          )}
-        </select>
+    <div className="flex">
+      {/* 필터 사이드바 */}
+      <div className="hidden md:block md:w-1/4 p-4">
+        <div className="mb-4">
+          <div className="flex flex-wrap">
+            <div
+              className={`${styles.icon} ${
+                selectedTypes.includes('Fire') ? styles.selected : ''
+              } fire`}
+              onClick={() => handleTypeToggle('Fire')}
+            >
+              <span className={styles.tooltip}>Fire</span>
+              <img src={fireIcon} alt="Fire" />
+            </div>
+            <div
+              className={`${styles.icon} ${
+                selectedTypes.includes('Intrusion') ? styles.selected : ''
+              } intrusion`}
+              onClick={() => handleTypeToggle('Intrusion')}
+            >
+              <span className={styles.tooltip}>Intrusion</span>
+              <img src={thiefIcon} alt="Intrusion" />
+            </div>
+            <div
+              className={`${styles.icon} ${
+                selectedTypes.includes('Loud Noise') ? styles.selected : ''
+              } loudNoise`}
+              onClick={() => handleTypeToggle('Loud Noise')}
+            >
+              <span className={styles.tooltip}>Noise</span>
+              <img src={soundIcon} alt="Sound" />
+            </div>
+          </div>
+        </div>
+        <div className="mb-4">
+          <select
+            className="border p-2 rounded w-full"
+            value={selectedCamera}
+            onChange={handleCameraChange}
+          >
+            <option>All Cameras</option>
+            <option>Camera 1</option>
+            <option>Camera 2</option>
+            <option>Camera 3</option>
+          </select>
+        </div>
         <div className="relative">
           <button
-            onClick={() => setShowDatePicker(!showDatePicker)}
-            className="p-2 border border-gray-300 rounded flex items-center"
+            onClick={toggleCalendar}
+            className="border p-2 rounded flex items-center space-x-2 w-full"
           >
-            <FaCalendarAlt className="mr-2" />
-            Select Date Range
+            <span>Select date</span>
+            <i className="fas fa-calendar-alt"></i>
           </button>
-          {showDatePicker && (
-            <div className="absolute mt-2 z-10 bg-white border border-gray-300 rounded-lg shadow-lg p-4">
+          {showCalendar && (
+            <div className="absolute mt-2 w-full p-4 bg-white border border-gray-300 rounded shadow-lg z-50">
               <DatePicker
                 selected={filterDateRange[0]}
-                onChange={(dates) =>
-                  setFilterDateRange(
-                    dates as [Date | null | undefined, Date | null | undefined]
-                  )
-                }
+                onChange={handleDateChange}
                 startDate={filterDateRange[0] || undefined}
                 endDate={filterDateRange[1] || undefined}
                 selectsRange
                 inline
-                showMonthDropdown
-                showYearDropdown
-                dropdownMode="select"
+                dateFormat="MM/dd/yyyy"
               />
             </div>
           )}
         </div>
       </div>
-      <div className="space-y-4">
-        {uniqueDates.map((date) => {
-          const dateVideos = filterVideos(
-            sortedVideos.filter((video) => video.date.toDateString() === date)
-          );
-          if (dateVideos.length === 0) return null;
-          return (
-            <div key={date} className="space-y-2">
-              <div className="bg-gray-200 p-2 rounded">
-                {new Date(date).toLocaleDateString()}
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {dateVideos
-                  .slice(0, showMore[date] ? dateVideos.length : 6)
-                  .map((video) => (
-                    <div
-                      key={video.id}
-                      className="bg-white p-4 shadow rounded-lg"
-                    >
-                      <div className="relative">
-                        <div className="bg-gray-300 h-32 flex items-center justify-center">
-                          <span>No Thumbnail</span>
-                        </div>
-                        <div className="absolute bottom-2 right-2 bg-black text-white text-xs px-1 py-0.5 rounded">
-                          {video.length}
-                        </div>
-                      </div>
-                      <div className="mt-2">
-                        <div className="text-sm">{video.startTime}</div>
-                        <div className="flex items-center space-x-2">
-                          {video.type.slice(0, 1).map((type) => (
-                            <div key={type} className="flex items-center">
-                              {getIcon(type)}
-                              {video.type.length > 1 && (
-                                <div className="ml-1 text-xs bg-gray-200 px-1 rounded">
-                                  +{video.type.length - 1}
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-              {dateVideos.length > 6 && !showMore[date] && (
-                <button
-                  className="text-blue-500 hover:underline mt-2"
-                  onClick={() => handleShowMore(date)}
+      {/* 모바일 필터 버튼 */}
+      <div className="md:hidden p-4">
+        <button
+          onClick={toggleFilters}
+          className="border p-2 rounded flex items-center space-x-2 w-full"
+        >
+          <span>Filter Videos</span>
+          <i className="fas fa-filter"></i>
+        </button>
+        {showFilters && (
+          <div className="mt-2">
+            <div className="mb-4">
+              <div className="flex flex-wrap">
+                <div
+                  className={`${styles.icon} ${
+                    selectedTypes.includes('Fire') ? styles.selected : ''
+                  } fire`}
+                  onClick={() => handleTypeToggle('Fire')}
                 >
-                  More
-                </button>
+                  <span className={styles.tooltip}>Fire</span>
+                  <img src={fireIcon} alt="Fire" />
+                </div>
+                <div
+                  className={`${styles.icon} ${
+                    selectedTypes.includes('Intrusion') ? styles.selected : ''
+                  } intrusion`}
+                  onClick={() => handleTypeToggle('Intrusion')}
+                >
+                  <span className={styles.tooltip}>Intrusion</span>
+                  <img src={thiefIcon} alt="Intrusion" />
+                </div>
+                <div
+                  className={`${styles.icon} ${
+                    selectedTypes.includes('Loud Noise') ? styles.selected : ''
+                  } loudNoise`}
+                  onClick={() => handleTypeToggle('Loud Noise')}
+                >
+                  <span className={styles.tooltip}>Noise</span>
+                  <img src={soundIcon} alt="Sound" />
+                </div>
+              </div>
+            </div>
+            <div className="mb-4">
+              <select
+                className="border p-2 rounded w-full"
+                value={selectedCamera}
+                onChange={handleCameraChange}
+              >
+                <option>All Cameras</option>
+                <option>Camera 1</option>
+                <option>Camera 2</option>
+                <option>Camera 3</option>
+              </select>
+            </div>
+            <div className="relative">
+              <button
+                onClick={toggleCalendar}
+                className="border p-2 rounded flex items-center space-x-2 w-full"
+              >
+                <span>Select date</span>
+                <i className="fas fa-calendar-alt"></i>
+              </button>
+              {showCalendar && (
+                <div className="absolute mt-2 w-full p-4 bg-white border border-gray-300 rounded shadow-lg z-50">
+                  <DatePicker
+                    selected={filterDateRange[0]}
+                    onChange={handleDateChange}
+                    startDate={filterDateRange[0] || undefined}
+                    endDate={filterDateRange[1] || undefined}
+                    selectsRange
+                    inline
+                    dateFormat="MM/dd/yyyy"
+                  />
+                </div>
               )}
             </div>
-          );
-        })}
-        {filterVideos(sortedVideos).length === 0 && (
-          <div className="flex flex-col items-center mt-10">
-            <FaExclamationCircle className="text-gray-400 text-6xl" />
-            <p className="text-gray-500 mt-2">No videos found</p>
           </div>
         )}
+      </div>
+      {/* 동영상 목록 */}
+      <div className="md:w-3/4 p-4">
+        {Object.entries(groupedVideos).map(([date, videos]) => (
+          <div key={date} className="mb-6">
+            <div className="text-xl font-bold mb-2">{date}</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {videos.map((video) => (
+                <div
+                  key={video.id}
+                  className="border rounded overflow-hidden cursor-pointer"
+                  onClick={() => handleVideoClick(video.id)}
+                >
+                  <div className="relative">
+                    <img
+                      src={video.thumbnail}
+                      alt="Thumbnail"
+                      className="w-full h-auto object-cover"
+                    />
+                    <span className="absolute bottom-0 right-0 m-1 p-1 bg-black text-white text-xs rounded">
+                      {video.length}
+                    </span>
+                  </div>
+                  <div className="p-2">
+                    <h3 className="text-sm font-bold">{video.title}</h3>
+                    <p className="text-xs text-gray-600">{video.startTime}</p>
+                    <p className="text-xs text-gray-600">
+                      {video.type.join(', ')}
+                    </p>
+                    <p className="text-xs text-gray-600">
+                      {video.date.toDateString()}
+                    </p>
+                    <p className="text-xs text-gray-600">{video.camera}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
