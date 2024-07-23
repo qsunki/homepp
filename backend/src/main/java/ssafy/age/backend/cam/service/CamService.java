@@ -1,7 +1,5 @@
 package ssafy.age.backend.cam.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ssafy.age.backend.cam.exception.CamNotFoundException;
@@ -35,7 +33,7 @@ public class CamService {
         cam.updateCam(camDto.getName(),
                       camDto.getIp(),
                       camDto.getStatus(),
-                      camDto.getHomeId());
+                      camDto.getMember());
         return camMapper.toCamDto(camRepository.save(cam));
     }
 
