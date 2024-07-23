@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import ssafy.age.backend.cam.exception.CamNotFoundException;
 import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.cam.persistence.CamRepository;
+import ssafy.age.backend.cam.web.CamResponseDto;
+import ssafy.age.backend.member.persistence.Member;
 
 import java.util.List;
 
@@ -15,31 +17,37 @@ public class CamService {
     private final CamRepository camRepository;
     private final CamMapper camMapper = CamMapper.INSTANCE;
 
-    public List<CamDto> getAllCams() {
+    public List<CamResponseDto> getAllCams() {
         List<Cam> camList = camRepository.findAll();
         return camList.stream()
-                .map(camMapper::toCamDto)
+                .map(camMapper::toCamResponseDto)
                 .toList();
     }
 
-    public CamDto createCam() {
-        Cam saved = camRepository.save(Cam.builder().build());
-        return camMapper.toCamDto(saved);
-    }
-
-    public CamDto updateCam(Long camId, CamDto camDto) {//TODO: 파라미터 수정할 것
+    public CamResponseDto updateCamName(Long camId, String name) {
         Cam cam = camRepository.findById(camId)
                 .orElseThrow(CamNotFoundException::new);
-        cam.updateCam(camDto.getName(),
-                      camDto.getIp(),
-                      camDto.getStatus(),
-                      camDto.getMember());
-        return camMapper.toCamDto(camRepository.save(cam));
+        cam.updateCamName(name);
+
+        return camMapper.toCamResponseDto(camRepository.save(cam));
     }
 
-    public void deleteCam(Long camId) {
+    public CamResponseDto registerCam(Long camId, Member member) {
+        Cam cam = camRepository.findById(camId)
+                .orElseThrow(CamNotFoundException::new);
+        cam.registerMember(member);
+
+        return camMapper.toCamResponseDto(camRepository.save(cam));
+    }
+
+    public CamResponseDto unregisterCam(Long camId) {
         try {
-            camRepository.deleteById(camId);
+            Cam cam = camRepository.findById(camId)
+                    .orElseThrow(CamNotFoundException::new);
+            cam.unregisterCam();
+
+            return camMapper.toCamResponseDto(cam);
+
         } catch (Exception e) {
             throw new CamNotFoundException();
         }

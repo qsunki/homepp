@@ -23,6 +23,7 @@ public class Cam {
     private CamStatus status;
 
     @ManyToOne
+    @JoinColumn(name = "member_id")
     private Member member;
 
     public Cam(Long id, String name, String ip, CamStatus status, Member member) {
@@ -33,11 +34,16 @@ public class Cam {
         this.member = member;
     }
 
-//TODO: 없애기
-    public void updateCam(String name, String ip, CamStatus status, Member member) {
+    public void updateCamName(String name) {
         this.name = name;
-        this.ip = ip;
-        this.status = status;
+    }
+
+    public void registerMember(Member member) {
         this.member = member;
+        this.status = CamStatus.REGISTERED;
+    }
+
+    public void unregisterCam() {
+        this.status = CamStatus.UNREGISTERED;
     }
 }
