@@ -90,12 +90,16 @@ const Navbar: React.FC = () => {
 
   const handleShowNotifications = () => {
     setShowNotifications((prev) => !prev);
-    setToggleMenu(false);
+    if (!showNotifications) {
+      setToggleMenu(false);
+    }
   };
 
   const handleToggleMenu = () => {
     setToggleMenu((prev) => !prev);
-    setShowNotifications(false);
+    if (!toggleMenu) {
+      setShowNotifications(false);
+    }
   };
 
   const handleDeleteNotification = (id: number) => {
@@ -256,7 +260,7 @@ const Navbar: React.FC = () => {
         )}
         <FaBars
           className="text-gray-800 text-xl cursor-pointer md:hidden"
-          onClick={() => setToggleMenu(!toggleMenu)}
+          onClick={handleToggleMenu}
         />
       </div>
       <ul

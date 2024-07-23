@@ -9,6 +9,8 @@ import LiveVideo from './pages/LiveVideo';
 import VideoList from './pages/VideoList';
 import VideoDetail from 'pages/VideoDetail';
 import './App.css';
+import 'tw-elements';
+import 'tw-elements/dist/css/tw-elements.min.css';
 
 const App: React.FC = () => {
   return (
