@@ -2,12 +2,11 @@ package ssafy.age.backend.cam.web;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import ssafy.age.backend.cam.persistence.Cam;
-import ssafy.age.backend.cam.service.CamDto;
-import ssafy.age.backend.cam.service.CamMapper;
+import ssafy.age.backend.cam.persistence.CamStatus;
 import ssafy.age.backend.cam.service.CamService;
+import ssafy.age.backend.member.persistence.Member;
 
 import java.util.List;
 
@@ -18,32 +17,25 @@ import java.util.List;
 public class CamController {
 
     private final CamService camService;
-    private final CamMapper camMapper = CamMapper.INSTANCE;
 
     @GetMapping
     public List<CamResponseDto> getAllCams() {
-        List<CamDto> camDtoList = camService.getAllCams();
-        return camDtoList.stream()
-                .map(camMapper::toCamResponseDto)
-                .toList();
+        return camService.getAllCams();
     }
 
-    @PatchMapping("/{camId}")//TODO: 이름바꾸기 + 사용자가 등록하기
-    public CamResponseDto updateCam(@PathVariable Long camId, @RequestBody CamRequestDto camRequestDto) {
-        //TODO: 예시 참고 후 재작성 
-        //예시
+    @PatchMapping("/{camId}")
+    public CamResponseDto updateCam(@PathVariable Long camId,
+                                    @RequestBody CamRequestDto camRequestDto,
+                                    @AuthenticationPrincipal Member member) {
         if (camRequestDto.getStatus() == null) {
-            //이름만바꾸는 서비스 호출
+            return camService.updateCamName(camId, camRequestDto.getName());
         } else {
-            //캠 사용자 등록
+            if (camRequestDto.getStatus() == CamStatus.UNREGISTERED) {
+                return camService.registerCam(camId, member);
+            }
+            else {
+                return camService.unregisterCam(camId);
+            }
         }
-        CamDto camDto = camMapper.toCamDto(camRequestDto);
-        return camMapper.toCamResponseDto(camService.updateCam(camId, camDto));
     }
-
-    @DeleteMapping("/{camId}")
-    public void deleteCam(@PathVariable Long camId) {
-        camService.deleteCam(camId);
-    }
-
 }
