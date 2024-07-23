@@ -1,19 +1,23 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useVideoStore } from '../store/useVideoStore';
+import allIcon from '../asset/filter/all.png';
 import fireIcon from '../asset/filter/fire.png';
 import soundIcon from '../asset/filter/sound.png';
 import thiefIcon from '../asset/filter/thief.png';
 
-const DetailList: React.FC = () => {
+interface DetailListProps {
+  showLiveThumbnail?: boolean;
+  liveThumbnailUrl?: string;
+}
+
+const DetailList: React.FC<DetailListProps> = ({
+  showLiveThumbnail = false,
+  liveThumbnailUrl = '',
+}) => {
   const navigate = useNavigate();
-  const {
-    filteredVideos,
-    setSelectedVideoId,
-    liveThumbnailUrl,
-    filter,
-    setFilter,
-  } = useVideoStore();
+  const { filteredVideos, setSelectedVideoId, filter, setFilter } =
+    useVideoStore();
 
   const handleVideoClick = (videoId: number) => {
     setSelectedVideoId(videoId);
@@ -39,22 +43,24 @@ const DetailList: React.FC = () => {
 
   return (
     <div className="w-1/3 pl-4">
-      <div
-        className="border-4 border-red-500 mb-4 cursor-pointer"
-        onClick={handleLiveThumbnailClick}
-      >
-        {liveThumbnailUrl ? (
-          <img
-            className="w-full h-auto object-cover"
-            src={liveThumbnailUrl}
-            alt="Live Thumbnail"
-          />
-        ) : (
-          <div className="w-full h-[150px] flex items-center justify-center">
-            <span className="text-red-500">Live Thumbnail Placeholder</span>
-          </div>
-        )}
-      </div>
+      {showLiveThumbnail && (
+        <div
+          className="border-4 border-red-500 mb-4 cursor-pointer"
+          onClick={handleLiveThumbnailClick}
+        >
+          {liveThumbnailUrl ? (
+            <img
+              className="w-full h-auto object-cover"
+              src={liveThumbnailUrl}
+              alt="Live Thumbnail"
+            />
+          ) : (
+            <div className="w-full h-[150px] flex items-center justify-center">
+              <span className="text-red-500">Live Thumbnail Placeholder</span>
+            </div>
+          )}
+        </div>
+      )}
       <div className="flex justify-around mb-4">
         <button
           className={`p-2 rounded ${
@@ -62,7 +68,7 @@ const DetailList: React.FC = () => {
           }`}
           onClick={() => setFilter('all')}
         >
-          All
+          <img className="w-5 h-5" src={allIcon} alt="All" />
         </button>
         <button
           className={`p-2 rounded ${

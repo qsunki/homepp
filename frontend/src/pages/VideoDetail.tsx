@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useVideoStore } from '../store/useVideoStore';
-import DetailList from '../components/DetailList';
 import DetailPlayer from '../components/DetailPlayer';
+import DetailList from '../components/DetailList';
 
 const VideoDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -32,7 +32,7 @@ const VideoDetail: React.FC = () => {
     <div className="flex justify-center bg-white px-16 py-8">
       <div className="w-full max-w-6xl flex space-x-4">
         <DetailPlayer />
-        <DetailList />
+        <DetailList showLiveThumbnail={true} />
       </div>
     </div>
   );

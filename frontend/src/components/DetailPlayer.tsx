@@ -5,8 +5,14 @@ import pauseIcon from '../asset/videodetail/pause.png';
 import volumeIcon from '../asset/videodetail/volume.png';
 import pipIcon from '../asset/videodetail/pip.png';
 import fullscreenIcon from '../asset/videodetail/fullscreen.png';
+import recordIcon from '../asset/livevideo/record.png';
+import stopIcon from '../asset/livevideo/stop.png';
 
-const DetailPlayer: React.FC = () => {
+interface DetailPlayerProps {
+  isLive?: boolean;
+}
+
+const DetailPlayer: React.FC<DetailPlayerProps> = ({ isLive = false }) => {
   const {
     selectedVideoId,
     videos,
@@ -16,6 +22,7 @@ const DetailPlayer: React.FC = () => {
     setVolume,
   } = useVideoStore();
   const [showVolumeSlider, setShowVolumeSlider] = useState<boolean>(false);
+  const [isRecording, setIsRecording] = useState<boolean>(false);
 
   const selectedVideo = videos.find((video) => video.id === selectedVideoId);
 
@@ -31,6 +38,10 @@ const DetailPlayer: React.FC = () => {
     setShowVolumeSlider(!showVolumeSlider);
   };
 
+  const handleRecordClick = () => {
+    setIsRecording(!isRecording);
+  };
+
   return (
     <div className="w-2/3 pr-4 relative">
       {selectedVideo && (
@@ -40,7 +51,7 @@ const DetailPlayer: React.FC = () => {
             src={selectedVideo.thumbnail}
             alt={selectedVideo.title}
           />
-          <div className="flex justify-between items-center mt-2 border-t pt-2 px-4">
+          <div className="flex justify-between items-center mt-2 border-t pt-2 px-4 relative">
             <div className="flex items-center">
               <button className="mr-2" onClick={handlePlayPause}>
                 <img
@@ -65,6 +76,20 @@ const DetailPlayer: React.FC = () => {
                 )}
               </button>
             </div>
+            {isLive && (
+              <div
+                className="absolute left-1/2 transform -translate-x-1/2"
+                style={{ marginTop: '4px' }}
+              >
+                <button onClick={handleRecordClick}>
+                  <img
+                    className="w-8 h-8"
+                    src={isRecording ? stopIcon : recordIcon}
+                    alt="Record/Stop"
+                  />
+                </button>
+              </div>
+            )}
             <div className="flex items-center">
               <button className="mr-2">
                 <img className="w-6 h-6" src={pipIcon} alt="PIP Mode" />
