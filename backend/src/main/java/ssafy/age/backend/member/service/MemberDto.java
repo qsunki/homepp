@@ -5,6 +5,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import ssafy.age.backend.member.persistence.Member;
 
 import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -13,9 +14,9 @@ public class MemberDto {
     private Long id;
     private String email;
     private String password;
-    private Date createdAt;//TODO: 타입수정
+    private LocalDateTime createdAt;
     private String phoneNumber;
-    private List<String> roles;//TODO: 필요?
+    private List<String> roles;
 
     public Member toMember(PasswordEncoder passwordEncoder) {
         return Member.builder()

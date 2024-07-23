@@ -1,4 +1,4 @@
-package ssafy.age.backend.auth.persistence;
+package ssafy.age.backend.auth.service;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import ssafy.age.backend.auth.exception.InvalidTokenException;
+import ssafy.age.backend.member.web.TokenDto;
 
 import java.security.Key;
 import java.util.Arrays;
@@ -22,7 +23,6 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-//TODO: auth/service로 이동
 public class TokenProvider {
 
     private static final String AUTHORITIES_KEY = "auth";

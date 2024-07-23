@@ -16,9 +16,5 @@ public interface MemberMapper {
     @Mapping(target = "roles", ignore = true)
     MemberDto toMemberDto(MemberRequestDto memberRequestDto);
 
-    Member toMember(MemberDto memberDto);
-
-    MemberDto toMemberDto(Member member);
-
-    MemberResponseDto toResponseDto(MemberDto memberDto);
+    MemberResponseDto toMemberResponseDto(Member member);
 }

@@ -1,22 +1,20 @@
 package ssafy.age.backend.auth.service;
 
-import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ssafy.age.backend.auth.exception.InvalidTokenException;
 import ssafy.age.backend.auth.exception.TokenNotFoundException;
 import ssafy.age.backend.auth.persistence.RefreshToken;
-import ssafy.age.backend.auth.repository.RefreshTokenRepository;
-import ssafy.age.backend.auth.persistence.TokenDto;
-import ssafy.age.backend.auth.persistence.TokenProvider;
+import ssafy.age.backend.auth.persistence.RefreshTokenRepository;
+import ssafy.age.backend.member.exception.MemberNotFoundException;
+import ssafy.age.backend.member.web.MemberResponseDto;
+import ssafy.age.backend.member.web.TokenDto;
 import ssafy.age.backend.member.exception.MemberDuplicateEntityException;
 import ssafy.age.backend.member.persistence.*;
 import ssafy.age.backend.member.service.MemberDto;
@@ -26,8 +24,6 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
-//TODO: 현재 사용자의 이메일 반환하는 메소드 추가
-//TODO: 파라미터 입력, 출력 컨벤션 다시 정의하기
 public class AuthService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final MemberRepository memberRepository;
@@ -38,13 +34,13 @@ public class AuthService {
     private final RedisTemplate<String, String> redisTemplate;
 
     @Transactional
-    public MemberDto joinMember(MemberDto memberDto) {
+    public MemberResponseDto joinMember(MemberDto memberDto) {
         if (memberRepository.existsByEmail(memberDto.getEmail())) {
             throw new MemberDuplicateEntityException();
         }
 
         Member member = memberDto.toMember(passwordEncoder);
-        return mapper.toMemberDto(memberRepository.save(member));
+        return mapper.toMemberResponseDto(memberRepository.save(member));
     }
 
     @Transactional
@@ -72,15 +68,14 @@ public class AuthService {
         return TokenDto.builder()
                 .accessToken(token.getAccessToken())
                 .refreshToken(token.getRefreshToken())
-                .memberId(member.getId())
                 .build();
     }
 
 
     @Transactional
-    public TokenDto reissue(TokenDto tokenDto) {
+    public TokenDto reissue(String token) {
         // 1. Redis에 Refresh Token이 저장되어 있는지 확인
-        RefreshToken foundTokenInfo = refreshTokenRepository.findById(tokenDto.getRefreshToken())
+        RefreshToken foundTokenInfo = refreshTokenRepository.findById(token)
                 .orElseThrow(TokenNotFoundException::new);
 
         Member member = memberRepository.findById(foundTokenInfo.getMemberId())
@@ -99,7 +94,6 @@ public class AuthService {
         return TokenDto.builder()
                 .accessToken(accessToken.getAccessToken())
                 .refreshToken(refreshToken)
-                .memberId(member.getId())
                 .build();
     }
 
@@ -109,12 +103,24 @@ public class AuthService {
         // memberId를 찾기 위함
         Authentication authentication = tokenProvider.getAuthentication(tokenDto.getAccessToken());
         //redis에서 해당 id로 저장된 refresh token 확인 후 있으면 삭제
-        if (redisTemplate.opsForValue().get("RT:" + authentication.getName()) != null) {
-            redisTemplate.delete("RT" + authentication.getName());
+        if (redisTemplate.opsForValue().get(authentication.getName()) != null) {
+            redisTemplate.delete(authentication.getName());
         }
 
         Long expiration = tokenProvider.getExpiration(tokenDto.getAccessToken());
         redisTemplate.opsForValue()
                 .set(tokenDto.getAccessToken(), "logout", expiration, TimeUnit.MILLISECONDS);
+    }
+
+    public String getMemberEmail(Member member) {
+        return member.getEmail();
+    }
+
+    public void deleteMember(String email) {
+        try {
+            memberRepository.delete(memberRepository.findByEmail(email));
+        } catch(Exception e) {
+            throw new MemberNotFoundException();
+        }
     }
 }

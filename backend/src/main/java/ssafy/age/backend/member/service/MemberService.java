@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.*;
+import ssafy.age.backend.member.web.MemberRequestDto;
+import ssafy.age.backend.member.web.MemberResponseDto;
 
 @Slf4j
 @Service
@@ -18,26 +20,16 @@ public class MemberService implements UserDetailsService {
     private final MemberRepository memberRepository;
     private final MemberMapper mapper = MemberMapper.INSTANCE;
 
-    public MemberDto findByEmail(String email) {
-        return mapper.toMemberDto(memberRepository.findByEmail(email));
+    public MemberResponseDto findByEmail(String email) {
+        return mapper.toMemberResponseDto(memberRepository.findByEmail(email));
     }
 
-    public MemberDto updateMember(MemberDto memberDto) {
+    public MemberResponseDto updateMember(MemberRequestDto memberRequestDto) {
         try {
-            Member member = mapper.toMember(memberDto);
-            Member foundMember = memberRepository.findByEmail(member.getEmail());
-            foundMember.updateMember(member.getPassword(), member.getPhoneNumber());
+            Member foundMember = memberRepository.findByEmail(memberRequestDto.getEmail());
+            foundMember.updateMember(memberRequestDto.getPassword(), memberRequestDto.getPhoneNumber());
             memberRepository.save(foundMember);
-            return mapper.toMemberDto(foundMember);
-        } catch(Exception e) {
-            throw new MemberNotFoundException();
-        }
-    }
-
-    public void deleteMember(MemberDto memberDto) {
-        try {
-            Member member = mapper.toMember(memberDto);
-            memberRepository.delete(memberRepository.findByEmail(member.getEmail()));
+            return mapper.toMemberResponseDto(foundMember);
         } catch(Exception e) {
             throw new MemberNotFoundException();
         }
