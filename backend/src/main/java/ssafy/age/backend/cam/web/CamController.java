@@ -28,6 +28,11 @@ public class CamController {
                 .toList();
     }
 
+    @PostMapping
+    public CamResponseDto createCam() {
+        return camMapper.toCamResponseDto(camService.createCam());
+    }
+
     @PatchMapping("/{camId}")//TODO: 이름바꾸기 + 사용자가 등록하기
     public CamResponseDto updateCam(@PathVariable Long camId, @RequestBody CamRequestDto camRequestDto) {
         //TODO: 예시 참고 후 재작성 

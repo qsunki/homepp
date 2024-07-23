@@ -2,6 +2,7 @@ package ssafy.age.backend.cam.persistence;
 
 import jakarta.persistence.*;
 import lombok.*;
+import ssafy.age.backend.member.persistence.Member;
 
 @Getter
 @Entity
@@ -14,31 +15,29 @@ public class Cam {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String name;
 
-    @Column//TODO: 지워도 됨
     private String ip;
 
-    @Column
+    @Enumerated(EnumType.STRING)
     private CamStatus status;
 
-    @Column
-    private Long homeId;
+    @ManyToOne
+    private Member member;
 
-    public Cam(Long id, String name, String ip, CamStatus status, Long homeId) {
+    public Cam(Long id, String name, String ip, CamStatus status, Member member) {
         this.id = id;
         this.name = name;
         this.ip = ip;
         this.status = status;
-        this.homeId = homeId;
+        this.member = member;
     }
 
 //TODO: 없애기
-    public void updateCam(String name, String ip, CamStatus status, Long homeId) {
+    public void updateCam(String name, String ip, CamStatus status, Member member) {
         this.name = name;
         this.ip = ip;
         this.status = status;
-        this.homeId = homeId;
+        this.member = member;
     }
 }

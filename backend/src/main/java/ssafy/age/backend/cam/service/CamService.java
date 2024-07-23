@@ -1,7 +1,5 @@
 package ssafy.age.backend.cam.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ssafy.age.backend.cam.exception.CamNotFoundException;
@@ -24,13 +22,18 @@ public class CamService {
                 .toList();
     }
 
+    public CamDto createCam() {
+        Cam saved = camRepository.save(Cam.builder().build());
+        return camMapper.toCamDto(saved);
+    }
+
     public CamDto updateCam(Long camId, CamDto camDto) {//TODO: 파라미터 수정할 것
         Cam cam = camRepository.findById(camId)
                 .orElseThrow(CamNotFoundException::new);
         cam.updateCam(camDto.getName(),
                       camDto.getIp(),
                       camDto.getStatus(),
-                      camDto.getHomeId());
+                      camDto.getMember());
         return camMapper.toCamDto(camRepository.save(cam));
     }
 
