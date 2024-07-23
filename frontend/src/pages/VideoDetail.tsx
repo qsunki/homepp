@@ -31,7 +31,7 @@ const VideoDetail: React.FC = () => {
   return (
     <div className="flex justify-center bg-white px-16 py-8">
       <div className="w-full max-w-6xl flex space-x-4">
-        <DetailPlayer />
+        <DetailPlayer showDetails={true} />
         <DetailList showLiveThumbnail={true} />
       </div>
     </div>

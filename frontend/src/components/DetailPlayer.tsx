@@ -7,12 +7,19 @@ import pipIcon from '../asset/videodetail/pip.png';
 import fullscreenIcon from '../asset/videodetail/fullscreen.png';
 import recordIcon from '../asset/livevideo/record.png';
 import stopIcon from '../asset/livevideo/stop.png';
+import fireIcon from '../asset/filter/fire.png';
+import soundIcon from '../asset/filter/sound.png';
+import thiefIcon from '../asset/filter/thief.png';
 
 interface DetailPlayerProps {
   isLive?: boolean;
+  showDetails?: boolean;
 }
 
-const DetailPlayer: React.FC<DetailPlayerProps> = ({ isLive = false }) => {
+const DetailPlayer: React.FC<DetailPlayerProps> = ({
+  isLive = false,
+  showDetails = false,
+}) => {
   const {
     selectedVideoId,
     videos,
@@ -42,10 +49,24 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({ isLive = false }) => {
     setIsRecording(!isRecording);
   };
 
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'fire':
+        return fireIcon;
+      case 'intrusion':
+        return thiefIcon;
+      case 'loud':
+        return soundIcon;
+      default:
+        return '';
+    }
+  };
+
   return (
     <div className="w-2/3 pr-4 relative">
       {selectedVideo && (
         <>
+          <div className="text-3xl font-bold mb-4">{selectedVideo.title}</div>
           <img
             className="w-full h-[400px] object-cover"
             src={selectedVideo.thumbnail}
@@ -79,11 +100,11 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({ isLive = false }) => {
             {isLive && (
               <div
                 className="absolute left-1/2 transform -translate-x-1/2"
-                style={{ marginTop: '4px' }}
+                style={{ marginTop: '2px' }}
               >
                 <button onClick={handleRecordClick}>
                   <img
-                    className="w-8 h-8"
+                    className="w-6 h-6"
                     src={isRecording ? stopIcon : recordIcon}
                     alt="Record/Stop"
                   />
@@ -103,9 +124,21 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({ isLive = false }) => {
               </button>
             </div>
           </div>
-          <div className="mt-4 text-2xl font-bold">
-            {selectedVideo.timestamp}
-          </div>
+          {showDetails && (
+            <div className="flex justify-between items-center mt-4">
+              <div className="text-xl">{selectedVideo.timestamp}</div>
+              <div className="flex space-x-2">
+                {selectedVideo.alerts.map((alert, index) => (
+                  <img
+                    key={index}
+                    className="w-6 h-6"
+                    src={getTypeIcon(alert.type)}
+                    alt={alert.type}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>
