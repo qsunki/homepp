@@ -4,10 +4,12 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.springframework.stereotype.Component;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.List;
 
 @Component
 public class FirebaseInitializer {
@@ -21,6 +23,13 @@ public class FirebaseInitializer {
                 .build();
 
         FirebaseApp.initializeApp(options);
-
+    }
+    
+    @PreDestroy
+    public void destroy() {
+        List<FirebaseApp> firebaseApps = FirebaseApp.getApps();
+        for (FirebaseApp app : firebaseApps) {
+            app.delete();
+        }
     }
 }
