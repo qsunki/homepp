@@ -7,5 +7,4 @@ public class CamResponseDto {
 
     private Long camId;
     private String name;
-    private String ip;
 }
