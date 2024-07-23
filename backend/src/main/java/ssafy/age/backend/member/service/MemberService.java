@@ -35,6 +35,14 @@ public class MemberService implements UserDetailsService {
         }
     }
 
+    public void deleteMember(String email) {
+        try {
+            memberRepository.delete(memberRepository.findByEmail(email));
+        } catch(Exception e) {
+            throw new MemberNotFoundException();
+        }
+    }
+
     public boolean checkDuplicatedEmail(String email) {
         return memberRepository.findByEmail(email) == null;
     }

@@ -22,8 +22,8 @@ public class MemberController {
     private final MemberMapper memberMapper = MemberMapper.INSTANCE;
 
     @GetMapping
-    public String getMemberEmail(@AuthenticationPrincipal Member member) {
-        return authService.getMemberEmail(member);
+    public String getMemberEmail() {
+        return authService.getMemberEmail();
     }
 
     @PostMapping
@@ -38,7 +38,7 @@ public class MemberController {
 
     @DeleteMapping("/{email}")
     public void deleteMember(@PathVariable String email) {
-        authService.deleteMember(email);
+        memberService.deleteMember(email);
     }
 
     @GetMapping("/{email}")
@@ -65,8 +65,8 @@ public class MemberController {
     }
 
     @PostMapping("/reissue")
-    public TokenDto reissue(@RequestBody @Valid String refreshToken) {
-        return authService.reissue(refreshToken);
+    public TokenDto reissue(@RequestBody @Valid TokenDto tokenDto) {
+        return authService.reissue(tokenDto.getRefreshToken());
     }
 
     @PostMapping("/logout")

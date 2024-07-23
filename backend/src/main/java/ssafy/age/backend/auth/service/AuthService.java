@@ -6,6 +6,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ import ssafy.age.backend.member.persistence.*;
 import ssafy.age.backend.member.service.MemberDto;
 import ssafy.age.backend.member.service.MemberMapper;
 
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -32,6 +34,7 @@ public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final MemberMapper mapper = MemberMapper.INSTANCE;
     private final RedisTemplate<String, String> redisTemplate;
+    private static final String BEARER_TYPE = "Bearer";
 
     @Transactional
     public MemberResponseDto joinMember(MemberDto memberDto) {
@@ -66,6 +69,7 @@ public class AuthService {
 
         // 5. 토큰 발급
         return TokenDto.builder()
+                .grantType(BEARER_TYPE)
                 .accessToken(token.getAccessToken())
                 .refreshToken(token.getRefreshToken())
                 .build();
@@ -78,9 +82,6 @@ public class AuthService {
         RefreshToken foundTokenInfo = refreshTokenRepository.findById(token)
                 .orElseThrow(TokenNotFoundException::new);
 
-        Member member = memberRepository.findById(foundTokenInfo.getMemberId())
-                .orElseThrow(RuntimeException::new);
-
         String refreshToken = foundTokenInfo.getRefreshToken();
         tokenProvider.validateToken(refreshToken);
 
@@ -92,6 +93,7 @@ public class AuthService {
 
         // Token 재발급
         return TokenDto.builder()
+                .grantType(BEARER_TYPE)
                 .accessToken(accessToken.getAccessToken())
                 .refreshToken(refreshToken)
                 .build();
@@ -99,28 +101,22 @@ public class AuthService {
 
     @Transactional
     public void logout(TokenDto tokenDto){
+        // 유효성 검증
         tokenProvider.validateToken(tokenDto.getAccessToken());
-        // memberId를 찾기 위함
-        Authentication authentication = tokenProvider.getAuthentication(tokenDto.getAccessToken());
-        //redis에서 해당 id로 저장된 refresh token 확인 후 있으면 삭제
-        if (redisTemplate.opsForValue().get(authentication.getName()) != null) {
-            redisTemplate.delete(authentication.getName());
-        }
+        // 1. Redis에 Refresh Token이 저장되어 있는지 확인
+        Optional<RefreshToken> foundTokenInfo =
+                refreshTokenRepository.findById(tokenDto.getRefreshToken());
 
-        Long expiration = tokenProvider.getExpiration(tokenDto.getAccessToken());
-        redisTemplate.opsForValue()
-                .set(tokenDto.getAccessToken(), "logout", expiration, TimeUnit.MILLISECONDS);
+        if (foundTokenInfo.isEmpty()) {
+            throw new TokenNotFoundException();
+        }
+        else {
+            refreshTokenRepository.deleteById(tokenDto.getRefreshToken());
+        }
     }
 
-    public String getMemberEmail(Member member) {
-        return member.getEmail();
-    }
-
-    public void deleteMember(String email) {
-        try {
-            memberRepository.delete(memberRepository.findByEmail(email));
-        } catch(Exception e) {
-            throw new MemberNotFoundException();
-        }
+    public String getMemberEmail() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication.getPrincipal().toString();
     }
 }

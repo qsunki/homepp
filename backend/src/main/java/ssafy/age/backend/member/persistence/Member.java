@@ -51,6 +51,12 @@ public class Member implements UserDetails {
         this.roles = roles;
     }
 
+    public Member(String email, String password, List<String> roles) {
+        this.email = email;
+        this.password = password;
+        this.roles = roles;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
