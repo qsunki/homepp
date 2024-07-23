@@ -23,7 +23,7 @@ public class Cam {
     private CamStatus status;
 
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(name = "member_id")
     private Member member;
 
     public Cam(Long id, String name, String ip, CamStatus status, Member member) {
