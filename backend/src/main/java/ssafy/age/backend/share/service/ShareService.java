@@ -18,7 +18,7 @@ public class ShareService {
     private final MemberRepository memberRepository;
     private final AuthService authService;
     private final ShareRepository shareRepository;
-    private final ShareMapper shareMapper = ShareMapper.ISTANCE;
+    private final ShareMapper shareMapper = ShareMapper.INSTANCE;
 
     public List<ShareDto> getAllShares() {
         List<Share> shareList = shareRepository.findAll();

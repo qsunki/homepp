@@ -8,11 +8,7 @@ import ssafy.age.backend.share.web.ShareDto;
 
 @Mapper
 public interface ShareMapper {
-    ShareMapper ISTANCE = Mappers.getMapper(ShareMapper.class);
-
-
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "member", ignore = true)
+    ShareMapper INSTANCE = Mappers.getMapper(ShareMapper.class);
 
     ShareDto toShareDto(Share share);
 
