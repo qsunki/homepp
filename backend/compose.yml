@@ -10,3 +10,20 @@ services:
       - "1883:1883"
     volumes:
       - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+  coturn:
+    image: coturn/coturn:latest
+    ports:
+      - "3478:3478"
+      - "3478:3478/udp"
+      - "5349:5349"
+      - "5349:5349/udp"
+    environment:
+      - TURNSERVER_ENABLED=1
+      - TURNSERVER_REALM=my-realm
+      - TURNSERVER_USER=username:password
+      - TURNSERVER_VERBOSE=1
+      - TURNSERVER_FINGERPRINTS=1
+      - TURNSERVER_NO_STUN=0
+      - TURNSERVER_NO_TLS=1
+      - TURNSERVER_NO_TCP=0
