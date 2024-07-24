@@ -2,11 +2,13 @@ package ssafy.age.backend.member.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ssafy.age.backend.member.exception.MemberInvalidAccessException;
 import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.*;
 import ssafy.age.backend.member.web.MemberRequestDto;
@@ -37,9 +39,16 @@ public class MemberService implements UserDetailsService {
 
     public void deleteMember(String email) {
         try {
-            memberRepository.delete(memberRepository.findByEmail(email));
+            String loggedInEmail = SecurityContextHolder.getContext()
+                    .getAuthentication().getPrincipal().toString();
+            if (email.equals(loggedInEmail)) {
+                memberRepository.delete(memberRepository.findByEmail(email));
+            }
+            else {
+                throw new MemberInvalidAccessException();
+            }
         } catch(Exception e) {
-            throw new MemberNotFoundException();
+            throw new MemberInvalidAccessException();
         }
     }
 
