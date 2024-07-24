@@ -19,17 +19,20 @@ public class Cam {
 
     private String ip;
 
+    private String region;
+
     @Enumerated(EnumType.STRING)
     private CamStatus status;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
-    public Cam(Long id, String name, String ip, CamStatus status, Member member) {
+    public Cam(Long id, String name, String ip, String region, CamStatus status, Member member) {
         this.id = id;
         this.name = name;
         this.ip = ip;
+        this.region = region;
         this.status = status;
         this.member = member;
     }
