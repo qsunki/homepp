@@ -11,9 +11,7 @@ public interface ShareMapper {
     ShareMapper ISTANCE = Mappers.getMapper(ShareMapper.class);
 
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "member", ignore = true)
-
+    @Mapping(source = "member.email", target = "email")
     ShareDto toShareDto(Share share);
 
 }
