@@ -1,28 +1,18 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useVideoStore } from '../store/useVideoStore';
-import fireIcon from '../asset/filter/fire.png';
-import soundIcon from '../asset/filter/sound.png';
-import thiefIcon from '../asset/filter/thief.png';
-import Filter from './filter/Filter'; // 필터 컴포넌트 임포트
-
-interface Alert {
-  type: 'fire' | 'intrusion' | 'loud';
-}
-
-interface Video {
-  id: number;
-  title: string;
-  timestamp: string;
-  thumbnail: string;
-  alerts: Alert[];
-}
+import { useVideoStore, Video } from '../../store/useVideoStore'; // 인터페이스 가져오기
+import fireIcon from '../../asset/filter/fire.png';
+import soundIcon from '../../asset/filter/sound.png';
+import thiefIcon from '../../asset/filter/thief.png';
+import Filter from '../filter/Filter';
 
 interface DetailListProps {
   showLiveThumbnail?: boolean;
   videos: Video[];
-  selectedTypes: string[]; // 필터링된 유형
-  onTypeToggle: (type: string) => void; // 필터 토글 함수
+  selectedTypes: string[];
+  onTypeToggle: (type: string) => void;
+  thumbnailHeight?: string; // 썸네일 높이 조정
+  listHeight?: string; // 목록 높이 조정
 }
 
 const DetailList: React.FC<DetailListProps> = ({
@@ -30,6 +20,8 @@ const DetailList: React.FC<DetailListProps> = ({
   videos,
   selectedTypes,
   onTypeToggle,
+  thumbnailHeight = 'auto', // 기본 썸네일 높이 설정
+  listHeight = '400px', // 기본 목록 높이 설정
 }) => {
   const navigate = useNavigate();
   const { liveThumbnailUrl, setSelectedVideoId } = useVideoStore();
@@ -60,39 +52,44 @@ const DetailList: React.FC<DetailListProps> = ({
     <div className="w-1/3 pl-4">
       {showLiveThumbnail && (
         <div
-          className="border-4 border-red-500 mb-4 cursor-pointer"
+          className="border-4 border-red-500 mb-4 cursor-pointer mt-12"
           onClick={handleLiveThumbnailClick}
+          style={{ height: thumbnailHeight }} // 썸네일 높이 설정
         >
           {liveThumbnailUrl ? (
             <img
-              className="w-full h-auto object-cover"
+              className="w-full h-full object-cover"
               src={liveThumbnailUrl}
               alt="Live Thumbnail"
+              style={{ aspectRatio: '11 / 7' }}
             />
           ) : (
-            <div className="w-full h-[150px] flex items-center justify-center">
-              <span className="text-red-500">Live Thumbnail Placeholder</span>
-            </div>
+            <div
+              className="w-full h-full bg-gray-300"
+              style={{ aspectRatio: '11 / 7' }}
+            />
           )}
         </div>
       )}
-      {/* 필터 컴포넌트 추가 */}
       <Filter selectedTypes={selectedTypes} onTypeToggle={onTypeToggle} />
-      <div className="overflow-y-auto h-[400px] scrollbar-hide">
+      <div
+        className="overflow-y-auto scrollbar-hide"
+        style={{ height: listHeight }}
+      >
         {videos.map((video) => (
           <div
             key={video.id}
-            className="flex items-center mb-4 cursor-pointer"
+            className="flex items-center mb-2 cursor-pointer"
             onClick={() => handleVideoClick(video.id)}
           >
-            <img
-              className="w-24 h-16 object-cover"
-              src={video.thumbnail}
-              alt={video.title}
+            <div
+              className="w-24 bg-gray-300"
+              style={{ aspectRatio: '11 / 7' }}
             />
             <div className="ml-4 flex flex-col flex-grow">
               <div className="text-sm">{video.title}</div>
               <div className="text-sm">{video.timestamp}</div>
+              <div className="text-sm">{video.duration}</div>{' '}
             </div>
             <div className="flex justify-end space-x-1">
               {video.alerts.map((alert, index) => (

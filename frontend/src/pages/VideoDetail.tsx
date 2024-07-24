@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useVideoStore } from '../store/useVideoStore';
-import DetailPlayer from '../components/DetailPlayer';
-import DetailList from '../components/DetailList';
+import DetailPlayer from '../components/videodetail/DetailPlayer';
+import DetailList from '../components/videodetail/DetailList';
 
 const VideoDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -50,6 +50,7 @@ const VideoDetail: React.FC = () => {
           videos={filteredVideos}
           selectedTypes={selectedTypes}
           onTypeToggle={handleTypeToggle}
+          listHeight="300px" // 목록 부분 높이 조정
         />
       </div>
     </div>

@@ -1,55 +1,45 @@
-// src/store/useUserStore.ts
-import create from 'zustand';
+import { createStore, useStore } from 'zustand';
 
 interface UserState {
-  username: string;
+  userId: string | null;
+  phoneNumber: string;
+  email: string;
   password: string;
-  loginError: string | null;
   isLoggedIn: boolean;
-  step: number;
-  height: number;
   checkboxes: {
     privacyPolicy: boolean;
     marketing: boolean;
     age: boolean;
     terms: boolean;
   };
-  setUsername: (username: string) => void;
+  setUserId: (userId: string) => void;
+  setPhoneNumber: (phoneNumber: string) => void;
+  setEmail: (email: string) => void;
   setPassword: (password: string) => void;
-  setLoginError: (error: string | null) => void;
-  resetLoginError: () => void;
   login: () => void;
   logout: () => void;
-  nextStep: () => void;
-  prevStep: () => void;
-  resetSteps: () => void;
-  setHeight: (height: number) => void;
   setCheckboxes: (checkboxes: Partial<UserState['checkboxes']>) => void;
 }
 
-export const useUserStore = create<UserState>((set) => ({
-  username: '',
+const userStore = createStore<UserState>((set) => ({
+  userId: null, // userId 초기값
+  phoneNumber: '',
+  email: '',
   password: '',
-  loginError: null,
   isLoggedIn: false,
-  step: 1,
-  height: 0,
   checkboxes: {
     privacyPolicy: false,
     marketing: false,
     age: false,
     terms: false,
   },
-  setUsername: (username) => set({ username }),
+  setUserId: (userId) => set({ userId }),
+  setPhoneNumber: (phoneNumber) => set({ phoneNumber }),
+  setEmail: (email) => set({ email }),
   setPassword: (password) => set({ password }),
-  setLoginError: (error) => set({ loginError: error }),
-  resetLoginError: () => set({ loginError: null }),
   login: () => set({ isLoggedIn: true }),
-  logout: () => set({ isLoggedIn: false }),
-  nextStep: () => set((state) => ({ step: state.step + 1 })),
-  prevStep: () => set((state) => ({ step: state.step - 1 })),
-  resetSteps: () => set({ step: 1 }),
-  setHeight: (height) => set({ height }),
+  logout: () =>
+    set({ isLoggedIn: false, userId: null, email: '', password: '' }), // 로그아웃 시 userId 초기화
   setCheckboxes: (checkboxes) =>
     set((state) => ({
       checkboxes: {
@@ -58,3 +48,5 @@ export const useUserStore = create<UserState>((set) => ({
       },
     })),
 }));
+
+export const useUserStore = () => useStore(userStore);
