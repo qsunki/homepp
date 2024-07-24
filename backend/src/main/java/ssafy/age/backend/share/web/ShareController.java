@@ -17,7 +17,6 @@ import java.util.List;
 public class ShareController {
 
     private final ShareService shareService;
-    private final ShareMapper shareMapper;
 
     @GetMapping
     public List<ShareDto> getAllShares() {
@@ -31,7 +30,7 @@ public class ShareController {
 
     }
 
-    @DeleteMapping("/{email}")
+    @DeleteMapping
     public void deleteShare(@PathVariable String email) {shareService.deleteShare(email);}
 
 
