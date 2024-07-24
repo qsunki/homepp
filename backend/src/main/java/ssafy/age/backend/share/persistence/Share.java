@@ -17,13 +17,13 @@ public class Share {
     private Long id;
 
 
-   @ManyToOne(fetch = FetchType.LAZY)
-   @JoinColumn(name = "member_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
     private Member member;
 
 
-   @ManyToOne(fetch = FetchType.LAZY)
-   @JoinColumn(name = "share_mameber_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "share_mameber_id")
     private Member sharedMemberId;
 
     private String nickname;
