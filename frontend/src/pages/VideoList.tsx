@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import 'tw-elements/dist/css/tw-elements.min.css';
-import styles from './VideoList.module.css';
+import styles from '../components/filter/Filter.module.css';
 import thiefIcon from 'asset/filter/thief.png';
 import fireIcon from 'asset/filter/fire.png';
-import soundIcon from 'asset/filter/sound2.png';
+import soundIcon from 'asset/filter/sound.png';
 
 interface Video {
   id: number;

@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react';
-import { useUserStore } from 'store/useUserStore'; // 통합된 Zustand 스토어 가져오기
+import React, { useEffect, useState } from 'react';
+import { useUserStore } from 'store/useUserStore';
 import backArrow from '../asset/signin/backarrow.png';
 import naverLogin from '../asset/signin/naverlogin.png';
 import kakaoLogin from '../asset/signin/kakaologin.png';
@@ -10,41 +10,32 @@ interface SignInProps {
 }
 
 export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
-  const {
-    username,
-    password,
-    setUsername,
-    setPassword,
-    loginError,
-    setLoginError,
-    resetLoginError,
-    setHeight,
-  } = useUserStore();
-  const [showSignUp, setShowSignUp] = React.useState(false);
-  const popupRef = useRef<HTMLDivElement>(null);
+  const { email, password, setEmail, setPassword, login } = useUserStore();
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [showSignUp, setShowSignUp] = useState(false);
 
-  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUsername(e.target.value);
-    resetLoginError();
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+    setLoginError(null);
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
-    resetLoginError();
+    setLoginError(null);
   };
 
   const handleLogin = () => {
-    // 여기에 로그인 API 호출 코드를 추가하고, 실패 시 setLoginError를 호출합니다.
-    const isUsernameCorrect = username === 'correctUsername';
+    const isEmailCorrect = email === 'correct@example.com';
     const isPasswordCorrect = password === 'correctPassword';
 
-    if (!isUsernameCorrect) {
-      setLoginError('아이디를 확인해 주세요.');
+    if (!isEmailCorrect) {
+      setLoginError('이메일을 확인해 주세요.');
     } else if (!isPasswordCorrect) {
       setLoginError('비밀번호를 확인해주세요.');
     } else {
+      setLoginError(null);
+      login();
       // 로그인 성공 처리
-      resetLoginError();
       // 예: onClose(); 페이지 이동 등
     }
   };
@@ -66,9 +57,9 @@ export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
   };
 
   const handleClose = () => {
-    setUsername('');
+    setEmail('');
     setPassword('');
-    resetLoginError();
+    setLoginError(null);
     onClose();
   };
 
@@ -81,14 +72,10 @@ export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
 
     document.addEventListener('mousedown', handleClickOutside);
 
-    if (popupRef.current) {
-      setHeight(popupRef.current.offsetHeight);
-    }
-
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [onClose, setHeight]);
+  }, [onClose]);
 
   return (
     <div
@@ -96,9 +83,9 @@ export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
       onClick={handleClose}
     >
       <div
-        ref={popupRef}
         className="bg-white rounded-lg w-96 p-8 relative"
         onClick={(e) => e.stopPropagation()}
+        style={{ height: 500 }}
       >
         <button className="absolute top-2 left-2" onClick={handleClose}>
           <img className="w-6 h-6" alt="backArrow" src={backArrow} />
@@ -108,13 +95,13 @@ export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
         <div className="flex flex-col gap-4 mb-6">
           <div className="flex flex-col gap-2">
             <input
-              type="text"
-              value={username}
-              onChange={handleUsernameChange}
+              type="email"
+              value={email}
+              onChange={handleEmailChange}
               className="border rounded px-4 py-2 w-full"
-              placeholder="아이디를 입력하세요"
+              placeholder="이메일을 입력하세요"
             />
-            {loginError === '아이디를 확인해 주세요.' && (
+            {loginError === '이메일을 확인해 주세요.' && (
               <div className="text-red-500 text-xs">{loginError}</div>
             )}
           </div>
