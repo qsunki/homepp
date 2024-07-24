@@ -5,8 +5,11 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import ssafy.age.backend.cam.persistence.Cam;
+import ssafy.age.backend.video.persistence.Video;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Getter
 @Entity
@@ -19,23 +22,39 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
-    private Date occurredAt;//TODO: LocalDateTime으로 할 것
+    @CreationTimestamp
+    private LocalDateTime occurredAt;
 
-    @Column
+    @Enumerated(EnumType.STRING)
     private EventType type;
 
-    @Column//TODO: 연관관계 수정
-    private Long camId;
+    private boolean isRead;
 
-    @Column//TODO: 연관관계 수정
-    private Long videoId;
+    private boolean isThreat;
 
-    public Event(Long id, Date occurredAt, EventType type, Long camId, Long videoId) {
+    @ManyToOne
+    @JoinColumn(name = "cam_id")
+    private Cam cam;
+
+    @ManyToOne
+    @JoinColumn(name = "video_id")
+    private Video video;
+
+    public Event(Long id, LocalDateTime occurredAt, EventType type, boolean isRead, boolean isThreat, Cam cam, Video video) {
         this.id = id;
         this.occurredAt = occurredAt;
         this.type = type;
-        this.camId = camId;
-        this.videoId = videoId;
+        this.isRead = isRead;
+        this.isThreat = isThreat;
+        this.cam = cam;
+        this.video = video;
+    }
+
+    public void read() {
+        this.isRead = true;
+    }
+
+    public void registerThreat() {
+        this.isThreat = true;
     }
 }
