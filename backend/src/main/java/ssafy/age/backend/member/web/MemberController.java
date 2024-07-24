@@ -3,12 +3,8 @@ package ssafy.age.backend.member.web;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import ssafy.age.backend.auth.service.AuthService;
-import ssafy.age.backend.member.persistence.Member;
-import ssafy.age.backend.member.service.MemberDto;
-import ssafy.age.backend.member.service.MemberMapper;
 import ssafy.age.backend.member.service.MemberService;
 
 @Slf4j
@@ -19,7 +15,6 @@ public class MemberController {
 
     private final MemberService memberService;
     private final AuthService authService;
-    private final MemberMapper memberMapper = MemberMapper.INSTANCE;
 
     @GetMapping
     public String getMemberEmail() {
@@ -28,12 +23,16 @@ public class MemberController {
 
     @PostMapping
     public MemberResponseDto joinMember(@RequestBody @Valid MemberRequestDto memberRequestDto) {
-        return authService.joinMember(memberMapper.toMemberDto(memberRequestDto));
+        return authService.joinMember(memberRequestDto.getEmail(),
+                                      memberRequestDto.getPassword(),
+                                      memberRequestDto.getPhoneNumber());
     }
 
     @PatchMapping("/{email}")
     public MemberResponseDto updateMember(@RequestBody MemberRequestDto memberRequestDto) {
-        return memberService.updateMember(memberRequestDto);
+        return memberService.updateMember(memberRequestDto.getEmail(),
+                                          memberRequestDto.getPassword(),
+                                          memberRequestDto.getPhoneNumber());
     }
 
     @DeleteMapping("/{email}")
@@ -60,8 +59,8 @@ public class MemberController {
 
     @PostMapping("/login")
     public TokenDto login(@RequestBody @Valid MemberRequestDto memberRequestDto) {
-        MemberDto memberDto = memberMapper.toMemberDto(memberRequestDto);
-        return authService.login(memberDto);
+        return authService.login(memberRequestDto.getEmail(),
+                                memberRequestDto.getPassword());
     }
 
     @PostMapping("/reissue")

@@ -9,11 +9,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import ssafy.age.backend.auth.exception.InvalidTokenException;
-import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.web.TokenDto;
 
 import java.security.Key;
@@ -110,14 +107,5 @@ public class TokenProvider {
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         }
-    }
-
-    public Long getExpiration(String accessToken) {
-        Date expiration = Jwts.parserBuilder().setSigningKey(key)
-                .build().parseClaimsJws(accessToken).getBody().getExpiration();
-
-        long now = new Date().getTime();
-
-        return (expiration.getTime() - now);
     }
 }

@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ssafy.age.backend.member.exception.MemberInvalidAccessException;
 import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.*;
-import ssafy.age.backend.member.web.MemberRequestDto;
 import ssafy.age.backend.member.web.MemberResponseDto;
 
 @Slf4j
@@ -26,10 +25,10 @@ public class MemberService implements UserDetailsService {
         return mapper.toMemberResponseDto(memberRepository.findByEmail(email));
     }
 
-    public MemberResponseDto updateMember(MemberRequestDto memberRequestDto) {
+    public MemberResponseDto updateMember(String email, String password, String phoneNumber) {
         try {
-            Member foundMember = memberRepository.findByEmail(memberRequestDto.getEmail());
-            foundMember.updateMember(memberRequestDto.getPassword(), memberRequestDto.getPhoneNumber());
+            Member foundMember = memberRepository.findByEmail(email);
+            foundMember.updateMember(password, phoneNumber);
             memberRepository.save(foundMember);
             return mapper.toMemberResponseDto(foundMember);
         } catch(Exception e) {
