@@ -1,15 +1,18 @@
 package ssafy.age.backend.event.web;
 
 import lombok.Data;
+import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.event.persistence.EventType;
+import ssafy.age.backend.video.persistence.Video;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 public class EventResponseDto {
-
-    private Date occurredAt;//TODO: 타입수정
+    private LocalDateTime occurredAt;
     private EventType type;
-    private Long camId;
-    private Long videoId;
+    private Cam cam;
+    private Video video;
+    private boolean isRead;
+    private boolean isThreat;
 }

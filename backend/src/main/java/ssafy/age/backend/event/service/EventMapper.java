@@ -10,12 +10,7 @@ import ssafy.age.backend.event.web.EventResponseDto;
 public interface EventMapper {
     EventMapper INSTANCE = Mappers.getMapper(EventMapper.class);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "occurredAt", ignore = true)
+    EventResponseDto toEventResponseDto(Event event);
 
     Event toEvent(EventDto eventDto);
-
-    EventDto toEventDto(Event event);
-
-    EventResponseDto toEventResponseDto(EventDto eventDto);
 }
