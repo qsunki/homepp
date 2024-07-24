@@ -3,9 +3,6 @@ package ssafy.age.backend.share.web;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ssafy.age.backend.share.persistence.Share;
-import ssafy.age.backend.share.persistence.ShareRepository;
-import ssafy.age.backend.share.service.ShareMapper;
 import ssafy.age.backend.share.service.ShareService;
 
 import java.util.List;
