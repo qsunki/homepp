@@ -27,7 +27,7 @@ public class ShareController {
 
     @PostMapping
     public ShareDto createShare(@RequestBody ShareDto shareDto) {
-        return shareService.createShare(shareDto);
+        return shareService.createShare(shareDto.getEmail(), shareDto.getNickname());
 
     }
 

@@ -2,6 +2,7 @@ package ssafy.age.backend.share.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ssafy.age.backend.auth.service.AuthService;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
 import ssafy.age.backend.share.persistence.Share;
@@ -15,7 +16,7 @@ import java.util.List;
 public class ShareService {
 
     private final MemberRepository memberRepository;
-
+    private final AuthService authService;
     private final ShareRepository shareRepository;
     private final ShareMapper shareMapper = ShareMapper.ISTANCE;
 
@@ -31,15 +32,16 @@ public class ShareService {
         shareRepository.delete(share);
     }
 
-    public ShareDto createShare(ShareDto shareDto) {
+    public ShareDto createShare(String email, String nickname) {
 
-        // 로그인된 멤버...도 넣으면 되나?
+        Member loginMember  = memberRepository.findByEmail(authService.getMemberEmail());
 
-        Member sharedMember = memberRepository.findByEmail(shareDto.getEmail());
+        Member sharedMember = memberRepository.findByEmail(email);
 
         Share share = Share.builder()
+                .member(loginMember)
                 .sharedMemberId(sharedMember)
-                .nickname(shareDto.getNickname())
+                .nickname(nickname)
                 .build();
 
         shareRepository.save(share);
