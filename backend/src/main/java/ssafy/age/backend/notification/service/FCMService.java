@@ -10,12 +10,25 @@ import org.springframework.stereotype.Service;
 import ssafy.age.backend.notification.persistence.FCMToken;
 import ssafy.age.backend.notification.persistence.FCMTokenRepository;
 
+import java.util.List;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class FCMService {
 
     private final FCMTokenRepository fcmTokenRepository;
+
+    public List<FCMToken> getAllFCMTokens() {
+        return fcmTokenRepository.findAll();
+    }
+
+    public void sendMessageToAll(String title, String body) {
+        List<FCMToken> fcmTokens = fcmTokenRepository.findAll();
+        for (FCMToken fcmToken : fcmTokens) {
+            sendMessage(fcmToken.getToken(), title, body);
+        }
+    }
 
     public FCMTokenDto save(FCMTokenDto token) {
         FCMToken fcmToken = new FCMToken(token.value);

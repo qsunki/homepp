@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import ssafy.age.backend.event.persistence.Event;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -29,5 +30,4 @@ public class Video {
 
     @OneToMany(mappedBy = "video")
     private List<Event> eventList;
-
 }
