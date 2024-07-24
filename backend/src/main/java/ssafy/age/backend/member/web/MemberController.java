@@ -4,12 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ssafy.age.backend.auth.persistence.RefreshTokenDto;
-import ssafy.age.backend.auth.persistence.TokenMapper;
 import ssafy.age.backend.auth.service.AuthService;
-import ssafy.age.backend.auth.persistence.TokenDto;
-import ssafy.age.backend.member.service.MemberDto;
-import ssafy.age.backend.member.service.MemberMapper;
 import ssafy.age.backend.member.service.MemberService;
 
 @Slf4j
@@ -20,38 +15,34 @@ public class MemberController {
 
     private final MemberService memberService;
     private final AuthService authService;
-    private final MemberMapper memberMapper = MemberMapper.INSTANCE;
-    private final TokenMapper tokenMapper = TokenMapper.INSTANCE;
 
     @GetMapping
-    public MemberResponseDto findMember(@RequestBody MemberRequestDto memberRequestDto) {
-        MemberDto memberDto = memberService.findByEmail(memberRequestDto.getEmail());
-        return memberMapper.toResponseDto(memberDto);
+    public String getMemberEmail() {
+        return authService.getMemberEmail();
     }
 
     @PostMapping
     public MemberResponseDto joinMember(@RequestBody @Valid MemberRequestDto memberRequestDto) {
-        MemberDto memberDto = authService.joinMember(memberMapper.toMemberDto(memberRequestDto));
-        return memberMapper.toResponseDto(memberDto);
+        return authService.joinMember(memberRequestDto.getEmail(),
+                                      memberRequestDto.getPassword(),
+                                      memberRequestDto.getPhoneNumber());
     }
 
-    @PatchMapping
-    //TODO: Patch용 DTO분리
+    @PatchMapping("/{email}")
     public MemberResponseDto updateMember(@RequestBody MemberRequestDto memberRequestDto) {
-        MemberDto memberDto = memberService.updateMember(memberMapper.toMemberDto(memberRequestDto));
-        return memberMapper.toResponseDto(memberDto);
+        return memberService.updateMember(memberRequestDto.getEmail(),
+                                          memberRequestDto.getPassword(),
+                                          memberRequestDto.getPhoneNumber());
     }
 
-    @DeleteMapping
-    public void deleteMember(@RequestBody MemberRequestDto memberRequestDto) {
-        MemberDto memberDto = memberMapper.toMemberDto(memberRequestDto);
-        memberService.deleteMember(memberDto);
+    @DeleteMapping("/{email}")
+    public void deleteMember(@PathVariable String email) {
+        memberService.deleteMember(email);
     }
 
     @GetMapping("/{email}")
     public MemberResponseDto findByEmail(@PathVariable String email) {
-        MemberDto memberDto = memberService.findByEmail(email);
-        return memberMapper.toResponseDto(memberDto);
+        return memberService.findByEmail(email);
     }
 
     // 사용할 수 있으면 true, 없으면 false
@@ -68,13 +59,13 @@ public class MemberController {
 
     @PostMapping("/login")
     public TokenDto login(@RequestBody @Valid MemberRequestDto memberRequestDto) {
-        MemberDto memberDto = memberMapper.toMemberDto(memberRequestDto);
-        return authService.login(memberDto);
+        return authService.login(memberRequestDto.getEmail(),
+                                memberRequestDto.getPassword());
     }
 
     @PostMapping("/reissue")
-    public TokenDto reissue(@RequestBody @Valid RefreshTokenDto refreshTokenDto) {
-        return authService.reissue(tokenMapper.toTokenDto(refreshTokenDto));
+    public TokenDto reissue(@RequestBody @Valid TokenDto tokenDto) {
+        return authService.reissue(tokenDto.getRefreshToken());
     }
 
     @PostMapping("/logout")

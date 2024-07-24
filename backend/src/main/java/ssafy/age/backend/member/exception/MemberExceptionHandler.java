@@ -25,4 +25,8 @@ public class MemberExceptionHandler {
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
+    @ExceptionHandler(MemberInvalidAccessException.class)
+    public ProblemDetail handleMemberInvalidAccessException(MemberInvalidAccessException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, e.getMessage());
+    }
 }

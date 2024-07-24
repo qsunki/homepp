@@ -1,33 +1,28 @@
 package ssafy.age.backend.auth.service;
 
-import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ssafy.age.backend.auth.exception.InvalidTokenException;
 import ssafy.age.backend.auth.exception.TokenNotFoundException;
 import ssafy.age.backend.auth.persistence.RefreshToken;
-import ssafy.age.backend.auth.repository.RefreshTokenRepository;
-import ssafy.age.backend.auth.persistence.TokenDto;
-import ssafy.age.backend.auth.persistence.TokenProvider;
+import ssafy.age.backend.auth.persistence.RefreshTokenRepository;
+import ssafy.age.backend.member.web.MemberResponseDto;
+import ssafy.age.backend.member.web.TokenDto;
 import ssafy.age.backend.member.exception.MemberDuplicateEntityException;
 import ssafy.age.backend.member.persistence.*;
-import ssafy.age.backend.member.service.MemberDto;
 import ssafy.age.backend.member.service.MemberMapper;
 
-import java.util.concurrent.TimeUnit;
+import java.util.Collections;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-//TODO: 현재 사용자의 이메일 반환하는 메소드 추가
-//TODO: 파라미터 입력, 출력 컨벤션 다시 정의하기
 public class AuthService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final MemberRepository memberRepository;
@@ -36,29 +31,36 @@ public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final MemberMapper mapper = MemberMapper.INSTANCE;
     private final RedisTemplate<String, String> redisTemplate;
+    private static final String BEARER_TYPE = "Bearer";
 
     @Transactional
-    public MemberDto joinMember(MemberDto memberDto) {
-        if (memberRepository.existsByEmail(memberDto.getEmail())) {
+    public MemberResponseDto joinMember(String email, String password, String phoneNumber) {
+        if (memberRepository.existsByEmail(email)) {
             throw new MemberDuplicateEntityException();
         }
 
-        Member member = memberDto.toMember(passwordEncoder);
-        return mapper.toMemberDto(memberRepository.save(member));
+        Member member = Member.builder()
+                .email(email)
+                .password(passwordEncoder.encode(password))
+                .phoneNumber(phoneNumber)
+                .roles(Collections.singletonList("ROLE_USER"))
+                .build();
+
+        return mapper.toMemberResponseDto(memberRepository.save(member));
     }
 
     @Transactional
-    public TokenDto login(MemberDto memberDto) {
+    public TokenDto login(String email, String password) {
         // 1. Login ID/PW 를 기반으로 AuthenticationToken 생성
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(memberDto.getEmail(), memberDto.getPassword());
+                new UsernamePasswordAuthenticationToken(email, password);
 
         // 2. 실제로 검증 (사용자 비밀번호 체크) 이 이루어지는 부분
         //    authenticate 메서드가 실행이 될 때 CustomUserDetailsService 에서 만들었던 loadUserByUsername 메서드가 실행됨
         Authentication authentication = authenticationManagerBuilder.getObject()
                                         .authenticate(authenticationToken);
 
-        Member member = memberRepository.findByEmail(memberDto.getEmail());
+        Member member = memberRepository.findByEmail(email);
 
         // 3. 인증 정보를 기반으로 JWT 토큰 생성
         TokenDto token = tokenProvider.generateTokenDto(authentication);
@@ -70,21 +72,18 @@ public class AuthService {
 
         // 5. 토큰 발급
         return TokenDto.builder()
+                .grantType(BEARER_TYPE)
                 .accessToken(token.getAccessToken())
                 .refreshToken(token.getRefreshToken())
-                .memberId(member.getId())
                 .build();
     }
 
 
     @Transactional
-    public TokenDto reissue(TokenDto tokenDto) {
+    public TokenDto reissue(String token) {
         // 1. Redis에 Refresh Token이 저장되어 있는지 확인
-        RefreshToken foundTokenInfo = refreshTokenRepository.findById(tokenDto.getRefreshToken())
+        RefreshToken foundTokenInfo = refreshTokenRepository.findById(token)
                 .orElseThrow(TokenNotFoundException::new);
-
-        Member member = memberRepository.findById(foundTokenInfo.getMemberId())
-                .orElseThrow(RuntimeException::new);
 
         String refreshToken = foundTokenInfo.getRefreshToken();
         tokenProvider.validateToken(refreshToken);
@@ -97,24 +96,30 @@ public class AuthService {
 
         // Token 재발급
         return TokenDto.builder()
+                .grantType(BEARER_TYPE)
                 .accessToken(accessToken.getAccessToken())
                 .refreshToken(refreshToken)
-                .memberId(member.getId())
                 .build();
     }
 
     @Transactional
     public void logout(TokenDto tokenDto){
+        // 유효성 검증
         tokenProvider.validateToken(tokenDto.getAccessToken());
-        // memberId를 찾기 위함
-        Authentication authentication = tokenProvider.getAuthentication(tokenDto.getAccessToken());
-        //redis에서 해당 id로 저장된 refresh token 확인 후 있으면 삭제
-        if (redisTemplate.opsForValue().get("RT:" + authentication.getName()) != null) {
-            redisTemplate.delete("RT" + authentication.getName());
-        }
+        // 1. Redis에 Refresh Token이 저장되어 있는지 확인
+        Optional<RefreshToken> foundTokenInfo =
+                refreshTokenRepository.findById(tokenDto.getRefreshToken());
 
-        Long expiration = tokenProvider.getExpiration(tokenDto.getAccessToken());
-        redisTemplate.opsForValue()
-                .set(tokenDto.getAccessToken(), "logout", expiration, TimeUnit.MILLISECONDS);
+        if (foundTokenInfo.isEmpty()) {
+            throw new TokenNotFoundException();
+        }
+        else {
+            refreshTokenRepository.deleteById(tokenDto.getRefreshToken());
+        }
+    }
+
+    public String getMemberEmail() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication.getPrincipal().toString();
     }
 }

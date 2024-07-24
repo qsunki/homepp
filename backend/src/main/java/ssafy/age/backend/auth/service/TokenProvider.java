@@ -1,4 +1,4 @@
-package ssafy.age.backend.auth.persistence;
+package ssafy.age.backend.auth.service;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -9,10 +9,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import ssafy.age.backend.auth.exception.InvalidTokenException;
+import ssafy.age.backend.member.web.TokenDto;
 
 import java.security.Key;
 import java.util.Arrays;
@@ -22,7 +21,6 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-//TODO: auth/service로 이동
 public class TokenProvider {
 
     private static final String AUTHORITIES_KEY = "auth";
@@ -84,10 +82,7 @@ public class TokenProvider {
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
 
-        // UserDetails 객체를 만들어서 Authentication 리턴
-        UserDetails principal = new User(claims.getSubject(), "", authorities);
-
-        return new UsernamePasswordAuthenticationToken(principal, "", authorities);
+        return new UsernamePasswordAuthenticationToken(claims.getSubject(), "", authorities);
     }
 
     public boolean validateToken(String token) {
@@ -112,14 +107,5 @@ public class TokenProvider {
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         }
-    }
-
-    public Long getExpiration(String accessToken) {
-        Date expiration = Jwts.parserBuilder().setSigningKey(key)
-                .build().parseClaimsJws(accessToken).getBody().getExpiration();
-
-        long now = new Date().getTime();
-
-        return (expiration.getTime() - now);
     }
 }

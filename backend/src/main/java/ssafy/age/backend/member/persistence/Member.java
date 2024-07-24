@@ -8,6 +8,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -32,8 +33,7 @@ public class Member implements UserDetails {
     private String password;
 
     @CreationTimestamp
-    @Column//TODO: 타입수정
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
     @Column(nullable = false)
     private String phoneNumber;
@@ -42,12 +42,18 @@ public class Member implements UserDetails {
     @Builder.Default
     private List<String> roles = new ArrayList<>();
 
-    public Member(Long id, String email, String password, Date createdAt, String phoneNumber, List<String> roles) {
+    public Member(Long id, String email, String password, LocalDateTime createdAt, String phoneNumber, List<String> roles) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.createdAt = createdAt;
         this.phoneNumber = phoneNumber;
+        this.roles = roles;
+    }
+
+    public Member(String email, String password, List<String> roles) {
+        this.email = email;
+        this.password = password;
         this.roles = roles;
     }
 
