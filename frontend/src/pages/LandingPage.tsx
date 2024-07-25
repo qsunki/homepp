@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { useUserStore } from '../store/useUserStore';
+import { useUserStore } from '../stores/useUserStore';
 import { useNavigate } from 'react-router-dom';
-import characterImage from '../asset/landingpage/characterbg.png';
-import laptop from '../asset/landingpage/laptop.png';
-import notification from '../asset/landingpage/notification.png';
-import clock from '../asset/landingpage/clock.png';
-import shield from '../asset/landingpage/shield.png';
-import webCamera from '../asset/landingpage/webCamera.png';
-import characterHead from '../asset/landingpage/characterhead.png';
+import characterImage from '../assets/landingpage/characterbg.png';
+import laptop from '../assets/landingpage/laptop.png';
+import notification from '../assets/landingpage/notification.png';
+import clock from '../assets/landingpage/clock.png';
+import shield from '../assets/landingpage/shield.png';
+import webCamera from '../assets/landingpage/webCamera.png';
+import characterHead from '../assets/landingpage/characterhead.png';
 import { SignIn } from '../components/SignIn';
 
 const LandingPage: React.FC = () => {

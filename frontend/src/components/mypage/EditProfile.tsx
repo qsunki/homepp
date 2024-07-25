@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useUserStore } from '../../store/useUserStore';
+import { useUserStore } from '../../stores/useUserStore';
 
 interface EditProfileProps {
   onClose: () => void;

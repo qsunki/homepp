@@ -1,10 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useVideoStore, Video } from '../../store/useVideoStore'; // 인터페이스 가져오기
-import fireIcon from '../../asset/filter/fire.png';
-import soundIcon from '../../asset/filter/sound.png';
-import thiefIcon from '../../asset/filter/thief.png';
-import Filter from '../filter/Filter';
+import { useVideoStore, Video } from '../../stores/useVideoStore'; // 인터페이스 가져오기
+import fireIcon from '../../assets/filter/fire.png';
+import soundIcon from '../../assets/filter/sound.png';
+import thiefIcon from '../../assets/filter/thief.png';
+import Filter from '../../utils/filter/Filter';
 
 interface DetailListProps {
   showLiveThumbnail?: boolean;

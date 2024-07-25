@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { useVideoStore } from '../store/useVideoStore';
+import { useVideoStore } from '../stores/useVideoStore';
 import DetailPlayer from '../components/videodetail/DetailPlayer';
 import DetailList from '../components/videodetail/DetailList';
 

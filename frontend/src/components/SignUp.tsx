@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useUserStore } from '../store/useUserStore';
-import backArrow from '../asset/signup/backarrow.png';
+import { useUserStore } from '../stores/useUserStore';
+import backArrow from '../assets/signup/backarrow.png';
 
 interface SignUpProps {
   onClose: () => void;

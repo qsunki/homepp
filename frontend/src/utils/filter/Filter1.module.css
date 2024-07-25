@@ -1,0 +1,236 @@
+.icon {
+  position: relative;
+  background: #fff;
+  border-radius: 50%;
+  margin: 10px;
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.icon img {
+  width: 24px;
+  height: 24px;
+}
+
+.tooltip {
+  position: absolute;
+  top: 0;
+  font-size: 14px;
+  background: rgb(90, 90, 94);
+  color: #fff;
+  padding: 5px 8px;
+  border-radius: 5px;
+  box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  z-index: 100;
+}
+
+.tooltip::before {
+  position: absolute;
+  content: '';
+  height: 8px;
+  width: 8px;
+  background: #fff;
+  bottom: -3px;
+  left: 50%;
+  transform: translate(-50%) rotate(45deg);
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.icon:hover .tooltip {
+  top: -45px;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.icon:hover span,
+.icon:hover .tooltip {
+  text-shadow: 0px -1px 0px rgba(0, 0, 0, 0.1);
+}
+
+.fire:hover,
+.fire:hover .tooltip,
+.fire:hover .tooltip::before {
+  background: #e53e3e;
+  color: #fff;
+}
+
+.intrusion:hover,
+.intrusion:hover .tooltip,
+.intrusion:hover .tooltip::before {
+  background: #2d3748;
+  color: #fff;
+}
+
+.loudNoise:hover,
+.loudNoise:hover .tooltip,
+.loudNoise:hover .tooltip::before {
+  background: #d69e2e;
+  color: #fff;
+}
+
+.selected {
+  background: #cbd5e0;
+}
+
+.react-datepicker__day--today {
+  font-weight: bold;
+  border: 1px solid red;
+}
+
+.cameraForm {
+  --background: #ffffff;
+  --text: #414856;
+  --radio: #7c96b2;
+  --radio-checked: #4f29f0;
+  --radio-size: 20px;
+  --width: 100%;
+  --border-radius: 10px;
+  background: var(--background);
+  border-radius: var(--border-radius);
+  color: var(--text);
+  position: relative;
+  box-shadow: 0 10px 30px rgba(65, 72, 86, 0.05);
+  padding: 10px 20px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  z-index: 10;
+}
+
+.cameraForm label {
+  cursor: pointer;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cameraForm input[type='radio'] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  position: relative;
+  height: var(--radio-size);
+  width: var(--radio-size);
+  outline: none;
+  margin: 0 10px 0 0;
+  cursor: pointer;
+  border: 2px solid var(--radio);
+  background: transparent;
+  border-radius: 50%;
+  display: grid;
+  justify-self: end;
+  justify-items: center;
+  align-items: center;
+  overflow: hidden;
+  transition: border 0.5s ease;
+}
+
+.cameraForm input[type='radio']::before,
+.cameraForm input[type='radio']::after {
+  content: '';
+  display: flex;
+  justify-self: center;
+  border-radius: 50%;
+}
+
+.cameraForm input[type='radio']::before {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: var(--background);
+  z-index: 1;
+  opacity: var(--opacity, 1);
+}
+
+.cameraForm input[type='radio']::after {
+  position: relative;
+  width: calc(100% / 2);
+  height: calc(100% / 2);
+  background: var(--radio-checked);
+  top: var(--y, 100%);
+  transition: top 0.5s cubic-bezier(0.48, 1.97, 0.5, 0.63);
+}
+
+.cameraForm input[type='radio']:checked {
+  --radio: var(--radio-checked);
+}
+
+.cameraForm input[type='radio']:checked::after {
+  --y: 0%;
+  animation: stretch-animate 0.3s ease-out 0.17s;
+}
+
+.cameraForm input[type='radio']:checked::before {
+  --opacity: 0;
+}
+
+.cameraForm input[type='radio']:checked ~ input[type='radio']::after {
+  --y: -100%;
+}
+
+.cameraForm input[type='radio']:not(:checked)::before {
+  --opacity: 1;
+  transition: opacity 0s linear 0.5s;
+}
+
+@keyframes stretch-animate {
+  0% {
+    transform: scale(1, 1);
+  }
+
+  28% {
+    transform: scale(1.15, 0.85);
+  }
+
+  50% {
+    transform: scale(0.9, 1.1);
+  }
+
+  100% {
+    transform: scale(1, 1);
+  }
+}
+
+.cameraForm input[type='radio']:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.cameraForm input[type='radio']:active::after {
+  background: var(--radio-checked);
+}
+
+.cameraForm input[type='radio']:hover::after {
+  background: var(--radio-checked);
+}
+
+.socials {
+  position: fixed;
+  display: block;
+  left: 20px;
+  bottom: 20px;
+}
+
+.socials > a {
+  display: block;
+  width: 30px;
+  opacity: 0.2;
+  transform: scale(var(--scale, 0.8));
+  transition: transform 0.3s cubic-bezier(0.38, -0.12, 0.24, 1.91);
+}
+
+.socials > a:hover {
+  --scale: 1;
+}

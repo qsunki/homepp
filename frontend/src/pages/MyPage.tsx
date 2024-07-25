@@ -17,7 +17,7 @@ import Support from '../components/mypage/Support';
 import DeviceManagement from '../components/mypage/DeviceManagement';
 import CamSharing from '../components/mypage/CamSharingManagement';
 import Settings from '../components/mypage/Settings';
-import { useUserStore } from '../store/useUserStore';
+import { useUserStore } from '../stores/useUserStore';
 
 const MyPage: React.FC = () => {
   const [modalContent, setModalContent] = useState<React.ReactNode>(null);

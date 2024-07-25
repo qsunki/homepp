@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useUserStore } from '../store/useUserStore';
+import { useUserStore } from '../stores/useUserStore';
 import SignIn from './SignIn'; // SignIn 컴포넌트 임포트
-import logo from '../asset/icon/logo.png';
+import logo from '../assets/icon/logo.png';
 import {
   FaBars,
   FaBell,

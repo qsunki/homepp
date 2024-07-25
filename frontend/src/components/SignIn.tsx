@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUserStore, dummyUsers } from '../store/useUserStore';
-import backArrow from '../asset/signin/backarrow.png';
-import naverLogin from '../asset/signin/naverlogin.png';
-import kakaoLogin from '../asset/signin/kakaologin.png';
+import { useUserStore, dummyUsers } from '../stores/useUserStore';
+import backArrow from '../assets/signin/backarrow.png';
+import naverLogin from '../assets/signin/naverlogin.png';
+import kakaoLogin from '../assets/signin/kakaologin.png';
 import SignUp from './SignUp';
 
 interface SignInProps {

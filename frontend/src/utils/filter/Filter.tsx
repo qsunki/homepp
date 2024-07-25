@@ -1,7 +1,7 @@
 import React from 'react';
-import fireIcon from '../../asset/filter/fire.png';
-import soundIcon from '../../asset/filter/sound.png';
-import thiefIcon from '../../asset/filter/thief.png';
+import fireIcon from '../../assets/filter/fire.png';
+import soundIcon from '../../assets/filter/sound.png';
+import thiefIcon from '../../assets/filter/thief.png';
 import styles from './Filter.module.css';
 
 interface FilterProps {

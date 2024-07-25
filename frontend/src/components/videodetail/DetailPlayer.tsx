@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useVideoStore } from '../../store/useVideoStore';
-import playIcon from '../../asset/videodetail/play.png';
-import pauseIcon from '../../asset/videodetail/pause.png';
-import volumeIcon from '../../asset/videodetail/volume.png';
-import pipIcon from '../../asset/videodetail/pip.png';
-import fullscreenIcon from '../../asset/videodetail/fullscreen.png';
-import recordIcon from '../../asset/livevideo/record.png';
-import stopIcon from '../../asset/livevideo/stop.png';
-import fireIcon from '../../asset/filter/fire.png';
-import soundIcon from '../../asset/filter/sound.png';
-import thiefIcon from '../../asset/filter/thief.png';
+import { useVideoStore } from '../../stores/useVideoStore';
+import playIcon from '../../assets/videodetail/play.png';
+import pauseIcon from '../../assets/videodetail/pause.png';
+import volumeIcon from '../../assets/videodetail/volume.png';
+import pipIcon from '../../assets/videodetail/pip.png';
+import fullscreenIcon from '../../assets/videodetail/fullscreen.png';
+import recordIcon from '../../assets/livevideo/record.png';
+import stopIcon from '../../assets/livevideo/stop.png';
+import fireIcon from '../../assets/filter/fire.png';
+import soundIcon from '../../assets/filter/sound.png';
+import thiefIcon from '../../assets/filter/thief.png';
 
 interface DetailPlayerProps {
   isLive?: boolean;
