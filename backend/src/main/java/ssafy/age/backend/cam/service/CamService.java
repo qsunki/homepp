@@ -2,10 +2,7 @@ package ssafy.age.backend.cam.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ssafy.age.backend.cam.exception.CamNotFoundException;
@@ -28,7 +25,7 @@ public class CamService {
     private final CamMapper camMapper = CamMapper.INSTANCE;
     private final String key;
 
-    public CamService (CamRepository camRepository, @Value("${openAPI.secret}") String key) {
+    public CamService(CamRepository camRepository, @Value("${openAPI.secret}") String key) {
         this.camRepository = camRepository;
         this.key = key;
     }
@@ -71,7 +68,7 @@ public class CamService {
     }
 
     private void setCamRegion(Cam cam) {
-        try{
+        try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(getJsonData(cam));
 
@@ -81,7 +78,7 @@ public class CamService {
             System.out.println(region);
             cam.setRegion(region);
             camRepository.save(cam);
-        } catch(Exception e){
+        } catch (Exception e) {
             throw new RuntimeException();
         }
     }
