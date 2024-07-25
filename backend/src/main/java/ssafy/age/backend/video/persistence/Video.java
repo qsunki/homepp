@@ -23,9 +23,6 @@ public class Video {
     @Column(name = "record_start_at")
     private LocalDateTime recordStartAt;
 
-    @Column(name = "record_end_at")
-    private LocalDateTime recordEndAt;
-
     private String url;
 
     private Long length;
@@ -33,12 +30,17 @@ public class Video {
     @OneToMany(mappedBy = "video")
     private List<Event> eventList;
 
-    public Video(Long id, LocalDateTime recordStartAt, LocalDateTime recordEndAt, String url, Long length, List<Event> eventList) {
+    private String thumbnailUrl;
+
+    private boolean isThreat;
+
+    public Video(Long id, LocalDateTime recordStartAt, String url, Long length, List<Event> eventList, String thumbnailUrl, boolean isThreat) {
         this.id = id;
         this.recordStartAt = recordStartAt;
-        this.recordEndAt = recordEndAt;
         this.url = url;
         this.length = length;
         this.eventList = eventList;
+        this.thumbnailUrl = thumbnailUrl;
+        this.isThreat = isThreat;
     }
 }

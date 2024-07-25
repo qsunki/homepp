@@ -2,8 +2,11 @@ package ssafy.age.backend.video.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ssafy.age.backend.event.persistence.EventType;
+import ssafy.age.backend.video.exception.VideoNotFoundException;
 import ssafy.age.backend.video.persistence.Video;
 import ssafy.age.backend.video.persistence.VideoRepository;
+import ssafy.age.backend.video.web.EventDetailDto;
 import ssafy.age.backend.video.web.VideoResponseDto;
 
 import java.time.LocalDateTime;
@@ -16,26 +19,45 @@ public class VideoService {
     private final VideoRepository videoRepository;
     private final VideoMapper videoMapper = VideoMapper.INSTANCE;
 
-    public List<VideoResponseDto> getAllVideos(String type, LocalDateTime startDate, LocalDateTime endDate, Long camId) {
+    public List<VideoResponseDto> getAllVideos(List<EventType> types, LocalDateTime startDate, LocalDateTime endDate, Long camId, boolean isThreat) {
 
-        List<Video> videoList = videoRepository.findAllVideos(type, camId, startDate, endDate);
+        List<Video> videoList = videoRepository.findAllVideos(types, startDate, endDate, camId, isThreat);
 
         return videoList.stream()
                 .map(video -> {
                     VideoResponseDto dto = videoMapper.toVideoResponseDto(video);
 
+                    List<EventDetailDto> eventDetails = video.getEventList().stream()
+                            .map(videoMapper::toEventDetailDto)
+                            .collect(Collectors.toList());
+                    dto.setEventDetails(eventDetails);
+
                     video.getEventList().stream()
-                            .filter(event -> event.getType().name().equals(type) && event.getCam().getId().equals(camId))
                             .findFirst()
-                            .ifPresent(event -> {
-                                dto.setCamId(event.getCam().getId());
-                                dto.setEventId(event.getId());
-                                dto.setType(event.getType());
-                                 // 썸네일 URL 설정 아직...
-                            });
+                            .ifPresent(event -> dto.setCamName(event.getCam().getName()));
+
                     return dto;
                 })
                 .collect(Collectors.toList());
+    }
+
+    public VideoResponseDto getVideoById(Long videoId) {
+
+        Video video = videoRepository.findById(videoId)
+                .orElseThrow(VideoNotFoundException::new);
+
+        VideoResponseDto dto = videoMapper.toVideoResponseDto(video);
+
+        List<EventDetailDto> eventDetails = video.getEventList().stream()
+                .map(videoMapper::toEventDetailDto)
+                .collect(Collectors.toList());
+        dto.setEventDetails(eventDetails);
+
+        video.getEventList().stream()
+                .findFirst()
+                .ifPresent(event -> dto.setCamName(event.getCam().getName()));
+
+        return dto;
     }
 
     public void deleteVideo(Long videoId) {

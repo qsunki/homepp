@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ssafy.age.backend.event.persistence.EventType;
 import ssafy.age.backend.video.service.VideoService;
 
 import java.net.MalformedURLException;
@@ -26,9 +27,15 @@ public class VideoController {
     private final VideoService videoService;
 
     @GetMapping
-    public List<VideoResponseDto> getAllVideos(@RequestParam String type, @RequestParam LocalDateTime startDate,
-                                                   @RequestParam LocalDateTime endDate, @RequestParam Long camId) {
-        return videoService.getAllVideos(type, startDate, endDate, camId);
+    public List<VideoResponseDto> getAllVideos(@RequestParam List<EventType> types, @RequestParam LocalDateTime startDate,
+                                               @RequestParam LocalDateTime endDate, @RequestParam Long camId, @RequestParam boolean isThreat) {
+        return videoService.getAllVideos(types, startDate, endDate, camId, isThreat);
+    }
+
+
+    @GetMapping("/{videoId}")
+    public VideoResponseDto getVideoById(@PathVariable Long videoId) {
+        return videoService.getVideoById(videoId);
     }
 
     @DeleteMapping("/{videoId}")
