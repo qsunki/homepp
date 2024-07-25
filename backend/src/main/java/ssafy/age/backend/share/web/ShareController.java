@@ -3,9 +3,6 @@ package ssafy.age.backend.share.web;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ssafy.age.backend.share.persistence.Share;
-import ssafy.age.backend.share.persistence.ShareRepository;
-import ssafy.age.backend.share.service.ShareMapper;
 import ssafy.age.backend.share.service.ShareService;
 
 import java.util.List;
@@ -26,12 +23,12 @@ public class ShareController {
 
     @PostMapping
     public ShareDto createShare(@RequestBody ShareDto shareDto) {
-        return shareService.createShare(shareDto);
+        return shareService.createShare(shareDto.getEmail(), shareDto.getNickname());
 
     }
 
-    @DeleteMapping
-    public void deleteShare(@PathVariable String email) {shareService.deleteShare(email);}
+    @DeleteMapping("/{sharedMemberEmail}")
+    public void deleteShare(@PathVariable String sharedMemberEmail) {shareService.deleteShare(sharedMemberEmail);}
 
 
 }
