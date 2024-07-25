@@ -24,6 +24,8 @@ WORKDIR /app
 # Step 8: Copy the built JAR file from the build stage
 COPY --from=build /app/build/libs/backend-0.0.1-SNAPSHOT.jar app.jar
 
+COPY fcmKey.json /app/
+
 # Step 9: Specify the entry point for the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
 
