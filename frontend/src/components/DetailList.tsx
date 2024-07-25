@@ -64,7 +64,7 @@ const DetailList: React.FC<DetailListProps> = ({
       <div className="flex justify-around mb-4">
         <button
           className={`p-2 rounded ${
-            filter === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-200'
+            filter.type === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-200'
           }`}
           onClick={() => setFilter('all')}
         >
@@ -72,7 +72,7 @@ const DetailList: React.FC<DetailListProps> = ({
         </button>
         <button
           className={`p-2 rounded ${
-            filter === 'fire' ? 'bg-blue-500 text-white' : 'bg-gray-200'
+            filter.type === 'fire' ? 'bg-blue-500 text-white' : 'bg-gray-200'
           }`}
           onClick={() => setFilter('fire')}
         >
@@ -80,7 +80,9 @@ const DetailList: React.FC<DetailListProps> = ({
         </button>
         <button
           className={`p-2 rounded ${
-            filter === 'intrusion' ? 'bg-blue-500 text-white' : 'bg-gray-200'
+            filter.type === 'intrusion'
+              ? 'bg-blue-500 text-white'
+              : 'bg-gray-200'
           }`}
           onClick={() => setFilter('intrusion')}
         >
@@ -88,7 +90,7 @@ const DetailList: React.FC<DetailListProps> = ({
         </button>
         <button
           className={`p-2 rounded ${
-            filter === 'loud' ? 'bg-blue-500 text-white' : 'bg-gray-200'
+            filter.type === 'loud' ? 'bg-blue-500 text-white' : 'bg-gray-200'
           }`}
           onClick={() => setFilter('loud')}
         >
