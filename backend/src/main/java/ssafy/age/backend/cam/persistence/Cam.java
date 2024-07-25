@@ -19,6 +19,7 @@ public class Cam {
 
     private String ip;
 
+    @Setter
     private String region;
 
     @Enumerated(EnumType.STRING)
