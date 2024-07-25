@@ -17,3 +17,6 @@ jwt:
 mqtt:
   broker:
     url: "tcp://localhost:1883"
+
+openAPI:
+  secret: EJYGY6gFWqLO%2BToCg%2BQVJjHFsfobmZqYiD5IcpSHOsILiQPgKprjjZtcQoKngLjbKMTt7gYj04ZG0Xh2LeE1ZQ%3D%3D
