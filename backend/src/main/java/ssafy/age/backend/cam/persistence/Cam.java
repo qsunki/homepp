@@ -49,4 +49,8 @@ public class Cam {
     public void unregisterCam() {
         this.status = CamStatus.UNREGISTERED;
     }
+
+    public void setCamRegion(String region) {
+        this.region = region;
+    }
 }
