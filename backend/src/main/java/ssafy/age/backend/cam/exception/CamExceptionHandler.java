@@ -19,4 +19,14 @@ public class CamExceptionHandler {
     public ProblemDetail camDeleteException(CamDeleteException e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
     }
+
+    @ExceptionHandler(InvalidURLException.class)
+    public ProblemDetail invalidURLException(InvalidURLException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
+    }
+
+    @ExceptionHandler(JsonParsingException.class)
+    public ProblemDetail jsonParsingException(JsonParsingException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+    }
 }
