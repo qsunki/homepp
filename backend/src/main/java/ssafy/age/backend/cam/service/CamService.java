@@ -1,6 +1,9 @@
 package ssafy.age.backend.cam.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.stereotype.Service;
@@ -17,12 +20,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class CamService {
 
     private final CamRepository camRepository;
     private final CamMapper camMapper = CamMapper.INSTANCE;
-    private final String KEY = "EJYGY6gFWqLO%2BToCg%2BQVJjHFsfobmZqYiD5IcpSHOsILiQPgKprjjZtcQoKngLjbKMTt7gYj04ZG0Xh2LeE1ZQ%3D%3D";
 
     public List<CamResponseDto> getAllCams() {
         List<Cam> camList = camRepository.findAll();
@@ -61,31 +64,38 @@ public class CamService {
         }
     }
 
-    public void setCamRegion(Cam cam) {
+    private void setCamRegion(Cam cam) {
         try{
-            URL url = new URL("https://apis.data.go.kr/B551505/whois/ip_address?serviceKey="
-                    + KEY + "&query=" + cam.getIp() + "&answer=json");
-            BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream(), StandardCharsets.UTF_8));
-            String result = br.readLine();
+            String jsonData = getJsonData(cam);
 
             JSONParser jsonParser = new JSONParser();
-            JSONObject jsonObject = (JSONObject)jsonParser.parse(result + "}");
-            System.out.println(jsonObject.toJSONString());
+            JSONObject jsonObject = (JSONObject)jsonParser.parse(jsonData + "}");
+            log.debug("result : {}", jsonObject);
             JSONObject response = (JSONObject)jsonObject.get("response");
-            System.out.println(response.toJSONString());
+            log.debug("response : {}", response);
             JSONObject whois = (JSONObject)response.get("whois");
-            System.out.println(whois.toJSONString());
+            log.debug("whois : {}", whois);
             JSONObject korean = (JSONObject)whois.get("korean");
-            System.out.println(korean.toJSONString());
+            log.debug("korean : {}", korean);
             JSONObject pi = (JSONObject)korean.get("PI");
-            System.out.println(pi.toJSONString());
+            log.debug("PI : {}", pi);
             JSONObject netinfo = (JSONObject)pi.get("netinfo");
-            System.out.println(netinfo.toJSONString());
             Object addr = netinfo.get("addr");
 
-            cam.setCamRegion(addr.toString());
+            cam.setRegion(addr.toString());
             camRepository.save(cam);
         } catch(Exception e){
+            throw new RuntimeException();
+        }
+    }
+
+    private String getJsonData(Cam cam) {
+        try {
+            URL url = new URL("https://apis.data.go.kr/B551505/whois/ip_address?serviceKey="
+                    + "${openAPI.secret}" + "&query=" + cam.getIp() + "&answer=json");
+            BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream(), StandardCharsets.UTF_8));
+            return br.readLine();
+        } catch (Exception e) {
             throw new RuntimeException();
         }
     }

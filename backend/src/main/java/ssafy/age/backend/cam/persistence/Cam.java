@@ -19,6 +19,7 @@ public class Cam {
 
     private String ip;
 
+    @Setter
     private String region;
 
     @Enumerated(EnumType.STRING)
@@ -48,9 +49,5 @@ public class Cam {
 
     public void unregisterCam() {
         this.status = CamStatus.UNREGISTERED;
-    }
-
-    public void setCamRegion(String region) {
-        this.region = region;
     }
 }
