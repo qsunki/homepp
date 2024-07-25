@@ -8,13 +8,13 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": "./src", // baseUrl을 설정하여 경로를 간단하게 만들 수 있습니다.
+    "baseUrl": "./src",
     "paths": {
-      "@components/*": ["src/components/*"],
-      "@pages/*": ["src/pages/*"],
-      "@assets/*": ["src/assets/*"],
-      "@store/*": ["src/stores/*"],
-      "@utils/*": ["src/utils/*"]
+      "@components/*": ["components/*"],
+      "@pages/*": ["pages/*"],
+      "@assets/*": ["assets/*"],
+      "@store/*": ["stores/*"],
+      "@utils/*": ["utils/*"]
     }
   },
   "include": ["src", "declarations.d.ts"]
