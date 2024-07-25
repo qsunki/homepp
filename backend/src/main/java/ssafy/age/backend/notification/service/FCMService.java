@@ -9,8 +9,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ssafy.age.backend.auth.service.AuthService;
 import ssafy.age.backend.member.persistence.Member;
+import ssafy.age.backend.member.persistence.MemberRepository;
+import ssafy.age.backend.member.service.MemberService;
 import ssafy.age.backend.notification.persistence.FCMToken;
 import ssafy.age.backend.notification.persistence.FCMTokenRepository;
+import ssafy.age.backend.notification.web.FCMTokenDto;
 
 import java.util.List;
 
@@ -21,6 +24,7 @@ public class FCMService {
 
     private final FCMTokenRepository fcmTokenRepository;
     private final AuthService authService;
+    private final MemberRepository memberRepository;
 
     public List<FCMToken> getAllFCMTokens() {
         return fcmTokenRepository.findAll();
@@ -35,7 +39,7 @@ public class FCMService {
 
     public FCMTokenDto save(String token) {
         String memberEmail = authService.getMemberEmail();
-        Member member = Member.builder().email(memberEmail).build();
+        Member member = memberRepository.findByEmail(memberEmail);
         FCMToken fcmToken = new FCMToken(token, member);
         FCMToken saved = fcmTokenRepository.save(fcmToken);
         return new FCMTokenDto(saved.getToken());
