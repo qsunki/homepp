@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useUserStore } from '../store/useUserStore';
+import { useNavigate } from 'react-router-dom';
 import characterImage from '../asset/landingpage/characterbg.png';
 import laptop from '../asset/landingpage/laptop.png';
 import notification from '../asset/landingpage/notification.png';
@@ -10,9 +12,15 @@ import { SignIn } from '../components/SignIn';
 
 const LandingPage: React.FC = () => {
   const [isSignInVisible, setSignInVisible] = useState(false);
+  const { isLoggedIn } = useUserStore();
+  const navigate = useNavigate();
 
   const openSignInPopup = () => {
-    setSignInVisible(true);
+    if (isLoggedIn) {
+      navigate('/home'); // 로그인된 상태라면 홈화면으로 이동
+    } else {
+      setSignInVisible(true); // 로그인되지 않은 상태라면 로그인 팝업 열기
+    }
   };
 
   const closeSignInPopup = () => {

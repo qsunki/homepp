@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useUserStore } from 'store/useUserStore';
+import { useUserStore } from '../store/useUserStore';
 import backArrow from '../asset/signup/backarrow.png';
 
 interface SignUpProps {
@@ -102,9 +102,14 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
 
   // 팝업을 닫습니다.
   const handleClose = () => {
+    resetPopup();
+    onClose();
+  };
+
+  // 이전 단계로 돌아갑니다.
+  const handleBack = () => {
     if (step === 1) {
-      resetPopup();
-      onClose();
+      handleClose();
     } else {
       setStep((prevStep) => prevStep - 1);
     }
@@ -214,9 +219,9 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
       <div
         className="bg-white p-8 rounded-lg relative w-96 shadow-lg"
         onClick={(e) => e.stopPropagation()}
-        style={{ height: 500 }}
+        style={{ height: 550 }} // 높이를 550px로 설정
       >
-        <button className="absolute top-2 left-2" onClick={handleClose}>
+        <button className="absolute top-2 left-2" onClick={handleBack}>
           <img className="w-6 h-6" alt="backArrow" src={backArrow} />
         </button>
         <ProgressBar />
@@ -405,7 +410,7 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                       return;
                     }
                     // 회원가입 완료 처리 로직 추가
-                    setUserId('exampleUserId'); // 예시 userId 설정
+                    setUserId(123); // 예시 userId 설정
                     login();
                     alert('회원가입이 완료되었습니다.');
                     resetPopup();
@@ -469,7 +474,7 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                       return;
                     }
                     // 회원가입 완료 처리 로직 추가
-                    setUserId('exampleUserId'); // 예시 userId 설정
+                    setUserId(123); // 예시 userId 설정
                     login();
                     alert('회원가입이 완료되었습니다.');
                     resetPopup();
@@ -497,7 +502,7 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                   return;
                 }
                 // 회원가입 완료 처리 로직 추가
-                setUserId('exampleUserId'); // 예시 userId 설정
+                setUserId(123); // 예시 userId 설정
                 login();
                 alert('회원가입이 완료되었습니다.');
                 resetPopup();

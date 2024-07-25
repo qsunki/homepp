@@ -8,6 +8,7 @@ import MyPage from './pages/MyPage';
 import LiveVideo from './pages/LiveVideo';
 import VideoList from './pages/VideoList';
 import VideoDetail from 'pages/VideoDetail';
+import ScrollToTop from './utils/ScrollToTop';
 import './App.css';
 import 'tw-elements';
 import 'tw-elements/dist/css/tw-elements.min.css';
@@ -15,6 +16,7 @@ import 'tw-elements/dist/css/tw-elements.min.css';
 const App: React.FC = () => {
   return (
     <Router>
+      <ScrollToTop />
       <div className="flex flex-col min-h-screen">
         <Navbar />
         <div className="flex-grow">
