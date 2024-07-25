@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { useUserStore } from 'store/useUserStore';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useUserStore, dummyUsers } from '../store/useUserStore';
 import backArrow from '../asset/signin/backarrow.png';
 import naverLogin from '../asset/signin/naverlogin.png';
 import kakaoLogin from '../asset/signin/kakaologin.png';
@@ -10,33 +11,50 @@ interface SignInProps {
 }
 
 export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
-  const { email, password, setEmail, setPassword, login } = useUserStore();
+  const { setUserId, setPhoneNumber, setEmail, setPassword, login } =
+    useUserStore();
+  const [inputEmail, setInputEmail] = useState('');
+  const [inputPassword, setInputPassword] = useState('');
   const [loginError, setLoginError] = useState<string | null>(null);
   const [showSignUp, setShowSignUp] = useState(false);
 
+  const navigate = useNavigate(); // useNavigate 훅 사용
+
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
+    setInputEmail(e.target.value);
     setLoginError(null);
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
+    setInputPassword(e.target.value);
     setLoginError(null);
   };
 
   const handleLogin = () => {
-    const isEmailCorrect = email === 'correct@example.com';
-    const isPasswordCorrect = password === 'correctPassword';
+    const user = dummyUsers.find((u) => u.email === inputEmail);
 
-    if (!isEmailCorrect) {
+    if (!user) {
       setLoginError('이메일을 확인해 주세요.');
-    } else if (!isPasswordCorrect) {
-      setLoginError('비밀번호를 확인해주세요.');
-    } else {
-      setLoginError(null);
-      login();
-      // 로그인 성공 처리
-      // 예: onClose(); 페이지 이동 등
+      return;
+    }
+
+    if (user.password !== inputPassword) {
+      setLoginError('비밀번호를 확인해 주세요.');
+      return;
+    }
+
+    setUserId(user.userId);
+    setPhoneNumber(user.phoneNumber);
+    setEmail(user.email);
+    setPassword(user.password);
+    login();
+    navigate('/home'); // 로그인 성공 시 홈페이지로 리다이렉트
+    onClose();
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleLogin();
     }
   };
 
@@ -57,25 +75,11 @@ export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
   };
 
   const handleClose = () => {
-    setEmail('');
-    setPassword('');
+    setInputEmail('');
+    setInputPassword('');
     setLoginError(null);
     onClose();
   };
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if ((event.target as Element).classList.contains('overlay')) {
-        handleClose();
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [onClose]);
 
   return (
     <div
@@ -85,7 +89,7 @@ export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
       <div
         className="bg-white rounded-lg w-96 p-8 relative"
         onClick={(e) => e.stopPropagation()}
-        style={{ height: 500 }}
+        style={{ height: 550 }} // 높이를 550px로 설정
       >
         <button className="absolute top-2 left-2" onClick={handleClose}>
           <img className="w-6 h-6" alt="backArrow" src={backArrow} />
@@ -96,8 +100,9 @@ export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
           <div className="flex flex-col gap-2">
             <input
               type="email"
-              value={email}
+              value={inputEmail}
               onChange={handleEmailChange}
+              onKeyDown={handleKeyDown}
               className="border rounded px-4 py-2 w-full"
               placeholder="이메일을 입력하세요"
             />
@@ -108,12 +113,13 @@ export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
           <div className="flex flex-col gap-2">
             <input
               type="password"
-              value={password}
+              value={inputPassword}
               onChange={handlePasswordChange}
+              onKeyDown={handleKeyDown}
               className="border rounded px-4 py-2 w-full"
               placeholder="비밀번호를 입력하세요"
             />
-            {loginError === '비밀번호를 확인해주세요.' && (
+            {loginError === '비밀번호를 확인해 주세요.' && (
               <div className="text-red-500 text-xs">{loginError}</div>
             )}
           </div>

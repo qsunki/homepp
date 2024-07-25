@@ -17,7 +17,7 @@ const HomePage: React.FC = () => {
 
   useEffect(() => {
     if (!isLoggedIn) {
-      navigate('/signin');
+      navigate('/');
     }
   }, [isLoggedIn, navigate]);
 
