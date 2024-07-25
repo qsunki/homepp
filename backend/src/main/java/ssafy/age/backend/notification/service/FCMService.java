@@ -7,6 +7,8 @@ import com.google.firebase.messaging.Notification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ssafy.age.backend.auth.service.AuthService;
+import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.notification.persistence.FCMToken;
 import ssafy.age.backend.notification.persistence.FCMTokenRepository;
 
@@ -18,6 +20,7 @@ import java.util.List;
 public class FCMService {
 
     private final FCMTokenRepository fcmTokenRepository;
+    private final AuthService authService;
 
     public List<FCMToken> getAllFCMTokens() {
         return fcmTokenRepository.findAll();
@@ -30,10 +33,12 @@ public class FCMService {
         }
     }
 
-    public FCMTokenDto save(FCMTokenDto token) {
-        FCMToken fcmToken = new FCMToken(token.value);
-        fcmTokenRepository.save(fcmToken);
-        return token;
+    public FCMTokenDto save(String token) {
+        String memberEmail = authService.getMemberEmail();
+        Member member = Member.builder().email(memberEmail).build();
+        FCMToken fcmToken = new FCMToken(token, member);
+        FCMToken saved = fcmTokenRepository.save(fcmToken);
+        return new FCMTokenDto(saved.getToken());
     }
 
     public void sendMessage(String targetToken, String title, String body) {
