@@ -37,4 +37,5 @@ out/
 .vscode/
 
 ### Secret ###
-**/fcmKey.json
+fcmKey.json
+.env
