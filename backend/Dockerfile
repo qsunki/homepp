@@ -10,6 +10,8 @@ COPY build.gradle settings.gradle /app/
 # Step 4: Copy source code
 COPY src /app/src
 
+COPY fcmKey.json /app/
+
 # Step 5: Build the application
 RUN gradle build --no-daemon
 
