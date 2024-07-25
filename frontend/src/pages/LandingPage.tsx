@@ -1,18 +1,26 @@
 import React, { useState } from 'react';
-import characterImage from '../asset/landingpage/characterbg.png';
-import laptop from '../asset/landingpage/laptop.png';
-import notification from '../asset/landingpage/notification.png';
-import clock from '../asset/landingpage/clock.png';
-import shield from '../asset/landingpage/shield.png';
-import webCamera from '../asset/landingpage/webCamera.png';
-import characterHead from '../asset/landingpage/characterhead.png';
+import { useUserStore } from '../stores/useUserStore';
+import { useNavigate } from 'react-router-dom';
+import characterImage from '../assets/landingpage/characterbg.png';
+import laptop from '../assets/landingpage/laptop.png';
+import notification from '../assets/landingpage/notification.png';
+import clock from '../assets/landingpage/clock.png';
+import shield from '../assets/landingpage/shield.png';
+import webCamera from '../assets/landingpage/webCamera.png';
+import characterHead from '../assets/landingpage/characterhead.png';
 import { SignIn } from '../components/SignIn';
 
 const LandingPage: React.FC = () => {
   const [isSignInVisible, setSignInVisible] = useState(false);
+  const { isLoggedIn } = useUserStore();
+  const navigate = useNavigate();
 
   const openSignInPopup = () => {
-    setSignInVisible(true);
+    if (isLoggedIn) {
+      navigate('/home'); // 로그인된 상태라면 홈화면으로 이동
+    } else {
+      setSignInVisible(true); // 로그인되지 않은 상태라면 로그인 팝업 열기
+    }
   };
 
   const closeSignInPopup = () => {

@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUserStore } from '../store/useUserStore';
+import { useUserStore } from '../stores/useUserStore';
 import ChatBot from '../components/ChatBot';
-import livevideo_default from '../asset/homepage/livevideodefault.png';
-import arrow_right_circle from '../asset/homepage/arrowrightcircle.svg';
-import alert from '../asset/homepage/alert.png';
-import temperature from '../asset/homepage/temperature.png';
-import humidity from '../asset/homepage/humidity.png';
-import character from '../asset/icon/character.png';
+import livevideo_default from '../assets/homepage/livevideodefault.png';
+import arrow_right_circle from '../assets/homepage/arrowrightcircle.svg';
+import alert from '../assets/homepage/alert.png';
+import temperature from '../assets/homepage/temperature.png';
+import humidity from '../assets/homepage/humidity.png';
+import character from '../assets/icon/character.png';
 import { FiVideo } from 'react-icons/fi'; // react-icons에서 아이콘 가져오기
 
 const HomePage: React.FC = () => {
@@ -17,7 +17,7 @@ const HomePage: React.FC = () => {
 
   useEffect(() => {
     if (!isLoggedIn) {
-      navigate('/signin');
+      navigate('/');
     }
   }, [isLoggedIn, navigate]);
 

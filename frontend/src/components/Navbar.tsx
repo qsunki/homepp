@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useUserStore } from '../store/useUserStore';
-import logo from '../asset/icon/logo.png';
+import { useUserStore } from '../stores/useUserStore';
+import SignIn from './SignIn'; // SignIn 컴포넌트 임포트
+import logo from '../assets/icon/logo.png';
 import {
   FaBars,
   FaBell,
@@ -21,7 +22,8 @@ const Navbar: React.FC = () => {
   const [toggleMenu, setToggleMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string>('/');
-  const { isLoggedIn, login, logout } = useUserStore();
+  const { isLoggedIn, logout } = useUserStore();
+  const [showSignIn, setShowSignIn] = useState(false); // showSignIn 상태 추가
   const navigate = useNavigate();
   const location = useLocation();
   const navRef = useRef<HTMLDivElement>(null);
@@ -78,6 +80,7 @@ const Navbar: React.FC = () => {
   const handleNavigate = (url: string) => {
     if (!isLoggedIn) {
       alert('로그인이 필요합니다.');
+      setShowSignIn(true); // showSignIn 상태 업데이트
     } else {
       navigate(url);
     }
@@ -85,7 +88,7 @@ const Navbar: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/landingpage');
+    navigate('/');
   };
 
   const handleShowNotifications = () => {
@@ -252,7 +255,7 @@ const Navbar: React.FC = () => {
           </>
         ) : (
           <button
-            onClick={login}
+            onClick={() => setShowSignIn(true)} // 로그인 버튼 클릭 시 showSignIn 상태 업데이트
             className="px-3 py-1 border border-gray-800 rounded text-gray-800"
           >
             Login
@@ -319,6 +322,7 @@ const Navbar: React.FC = () => {
           </a>
         </li>
       </ul>
+      {showSignIn && <SignIn onClose={() => setShowSignIn(false)} />}
     </nav>
   );
 };

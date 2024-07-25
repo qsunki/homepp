@@ -4,10 +4,10 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import 'tw-elements/dist/css/tw-elements.min.css';
 import { FaCaretUp } from 'react-icons/fa';
-import styles from '../components/filter/Filter.module.css';
-import thiefIcon from 'asset/filter/thief.png';
-import fireIcon from 'asset/filter/fire.png';
-import soundIcon from 'asset/filter/sound.png';
+import styles from '../utils/filter/Filter1.module.css';
+import thiefIcon from 'assets/filter/thief.png';
+import fireIcon from 'assets/filter/fire.png';
+import soundIcon from 'assets/filter/sound.png';
 
 interface Video {
   id: number;

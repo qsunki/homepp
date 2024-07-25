@@ -19,6 +19,7 @@ interface Filter {
   types: string[];
   camera: string;
   type: string;
+  selectedTypes: string[];
 }
 
 interface VideoState {
@@ -37,6 +38,8 @@ interface VideoState {
   setLiveThumbnailUrl: (url: string) => void;
   updateFilteredVideos: () => void;
   reportVideo: (id: number) => void;
+  selectedTypes: string[];
+  setSelectedTypes: (types: string[]) => void;
 }
 
 const initialVideos: Video[] = [
@@ -111,6 +114,7 @@ const initialFilter: Filter = {
   types: [],
   camera: 'All Cameras',
   type: 'all',
+  selectedTypes: [],
 };
 
 export const useVideoStore = create<VideoState>((set, get) => ({
@@ -158,4 +162,6 @@ export const useVideoStore = create<VideoState>((set, get) => ({
     );
     set({ videos: updatedVideos });
   },
+  selectedTypes: [], // Add this line
+  setSelectedTypes: (types: string[]) => set({ selectedTypes: types }), // Add this line
 }));

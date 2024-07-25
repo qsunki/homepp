@@ -1,28 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { useUserStore } from 'store/useUserStore'; // Zustand 스토어 가져오기
-import backArrow from '../asset/signup/backarrow.png';
+import { useUserStore } from '../stores/useUserStore';
+import backArrow from '../assets/signup/backarrow.png';
 
 interface SignUpProps {
   onClose: () => void;
 }
 
 const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
-  // Zustand 스토어에서 상태와 함수를 가져옵니다.
   const {
+    phoneNumber,
+    email,
+    password,
+    setPhoneNumber,
+    setEmail,
+    setPassword,
+    setUserId,
+    login,
     checkboxes,
     setCheckboxes,
-    step,
-    nextStep,
-    prevStep,
-    resetSteps,
-    height,
   } = useUserStore();
+
+  const [step, setStep] = useState(1);
 
   // 로컬 상태를 정의합니다.
   const [allChecked, setAllChecked] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -82,25 +83,8 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
     setAllChecked(allChecked);
   };
 
-  // 팝업을 닫습니다.
-  const handleClose = () => {
-    if (step === 1) {
-      setCheckboxes({
-        privacyPolicy: false,
-        marketing: false,
-        age: false,
-        terms: false,
-      });
-      setAllChecked(false);
-      resetSteps();
-      onClose();
-    } else {
-      prevStep();
-    }
-  };
-
-  // 팝업을 최종적으로 닫습니다.
-  const handleFinalClose = () => {
+  // 팝업을 초기화하는 함수입니다.
+  const resetPopup = () => {
     setCheckboxes({
       privacyPolicy: false,
       marketing: false,
@@ -108,8 +92,27 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
       terms: false,
     });
     setAllChecked(false);
-    resetSteps();
+    setStep(1);
+    setPhoneNumber('');
+    setEmail('');
+    setPassword('');
+    setConfirmPassword('');
+    setErrorMessage('');
+  };
+
+  // 팝업을 닫습니다.
+  const handleClose = () => {
+    resetPopup();
     onClose();
+  };
+
+  // 이전 단계로 돌아갑니다.
+  const handleBack = () => {
+    if (step === 1) {
+      handleClose();
+    } else {
+      setStep((prevStep) => prevStep - 1);
+    }
   };
 
   // 다음 단계로 넘어갑니다.
@@ -149,7 +152,7 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
         return;
       }
     }
-    nextStep();
+    setStep((prevStep) => prevStep + 1);
   };
 
   // 휴대폰 번호 입력 시 형식을 적용합니다.
@@ -170,7 +173,7 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
   };
 
   // Enter 키를 눌렀을 때 버튼을 클릭하는 함수입니다.
-  const handleKeyPress = (
+  const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
     action: () => void
   ) => {
@@ -179,19 +182,49 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
     }
   };
 
+  // Progress Bar 컴포넌트를 정의합니다.
+  const ProgressBar = () => {
+    const steps = ['Step 1', 'Step 2', 'Step 3', 'Step 4'];
+    return (
+      <div className="flex items-center justify-center mb-8">
+        {steps.map((label, index) => (
+          <div key={index} className="flex items-center">
+            <div
+              className={`flex items-center justify-center w-6 h-6 text-sm rounded-full border-2 ${
+                index + 1 <= step
+                  ? 'border-blue-600 bg-blue-600 text-white'
+                  : 'border-gray-300 bg-white text-gray-300'
+              }`}
+            >
+              {index + 1}
+            </div>
+            {index < steps.length - 1 && (
+              <div
+                className={`w-12 h-1 ${
+                  index + 1 < step ? 'bg-blue-600' : 'bg-gray-300'
+                }`}
+              />
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div
       className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-50 bg-black bg-opacity-50"
-      onClick={handleFinalClose}
+      onClick={resetPopup}
     >
       <div
         className="bg-white p-8 rounded-lg relative w-96 shadow-lg"
-        style={{ height }}
         onClick={(e) => e.stopPropagation()}
+        style={{ height: 550 }} // 높이를 550px로 설정
       >
-        <button className="absolute top-2 left-2" onClick={handleClose}>
+        <button className="absolute top-2 left-2" onClick={handleBack}>
           <img className="w-6 h-6" alt="backArrow" src={backArrow} />
         </button>
+        <ProgressBar />
         {step === 1 && (
           <>
             <div className="text-center mb-8">
@@ -289,7 +322,7 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                 placeholder="휴대폰 번호"
                 value={phoneNumber}
                 onChange={handlePhoneNumberChange}
-                onKeyPress={(e) => handleKeyPress(e, handleNextStep)}
+                onKeyDown={(e) => handleKeyDown(e, handleNextStep)}
               />
               {errorMessage && (
                 <div className="text-red-500 text-xs mb-4">{errorMessage}</div>
@@ -325,7 +358,7 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                 placeholder="이메일"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                onKeyPress={(e) => handleKeyPress(e, handleNextStep)}
+                onKeyDown={(e) => handleKeyDown(e, handleNextStep)}
               />
               {errorMessage && (
                 <div className="text-red-500 text-xs mb-4">{errorMessage}</div>
@@ -362,8 +395,8 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                 placeholder="비밀번호"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                onKeyPress={(e) =>
-                  handleKeyPress(e, () => {
+                onKeyDown={(e) =>
+                  handleKeyDown(e, () => {
                     if (password !== confirmPassword) {
                       setErrorMessage('비밀번호를 확인해주세요.');
                       return;
@@ -377,8 +410,11 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                       return;
                     }
                     // 회원가입 완료 처리 로직 추가
+                    setUserId(123); // 예시 userId 설정
+                    login();
                     alert('회원가입이 완료되었습니다.');
-                    handleFinalClose();
+                    resetPopup();
+                    onClose();
                   })
                 }
               />
@@ -423,8 +459,8 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                 placeholder="비밀번호 확인"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                onKeyPress={(e) =>
-                  handleKeyPress(e, () => {
+                onKeyDown={(e) =>
+                  handleKeyDown(e, () => {
                     if (password !== confirmPassword) {
                       setErrorMessage('비밀번호를 확인해주세요.');
                       return;
@@ -438,8 +474,11 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                       return;
                     }
                     // 회원가입 완료 처리 로직 추가
+                    setUserId(123); // 예시 userId 설정
+                    login();
                     alert('회원가입이 완료되었습니다.');
-                    handleFinalClose();
+                    resetPopup();
+                    onClose();
                   })
                 }
               />
@@ -463,8 +502,11 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                   return;
                 }
                 // 회원가입 완료 처리 로직 추가
+                setUserId(123); // 예시 userId 설정
+                login();
                 alert('회원가입이 완료되었습니다.');
-                handleFinalClose();
+                resetPopup();
+                onClose();
               }}
             >
               완료
