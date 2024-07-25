@@ -34,4 +34,7 @@ public class Share {
         this.sharedMemberId = sharedMemberId;
         this.nickname = nickname;
     }
+
+    public void setNickname(String nickname) {
+    }
 }

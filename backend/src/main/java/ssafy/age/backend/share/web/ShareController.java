@@ -27,6 +27,11 @@ public class ShareController {
 
     }
 
+    @PatchMapping
+    public ShareDto updateShare(@RequestBody ShareDto shareDto) {
+        return shareService.updateShare(shareDto.getEmail(), shareDto.getNickname());
+    }
+
     @DeleteMapping("/{sharedMemberEmail}")
     public void deleteShare(@PathVariable String sharedMemberEmail) {shareService.deleteShare(sharedMemberEmail);}
 
