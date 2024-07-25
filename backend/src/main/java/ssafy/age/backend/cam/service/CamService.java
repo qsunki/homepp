@@ -2,10 +2,7 @@ package ssafy.age.backend.cam.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ssafy.age.backend.cam.exception.CamNotFoundException;
@@ -44,7 +41,6 @@ public class CamService {
         Cam cam = camRepository.findById(camId)
                 .orElseThrow(CamNotFoundException::new);
         cam.updateCamName(name);
-        setCamRegion(cam);
 
         return camMapper.toCamResponseDto(camRepository.save(cam));
     }
@@ -53,6 +49,7 @@ public class CamService {
         Cam cam = camRepository.findById(camId)
                 .orElseThrow(CamNotFoundException::new);
         cam.registerMember(member);
+        setCamRegion(cam);
 
         return camMapper.toCamResponseDto(camRepository.save(cam));
     }
@@ -95,5 +92,10 @@ public class CamService {
         } catch (Exception e) {
             throw new RuntimeException();
         }
+    }
+
+    public CamResponseDto createCam(String ip) {
+        Cam cam = camRepository.save(Cam.builder().ip(ip).build());
+        return camMapper.toCamResponseDto(cam);
     }
 }
