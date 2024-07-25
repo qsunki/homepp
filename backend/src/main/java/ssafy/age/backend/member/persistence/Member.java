@@ -6,6 +6,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import ssafy.age.backend.cam.persistence.Cam;
+import ssafy.age.backend.notification.persistence.FCMToken;
+import ssafy.age.backend.share.persistence.Share;
 
 import java.sql.Date;
 import java.time.LocalDateTime;
@@ -38,22 +41,36 @@ public class Member implements UserDetails {
     @Column(nullable = false)
     private String phoneNumber;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Builder.Default
-    private List<String> roles = new ArrayList<>();
+    @OneToMany(mappedBy = "member")
+    private List<FCMToken> fcmTokenList = new ArrayList<>();
 
-    public Member(Long id, String email, String password, LocalDateTime createdAt, String phoneNumber, List<String> roles) {
+    @OneToMany(mappedBy = "member")
+    private List<Cam> camList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member")
+    private List<Share> shareList = new ArrayList<>();
+
+    public Member(Long id, String email, String password, LocalDateTime createdAt, String phoneNumber,
+                  List<FCMToken> fcmTokenList, List<Cam> camList, List<Share> shareList, List<String> roles) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.createdAt = createdAt;
         this.phoneNumber = phoneNumber;
+        this.fcmTokenList = fcmTokenList;
+        this.camList = camList;
+        this.shareList = shareList;
         this.roles = roles;
     }
 
-    public Member(String email, String password, List<String> roles) {
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Builder.Default
+    private List<String> roles = new ArrayList<>();
+
+    public Member(String email, String password, String phoneNumber, List<String> roles) {
         this.email = email;
         this.password = password;
+        this.phoneNumber = phoneNumber;
         this.roles = roles;
     }
 
