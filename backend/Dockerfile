@@ -20,7 +20,7 @@ FROM openjdk:21-jdk-slim
 WORKDIR /app
 
 # Step 8: Copy the built JAR file from the build stage
-COPY --from=build /app/build/libs/*.jar app.jar
+COPY --from=build /app/build/libs/backend-0.0.1-SNAPSHOT.jar app.jar
 
 # Step 9: Specify the entry point for the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
