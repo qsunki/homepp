@@ -33,10 +33,12 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'com.google.firebase:firebase-admin:9.3.0'
-    // https://mvnrepository.com/artifact/org.springframework.integration/spring-integration-mqtt
     implementation 'org.springframework.integration:spring-integration-mqtt:6.3.2'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
     developmentOnly "org.springframework.boot:spring-boot-docker-compose"
 
+    // https://mvnrepository.com/artifact/com.google.guava/guava
+    implementation 'com.google.guava:guava:33.2.1-jre'
 
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
@@ -56,10 +58,10 @@ dependencies {
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    // Batch
-    implementation 'org.springframework.boot:spring-boot-starter-batch'
-    implementation 'org.springframework.boot:spring-boot-starter-quartz'
-    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.1.2'
+    // Swagger
+    implementation 'io.springfox:springfox-swagger2:3.0.0'
+    implementation 'io.springfox:springfox-swagger-ui:3.0.0'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
 }
 
 tasks.named('test') {

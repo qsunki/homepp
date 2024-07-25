@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ssafy.age.backend.auth.service.AuthService;
 import ssafy.age.backend.member.exception.MemberInvalidAccessException;
 import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.*;
@@ -19,15 +20,16 @@ import ssafy.age.backend.member.web.MemberResponseDto;
 public class MemberService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
+    private final AuthService authService;
     private final MemberMapper mapper = MemberMapper.INSTANCE;
 
     public MemberResponseDto findByEmail(String email) {
         return mapper.toMemberResponseDto(memberRepository.findByEmail(email));
     }
 
-    public MemberResponseDto updateMember(String email, String password, String phoneNumber) {
+    public MemberResponseDto updateMember(String password, String phoneNumber) {
         try {
-            Member foundMember = memberRepository.findByEmail(email);
+            Member foundMember = memberRepository.findByEmail(authService.getMemberEmail());
             foundMember.updateMember(password, phoneNumber);
             memberRepository.save(foundMember);
             return mapper.toMemberResponseDto(foundMember);
@@ -38,8 +40,7 @@ public class MemberService implements UserDetailsService {
 
     public void deleteMember(String email) {
         try {
-            String loggedInEmail = SecurityContextHolder.getContext()
-                    .getAuthentication().getPrincipal().toString();
+            String loggedInEmail = authService.getMemberEmail();
             if (email.equals(loggedInEmail)) {
                 memberRepository.delete(memberRepository.findByEmail(email));
             }
