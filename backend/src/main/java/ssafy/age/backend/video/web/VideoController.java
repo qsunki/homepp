@@ -26,7 +26,7 @@ public class VideoController {
     private final VideoService videoService;
 
     @GetMapping
-    public List<VideoListResponseDto> getAllVideos(@RequestParam String type, @RequestParam LocalDateTime startDate,
+    public List<VideoResponseDto> getAllVideos(@RequestParam String type, @RequestParam LocalDateTime startDate,
                                                    @RequestParam LocalDateTime endDate, @RequestParam Long camId) {
         return videoService.getAllVideos(type, startDate, endDate, camId);
     }
