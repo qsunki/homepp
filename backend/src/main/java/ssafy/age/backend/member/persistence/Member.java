@@ -42,12 +42,15 @@ public class Member implements UserDetails {
     private String phoneNumber;
 
     @OneToMany(mappedBy = "member")
+    @Builder.Default
     private List<FCMToken> fcmTokenList = new ArrayList<>();
 
     @OneToMany(mappedBy = "member")
+    @Builder.Default
     private List<Cam> camList = new ArrayList<>();
 
     @OneToMany(mappedBy = "member")
+    @Builder.Default
     private List<Share> shareList = new ArrayList<>();
 
     public Member(Long id, String email, String password, LocalDateTime createdAt, String phoneNumber,
@@ -63,7 +66,7 @@ public class Member implements UserDetails {
         this.roles = roles;
     }
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @Builder.Default
     private List<String> roles = new ArrayList<>();
 

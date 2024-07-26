@@ -1,6 +1,7 @@
 package ssafy.age.backend.cam.web;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,26 +21,31 @@ public class CamController {
     private final CamService camService;
 
     @GetMapping
-    @Operation(summary = "cam 목록 조회", description = "모든 cam 목록 조회")
+    @Operation(summary = "캠 목록 조회", description = "모든 캠 목록 조회")
     public List<CamResponseDto> getAllCams() {
         return camService.getAllCams();
     }
 
+    @PostMapping
+    @Operation(summary = "캠 등록", description = "디바이스에서 요청을 보내서 캠 초기등록")
+    public CamResponseDto createCam(HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+        if (ip == null) ip = request.getRemoteAddr();
+        return camService.createCam(ip);
+    }
+
     @PatchMapping("/{camId}")
     @Operation(summary = "캠 정보 수정",
-            description = "status null이면 이름만 수정, 등록되어 있으면 unregister, 등록되어 있지 않으면 register")
+            description = "request의 status가 null이면 이름 변경, 등록되어 있으면 unregister, 등록되어 있지 않으면 register")
     public CamResponseDto updateCam(@PathVariable Long camId,
                                     @RequestBody CamRequestDto camRequestDto,
                                     @AuthenticationPrincipal Member member) {
-        if (camRequestDto.getStatus() == null) {
-            return camService.updateCamName(camId, camRequestDto.getName());
-        } else {
-            if (camRequestDto.getStatus() == CamStatus.UNREGISTERED) {
-                return camService.registerCam(camId, member);
-            }
-            else {
+        if (camRequestDto.getStatus() == CamStatus.UNREGISTERED) {
                 return camService.unregisterCam(camId);
-            }
+        } else if (camRequestDto.getStatus() == CamStatus.REGISTERED) {
+            return camService.registerCam(camId, member);
+        } else {
+            return camService.updateCamName(camId, camRequestDto.getName());
         }
     }
 }

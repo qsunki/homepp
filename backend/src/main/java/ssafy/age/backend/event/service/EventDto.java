@@ -12,6 +12,8 @@ public class EventDto {
     private Long id;
     private LocalDateTime occurredAt;
     private EventType type;
+    private boolean isRead;
+    private boolean isThreat;
     private Cam cam;
     private Video video;
 }

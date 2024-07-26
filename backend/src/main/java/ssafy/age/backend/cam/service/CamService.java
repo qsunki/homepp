@@ -41,7 +41,6 @@ public class CamService {
         Cam cam = camRepository.findById(camId)
                 .orElseThrow(CamNotFoundException::new);
         cam.updateCamName(name);
-        setCamRegion(cam);
 
         return camMapper.toCamResponseDto(camRepository.save(cam));
     }
@@ -50,6 +49,7 @@ public class CamService {
         Cam cam = camRepository.findById(camId)
                 .orElseThrow(CamNotFoundException::new);
         cam.registerMember(member);
+        setCamRegion(cam);
 
         return camMapper.toCamResponseDto(camRepository.save(cam));
     }
@@ -92,5 +92,10 @@ public class CamService {
         } catch (Exception e) {
             throw new RuntimeException();
         }
+    }
+
+    public CamResponseDto createCam(String ip) {
+        Cam cam = camRepository.save(Cam.builder().ip(ip).build());
+        return camMapper.toCamResponseDto(cam);
     }
 }
