@@ -2,19 +2,30 @@ package ssafy.age.backend.cam.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.Part;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StreamUtils;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 import ssafy.age.backend.cam.exception.CamNotFoundException;
 import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.cam.persistence.CamRepository;
 import ssafy.age.backend.cam.web.CamResponseDto;
 import ssafy.age.backend.member.persistence.Member;
+import ssafy.age.backend.video.persistence.Video;
+import ssafy.age.backend.video.service.VideoTimeInfo;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -24,6 +35,8 @@ public class CamService {
     private final CamRepository camRepository;
     private final CamMapper camMapper = CamMapper.INSTANCE;
     private final String key;
+    @Value("${file.dir}")
+    private String fileDir;
 
     public CamService(CamRepository camRepository, @Value("${openAPI.secret}") String key) {
         this.camRepository = camRepository;
@@ -97,5 +110,26 @@ public class CamService {
     public CamResponseDto createCam(String ip) {
         Cam cam = camRepository.save(Cam.builder().ip(ip).build());
         return camMapper.toCamResponseDto(cam);
+    }
+
+    public CamResponseDto findCamById(Long camId) {
+        Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
+        return camMapper.toCamResponseDto(cam);
+    }
+
+    public CamResponseDto recordVideo(Long camId,
+                                      MultipartFile file, VideoTimeInfo timeInfo) {
+        try {
+            file.transferTo(new File(fileDir + file.getOriginalFilename()));
+            Video video = Video.builder().url(fileDir + file.getOriginalFilename())
+                    .recordStartAt(timeInfo.getStartTime())
+                    .recordEndAt(timeInfo.getEndTime())
+                    .build();
+            Cam cam = camRepository.findById(camId).orElseThrow(Exception::new);
+            cam.addVideo(video);
+            return camMapper.toCamResponseDto(camRepository.save(cam));
+        } catch(Exception e) {
+            throw new RuntimeException();
+        }
     }
 }

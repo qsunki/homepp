@@ -2,14 +2,18 @@ package ssafy.age.backend.cam.web;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.Part;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ssafy.age.backend.cam.persistence.CamStatus;
 import ssafy.age.backend.cam.service.CamService;
 import ssafy.age.backend.member.persistence.Member;
+import ssafy.age.backend.video.service.VideoTimeInfo;
 
+import java.util.Collection;
 import java.util.List;
 
 @Slf4j
@@ -34,6 +38,12 @@ public class CamController {
         return camService.createCam(ip);
     }
 
+    @GetMapping("/{camId}")
+    @Operation(summary = "캠 조회", description = "캠 id를 통해서 정보 조회")
+    public CamResponseDto findCamById(@PathVariable Long camId) {
+        return camService.findCamById(camId);
+    }
+
     @PatchMapping("/{camId}")
     @Operation(summary = "캠 정보 수정",
             description = "request의 status가 null이면 이름 변경, 등록되어 있으면 unregister, 등록되어 있지 않으면 register")
@@ -47,5 +57,12 @@ public class CamController {
         } else {
             return camService.updateCamName(camId, camRequestDto.getName());
         }
+    }
+
+    @PostMapping("/{camId}/videos")
+    public CamResponseDto recordVideo(@PathVariable Long camId,
+                                      @RequestPart MultipartFile file,
+                                      @RequestPart VideoTimeInfo timeInfo) {
+        return camService.recordVideo(camId, file, timeInfo);
     }
 }
