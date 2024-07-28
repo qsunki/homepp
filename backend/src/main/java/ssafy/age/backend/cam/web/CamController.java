@@ -8,6 +8,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import ssafy.age.backend.cam.persistence.CamStatus;
 import ssafy.age.backend.cam.service.CamService;
+import ssafy.age.backend.envInfo.service.EnvInfoService;
 import ssafy.age.backend.member.persistence.Member;
 
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.List;
 public class CamController {
 
     private final CamService camService;
+    private final EnvInfoService envInfoService;
 
     @GetMapping
     @Operation(summary = "캠 목록 조회", description = "모든 캠 목록 조회")
@@ -41,11 +43,17 @@ public class CamController {
                                     @RequestBody CamRequestDto camRequestDto,
                                     @AuthenticationPrincipal Member member) {
         if (camRequestDto.getStatus() == CamStatus.UNREGISTERED) {
-                return camService.unregisterCam(camId);
+            return camService.unregisterCam(camId);
         } else if (camRequestDto.getStatus() == CamStatus.REGISTERED) {
             return camService.registerCam(camId, member);
         } else {
             return camService.updateCamName(camId, camRequestDto.getName());
         }
     }
+
+    @GetMapping("/{camId}/envInfos")
+    public List<EnvInfoResponseDto> getEnvInfos(@PathVariable Long camId) {
+        return envInfoService.findAllByCamId(camId);
+    }
 }
+

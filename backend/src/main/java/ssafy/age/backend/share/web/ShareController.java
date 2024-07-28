@@ -1,5 +1,6 @@
 package ssafy.age.backend.share.web;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -38,7 +39,9 @@ public class ShareController {
 
     @Operation(summary = "비디오 공유해 줄 회원 삭제", description = "공유 받았던 회원의 이메일로 비디오를 공유할 목록에서 삭제합니다.")
     @DeleteMapping("/{sharedMemberEmail}")
-    public void deleteShare(@PathVariable String sharedMemberEmail) {shareService.deleteShare(sharedMemberEmail);}
+    public void deleteShare(@PathVariable String sharedMemberEmail) {
+        shareService.deleteShare(sharedMemberEmail);
+    }
 
 
 }
