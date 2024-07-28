@@ -38,3 +38,4 @@ out/
 
 ### Secret ###
 **/fcmKey.json
+.env
