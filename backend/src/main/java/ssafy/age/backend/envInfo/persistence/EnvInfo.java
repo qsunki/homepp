@@ -28,6 +28,7 @@ public class EnvInfo {
     private RecordStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cam_id")
     @Setter
     private Cam cam;
 }
