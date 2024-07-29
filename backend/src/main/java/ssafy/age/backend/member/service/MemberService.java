@@ -2,7 +2,6 @@ package ssafy.age.backend.member.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -33,7 +32,7 @@ public class MemberService implements UserDetailsService {
             foundMember.updateMember(password, phoneNumber);
             memberRepository.save(foundMember);
             return mapper.toMemberResponseDto(foundMember);
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new MemberNotFoundException();
         }
     }
@@ -43,11 +42,10 @@ public class MemberService implements UserDetailsService {
             String loggedInEmail = authService.getMemberEmail();
             if (email.equals(loggedInEmail)) {
                 memberRepository.delete(memberRepository.findByEmail(email));
-            }
-            else {
+            } else {
                 throw new MemberInvalidAccessException();
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new MemberInvalidAccessException();
         }
     }
@@ -64,8 +62,8 @@ public class MemberService implements UserDetailsService {
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         try {
-            return memberRepository.findByEmail(username); 
-        } catch(Exception e) {
+            return memberRepository.findByEmail(username);
+        } catch (Exception e) {
             throw new MemberNotFoundException();
         }
     }

@@ -1,10 +1,7 @@
 package ssafy.age.backend.video.web;
 
-import lombok.Data;
-import ssafy.age.backend.event.persistence.Event;
-import ssafy.age.backend.event.persistence.EventType;
-
 import java.util.List;
+import lombok.Data;
 
 @Data
 public class VideoResponseDto {

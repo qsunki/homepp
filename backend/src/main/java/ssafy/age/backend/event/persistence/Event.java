@@ -1,6 +1,7 @@
 package ssafy.age.backend.event.persistence;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -8,8 +9,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.video.persistence.Video;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Entity
@@ -22,8 +21,7 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @CreationTimestamp
-    private LocalDateTime occurredAt;
+    @CreationTimestamp private LocalDateTime occurredAt;
 
     @Enumerated(EnumType.STRING)
     private EventType type;
@@ -40,7 +38,14 @@ public class Event {
     @JoinColumn(name = "video_id")
     private Video video;
 
-    public Event(Long id, LocalDateTime occurredAt, EventType type, boolean isRead, boolean isThreat, Cam cam, Video video) {
+    public Event(
+            Long id,
+            LocalDateTime occurredAt,
+            EventType type,
+            boolean isRead,
+            boolean isThreat,
+            Cam cam,
+            Video video) {
         this.id = id;
         this.occurredAt = occurredAt;
         this.type = type;

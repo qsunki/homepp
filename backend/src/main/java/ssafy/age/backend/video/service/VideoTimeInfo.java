@@ -1,8 +1,7 @@
 package ssafy.age.backend.video.service;
 
-import lombok.Data;
-
 import java.time.LocalDateTime;
+import lombok.Data;
 
 @Data
 public class VideoTimeInfo {

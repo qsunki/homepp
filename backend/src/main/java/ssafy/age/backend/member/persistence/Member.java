@@ -1,6 +1,11 @@
 package ssafy.age.backend.member.persistence;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.security.core.GrantedAuthority;
@@ -9,13 +14,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.notification.persistence.FCMToken;
 import ssafy.age.backend.share.persistence.Share;
-
-import java.sql.Date;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @Entity
@@ -35,8 +33,7 @@ public class Member implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    @CreationTimestamp
-    private LocalDateTime createdAt;
+    @CreationTimestamp private LocalDateTime createdAt;
 
     @Column(nullable = false)
     private String phoneNumber;
@@ -53,8 +50,16 @@ public class Member implements UserDetails {
     @Builder.Default
     private List<Share> shareList = new ArrayList<>();
 
-    public Member(Long id, String email, String password, LocalDateTime createdAt, String phoneNumber,
-                  List<FCMToken> fcmTokenList, List<Cam> camList, List<Share> shareList, List<String> roles) {
+    public Member(
+            Long id,
+            String email,
+            String password,
+            LocalDateTime createdAt,
+            String phoneNumber,
+            List<FCMToken> fcmTokenList,
+            List<Cam> camList,
+            List<Share> shareList,
+            List<String> roles) {
         this.id = id;
         this.email = email;
         this.password = password;

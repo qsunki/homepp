@@ -1,5 +1,7 @@
 package ssafy.age.backend.auth.service;
 
+import java.util.Collections;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -12,14 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
 import ssafy.age.backend.auth.exception.TokenNotFoundException;
 import ssafy.age.backend.auth.persistence.RefreshToken;
 import ssafy.age.backend.auth.persistence.RefreshTokenRepository;
-import ssafy.age.backend.member.web.MemberResponseDto;
-import ssafy.age.backend.member.web.TokenDto;
 import ssafy.age.backend.member.exception.MemberDuplicateEntityException;
 import ssafy.age.backend.member.persistence.*;
 import ssafy.age.backend.member.service.MemberMapper;
-
-import java.util.Collections;
-import java.util.Optional;
+import ssafy.age.backend.member.web.MemberResponseDto;
+import ssafy.age.backend.member.web.TokenDto;
 
 @Service
 @RequiredArgsConstructor
@@ -39,12 +38,13 @@ public class AuthService {
             throw new MemberDuplicateEntityException();
         }
 
-        Member member = Member.builder()
-                .email(email)
-                .password(passwordEncoder.encode(password))
-                .phoneNumber(phoneNumber)
-                .roles(Collections.singletonList("ROLE_USER"))
-                .build();
+        Member member =
+                Member.builder()
+                        .email(email)
+                        .password(passwordEncoder.encode(password))
+                        .phoneNumber(phoneNumber)
+                        .roles(Collections.singletonList("ROLE_USER"))
+                        .build();
 
         return mapper.toMemberResponseDto(memberRepository.save(member));
     }
@@ -57,8 +57,8 @@ public class AuthService {
 
         // 2. 실제로 검증 (사용자 비밀번호 체크) 이 이루어지는 부분
         //    authenticate 메서드가 실행이 될 때 CustomUserDetailsService 에서 만들었던 loadUserByUsername 메서드가 실행됨
-        Authentication authentication = authenticationManagerBuilder.getObject()
-                                        .authenticate(authenticationToken);
+        Authentication authentication =
+                authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
         Member member = memberRepository.findByEmail(email);
 
@@ -66,9 +66,7 @@ public class AuthService {
         TokenDto token = tokenProvider.generateTokenDto(authentication);
 
         // 4. Redis에  RefreshToken 저장
-        refreshTokenRepository.save(
-                new RefreshToken(token.getRefreshToken(), member.getId())
-        );
+        refreshTokenRepository.save(new RefreshToken(token.getRefreshToken(), member.getId()));
 
         // 5. 토큰 발급
         return TokenDto.builder()
@@ -78,12 +76,11 @@ public class AuthService {
                 .build();
     }
 
-
     @Transactional
     public TokenDto reissue(String token) {
         // 1. Redis에 Refresh Token이 저장되어 있는지 확인
-        RefreshToken foundTokenInfo = refreshTokenRepository.findById(token)
-                .orElseThrow(TokenNotFoundException::new);
+        RefreshToken foundTokenInfo =
+                refreshTokenRepository.findById(token).orElseThrow(TokenNotFoundException::new);
 
         String refreshToken = foundTokenInfo.getRefreshToken();
         tokenProvider.validateToken(refreshToken);
@@ -103,7 +100,7 @@ public class AuthService {
     }
 
     @Transactional
-    public void logout(TokenDto tokenDto){
+    public void logout(TokenDto tokenDto) {
         // 유효성 검증
         tokenProvider.validateToken(tokenDto.getAccessToken());
         // 1. Redis에 Refresh Token이 저장되어 있는지 확인
@@ -112,8 +109,7 @@ public class AuthService {
 
         if (foundTokenInfo.isEmpty()) {
             throw new TokenNotFoundException();
-        }
-        else {
+        } else {
             refreshTokenRepository.deleteById(tokenDto.getRefreshToken());
         }
     }

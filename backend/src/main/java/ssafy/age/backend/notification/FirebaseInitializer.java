@@ -5,11 +5,10 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import org.springframework.stereotype.Component;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
+import org.springframework.stereotype.Component;
 
 @Component
 public class FirebaseInitializer {
@@ -18,13 +17,14 @@ public class FirebaseInitializer {
     public void initialize() throws IOException {
         FileInputStream serviceAccount = new FileInputStream("fcmKey.json");
 
-        FirebaseOptions options = FirebaseOptions.builder()
-                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                .build();
+        FirebaseOptions options =
+                FirebaseOptions.builder()
+                        .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                        .build();
 
         FirebaseApp.initializeApp(options);
     }
-    
+
     @PreDestroy
     public void destroy() {
         List<FirebaseApp> firebaseApps = FirebaseApp.getApps();

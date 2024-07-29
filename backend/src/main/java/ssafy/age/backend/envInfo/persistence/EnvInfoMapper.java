@@ -13,7 +13,6 @@ public interface EnvInfoMapper {
     @Mapping(target = "cam", ignore = true)
     EnvInfo toEnvInfo(EnvInfoDto envInfoDto);
 
-
-//    EnvInfoResponseDto toEnvInfoResponseDto(EnvInfo envInfo);
+    //    EnvInfoResponseDto toEnvInfoResponseDto(EnvInfo envInfo);
 
 }

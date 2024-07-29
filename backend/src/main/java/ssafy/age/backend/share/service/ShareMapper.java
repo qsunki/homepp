@@ -12,5 +12,4 @@ public interface ShareMapper {
 
     @Mapping(target = "email", ignore = true)
     ShareDto toShareDto(Share share);
-
 }

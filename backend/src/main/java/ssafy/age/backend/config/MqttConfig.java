@@ -25,7 +25,7 @@ public class MqttConfig {
     public MqttPahoClientFactory mqttClientFactory() {
         DefaultMqttPahoClientFactory factory = new DefaultMqttPahoClientFactory();
         MqttConnectOptions options = new MqttConnectOptions();
-        options.setServerURIs(new String[]{brokerUrl});
+        options.setServerURIs(new String[] {brokerUrl});
         options.setUserName("username");
         options.setPassword("password".toCharArray());
         factory.setConnectionOptions(options);
@@ -35,7 +35,8 @@ public class MqttConfig {
     @Bean
     @ServiceActivator(inputChannel = "mqttOutboundChannel")
     public MessageHandler mqttOutbound() {
-        MqttPahoMessageHandler messageHandler = new MqttPahoMessageHandler("serverClient", mqttClientFactory());
+        MqttPahoMessageHandler messageHandler =
+                new MqttPahoMessageHandler("serverClient", mqttClientFactory());
         messageHandler.setDefaultTopic("test/topic");
         return messageHandler;
     }
@@ -52,12 +53,13 @@ public class MqttConfig {
 
     @Bean
     public MessageProducer inbound() {
-        MqttPahoMessageDrivenChannelAdapter adapter = new MqttPahoMessageDrivenChannelAdapter(brokerUrl, "testClient", "test/topic", "test/topic2");
+        MqttPahoMessageDrivenChannelAdapter adapter =
+                new MqttPahoMessageDrivenChannelAdapter(
+                        brokerUrl, "testClient", "test/topic", "test/topic2");
         adapter.setCompletionTimeout(5000);
         adapter.setConverter(new DefaultPahoMessageConverter());
         adapter.setQos(1);
         adapter.setOutputChannel(mqttInputChannel());
         return adapter;
     }
-
 }

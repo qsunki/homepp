@@ -16,11 +16,9 @@ public class Share {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "share_mameber_id")
@@ -35,6 +33,5 @@ public class Share {
         this.nickname = nickname;
     }
 
-    public void setNickname(String nickname) {
-    }
+    public void setNickname(String nickname) {}
 }

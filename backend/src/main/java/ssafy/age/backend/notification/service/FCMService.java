@@ -4,18 +4,16 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ssafy.age.backend.auth.service.AuthService;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
-import ssafy.age.backend.member.service.MemberService;
 import ssafy.age.backend.notification.persistence.FCMToken;
 import ssafy.age.backend.notification.persistence.FCMTokenRepository;
 import ssafy.age.backend.notification.web.FCMTokenDto;
-
-import java.util.List;
 
 @Service
 @Slf4j
@@ -46,10 +44,12 @@ public class FCMService {
     }
 
     public void sendMessage(String targetToken, String title, String body) {
-        Message message = Message.builder()
-                .setToken(targetToken)
-                .setNotification(Notification.builder().setTitle(title).setBody(body).build())
-                .build();
+        Message message =
+                Message.builder()
+                        .setToken(targetToken)
+                        .setNotification(
+                                Notification.builder().setTitle(title).setBody(body).build())
+                        .build();
 
         try {
             String response = FirebaseMessaging.getInstance().send(message);
@@ -57,6 +57,5 @@ public class FCMService {
         } catch (FirebaseMessagingException e) {
             throw new RuntimeException(e);
         }
-
     }
 }

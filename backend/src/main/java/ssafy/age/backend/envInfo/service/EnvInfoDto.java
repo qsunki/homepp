@@ -1,8 +1,7 @@
 package ssafy.age.backend.envInfo.service;
 
-import lombok.Data;
-
 import java.time.LocalDateTime;
+import lombok.Data;
 
 @Data
 public class EnvInfoDto {

@@ -7,9 +7,6 @@ import ssafy.age.backend.envInfo.persistence.EnvInfo;
 import ssafy.age.backend.envInfo.persistence.EnvInfoMapper;
 import ssafy.age.backend.envInfo.persistence.EnvInfoRepository;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 public class EnvInfoService {
@@ -22,11 +19,11 @@ public class EnvInfoService {
         envInfo.setCam(Cam.builder().id(envInfoDto.getCamId()).build());
         envInfoRepository.save(envInfo);
     }
-//
-//    public List<EnvInfoResponseDto> findAllByCamId(Long camId) {
-//        List<EnvInfo> envInfos = envInfoRepository.findByCamId(camId);
-//        return envInfos.stream()
-//                .map(envInfoMapper::toEnvInfoResponseDto)
-//                .collect(Collectors.toList());
-//    }
+    //
+    //    public List<EnvInfoResponseDto> findAllByCamId(Long camId) {
+    //        List<EnvInfo> envInfos = envInfoRepository.findByCamId(camId);
+    //        return envInfos.stream()
+    //                .map(envInfoMapper::toEnvInfoResponseDto)
+    //                .collect(Collectors.toList());
+    //    }
 }

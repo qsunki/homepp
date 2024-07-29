@@ -1,15 +1,14 @@
 package ssafy.age.backend.video.persistence;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.event.persistence.Event;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Entity
@@ -42,9 +41,16 @@ public class Video {
 
     private boolean isThreat;
 
-    public Video(Long id, LocalDateTime recordStartAt, LocalDateTime recordEndAt,
-                 String url, Long length, List<Event> eventList, Cam cam, String thumbnailUrl,
-                 boolean isThreat) {
+    public Video(
+            Long id,
+            LocalDateTime recordStartAt,
+            LocalDateTime recordEndAt,
+            String url,
+            Long length,
+            List<Event> eventList,
+            Cam cam,
+            String thumbnailUrl,
+            boolean isThreat) {
         this.id = id;
         this.recordStartAt = recordStartAt;
         this.recordEndAt = recordEndAt;

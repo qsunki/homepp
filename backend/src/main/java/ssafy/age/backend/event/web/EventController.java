@@ -1,12 +1,11 @@
 package ssafy.age.backend.event.web;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ssafy.age.backend.event.service.EventMapper;
 import ssafy.age.backend.event.service.EventService;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -36,5 +35,4 @@ public class EventController {
     public void deleteEvent(@PathVariable Long eventId) {
         eventService.deleteEvent(eventId);
     }
-
 }

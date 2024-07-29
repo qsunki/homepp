@@ -2,7 +2,7 @@ package ssafy.age.backend.cam.web;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.Part;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,9 +13,6 @@ import ssafy.age.backend.cam.service.CamService;
 import ssafy.age.backend.envInfo.service.EnvInfoService;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.video.service.VideoTimeInfo;
-
-import java.util.Collection;
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -47,11 +44,14 @@ public class CamController {
     }
 
     @PatchMapping("/{camId}")
-    @Operation(summary = "캠 정보 수정",
-            description = "request의 status가 null이면 이름 변경, 등록되어 있으면 unregister, 등록되어 있지 않으면 register")
-    public CamResponseDto updateCam(@PathVariable Long camId,
-                                    @RequestBody CamRequestDto camRequestDto,
-                                    @AuthenticationPrincipal Member member) {
+    @Operation(
+            summary = "캠 정보 수정",
+            description =
+                    "request의 status가 null이면 이름 변경, 등록되어 있으면 unregister, 등록되어 있지 않으면 register")
+    public CamResponseDto updateCam(
+            @PathVariable Long camId,
+            @RequestBody CamRequestDto camRequestDto,
+            @AuthenticationPrincipal Member member) {
         if (camRequestDto.getStatus() == CamStatus.UNREGISTERED) {
             return camService.unregisterCam(camId);
         } else if (camRequestDto.getStatus() == CamStatus.REGISTERED) {
@@ -67,15 +67,16 @@ public class CamController {
     }
 
     @PostMapping("/{camId}/videos/{videoId}")
-    public CamResponseDto recordVideo(@PathVariable Long camId,
-                                      @PathVariable Long videoId,
-                                      @RequestPart MultipartFile file,
-                                      @RequestPart VideoTimeInfo timeInfo) {
+    public CamResponseDto recordVideo(
+            @PathVariable Long camId,
+            @PathVariable Long videoId,
+            @RequestPart MultipartFile file,
+            @RequestPart VideoTimeInfo timeInfo) {
         return camService.recordVideo(camId, videoId, file, timeInfo);
     }
-//
-//    @GetMapping("/{camId}/envInfos")
-//    public List<EnvInfoResponseDto> getEnvInfos(@PathVariable Long camId) {
-//        return envInfoService.findAllByCamId(camId);
-//    }
+    //
+    //    @GetMapping("/{camId}/envInfos")
+    //    public List<EnvInfoResponseDto> getEnvInfos(@PathVariable Long camId) {
+    //        return envInfoService.findAllByCamId(camId);
+    //    }
 }

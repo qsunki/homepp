@@ -1,5 +1,8 @@
 package ssafy.age.backend.video.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ssafy.age.backend.event.persistence.EventType;
@@ -9,48 +12,52 @@ import ssafy.age.backend.video.persistence.VideoRepository;
 import ssafy.age.backend.video.web.EventDetailDto;
 import ssafy.age.backend.video.web.VideoResponseDto;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 public class VideoService {
     private final VideoRepository videoRepository;
     private final VideoMapper videoMapper = VideoMapper.INSTANCE;
 
-    public List<VideoResponseDto> getAllVideos(List<EventType> types, LocalDateTime startDate, LocalDateTime endDate, Long camId, boolean isThreat) {
+    public List<VideoResponseDto> getAllVideos(
+            List<EventType> types,
+            LocalDateTime startDate,
+            LocalDateTime endDate,
+            Long camId,
+            boolean isThreat) {
 
-        List<Video> videoList = videoRepository.findAllVideos(types, startDate, endDate, camId, isThreat);
+        List<Video> videoList =
+                videoRepository.findAllVideos(types, startDate, endDate, camId, isThreat);
 
         return videoList.stream()
-                .map(video -> {
-                    VideoResponseDto dto = videoMapper.toVideoResponseDto(video);
+                .map(
+                        video -> {
+                            VideoResponseDto dto = videoMapper.toVideoResponseDto(video);
 
-                    List<EventDetailDto> eventDetails = video.getEventList().stream()
-                            .map(videoMapper::toEventDetailDto)
-                            .collect(Collectors.toList());
-                    dto.setEventDetails(eventDetails);
+                            List<EventDetailDto> eventDetails =
+                                    video.getEventList().stream()
+                                            .map(videoMapper::toEventDetailDto)
+                                            .collect(Collectors.toList());
+                            dto.setEventDetails(eventDetails);
 
-                    video.getEventList().stream()
-                            .findFirst()
-                            .ifPresent(event -> dto.setCamName(event.getCam().getName()));
+                            video.getEventList().stream()
+                                    .findFirst()
+                                    .ifPresent(event -> dto.setCamName(event.getCam().getName()));
 
-                    return dto;
-                })
+                            return dto;
+                        })
                 .collect(Collectors.toList());
     }
 
     public VideoResponseDto getVideoById(Long videoId) {
 
-        Video video = videoRepository.findById(videoId)
-                .orElseThrow(VideoNotFoundException::new);
+        Video video = videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
 
         VideoResponseDto dto = videoMapper.toVideoResponseDto(video);
 
-        List<EventDetailDto> eventDetails = video.getEventList().stream()
-                .map(videoMapper::toEventDetailDto)
-                .collect(Collectors.toList());
+        List<EventDetailDto> eventDetails =
+                video.getEventList().stream()
+                        .map(videoMapper::toEventDetailDto)
+                        .collect(Collectors.toList());
         dto.setEventDetails(eventDetails);
 
         video.getEventList().stream()
@@ -63,6 +70,4 @@ public class VideoService {
     public void deleteVideo(Long videoId) {
         videoRepository.deleteById(videoId);
     }
-
-
 }

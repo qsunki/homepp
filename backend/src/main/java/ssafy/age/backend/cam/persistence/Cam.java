@@ -1,12 +1,11 @@
 package ssafy.age.backend.cam.persistence;
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.*;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.video.persistence.Video;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Entity
@@ -23,8 +22,7 @@ public class Cam {
 
     private String ip;
 
-    @Setter
-    private String region;
+    @Setter private String region;
 
     @Enumerated(EnumType.STRING)
     private CamStatus status;
@@ -37,7 +35,14 @@ public class Cam {
     @Builder.Default
     private List<Video> videoList = new ArrayList<>();
 
-    public Cam(Long id, String name, String ip, String region, CamStatus status, Member member, List<Video> videoList) {
+    public Cam(
+            Long id,
+            String name,
+            String ip,
+            String region,
+            CamStatus status,
+            Member member,
+            List<Video> videoList) {
         this.id = id;
         this.name = name;
         this.ip = ip;

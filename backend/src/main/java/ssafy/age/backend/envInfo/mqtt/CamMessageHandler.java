@@ -26,10 +26,12 @@ public class CamMessageHandler {
             JsonNode jsonNode = objectMapper.readTree(message);
             int camId = jsonNode.get("camId").asInt();
             if (jsonNode.has("envInfo")) {
-                EnvInfoDto envInfoDto = objectMapper.convertValue(jsonNode.get("envInfo"), EnvInfoDto.class);
+                EnvInfoDto envInfoDto =
+                        objectMapper.convertValue(jsonNode.get("envInfo"), EnvInfoDto.class);
                 envInfoService.save(envInfoDto);
             } else if (jsonNode.has("event")) {
-                EventDto eventDto = objectMapper.convertValue(jsonNode.get("event"), EventDto.class);
+                EventDto eventDto =
+                        objectMapper.convertValue(jsonNode.get("event"), EventDto.class);
                 eventService.handleEvent(eventDto);
             }
         } catch (Exception e) {

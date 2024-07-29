@@ -13,9 +13,11 @@ public class FCMToken {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     public Member member;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String token;
 
     public FCMToken(String token, Member member) {

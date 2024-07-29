@@ -1,14 +1,13 @@
 package ssafy.age.backend.envInfo.persistence;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.envInfo.service.RecordStatus;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Entity
@@ -24,12 +23,11 @@ public class EnvInfo {
     private LocalDateTime recordedAt;
     private double temperature;
     private double humidity;
+
     @Enumerated(value = EnumType.STRING)
     private RecordStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @Setter
     private Cam cam;
-
-
 }
