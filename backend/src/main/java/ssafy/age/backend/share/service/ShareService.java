@@ -22,35 +22,24 @@ public class ShareService {
     private final ShareMapper shareMapper = ShareMapper.INSTANCE;
 
     @Transactional
-    public List<ShareDto> getAllShares() {
-        List<Share> shareList = shareRepository.findAll();
+    public List<ShareDto> getAllShares(String email) {
+        verifyLoginUser(email);
+        List<Share> shareList = shareRepository.findAllByMemberEmail(email);
         return shareList.stream().map(shareMapper::toShareDto).toList();
     }
 
     @Transactional
-    public void deleteShare(String email) {
+    public ShareDto createShare(String email, String sharedMemberEmail, String nickname) {
+        verifyLoginUser(email);
         Member member = memberRepository.findByEmail(email);
-
-        Share share = shareRepository.findBySharedMemberEmail(member.getEmail());
-        if (share == null) {
-            throw new MemberNotFoundException();
-        }
-        shareRepository.delete(share);
-    }
-
-    @Transactional
-    public ShareDto createShare(String email, String nickname) {
-
-        Member loginMember = memberRepository.findByEmail(authService.getMemberEmail());
-        Member sharedMember = memberRepository.findByEmail(email);
-
+        Member sharedMember = memberRepository.findByEmail(sharedMemberEmail);
         if (sharedMember == null) {
-            throw new MemberNotFoundException();
+            throw new MemberNotFoundException(); // sharedMember 가 없는 exception
         }
 
         Share share =
                 Share.builder()
-                        .member(loginMember)
+                        .member(member)
                         .sharedMember(sharedMember)
                         .nickname(nickname)
                         .build();
@@ -61,17 +50,30 @@ public class ShareService {
     }
 
     @Transactional
-    public ShareDto updateShare(String email, String nickname) {
-        Member loginMember = memberRepository.findByEmail(authService.getMemberEmail());
-
-        Member sharedMember = memberRepository.findByEmail(email);
-        if (sharedMember == null) {
-            throw new MemberNotFoundException();
-        }
-        Share share = shareRepository.findBySharedMemberEmail(sharedMember.getEmail());
+    public ShareDto updateShare(String email, String sharedMemberEmail, String nickname) {
+        verifyLoginUser(email);
+        Share share =
+                shareRepository.findByMemberEmailAndSharedMemberEmail(email, sharedMemberEmail);
         share.setNickname(nickname);
         shareRepository.save(share);
 
         return shareMapper.toShareDto(share);
+    }
+
+    @Transactional
+    public void deleteShare(String email, String sharedMemberEmail) {
+        verifyLoginUser(email);
+
+        Share share =
+                shareRepository.findByMemberEmailAndSharedMemberEmail(email, sharedMemberEmail);
+        shareRepository.delete(share);
+    }
+
+    private void verifyLoginUser(String email) {
+        Member loginMember = memberRepository.findByEmail(authService.getMemberEmail());
+        Member member = memberRepository.findByEmail(email);
+        if (member == loginMember) {
+            throw new MemberNotFoundException(); // 로그인된 멤버가 아닌 exception
+        }
     }
 }
