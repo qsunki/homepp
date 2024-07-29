@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -26,24 +27,18 @@ import ssafy.age.backend.video.service.VideoTimeInfo;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class CamService {
 
     private final CamRepository camRepository;
     private final CamMapper camMapper = CamMapper.INSTANCE;
-    private final String key;
     private final VideoRepository videoRepository;
+
+    @Value("${openAPI.secret}")
+    private String key;
 
     @Value("${file.dir}")
     private String fileDir;
-
-    public CamService(
-            CamRepository camRepository,
-            @Value("${openAPI.secret}") String key,
-            VideoRepository videoRepository) {
-        this.camRepository = camRepository;
-        this.key = key;
-        this.videoRepository = videoRepository;
-    }
 
     public List<CamResponseDto> getAllCams() {
         List<Cam> camList = camRepository.findAll();
