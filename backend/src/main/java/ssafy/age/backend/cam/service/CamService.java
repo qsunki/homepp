@@ -19,6 +19,7 @@ import ssafy.age.backend.cam.exception.JsonParsingException;
 import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.cam.persistence.CamRepository;
 import ssafy.age.backend.cam.web.CamResponseDto;
+import ssafy.age.backend.envInfo.mqtt.CamMqttGateway;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.video.exception.VideoNotFoundException;
 import ssafy.age.backend.video.persistence.Video;
@@ -33,12 +34,16 @@ public class CamService {
     private final CamRepository camRepository;
     private final CamMapper camMapper = CamMapper.INSTANCE;
     private final VideoRepository videoRepository;
+    private final CamMqttGateway camMqttGateway;
 
     @Value("${openAPI.secret}")
     private String key;
 
     @Value("${file.dir}")
     private String fileDir;
+
+    @Value("${mqtt.broker.topics[0]}")
+    private String camTopic;
 
     public List<CamResponseDto> getAllCams() {
         List<Cam> camList = camRepository.findAll();
@@ -143,8 +148,10 @@ public class CamService {
         }
     }
 
-    public CamResponseDto requestVideo(Long camId) {
+    public Long requestVideo(Long camId) {
         Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
-        return camMapper.toCamResponseDto(cam);
+        Video video = Video.builder().cam(cam).build();
+        camMqttGateway.sendToMqtt(video.getId().toString(), camTopic);
+        return camId;
     }
 }
