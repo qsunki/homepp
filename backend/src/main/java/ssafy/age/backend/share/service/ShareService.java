@@ -34,7 +34,7 @@ public class ShareService {
 
     public ShareDto createShare(String email, String nickname) {
 
-        Member loginMember  = memberRepository.findByEmail(authService.getMemberEmail());
+        Member loginMember = memberRepository.findByEmail(authService.getMemberEmail());
 
         Member sharedMember = memberRepository.findByEmail(email);
 
@@ -49,5 +49,15 @@ public class ShareService {
         return shareMapper.toShareDto(share);
     }
 
+    public ShareDto updateShare(String email, String nickname) {
+        Member loginMember = memberRepository.findByEmail(authService.getMemberEmail());
 
+        Member sharedMember = memberRepository.findByEmail(email);
+        Share share = shareRepository.findBySharedMemberIdEmail(sharedMember.getEmail());
+        share.setNickname(nickname);
+        shareRepository.save(share);
+
+        return shareMapper.toShareDto(share);
+
+    }
 }
