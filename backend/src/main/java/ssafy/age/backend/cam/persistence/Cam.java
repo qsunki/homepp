@@ -3,6 +3,10 @@ package ssafy.age.backend.cam.persistence;
 import jakarta.persistence.*;
 import lombok.*;
 import ssafy.age.backend.member.persistence.Member;
+import ssafy.age.backend.video.persistence.Video;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
@@ -29,13 +33,18 @@ public class Cam {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    public Cam(Long id, String name, String ip, String region, CamStatus status, Member member) {
+    @OneToMany(mappedBy = "cam")
+    @Builder.Default
+    private List<Video> videoList = new ArrayList<>();
+
+    public Cam(Long id, String name, String ip, String region, CamStatus status, Member member, List<Video> videoList) {
         this.id = id;
         this.name = name;
         this.ip = ip;
         this.region = region;
         this.status = status;
         this.member = member;
+        this.videoList = videoList;
     }
 
     public void updateCamName(String name) {
@@ -49,5 +58,9 @@ public class Cam {
 
     public void unregisterCam() {
         this.status = CamStatus.UNREGISTERED;
+    }
+
+    public void addVideo(Video video) {
+        this.videoList.add(video);
     }
 }
