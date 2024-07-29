@@ -60,9 +60,15 @@ public class CamController {
     }
 
     @PostMapping("/{camId}/videos")
+    public CamResponseDto requestVideo(@PathVariable Long camId) {
+        return camService.requestVideo(camId);
+    }
+
+    @PostMapping("/{camId}/videos/{videoId}")
     public CamResponseDto recordVideo(@PathVariable Long camId,
+                                      @PathVariable Long videoId,
                                       @RequestPart MultipartFile file,
                                       @RequestPart VideoTimeInfo timeInfo) {
-        return camService.recordVideo(camId, file, timeInfo);
+        return camService.recordVideo(camId, videoId, file, timeInfo);
     }
 }

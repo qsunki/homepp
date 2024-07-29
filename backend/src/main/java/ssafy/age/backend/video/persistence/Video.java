@@ -55,4 +55,10 @@ public class Video {
         this.thumbnailUrl = thumbnailUrl;
         this.isThreat = isThreat;
     }
+
+    public void updateVideo(String url, LocalDateTime recordStartAt, LocalDateTime recordEndAt) {
+        this.url = url;
+        this.recordStartAt = recordStartAt;
+        this.recordEndAt = recordEndAt;
+    }
 }

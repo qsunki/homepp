@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Part;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -12,11 +13,14 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 import ssafy.age.backend.cam.exception.CamNotFoundException;
+import ssafy.age.backend.cam.exception.JsonParsingException;
 import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.cam.persistence.CamRepository;
 import ssafy.age.backend.cam.web.CamResponseDto;
 import ssafy.age.backend.member.persistence.Member;
+import ssafy.age.backend.video.exception.VideoNotFoundException;
 import ssafy.age.backend.video.persistence.Video;
+import ssafy.age.backend.video.persistence.VideoRepository;
 import ssafy.age.backend.video.service.VideoTimeInfo;
 
 import java.io.BufferedReader;
@@ -35,12 +39,14 @@ public class CamService {
     private final CamRepository camRepository;
     private final CamMapper camMapper = CamMapper.INSTANCE;
     private final String key;
+    private final VideoRepository videoRepository;
     @Value("${file.dir}")
     private String fileDir;
 
-    public CamService(CamRepository camRepository, @Value("${openAPI.secret}") String key) {
+    public CamService(CamRepository camRepository, @Value("${openAPI.secret}") String key, VideoRepository videoRepository) {
         this.camRepository = camRepository;
         this.key = key;
+        this.videoRepository = videoRepository;
     }
 
     public List<CamResponseDto> getAllCams() {
@@ -86,13 +92,12 @@ public class CamService {
             JsonNode jsonNode = objectMapper.readTree(getJsonData(cam));
 
             String region = jsonNode.get("response").get("whois")
-                    .get("korean").get("PI").get("netinfo").get("addr").asText();
+                    .get("korean").get("user").get("netinfo").get("addr").asText();
 
-            System.out.println(region);
             cam.setRegion(region);
             camRepository.save(cam);
         } catch (Exception e) {
-            throw new RuntimeException();
+            throw new JsonParsingException();
         }
     }
 
@@ -103,12 +108,13 @@ public class CamService {
             BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream(), StandardCharsets.UTF_8));
             return br.readLine() + "}";
         } catch (Exception e) {
-            throw new RuntimeException();
+            throw new JsonParsingException();
         }
     }
 
     public CamResponseDto createCam(String ip) {
         Cam cam = camRepository.save(Cam.builder().ip(ip).build());
+        setCamRegion(cam);
         return camMapper.toCamResponseDto(cam);
     }
 
@@ -117,19 +123,26 @@ public class CamService {
         return camMapper.toCamResponseDto(cam);
     }
 
-    public CamResponseDto recordVideo(Long camId,
+    @Transactional
+    public CamResponseDto recordVideo(Long camId, Long videoId,
                                       MultipartFile file, VideoTimeInfo timeInfo) {
         try {
             file.transferTo(new File(fileDir + file.getOriginalFilename()));
-            Video video = Video.builder().url(fileDir + file.getOriginalFilename())
-                    .recordStartAt(timeInfo.getStartTime())
-                    .recordEndAt(timeInfo.getEndTime())
-                    .build();
-            Cam cam = camRepository.findById(camId).orElseThrow(Exception::new);
+            Video video = videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
+
+            video.updateVideo(fileDir + file.getOriginalFilename(),
+                    timeInfo.getStartTime(), timeInfo.getEndTime());
+
+            Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
             cam.addVideo(video);
             return camMapper.toCamResponseDto(camRepository.save(cam));
         } catch(Exception e) {
-            throw new RuntimeException();
+            throw new CamNotFoundException();
         }
+    }
+
+    public CamResponseDto requestVideo(Long camId) {
+        Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
+        return camMapper.toCamResponseDto(cam);
     }
 }
