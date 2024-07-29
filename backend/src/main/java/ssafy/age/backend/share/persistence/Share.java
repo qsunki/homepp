@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import ssafy.age.backend.member.persistence.Member;
 
 @Getter
@@ -21,17 +22,17 @@ public class Share {
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "share_mameber_id")
-    private Member sharedMemberId;
+    @JoinColumn(name = "shared_mameber_id")
+    private Member sharedMember;
 
+    @Setter
     private String nickname;
 
-    public Share(Long id, Member member, Member sharedMemberId, String nickname) {
+    public Share(Long id, Member member, Member sharedMember, String nickname) {
         this.id = id;
         this.member = member;
-        this.sharedMemberId = sharedMemberId;
+        this.sharedMember = sharedMember;
         this.nickname = nickname;
     }
 
-    public void setNickname(String nickname) {}
 }
