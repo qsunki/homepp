@@ -3,7 +3,6 @@ package ssafy.age.backend.envInfo.persistence;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
-import ssafy.age.backend.cam.web.EnvInfoResponseDto;
 import ssafy.age.backend.envInfo.service.EnvInfoDto;
 
 @Mapper
@@ -15,6 +14,6 @@ public interface EnvInfoMapper {
     EnvInfo toEnvInfo(EnvInfoDto envInfoDto);
 
 
-    EnvInfoResponseDto toEnvInfoResponseDto(EnvInfo envInfo);
+//    EnvInfoResponseDto toEnvInfoResponseDto(EnvInfo envInfo);
 
 }

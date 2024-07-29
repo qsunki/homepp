@@ -73,9 +73,9 @@ public class CamController {
                                       @RequestPart VideoTimeInfo timeInfo) {
         return camService.recordVideo(camId, videoId, file, timeInfo);
     }
-
-    @GetMapping("/{camId}/envInfos")
-    public List<EnvInfoResponseDto> getEnvInfos(@PathVariable Long camId) {
-        return envInfoService.findAllByCamId(camId);
-    }
+//
+//    @GetMapping("/{camId}/envInfos")
+//    public List<EnvInfoResponseDto> getEnvInfos(@PathVariable Long camId) {
+//        return envInfoService.findAllByCamId(camId);
+//    }
 }
