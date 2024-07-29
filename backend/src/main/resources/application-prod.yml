@@ -20,3 +20,9 @@ jwt:
 mqtt:
   broker:
     url: ${MQTT_BROKER_URL}
+
+openAPI:
+  secret: ${OPEN_API_KEY}
+
+file:
+  dir: /app/
