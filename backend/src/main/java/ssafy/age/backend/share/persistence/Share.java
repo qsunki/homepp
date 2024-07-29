@@ -25,8 +25,7 @@ public class Share {
     @JoinColumn(name = "shared_mameber_id")
     private Member sharedMember;
 
-    @Setter
-    private String nickname;
+    @Setter private String nickname;
 
     public Share(Long id, Member member, Member sharedMember, String nickname) {
         this.id = id;
@@ -34,5 +33,4 @@ public class Share {
         this.sharedMember = sharedMember;
         this.nickname = nickname;
     }
-
 }

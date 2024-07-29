@@ -1,8 +1,7 @@
 package ssafy.age.backend.share.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ssafy.age.backend.auth.service.AuthService;
@@ -13,13 +12,9 @@ import ssafy.age.backend.share.persistence.Share;
 import ssafy.age.backend.share.persistence.ShareRepository;
 import ssafy.age.backend.share.web.ShareDto;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class ShareService {
-
-
 
     private final MemberRepository memberRepository;
     private final AuthService authService;
@@ -31,6 +26,7 @@ public class ShareService {
         List<Share> shareList = shareRepository.findAll();
         return shareList.stream().map(shareMapper::toShareDto).toList();
     }
+
     @Transactional
     public void deleteShare(String email) {
         Member member = memberRepository.findByEmail(email);
@@ -41,6 +37,7 @@ public class ShareService {
         }
         shareRepository.delete(share);
     }
+
     @Transactional
     public ShareDto createShare(String email, String nickname) {
 
@@ -62,6 +59,7 @@ public class ShareService {
 
         return shareMapper.toShareDto(share);
     }
+
     @Transactional
     public ShareDto updateShare(String email, String nickname) {
         Member loginMember = memberRepository.findByEmail(authService.getMemberEmail());
