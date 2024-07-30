@@ -10,6 +10,6 @@ import ssafy.age.backend.share.web.ShareDto;
 public interface ShareMapper {
     ShareMapper INSTANCE = Mappers.getMapper(ShareMapper.class);
 
-    @Mapping(target = "email", ignore = true)
+    @Mapping(source = "sharedMember.email", target = "email")
     ShareDto toShareDto(Share share);
 }
