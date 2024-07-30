@@ -26,9 +26,9 @@ public class Event {
     @Enumerated(EnumType.STRING)
     private EventType type;
 
-    private boolean isRead;
+    private Boolean isRead;
 
-    private boolean isThreat;
+    private Boolean isThreat;
 
     @ManyToOne
     @JoinColumn(name = "cam_id")
