@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useUserStore } from '../stores/useUserStore';
+import { registerUser } from '../api';
 import backArrow from '../assets/signup/backarrow.png';
 
 interface SignUpProps {
@@ -14,7 +15,6 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
     setPhoneNumber,
     setEmail,
     setPassword,
-    setUserId,
     login,
     checkboxes,
     setCheckboxes,
@@ -116,7 +116,7 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
   };
 
   // 다음 단계로 넘어갑니다.
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
     setErrorMessage('');
     if (step === 1) {
       if (!checkboxes.age || !checkboxes.terms || !checkboxes.privacyPolicy) {
@@ -150,6 +150,29 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
       ) {
         setErrorMessage('비밀번호가 조건을 충족하지 않습니다.');
         return;
+      }
+      try {
+        // 회원가입 API 호출
+        const response = await registerUser({ email, phoneNumber, password });
+        alert('회원가입이 완료되었습니다.');
+        if (response.data.userId) {
+          login(
+            response.data.userId,
+            response.data.phoneNumber,
+            response.data.email,
+            response.data.password
+          );
+          resetPopup();
+          onClose();
+        } else {
+          setErrorMessage('회원가입에 실패했습니다.');
+        }
+      } catch (error) {
+        if (error instanceof Error && error.message) {
+          setErrorMessage(error.message);
+        } else {
+          setErrorMessage('회원가입 오류가 발생했습니다.');
+        }
       }
     }
     setStep((prevStep) => prevStep + 1);
@@ -221,7 +244,7 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
         onClick={(e) => e.stopPropagation()}
         style={{ height: 550 }} // 높이를 550px로 설정
       >
-        <button className="absolute top-2 left-2" onClick={handleBack}>
+        <button className="absolute top-3 left-3" onClick={handleBack}>
           <img className="w-6 h-6" alt="backArrow" src={backArrow} />
         </button>
         <ProgressBar />
@@ -396,7 +419,7 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyDown={(e) =>
-                  handleKeyDown(e, () => {
+                  handleKeyDown(e, async () => {
                     if (password !== confirmPassword) {
                       setErrorMessage('비밀번호를 확인해주세요.');
                       return;
@@ -409,12 +432,33 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                       setErrorMessage('비밀번호가 조건을 충족하지 않습니다.');
                       return;
                     }
-                    // 회원가입 완료 처리 로직 추가
-                    setUserId(123); // 예시 userId 설정
-                    login();
-                    alert('회원가입이 완료되었습니다.');
-                    resetPopup();
-                    onClose();
+                    try {
+                      // 회원가입 API 호출
+                      const response = await registerUser({
+                        email,
+                        phoneNumber,
+                        password,
+                      });
+                      alert('회원가입이 완료되었습니다.');
+                      if (response.data.userId) {
+                        login(
+                          response.data.userId,
+                          response.data.phoneNumber,
+                          response.data.email,
+                          response.data.password
+                        );
+                        resetPopup();
+                        onClose();
+                      } else {
+                        setErrorMessage('회원가입에 실패했습니다.');
+                      }
+                    } catch (error) {
+                      if (error instanceof Error && error.message) {
+                        setErrorMessage(error.message);
+                      } else {
+                        setErrorMessage('회원가입 오류가 발생했습니다.');
+                      }
+                    }
                   })
                 }
               />
@@ -460,7 +504,7 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 onKeyDown={(e) =>
-                  handleKeyDown(e, () => {
+                  handleKeyDown(e, async () => {
                     if (password !== confirmPassword) {
                       setErrorMessage('비밀번호를 확인해주세요.');
                       return;
@@ -473,12 +517,33 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                       setErrorMessage('비밀번호가 조건을 충족하지 않습니다.');
                       return;
                     }
-                    // 회원가입 완료 처리 로직 추가
-                    setUserId(123); // 예시 userId 설정
-                    login();
-                    alert('회원가입이 완료되었습니다.');
-                    resetPopup();
-                    onClose();
+                    try {
+                      // 회원가입 API 호출
+                      const response = await registerUser({
+                        email,
+                        phoneNumber,
+                        password,
+                      });
+                      alert('회원가입이 완료되었습니다.');
+                      if (response.data.userId) {
+                        login(
+                          response.data.userId,
+                          response.data.phoneNumber,
+                          response.data.email,
+                          response.data.password
+                        );
+                        resetPopup();
+                        onClose();
+                      } else {
+                        setErrorMessage('회원가입에 실패했습니다.');
+                      }
+                    } catch (error) {
+                      if (error instanceof Error && error.message) {
+                        setErrorMessage(error.message);
+                      } else {
+                        setErrorMessage('회원가입 오류가 발생했습니다.');
+                      }
+                    }
                   })
                 }
               />
@@ -488,7 +553,7 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
             )}
             <button
               className="w-full bg-blue-600 text-white py-2 rounded mt-6"
-              onClick={() => {
+              onClick={async () => {
                 if (password !== confirmPassword) {
                   setErrorMessage('비밀번호를 확인해주세요.');
                   return;
@@ -501,12 +566,33 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                   setErrorMessage('비밀번호가 조건을 충족하지 않습니다.');
                   return;
                 }
-                // 회원가입 완료 처리 로직 추가
-                setUserId(123); // 예시 userId 설정
-                login();
-                alert('회원가입이 완료되었습니다.');
-                resetPopup();
-                onClose();
+                try {
+                  // 회원가입 API 호출
+                  const response = await registerUser({
+                    email,
+                    phoneNumber,
+                    password,
+                  });
+                  alert('회원가입이 완료되었습니다.');
+                  if (response.data.userId) {
+                    login(
+                      response.data.userId,
+                      response.data.phoneNumber,
+                      response.data.email,
+                      response.data.password
+                    );
+                    resetPopup();
+                    onClose();
+                  } else {
+                    setErrorMessage('회원가입에 실패했습니다.');
+                  }
+                } catch (error) {
+                  if (error instanceof Error && error.message) {
+                    setErrorMessage(error.message);
+                  } else {
+                    setErrorMessage('회원가입 오류가 발생했습니다.');
+                  }
+                }
               }}
             >
               완료
