@@ -1,14 +1,18 @@
 package ssafy.age.backend.share.service;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ssafy.age.backend.auth.service.AuthService;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
+import ssafy.age.backend.share.exception.AccessDeniedException;
+import ssafy.age.backend.share.exception.SharedMemberNotFoundException;
 import ssafy.age.backend.share.persistence.Share;
 import ssafy.age.backend.share.persistence.ShareRepository;
 import ssafy.age.backend.share.web.ShareDto;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -19,27 +23,27 @@ public class ShareService {
     private final ShareRepository shareRepository;
     private final ShareMapper shareMapper = ShareMapper.INSTANCE;
 
-    public List<ShareDto> getAllShares() {
-        List<Share> shareList = shareRepository.findAll();
+    @Transactional
+    public List<ShareDto> getAllShares(String email) {
+        verifyLoginUser(email);
+        List<Share> shareList = shareRepository.findAllByMemberEmail(email);
         return shareList.stream().map(shareMapper::toShareDto).toList();
     }
 
-    public void deleteShare(String email) {
+    @Transactional
+    public ShareDto createShare(String email, String sharedMemberEmail, String nickname) {
+        verifyLoginUser(email);
         Member member = memberRepository.findByEmail(email);
-        Share share = shareRepository.findBySharedMemberIdEmail(member.getEmail());
-        shareRepository.delete(share);
-    }
+        Member sharedMember = memberRepository.findByEmail(sharedMemberEmail);
+        if (sharedMember == null) {
+            throw new SharedMemberNotFoundException();
+        }
 
-    public ShareDto createShare(String email, String nickname) {
-
-        Member loginMember = memberRepository.findByEmail(authService.getMemberEmail());
-
-        Member sharedMember = memberRepository.findByEmail(email);
 
         Share share =
                 Share.builder()
-                        .member(loginMember)
-                        .sharedMemberId(sharedMember)
+                        .member(member)
+                        .sharedMember(sharedMember)
                         .nickname(nickname)
                         .build();
 
@@ -48,14 +52,31 @@ public class ShareService {
         return shareMapper.toShareDto(share);
     }
 
-    public ShareDto updateShare(String email, String nickname) {
-        Member loginMember = memberRepository.findByEmail(authService.getMemberEmail());
-
-        Member sharedMember = memberRepository.findByEmail(email);
-        Share share = shareRepository.findBySharedMemberIdEmail(sharedMember.getEmail());
+    @Transactional
+    public ShareDto updateShare(String email, String sharedMemberEmail, String nickname) {
+        verifyLoginUser(email);
+        Share share =
+                shareRepository.findByMemberEmailAndSharedMemberEmail(email, sharedMemberEmail);
         share.setNickname(nickname);
         shareRepository.save(share);
 
         return shareMapper.toShareDto(share);
+    }
+
+    @Transactional
+    public void deleteShare(String email, String sharedMemberEmail) {
+        verifyLoginUser(email);
+
+        Share share =
+                shareRepository.findByMemberEmailAndSharedMemberEmail(email, sharedMemberEmail);
+        shareRepository.delete(share);
+    }
+
+    private void verifyLoginUser(String email) {
+        Member loginMember = memberRepository.findByEmail(authService.getMemberEmail());
+        Member member = memberRepository.findByEmail(email);
+        if (member == loginMember) {
+            throw new AccessDeniedException();
+        }
     }
 }
