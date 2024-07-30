@@ -1,8 +1,28 @@
-import React, { useState } from 'react';
-// import messaging from '../../firebase';
+import React, { useState, useEffect } from 'react';
+import {
+  getSharedMembers,
+  addSharedMember,
+  removeSharedMember,
+  SharedMember,
+} from '../../api';
 
 const CamSharingManagement: React.FC = () => {
   const [contact, setContact] = useState('');
+  const [sharedMembers, setSharedMembers] = useState<SharedMember[]>([]);
+  const email = 'user@example.com'; // 예시 사용자 이메일
+
+  useEffect(() => {
+    fetchSharedMembers();
+  }, []);
+
+  const fetchSharedMembers = async () => {
+    try {
+      const response = await getSharedMembers(email);
+      setSharedMembers(response.data);
+    } catch (error) {
+      console.error('Error fetching shared members:', error);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setContact(e.target.value);
@@ -10,19 +30,33 @@ const CamSharingManagement: React.FC = () => {
 
   const handleShareClick = async () => {
     try {
-      const response = await fetch('/api/share', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ contact }),
+      const response = await addSharedMember(email, {
+        nickname: 'Nickname',
+        email: contact,
       });
-      if (response.ok) {
-        alert('FCM을 통해 공유 링크가 전송되었습니다.');
+      if (response.status === 200) {
+        fetchSharedMembers();
+        alert('공유 회원이 추가되었습니다.');
       } else {
-        alert('공유 링크 전송에 실패했습니다.');
+        alert('공유 회원 추가에 실패했습니다.');
       }
     } catch (error) {
+      console.error('Error adding shared member:', error);
+      alert('서버 오류가 발생했습니다.');
+    }
+  };
+
+  const handleRemoveClick = async (sharedMemberEmail: string) => {
+    try {
+      const response = await removeSharedMember(email, sharedMemberEmail);
+      if (response.status === 200) {
+        fetchSharedMembers();
+        alert('공유 회원이 삭제되었습니다.');
+      } else {
+        alert('공유 회원 삭제에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Error removing shared member:', error);
       alert('서버 오류가 발생했습니다.');
     }
   };
@@ -45,6 +79,24 @@ const CamSharingManagement: React.FC = () => {
           공유
         </button>
       </div>
+      <ul>
+        {sharedMembers.map((member) => (
+          <li
+            key={member.email}
+            className="flex justify-between items-center mb-2"
+          >
+            <span>
+              {member.nickname} ({member.email})
+            </span>
+            <button
+              onClick={() => handleRemoveClick(member.email)}
+              className="bg-red-500 text-white p-2 rounded"
+            >
+              삭제
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };

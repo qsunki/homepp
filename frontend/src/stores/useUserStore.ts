@@ -16,7 +16,12 @@ interface UserState {
   setPhoneNumber: (phoneNumber: string) => void;
   setEmail: (email: string) => void;
   setPassword: (password: string) => void;
-  login: () => void;
+  login: (
+    userId: number,
+    phoneNumber: string,
+    email: string,
+    password: string
+  ) => void;
   logout: () => void;
   setCheckboxes: (checkboxes: Partial<UserState['checkboxes']>) => void;
 }
@@ -58,7 +63,14 @@ const useUserStore = create<UserState>((set) => ({
   setPhoneNumber: (phoneNumber) => set({ phoneNumber }),
   setEmail: (email) => set({ email }),
   setPassword: (password) => set({ password }),
-  login: () => set({ isLoggedIn: true }),
+  login: (userId, phoneNumber, email, password) =>
+    set({
+      userId,
+      phoneNumber,
+      email,
+      password,
+      isLoggedIn: true,
+    }),
   logout: () => set(initialState),
   setCheckboxes: (checkboxes) =>
     set((state) => ({

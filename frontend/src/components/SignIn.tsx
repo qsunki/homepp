@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUserStore, dummyUsers } from '../stores/useUserStore';
+import { useUserStore } from '../stores/useUserStore';
+import { loginUser } from '../api';
 import backArrow from '../assets/signin/backarrow.png';
 import naverLogin from '../assets/signin/naverlogin.png';
 import kakaoLogin from '../assets/signin/kakaologin.png';
@@ -11,14 +12,13 @@ interface SignInProps {
 }
 
 export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
-  const { setUserId, setPhoneNumber, setEmail, setPassword, login } =
-    useUserStore();
+  const { login } = useUserStore();
   const [inputEmail, setInputEmail] = useState('');
   const [inputPassword, setInputPassword] = useState('');
   const [loginError, setLoginError] = useState<string | null>(null);
   const [showSignUp, setShowSignUp] = useState(false);
 
-  const navigate = useNavigate(); // useNavigate 훅 사용
+  const navigate = useNavigate();
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputEmail(e.target.value);
@@ -30,26 +30,31 @@ export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
     setLoginError(null);
   };
 
-  const handleLogin = () => {
-    const user = dummyUsers.find((u) => u.email === inputEmail);
-
-    if (!user) {
-      setLoginError('이메일을 확인해 주세요.');
-      return;
+  const handleLogin = async () => {
+    try {
+      const response = await loginUser({
+        email: inputEmail,
+        password: inputPassword,
+      });
+      if (response.data.userId && response.data.phoneNumber) {
+        login(
+          response.data.userId,
+          response.data.phoneNumber,
+          response.data.email,
+          response.data.password
+        );
+        navigate('/home'); // 로그인 성공 시 홈페이지로 리다이렉트
+        onClose();
+      } else {
+        setLoginError('로그인에 실패했습니다.');
+      }
+    } catch (error) {
+      if (error instanceof Error && error.message) {
+        setLoginError(error.message);
+      } else {
+        setLoginError('로그인 오류가 발생했습니다.');
+      }
     }
-
-    if (user.password !== inputPassword) {
-      setLoginError('비밀번호를 확인해 주세요.');
-      return;
-    }
-
-    setUserId(user.userId);
-    setPhoneNumber(user.phoneNumber);
-    setEmail(user.email);
-    setPassword(user.password);
-    login();
-    navigate('/home'); // 로그인 성공 시 홈페이지로 리다이렉트
-    onClose();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -89,9 +94,9 @@ export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
       <div
         className="bg-white rounded-lg w-96 p-8 relative"
         onClick={(e) => e.stopPropagation()}
-        style={{ height: 550 }} // 높이를 550px로 설정
+        style={{ height: 550 }}
       >
-        <button className="absolute top-2 left-2" onClick={handleClose}>
+        <button className="absolute top-3 left-3" onClick={handleClose}>
           <img className="w-6 h-6" alt="backArrow" src={backArrow} />
         </button>
         <div className="text-center text-2xl font-semibold mb-8">Sign In</div>
