@@ -22,7 +22,7 @@ public class Share {
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shared_mameber_id")
+    @JoinColumn(name = "shared_member_id")
     private Member sharedMember;
 
     @Setter private String nickname;
