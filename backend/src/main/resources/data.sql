@@ -30,7 +30,7 @@ VALUES (1, '2023-07-29 10:00:00', 'http://example.com/video1.mp4', 120, 'http://
        (2, '2023-07-29 11:00:00', 'http://example.com/video2.mp4', 150, 'http://example.com/thumb2.jpg', 2),
        (3, '2023-07-29 13:00:00', 'http://example.com/video3.mp4', 180, 'http://example.com/thumb3.jpg', 1);
 
-INSERT INTO `evnet` (`event_id`, `occurred_at`, `type`, `cam_id`, `video_id`)
+INSERT INTO `event` (`event_id`, `occurred_at`, `type`, `cam_id`, `video_id`)
 VALUES (1, '2023-07-29 10:00:00', 'INVASION', 1, 1),
        (2, '2023-07-29 11:00:00', 'SOUND', 2, 2),
        (3, '2023-07-29 12:00:00', 'FIRE', 1, 2),
