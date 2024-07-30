@@ -37,9 +37,13 @@ public class SecurityConfig {
                                                 ::sameOrigin) // sameOrigin으로 설정하여 동일 출처에서의 프레임 허용
                         )
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/api/v1/members", "api/v1/members/login").permitAll()
-                        .anyRequest().authenticated())
+                .authorizeHttpRequests(
+                        (authorize) ->
+                                authorize
+                                        .requestMatchers("/api/v1/members", "api/v1/members/login")
+                                        .permitAll()
+                                        .anyRequest()
+                                        .authenticated())
                 .sessionManagement(
                         (session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(

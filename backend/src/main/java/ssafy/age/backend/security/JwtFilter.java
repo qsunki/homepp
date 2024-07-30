@@ -11,7 +11,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import ssafy.age.backend.auth.service.TokenProvider;
-import ssafy.age.backend.member.exception.MemberBadRequestException;
 
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
