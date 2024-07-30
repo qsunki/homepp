@@ -69,20 +69,6 @@ public class CamController {
             return camService.updateCamName(camId, camRequestDto.getName());
         }
     }
-
-    @PostMapping("/{camId}/videos")
-    public Long requestVideo(@PathVariable Long camId) {
-        return camService.requestVideo(camId);
-    }
-
-    @PostMapping("/{camId}/videos/{videoId}")
-    public CamResponseDto recordVideo(
-            @PathVariable Long camId,
-            @PathVariable Long videoId,
-            @RequestPart MultipartFile file,
-            @RequestPart VideoTimeInfo timeInfo) {
-        return camService.recordVideo(camId, videoId, file, timeInfo);
-    }
     //
     //    @GetMapping("/{camId}/envInfos")
     //    public List<EnvInfoResponseDto> getEnvInfos(@PathVariable Long camId) {

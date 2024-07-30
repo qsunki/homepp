@@ -35,13 +35,9 @@ mqtt:
       - "1883:1883"
       - "9001:9001"
     qos: 2
-    topics:
-      - "cam/video"
-      - "event/envInfo"
-
 
 openAPI:
   secret: ${OPEN_API_KEY}
 
 file:
-  dir: D:/videos/
+  dir: D:\videos\

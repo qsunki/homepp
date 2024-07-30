@@ -2,9 +2,7 @@ package ssafy.age.backend.cam.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.transaction.Transactional;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -13,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import ssafy.age.backend.cam.exception.CamNotFoundException;
 import ssafy.age.backend.cam.exception.JsonParsingException;
 import ssafy.age.backend.cam.persistence.Cam;
@@ -21,10 +18,7 @@ import ssafy.age.backend.cam.persistence.CamRepository;
 import ssafy.age.backend.cam.web.CamResponseDto;
 import ssafy.age.backend.envInfo.mqtt.CamMqttGateway;
 import ssafy.age.backend.member.persistence.Member;
-import ssafy.age.backend.video.exception.VideoNotFoundException;
-import ssafy.age.backend.video.persistence.Video;
 import ssafy.age.backend.video.persistence.VideoRepository;
-import ssafy.age.backend.video.service.VideoTimeInfo;
 
 @Service
 @Slf4j
@@ -33,17 +27,9 @@ public class CamService {
 
     private final CamRepository camRepository;
     private final CamMapper camMapper = CamMapper.INSTANCE;
-    private final VideoRepository videoRepository;
-    private final CamMqttGateway camMqttGateway;
 
     @Value("${openAPI.secret}")
     private String key;
-
-    @Value("${file.dir}")
-    private String fileDir;
-
-    @Value("${mqtt.broker.topics[0]}")
-    private String camTopic;
 
     public List<CamResponseDto> getAllCams() {
         List<Cam> camList = camRepository.findAll();
@@ -125,33 +111,5 @@ public class CamService {
     public CamResponseDto findCamById(Long camId) {
         Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
         return camMapper.toCamResponseDto(cam);
-    }
-
-    @Transactional
-    public CamResponseDto recordVideo(
-            Long camId, Long videoId, MultipartFile file, VideoTimeInfo timeInfo) {
-        try {
-            file.transferTo(new File(fileDir + file.getOriginalFilename()));
-            Video video =
-                    videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
-
-            video.updateVideo(
-                    fileDir + file.getOriginalFilename(),
-                    timeInfo.getStartTime(),
-                    timeInfo.getEndTime());
-
-            Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
-            cam.addVideo(video);
-            return camMapper.toCamResponseDto(camRepository.save(cam));
-        } catch (Exception e) {
-            throw new CamNotFoundException();
-        }
-    }
-
-    public Long requestVideo(Long camId) {
-        Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
-        Video video = Video.builder().cam(cam).build();
-        camMqttGateway.sendToMqtt(video.getId().toString(), camTopic);
-        return camId;
     }
 }

@@ -15,12 +15,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import ssafy.age.backend.cam.web.CamResponseDto;
 import ssafy.age.backend.event.persistence.EventType;
 import ssafy.age.backend.video.service.VideoService;
+import ssafy.age.backend.video.service.VideoTimeInfo;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/cams/videos")
+@RequestMapping("/api/v1/cams")
 @RequiredArgsConstructor
 public class VideoController {
     private final VideoService videoService;
@@ -35,46 +38,40 @@ public class VideoController {
         return videoService.getAllVideos(types, startDate, endDate, camId, isThreat);
     }
 
-    @GetMapping("/{videoId}")
+    @GetMapping("/videos/{videoId}")
     public VideoResponseDto getVideoById(@PathVariable Long videoId) {
         return videoService.getVideoById(videoId);
     }
 
-    @DeleteMapping("/{videoId}")
+    @DeleteMapping("/videos/{videoId}")
     public void deleteVideo(@PathVariable Long videoId) {
         videoService.deleteVideo(videoId);
     }
 
-    @GetMapping("/{videoId}/stream")
+    @GetMapping("/videos/{videoId}/stream")
     public ResponseEntity<Resource> streamVideo(
             @PathVariable Long videoId, HttpServletRequest request) throws MalformedURLException {
-        // 비디오 파일 경로를 가져옵니다
-        Path videoPath = Paths.get("src/main/resources/videos", videoId.toString() + ".mp4");
-
-        // 비디오 파일을 리소스로 읽어옵니다
-        Resource videoResource = new UrlResource(videoPath.toUri());
-
-        // HTTP Range 헤더를 처리하여 스트리밍을 구현합니다
-        return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
-                .contentType(MediaType.valueOf("video/mp4"))
-                .body(videoResource);
+        return videoService.streamVideo(videoId, request);
     }
 
-    @GetMapping("/{videoId}/download")
-    public ResponseEntity<Resource> downloadVideo(@PathVariable Long videoId)
-            throws MalformedURLException {
-        // 비디오 파일 경로를 가져옵니다
-        Path videoPath = Paths.get("src/main/resources/videos", videoId.toString() + ".mp4");
+    @GetMapping("/videos/{videoId}/download")
+    public ResponseEntity<Resource> downloadVideo(@PathVariable Long videoId) {
+        return videoService.downloadVideo(videoId);
+    }
 
-        // 비디오 파일을 리소스로 읽어옵니다
-        Resource videoResource = new UrlResource(videoPath.toUri());
+    @PostMapping("/{camId}/videos")
+    public Long recordVideo(@PathVariable Long camId, @RequestBody VideoRecordRequestDto videoRecordRequestDto) {
+        return videoService.recordVideo(camId,
+                videoRecordRequestDto.getVideoId(),
+                videoRecordRequestDto.getCommand());
+    }
 
-        // 다운로드 헤더를 추가합니다
-        return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .header(
-                        HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + videoPath.getFileName().toString() + "\"")
-                .body(videoResource);
+    @PostMapping("/{camId}/videos/{videoId}")
+    public void saveVideoOnServer(
+            @PathVariable Long camId,
+            @PathVariable Long videoId,
+            @RequestPart MultipartFile file,
+            @RequestPart VideoTimeInfo timeInfo) {
+        videoService.saveVideoOnServer(camId, videoId, file, timeInfo);
     }
 }
