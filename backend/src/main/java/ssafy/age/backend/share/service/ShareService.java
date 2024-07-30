@@ -1,18 +1,17 @@
 package ssafy.age.backend.share.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ssafy.age.backend.auth.service.AuthService;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
-//import ssafy.age.backend.share.exception.AccessDeniedException;
-//import ssafy.age.backend.share.exception.SharedMemberNotFoundException;
+// import ssafy.age.backend.share.exception.AccessDeniedException;
+// import ssafy.age.backend.share.exception.SharedMemberNotFoundException;
 import ssafy.age.backend.share.persistence.Share;
 import ssafy.age.backend.share.persistence.ShareRepository;
 import ssafy.age.backend.share.web.ShareDto;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -36,9 +35,8 @@ public class ShareService {
         Member member = memberRepository.findByEmail(email);
         Member sharedMember = memberRepository.findByEmail(sharedMemberEmail);
         if (sharedMember == null) {
-//            throw new SharedMemberNotFoundException();
+            //            throw new SharedMemberNotFoundException();
         }
-
 
         Share share =
                 Share.builder()
@@ -76,7 +74,7 @@ public class ShareService {
         Member loginMember = memberRepository.findByEmail(authService.getMemberEmail());
         Member member = memberRepository.findByEmail(email);
         if (member == loginMember) {
-//            throw new AccessDeniedException();
+            //            throw new AccessDeniedException();
         }
     }
 }
