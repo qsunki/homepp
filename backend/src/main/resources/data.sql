@@ -1,14 +1,14 @@
 insert into member (member_id, created_at, email, password, phone_number)
-values (1, '2024-07-29 15:49:40.798309', 'fview@naver.com',
+values (1, '2024-07-29 15:49:40.798309', 'ssafy1@ssafy.com',
         '$2a$10$3r6F/VxEqrA2KJxSUk3uPO6PTvq8Kz/i039mf72/fn9at4de71w6C', '01012345678'),
-       (2, '2024-07-29 15:49:40.798309', 'fview2@naver.com',
-        '$2a$10$3r6F/VxEqrA2KJxSUk3uPO6PTvq8Kz/i039mf72/fn9at4de71w6C', '01012345678'),
-       (3, '2024-07-29 15:49:40.798309', 'fview2@naver.com',
-        '$2a$10$3r6F/VxEqrA2KJxSUk3uPO6PTvq8Kz/i039mf72/fn9at4de71w6C', '01012345678'),
-       (4, '2024-07-29 15:49:40.798309', 'fview2@naver.com',
-        '$2a$10$3r6F/VxEqrA2KJxSUk3uPO6PTvq8Kz/i039mf72/fn9at4de71w6C', '01012345678'),
-       (5, '2024-07-29 15:49:40.798309', 'fview2@naver.com',
-        '$2a$10$3r6F/VxEqrA2KJxSUk3uPO6PTvq8Kz/i039mf72/fn9at4de71w6C', '01012345678');
+       (2, '2024-07-29 15:49:40.798309', 'ssafy2@ssafy.com',
+        '$2a$10$3r6F/VxEqrA2KJxSUk3uPO6PTvq8Kz/i039mf72/fn9at4de71w6C', '01022345678'),
+       (3, '2024-07-29 15:49:40.798309', 'ssafy3@ssafy.com',
+        '$2a$10$3r6F/VxEqrA2KJxSUk3uPO6PTvq8Kz/i039mf72/fn9at4de71w6C', '01032345678'),
+       (4, '2024-07-29 15:49:40.798309', 'ssafy4@ssafy.com',
+        '$2a$10$3r6F/VxEqrA2KJxSUk3uPO6PTvq8Kz/i039mf72/fn9at4de71w6C', '01042345678'),
+       (5, '2024-07-29 15:49:40.798309', 'ssafy5@ssafy.com',
+        '$2a$10$3r6F/VxEqrA2KJxSUk3uPO6PTvq8Kz/i039mf72/fn9at4de71w6C', '01052345678');
 
 insert
 into member_roles (member_member_id, roles)
