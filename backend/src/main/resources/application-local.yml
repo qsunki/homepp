@@ -35,6 +35,11 @@ mqtt:
       - "1883:1883"
       - "9001:9001"
     qos: 2
+    topics:
+      - "cams/+/video"
+      - "cams/+/stream"
+      - "server/envInfo"
+      - "server/event"
 
 openAPI:
   secret: ${OPEN_API_KEY}

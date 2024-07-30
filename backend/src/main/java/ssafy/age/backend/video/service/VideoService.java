@@ -1,6 +1,5 @@
 package ssafy.age.backend.video.service;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -8,12 +7,10 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -122,8 +119,9 @@ public class VideoService {
 
     public ResponseEntity<Resource> streamVideo(Long videoId, HttpServletRequest request) {
         try {
+            Video video = videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
             // 비디오 파일 경로를 가져옵니다
-            Path videoPath = Paths.get("src/main/resources/videos", videoId.toString() + ".mp4");
+            Path videoPath = Paths.get(video.getUrl());
 
             // 비디오 파일을 리소스로 읽어옵니다
             Resource videoResource = new UrlResource(videoPath.toUri());
@@ -141,7 +139,7 @@ public class VideoService {
     public void saveVideoOnServer(
             Long camId, Long videoId, MultipartFile file, VideoTimeInfo timeInfo) {
         try {
-            Path path = Paths.get(fileDir + videoId + "\\" + file.getOriginalFilename());
+            Path path = Paths.get(fileDir + "videos\\" + camId + "\\" + videoId + "\\" + file.getOriginalFilename());
 
             Files.copy(file.getInputStream(), path);
             Resource resource = new FileSystemResource(path.toFile());

@@ -28,7 +28,7 @@ import ssafy.age.backend.video.service.VideoTimeInfo;
 public class VideoController {
     private final VideoService videoService;
 
-    @GetMapping
+    @GetMapping("/videos")
     public List<VideoResponseDto> getAllVideos(
             @RequestParam List<EventType> types,
             @RequestParam LocalDateTime startDate,

@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
-import org.springframework.integration.core.MessageProducer;
 import org.springframework.integration.mqtt.core.DefaultMqttPahoClientFactory;
 import org.springframework.integration.mqtt.core.MqttPahoClientFactory;
 import org.springframework.integration.mqtt.inbound.MqttPahoMessageDrivenChannelAdapter;
@@ -17,7 +16,6 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 
 @Configuration
-@IntegrationComponentScan
 public class MqttConfig {
 
     @Value("${mqtt.broker.url}")
@@ -27,7 +25,13 @@ public class MqttConfig {
     private String camVideoTopic;
 
     @Value("${mqtt.broker.topics[1]}")
-    private String envInfoTopic;
+    private String camStreamTopic;
+
+    @Value("${mqtt.broker.topics[2]}")
+    private String serviceEnvInfoTopic;
+
+    @Value("${mqtt.broker.topics[3]}")
+    private String serviceEventTopic;
 
     @Bean
     public MqttConnectOptions mqttConnectOptions() {
@@ -66,7 +70,7 @@ public class MqttConfig {
     public MqttPahoMessageDrivenChannelAdapter inbound(MqttPahoClientFactory mqttPahoClientFactory) {
         MqttPahoMessageDrivenChannelAdapter adapter =
                 new MqttPahoMessageDrivenChannelAdapter(
-                        brokerUrl, "client", mqttPahoClientFactory, camVideoTopic, envInfoTopic);
+                        brokerUrl, "client", mqttPahoClientFactory, camVideoTopic, camStreamTopic, serviceEventTopic, serviceEnvInfoTopic);
         adapter.setCompletionTimeout(5000);
         adapter.setConverter(new DefaultPahoMessageConverter());
         adapter.setQos(1);
