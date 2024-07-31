@@ -1,6 +1,8 @@
 package ssafy.age.backend.video.service;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -12,13 +14,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ssafy.age.backend.cam.exception.CamNotFoundException;
@@ -118,22 +118,51 @@ public class VideoService {
         }
     }
 
-    public ResponseEntity<Resource> streamVideo(Long videoId, HttpServletRequest request) {
-        try {
-            Video video = videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
-            // 비디오 파일 경로를 가져옵니다
-            Path videoPath = Paths.get(video.getUrl());
+    public ResponseEntity<Resource> streamVideo(Long videoId, HttpServletRequest request) throws IOException {
+        // 비디오 파일 경로를 가져옵니다
+        Video video = videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
+        Path videoPath = Paths.get(video.getUrl());
 
-            // 비디오 파일을 리소스로 읽어옵니다
-            Resource videoResource = new UrlResource(videoPath.toUri());
+        // 비디오 파일을 리소스로 읽어옵니다
+        Resource videoResource = new UrlResource(videoPath.toUri());
 
-            // HTTP Range 헤더를 처리하여 스트리밍을 구현합니다
-            return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
+        // 비디오 파일의 길이를 구합니다
+        long videoLength = videoPath.toFile().length();
+
+        // HTTP Range 헤더를 처리하여 스트리밍을 구현합니다
+        String rangeHeader = request.getHeader(HttpHeaders.RANGE);
+        if (rangeHeader == null) {
+            return ResponseEntity.status(HttpStatus.OK)
                     .contentType(MediaType.valueOf("video/mp4"))
+                    .contentLength(videoLength)
                     .body(videoResource);
-        } catch (Exception e) {
-            throw new RuntimeException();
         }
+
+        String[] ranges = rangeHeader.replace("bytes=", "").split("-");
+        long start = Long.parseLong(ranges[0]);
+        long end = ranges.length > 1 ? Long.parseLong(ranges[1]) : videoLength - 1;
+
+        if (end > videoLength - 1) {
+            end = videoLength - 1;
+        }
+
+        long contentLength = end - start + 1;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Range", "bytes " + start + "-" + end + "/" + videoLength);
+        headers.add(HttpHeaders.ACCEPT_RANGES, "bytes");
+
+        byte[] data = new byte[(int) contentLength];
+        try (RandomAccessFile file = new RandomAccessFile(videoPath.toFile(), "r")) {
+            file.seek(start);
+            file.readFully(data);
+        }
+
+        return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
+                .headers(headers)
+                .contentType(MediaType.valueOf("video/mp4"))
+                .contentLength(contentLength)
+                .body(new ByteArrayResource(data));
     }
 
     @Transactional

@@ -1,6 +1,8 @@
 package ssafy.age.backend.video.web;
 
 import jakarta.servlet.http.HttpServletRequest;
+
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -10,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.core.io.support.ResourceRegion;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -49,8 +52,8 @@ public class VideoController {
     }
 
     @GetMapping("/videos/{videoId}/stream")
-    public ResponseEntity<Resource> streamVideo(
-            @PathVariable Long videoId, HttpServletRequest request) throws MalformedURLException {
+    public ResponseEntity<Resource> streamVide(
+            @PathVariable Long videoId, HttpServletRequest request) throws IOException {
         return videoService.streamVideo(videoId, request);
     }
 
