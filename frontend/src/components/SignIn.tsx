@@ -1,18 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '../stores/useUserStore';
-import { loginUser } from '../api';
+import { loginUser, setAuthToken } from '../api';
 import backArrow from '../assets/signin/backarrow.png';
 import naverLogin from '../assets/signin/naverlogin.png';
 import kakaoLogin from '../assets/signin/kakaologin.png';
 import SignUp from './SignUp';
+import axios from 'axios';
 
 interface SignInProps {
   onClose: () => void;
 }
 
 export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
-  const { login } = useUserStore();
+  const login = useUserStore((state) => state.login);
   const [inputEmail, setInputEmail] = useState('');
   const [inputPassword, setInputPassword] = useState('');
   const [loginError, setLoginError] = useState<string | null>(null);
@@ -30,36 +31,39 @@ export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
     setLoginError(null);
   };
 
-  const handleLogin = async () => {
+  const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     try {
       const response = await loginUser({
         email: inputEmail,
         password: inputPassword,
       });
-      if (response.data.userId && response.data.phoneNumber) {
-        login(
-          response.data.userId,
-          response.data.phoneNumber,
-          response.data.email,
-          response.data.password
-        );
+      console.log(response.data); // 응답 데이터 콘솔에 출력
+
+      if (response.data.accessToken) {
+        setAuthToken(response.data.accessToken); // 토큰 설정
+        login(response.data.userId, inputEmail, inputPassword);
         navigate('/home'); // 로그인 성공 시 홈페이지로 리다이렉트
         onClose();
       } else {
         setLoginError('로그인에 실패했습니다.');
       }
     } catch (error) {
-      if (error instanceof Error && error.message) {
-        setLoginError(error.message);
+      if (axios.isAxiosError(error)) {
+        console.error(
+          '로그인 오류:',
+          error.response ? error.response.data : error.message
+        );
       } else {
-        setLoginError('로그인 오류가 발생했습니다.');
+        console.error('로그인 오류:', error);
       }
+      setLoginError('로그인 오류가 발생했습니다.');
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      handleLogin();
+      handleLogin(e as unknown as FormEvent<HTMLFormElement>);
     }
   };
 
@@ -101,7 +105,7 @@ export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
         </button>
         <div className="text-center text-2xl font-semibold mb-8">Sign In</div>
 
-        <div className="flex flex-col gap-4 mb-6">
+        <form onSubmit={handleLogin} className="flex flex-col gap-4 mb-6">
           <div className="flex flex-col gap-2">
             <input
               type="email"
@@ -110,10 +114,8 @@ export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
               onKeyDown={handleKeyDown}
               className="border rounded px-4 py-2 w-full"
               placeholder="이메일을 입력하세요"
+              required
             />
-            {loginError === '이메일을 확인해 주세요.' && (
-              <div className="text-red-500 text-xs">{loginError}</div>
-            )}
           </div>
           <div className="flex flex-col gap-2">
             <input
@@ -123,19 +125,22 @@ export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
               onKeyDown={handleKeyDown}
               className="border rounded px-4 py-2 w-full"
               placeholder="비밀번호를 입력하세요"
+              required
+              autoComplete="current-password" // 추가
             />
-            {loginError === '비밀번호를 확인해 주세요.' && (
-              <div className="text-red-500 text-xs">{loginError}</div>
-            )}
           </div>
-        </div>
 
-        <button
-          className="bg-blue-600 text-white py-2 rounded w-full mb-4"
-          onClick={handleLogin}
-        >
-          로그인하기
-        </button>
+          {loginError && (
+            <div className="text-red-500 text-xs mb-4">{loginError}</div>
+          )}
+
+          <button
+            type="submit"
+            className="bg-blue-600 text-white py-2 rounded w-full mb-4"
+          >
+            로그인하기
+          </button>
+        </form>
 
         <button
           className="bg-gray-200 py-2 rounded w-full mb-4"
@@ -165,9 +170,9 @@ export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
           <img className="w-5 h-5 mr-2" alt="Kakao Login" src={kakaoLogin} />
           <span className="text-black">카카오로 시작하기</span>
         </button>
-      </div>
 
-      {showSignUp && <SignUp onClose={handleSignUpClose} />}
+        {showSignUp && <SignUp onClose={handleSignUpClose} />}
+      </div>
     </div>
   );
 };
