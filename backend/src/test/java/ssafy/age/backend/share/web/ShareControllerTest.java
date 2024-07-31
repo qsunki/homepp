@@ -1,6 +1,15 @@
 package ssafy.age.backend.share.web;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,33 +22,18 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ssafy.age.backend.share.service.ShareService;
 
-import java.util.List;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 @ExtendWith(MockitoExtension.class)
 class ShareControllerTest {
 
-    @Mock
-    private ShareService shareService;
-    @InjectMocks
-    private ShareController shareController;
+    @Mock private ShareService shareService;
+    @InjectMocks private ShareController shareController;
 
     private MockMvc mockMvc;
 
     @BeforeEach
     public void initMockMvc() {
-        mockMvc = MockMvcBuilders
-                .standaloneSetup(shareController)
-                .build();
+        mockMvc = MockMvcBuilders.standaloneSetup(shareController).build();
     }
-
 
     @Test
     @DisplayName("공유 회원 목록 전체 조회")
@@ -56,7 +50,6 @@ class ShareControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].email").value("shared@example.com"))
                 .andExpect(jsonPath("$[0].nickname").value("nickname"));
-
     }
 
     @Test
@@ -67,11 +60,13 @@ class ShareControllerTest {
         shareDto.setEmail("shared@example.com");
         shareDto.setNickname("nickname");
 
-        given(shareService.createShare(any(String.class), any(String.class), any(String.class))).willReturn(shareDto);
+        given(shareService.createShare(any(String.class), any(String.class), any(String.class)))
+                .willReturn(shareDto);
 
-        mockMvc.perform(post("/api/v1/members/{email}/sharedMembers", email)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(shareDto)))
+        mockMvc.perform(
+                        post("/api/v1/members/{email}/sharedMembers", email)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(new ObjectMapper().writeValueAsString(shareDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("shared@example.com"))
                 .andExpect(jsonPath("$.nickname").value("nickname"));
@@ -89,15 +84,21 @@ class ShareControllerTest {
         returnedDto.setNickname("new엄마");
         returnedDto.setEmail("shared@example.com");
 
-        given(shareService.updateShare(any(String.class), any(String.class), any(String.class))).willReturn(returnedDto);
+        given(shareService.updateShare(any(String.class), any(String.class), any(String.class)))
+                .willReturn(returnedDto);
 
-        mockMvc.perform(patch("/api/v1/members/{email}/sharedMembers/{sharedMemberEmail}", email, sharedMemberEmail)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(inputDto)))
+        mockMvc.perform(
+                        patch(
+                                        "/api/v1/members/{email}/sharedMembers/{sharedMemberEmail}",
+                                        email,
+                                        sharedMemberEmail)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(new ObjectMapper().writeValueAsString(inputDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.nickname").value("new엄마"))
                 .andExpect(jsonPath("$.email").value("shared@example.com"));
     }
+
     @Test
     @DisplayName("공유 회원 삭제")
     void deleteShare() throws Exception {
@@ -106,8 +107,11 @@ class ShareControllerTest {
 
         doNothing().when(shareService).deleteShare(any(String.class), any(String.class));
 
-        mockMvc.perform(delete("/api/v1/members/{email}/sharedMembers/{sharedMemberEmail}", email, sharedMemberEmail))
+        mockMvc.perform(
+                        delete(
+                                "/api/v1/members/{email}/sharedMembers/{sharedMemberEmail}",
+                                email,
+                                sharedMemberEmail))
                 .andExpect(status().isOk());
     }
 }
-

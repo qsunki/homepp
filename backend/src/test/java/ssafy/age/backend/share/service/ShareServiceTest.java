@@ -1,13 +1,18 @@
 package ssafy.age.backend.share.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.*;
+
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
 import ssafy.age.backend.auth.service.AuthService;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
@@ -17,23 +22,13 @@ import ssafy.age.backend.share.persistence.Share;
 import ssafy.age.backend.share.persistence.ShareRepository;
 import ssafy.age.backend.share.web.ShareDto;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.*;
-
 class ShareServiceTest {
-    @Mock
-    private ShareRepository shareRepository;
+    @Mock private ShareRepository shareRepository;
     @Mock private AuthService authService;
     @Mock private MemberRepository memberRepository;
     @Mock private ShareMapper shareMapper;
 
-    @InjectMocks
-    private ShareService shareService;
+    @InjectMocks private ShareService shareService;
 
     @BeforeEach
     public void setUp() {
@@ -197,5 +192,4 @@ class ShareServiceTest {
         // then
         then(shareRepository).should(times(1)).delete(share);
     }
-
 }
