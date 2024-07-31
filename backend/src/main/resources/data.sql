@@ -47,7 +47,7 @@ VALUES (1, '2023-07-29 09:00:00', 25.5, 60.0, 'RECORDING', 1),
        (5, '2023-07-29 11:00:00', 23.5, 50.0, 'OFFLINE', 1);
 
 -- 더미 데이터 삽입: SHARE 테이블
-INSERT INTO `share` (`share_id`, `member_id`, `share_member_id`, `nickname`)
+INSERT INTO `share` (`share_id`, `member_id`, `shared_member_id`, `nickname`)
 VALUES (1, 1, 2, '엄마'),
        (2, 1, 3, '아빠'),
        (3, 1, 4, '형'),
