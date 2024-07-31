@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 
 // 백엔드 API 기본 URL 설정
-const API_URL = 'http://i11a605.p.ssafy.io:8081/api/v1';
+const API_URL = 'https://i11a605.p.ssafy.io/api/v1';
 
 // axios 인스턴스 생성
 const api = axios.create({
@@ -67,6 +67,30 @@ export const loginUser = async (
       );
     } else {
       console.error('로그인 오류:', error);
+    }
+    throw error;
+  }
+};
+
+// WebRTC 스트림 데이터 타입 정의 (필요에 따라 수정 가능)
+interface StreamData {
+  streamUrl: string; // 예시로 스트림 URL을 포함한 응답 데이터 형식
+}
+
+// WebRTC 스트림 API 호출 함수
+export const getStream = async (
+  camId: string
+): Promise<AxiosResponse<StreamData>> => {
+  try {
+    return await api.get<StreamData>(`/cams/${camId}/stream`);
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        '스트림 가져오기 오류:',
+        error.response ? error.response.data : error.message
+      );
+    } else {
+      console.error('스트림 가져오기 오류:', error);
     }
     throw error;
   }
