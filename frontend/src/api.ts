@@ -1,7 +1,8 @@
 import axios, { AxiosResponse } from 'axios';
 
 // 백엔드 API 기본 URL 설정
-const API_URL = 'http://i11a605.p.ssafy.io:8081/api/v1';
+// const API_URL = 'http://i11a605.p.ssafy.io:8081/api/v1';
+const API_URL = 'https://i11a605.p.ssafy.io/api/v1';
 
 // axios 인스턴스 생성
 const api = axios.create({
