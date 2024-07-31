@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.integration.mqtt.support.MqttHeaders;
 import org.springframework.stereotype.Component;
 import ssafy.age.backend.envInfo.service.EnvInfoDto;
 import ssafy.age.backend.envInfo.service.EnvInfoService;
@@ -24,7 +25,7 @@ public class CamMessageHandler {
     public void handleMessage(String message) {
         try {
             JsonNode jsonNode = objectMapper.readTree(message);
-            int camId = jsonNode.get("camId").asInt();
+
             if (jsonNode.has("envInfo")) {
                 EnvInfoDto envInfoDto =
                         objectMapper.convertValue(jsonNode.get("envInfo"), EnvInfoDto.class);

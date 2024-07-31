@@ -13,11 +13,10 @@ import ssafy.age.backend.event.persistence.Event;
 @Getter
 @Entity
 @NoArgsConstructor
-@Builder
 public class Video {
 
     @Id
-    @Column(name = "video_id")
+    @Column(name = "video_id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -30,7 +29,6 @@ public class Video {
     private Long length;
 
     @OneToMany(mappedBy = "video")
-    @Builder.Default
     private List<Event> eventList = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -41,22 +39,19 @@ public class Video {
 
     private Boolean isThreat;
 
+    @Builder
     public Video(
-            Long id,
             LocalDateTime recordStartAt,
             LocalDateTime recordEndAt,
             String url,
             Long length,
-            List<Event> eventList,
             Cam cam,
             String thumbnailUrl,
-            boolean isThreat) {
-        this.id = id;
+            Boolean isThreat) {
         this.recordStartAt = recordStartAt;
         this.recordEndAt = recordEndAt;
         this.url = url;
         this.length = length;
-        this.eventList = eventList;
         this.cam = cam;
         this.thumbnailUrl = thumbnailUrl;
         this.isThreat = isThreat;

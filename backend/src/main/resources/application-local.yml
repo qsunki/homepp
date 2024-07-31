@@ -46,4 +46,4 @@ openAPI:
   secret: ${OPEN_API_KEY}
 
 file:
-  dir: D:\videos\
+  dir: D:\

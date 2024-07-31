@@ -1,5 +1,6 @@
 package ssafy.age.backend.video.service;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -139,7 +140,29 @@ public class VideoService {
     public void saveVideoOnServer(
             Long camId, Long videoId, MultipartFile file, VideoTimeInfo timeInfo) {
         try {
-            Path path = Paths.get(fileDir + "videos\\" + camId + "\\" + videoId + "\\" + file.getOriginalFilename());
+            Path path = Paths.get(fileDir + "videos" + "\\" + "cam" + camId +
+                    "\\" + "video" + videoId + "\\" + file.getOriginalFilename());
+
+            StringBuffer dirPath = new StringBuffer(fileDir);
+            dirPath.append("videos");
+            File directory = new File(dirPath.toString());
+            if (!directory.exists()) {
+                directory.mkdir();
+            }
+            dirPath.append("\\");
+            dirPath.append("cam");
+            dirPath.append(camId);
+            directory = new File(dirPath.toString());
+            if (!directory.exists()) {
+                directory.mkdir();
+            }
+            dirPath.append("\\");
+            dirPath.append("video");
+            dirPath.append(videoId);
+            directory = new File(dirPath.toString());
+            if (!directory.exists()) {
+                directory.mkdir();
+            }
 
             Files.copy(file.getInputStream(), path);
             Resource resource = new FileSystemResource(path.toFile());
@@ -165,13 +188,14 @@ public class VideoService {
         Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
         if (command == VideoCommand.START) {
             Video video = Video.builder().cam(cam).build();
+            videoRepository.save(video);
             camMqttGateway.sendToMqtt(video.getId() + " start",
                     "cams/" + cam.getId() + "/video");
             return video.getId();
         }
         else if (command == VideoCommand.END) {
             Video video = videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
-            camMqttGateway.sendToMqtt(video.getId() + " end",
+            camMqttGateway.sendToMqtt(video.getId().toString() + " end",
                     "cams/" + cam.getId() + "/video");
             return video.getId();
         }

@@ -6,8 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ssafy.age.backend.auth.service.AuthService;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
-import ssafy.age.backend.share.exception.AccessDeniedException;
-import ssafy.age.backend.share.exception.SharedMemberNotFoundException;
 import ssafy.age.backend.share.persistence.Share;
 import ssafy.age.backend.share.persistence.ShareRepository;
 import ssafy.age.backend.share.web.ShareDto;
@@ -36,7 +34,7 @@ public class ShareService {
         Member member = memberRepository.findByEmail(email);
         Member sharedMember = memberRepository.findByEmail(sharedMemberEmail);
         if (sharedMember == null) {
-            throw new SharedMemberNotFoundException();
+            throw new RuntimeException();
         }
 
 
@@ -76,7 +74,7 @@ public class ShareService {
         Member loginMember = memberRepository.findByEmail(authService.getMemberEmail());
         Member member = memberRepository.findByEmail(email);
         if (member == loginMember) {
-            throw new AccessDeniedException();
+            throw new RuntimeException();
         }
     }
 }
