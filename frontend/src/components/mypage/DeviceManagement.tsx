@@ -20,6 +20,7 @@ const DeviceManagement: React.FC = () => {
   const [deleteConfirmation, setDeleteConfirmation] = useState<number | null>(
     null
   );
+  const [searching, setSearching] = useState<boolean>(false); // 블루투스 검색 상태 관리
 
   const handleEditDevice = (id: number) => {
     setEditingDevice(id);
@@ -39,13 +40,38 @@ const DeviceManagement: React.FC = () => {
     setNewDeviceName('');
   };
 
-  const handleAddDevice = () => {
+  const handleAddDevice = async () => {
     setShowLoader(true);
-    setTimeout(() => {
-      setFoundDevices(['New Device 1', 'New Device 2', 'New Device 3']); // 검색된 장치 목록
+    setSearching(true); // 블루투스 검색 시작
+    console.log('Bluetooth search started');
+    try {
+      const nav = navigator as Navigator & {
+        bluetooth: {
+          requestDevice: (options: {
+            filters: { services: string[] }[];
+          }) => Promise<BluetoothDevice>;
+        };
+      };
+
+      if (!nav.bluetooth) {
+        throw new Error('Bluetooth is not supported by your browser.');
+      }
+
+      const device = await nav.bluetooth.requestDevice({
+        filters: [{ services: ['battery_service'] }],
+      });
+
+      console.log('Bluetooth device found:', device.name);
+      setFoundDevices([device.name || 'Unknown Device']); // 검색된 장치 목록
       setShowLoader(false);
       setShowDeviceSelection(true);
-    }, 3000); // 3초 동안 로더 표시 후 장치 검색
+    } catch (error) {
+      console.error('Error:', error);
+      setShowLoader(false);
+    } finally {
+      setSearching(false); // 블루투스 검색 종료
+      console.log('Bluetooth search ended');
+    }
   };
 
   const handleKeyDown = (
@@ -149,6 +175,8 @@ const DeviceManagement: React.FC = () => {
         <FaPlus className="text-gray-500 text-xl" />
       </div>
       {showLoader && <Loader />}
+      {searching && <p>Searching for Bluetooth devices...</p>}{' '}
+      {/* 블루투스 검색 상태 메시지 */}
       {showDeviceSelection && (
         <div
           className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 device-selection-overlay"
