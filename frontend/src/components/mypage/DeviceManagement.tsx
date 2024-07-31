@@ -54,23 +54,28 @@ const DeviceManagement: React.FC = () => {
         throw new Error('Bluetooth is not supported by your browser.');
       }
 
+      console.log('Requesting Bluetooth device...');
       const device = await nav.bluetooth.requestDevice({
-        filters: [{ services: ['battery_service'] }],
+        acceptAllDevices: true,
+        optionalServices: ['battery_service'], // 필요한 서비스 UUID 추가
       });
 
-      console.log(device.name);
+      console.log('Found device:', device.name);
       setFoundDevices([device.name || 'Unknown Device']); // 검색된 장치 목록
       setShowLoader(false);
       setShowDeviceSelection(true);
     } catch (error) {
+      console.error('Error during Bluetooth device search:', error);
       if ((error as DOMException).name === 'NotFoundError') {
         console.log(
           'No devices found. Please ensure your Bluetooth is enabled and try again.'
         );
       } else if ((error as DOMException).name === 'NotAllowedError') {
         console.log('Permission to access Bluetooth devices was denied.');
+      } else if ((error as DOMException).name === 'SecurityError') {
+        console.log('This page must be served over HTTPS.');
       } else {
-        console.error('Error:', error);
+        console.error('Unknown error:', error);
       }
       setShowLoader(false);
     }
