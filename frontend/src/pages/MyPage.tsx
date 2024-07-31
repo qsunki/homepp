@@ -15,7 +15,7 @@ import Announcement from '../components/mypage/Announcement';
 import FAQ from '../components/mypage/FAQ';
 import Support from '../components/mypage/Support';
 import DeviceManagement from '../components/mypage/DeviceManagement';
-import CamSharing from '../components/mypage/CamSharingManagement';
+// import CamSharing from '../components/mypage/CamSharingManagement';
 import Settings from '../components/mypage/Settings';
 import { useUserStore } from '../stores/useUserStore';
 
@@ -117,7 +117,7 @@ const MyPage: React.FC = () => {
         </div>
         <div
           className="relative flex items-center justify-center w-40 h-40 overflow-hidden bg-white shadow-lg rounded-xl transition-all duration-500 ease-[cubic-bezier(0.23,1,0.320,1)] group cursor-pointer"
-          onClick={() => openModal(<CamSharing />)}
+          // onClick={() => openModal(<CamSharing />)}
         >
           <div className="flex flex-col items-center gap-2 text-gray-900 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.320,1)] group-hover:z-10 group-hover:text-white">
             <MdVideocam className="text-3xl" />
