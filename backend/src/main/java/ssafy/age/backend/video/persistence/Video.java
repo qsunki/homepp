@@ -39,7 +39,7 @@ public class Video {
 
     private String thumbnailUrl;
 
-    private boolean isThreat;
+    private Boolean isThreat;
 
     public Video(
             Long id,
