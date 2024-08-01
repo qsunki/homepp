@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FaTrash, FaEdit, FaPlus } from 'react-icons/fa';
 import { useDeviceStore } from '../../stores/useDeviceStore';
+import { useUserStore } from '../../stores/useUserStore';
 import Loader from './Loader'; // Loader 컴포넌트 임포트
 import checkIcon from '../../assets/mypage/check.png';
 import cancelIcon from '../../assets/mypage/cancel.png';
@@ -16,6 +17,7 @@ const DeviceManagement: React.FC = () => {
   const addDevice = useDeviceStore((state) => state.addDevice);
   const deleteDevice = useDeviceStore((state) => state.deleteDevice);
   const editDevice = useDeviceStore((state) => state.editDevice);
+  const userEmail = useUserStore((state) => state.email);
 
   const [editingDevice, setEditingDevice] = useState<number | null>(null);
   const [newDeviceName, setNewDeviceName] = useState<string>('');
@@ -117,8 +119,29 @@ const DeviceManagement: React.FC = () => {
     setDeleteConfirmation(null);
   };
 
-  const handleSelectDevice = (deviceName: string) => {
-    addDevice(deviceName);
+  const handleSelectDevice = async (device: FoundDevice) => {
+    console.log('Connecting to device...');
+    try {
+      const server = await device.device.gatt?.connect();
+      if (server) {
+        console.log('Connected to device:', device.name);
+        console.log('Device Info:', device.device); // 연결된 기기 정보 출력
+        // 사용자 이메일 정보를 기기에 전송하는 로직
+        const emailService = await server.getPrimaryService(
+          'email_service_uuid'
+        ); // 실제 서비스 UUID로 변경
+        const emailCharacteristic = await emailService.getCharacteristic(
+          'email_characteristic_uuid'
+        ); // 실제 특성 UUID로 변경
+        const encoder = new TextEncoder();
+        const emailBuffer = encoder.encode(userEmail);
+        await emailCharacteristic.writeValue(emailBuffer);
+        console.log('Email sent to device:', userEmail);
+        addDevice(device.name);
+      }
+    } catch (error) {
+      console.error('Error connecting to device:', error);
+    }
     setShowDeviceSelection(false);
   };
 
@@ -209,7 +232,7 @@ const DeviceManagement: React.FC = () => {
                 .map((foundDevice) => (
                   <li key={foundDevice.device.id} className="mb-2">
                     <button
-                      onClick={() => handleSelectDevice(foundDevice.name)}
+                      onClick={() => handleSelectDevice(foundDevice)}
                       className="bg-blue-500 text-white p-2 rounded w-full"
                     >
                       {foundDevice.name} (RSSI: {foundDevice.rssi ?? 'N/A'})
