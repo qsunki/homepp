@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { FaTrash, FaEdit, FaPlus } from 'react-icons/fa';
 import { useDeviceStore } from '../../stores/useDeviceStore';
-import { useUserStore } from '../../stores/useUserStore';
-import Loader from './Loader';
+import Loader from './Loader'; // Loader 컴포넌트 임포트
 import checkIcon from '../../assets/mypage/check.png';
 import cancelIcon from '../../assets/mypage/cancel.png';
 
@@ -17,7 +16,6 @@ const DeviceManagement: React.FC = () => {
   const addDevice = useDeviceStore((state) => state.addDevice);
   const deleteDevice = useDeviceStore((state) => state.deleteDevice);
   const editDevice = useDeviceStore((state) => state.editDevice);
-  const userEmail = useUserStore((state) => state.email);
 
   const [editingDevice, setEditingDevice] = useState<number | null>(null);
   const [newDeviceName, setNewDeviceName] = useState<string>('');
@@ -28,13 +26,6 @@ const DeviceManagement: React.FC = () => {
   const [deleteConfirmation, setDeleteConfirmation] = useState<number | null>(
     null
   );
-  const [noDevicesFound, setNoDevicesFound] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (showLoader) {
-      startScanning();
-    }
-  }, [showLoader]);
 
   const handleEditDevice = (id: number) => {
     setEditingDevice(id);
@@ -54,40 +45,52 @@ const DeviceManagement: React.FC = () => {
     setNewDeviceName('');
   };
 
-  const startScanning = async () => {
+  const handleAddDevice = async () => {
+    setShowLoader(true);
     try {
-      setShowLoader(true);
       const nav = navigator as Navigator & {
         bluetooth: {
           requestDevice: (options: {
-            filters: Array<{ services: Array<string> }>;
-            optionalServices: Array<string>;
+            filters?: { services: string[] }[];
+            optionalServices?: string[];
+            acceptAllDevices?: boolean;
           }) => Promise<BluetoothDevice>;
         };
       };
 
-      if (!nav.bluetooth || !nav.bluetooth.requestDevice) {
-        throw new Error('Bluetooth scanning is not supported by your browser.');
+      if (!nav.bluetooth) {
+        throw new Error('Bluetooth is not supported by your browser.');
       }
 
       console.log('Requesting Bluetooth device...');
       const device = await nav.bluetooth.requestDevice({
-        filters: [{ services: ['battery_service'] }], // 서비스 필터 설정
-        optionalServices: ['battery_service'],
+        acceptAllDevices: true,
+        optionalServices: ['battery_service'], // 필요한 서비스 UUID 추가
       });
 
-      const deviceName = device.name || 'Unknown Device';
-      console.log(`Found device: ${deviceName}`);
-
-      setFoundDevices((prevDevices) => {
-        const newDevice: FoundDevice = { name: deviceName, device };
-        return [...prevDevices, newDevice];
-      });
-
+      console.log('Found device:', device.name);
+      setFoundDevices((prevDevices) => [
+        ...prevDevices,
+        {
+          name: device.name || 'Unknown Device',
+          device,
+        },
+      ]);
       setShowLoader(false);
       setShowDeviceSelection(true);
     } catch (error) {
-      console.error('Error during Bluetooth device request:', error);
+      console.error('Error during Bluetooth device search:', error);
+      if ((error as DOMException).name === 'NotFoundError') {
+        console.log(
+          'No devices found. Please ensure your Bluetooth is enabled and try again.'
+        );
+      } else if ((error as DOMException).name === 'NotAllowedError') {
+        console.log('Permission to access Bluetooth devices was denied.');
+      } else if ((error as DOMException).name === 'SecurityError') {
+        console.log('This page must be served over HTTPS.');
+      } else {
+        console.error('Unknown error:', error);
+      }
       setShowLoader(false);
     }
   };
@@ -114,30 +117,8 @@ const DeviceManagement: React.FC = () => {
     setDeleteConfirmation(null);
   };
 
-  const handleSelectDevice = async (foundDevice: FoundDevice) => {
-    const { device, name } = foundDevice;
-    console.log('Connecting to device...');
-    try {
-      const server = await device.gatt?.connect();
-      if (server) {
-        console.log('Connected to device:', device);
-        console.log('Device Info:', device); // 연결된 기기 정보 출력
-        // 사용자 이메일 정보를 기기에 전송하는 로직
-        const emailService = await server.getPrimaryService(
-          'email_service_uuid'
-        ); // 실제 서비스 UUID로 변경
-        const emailCharacteristic = await emailService.getCharacteristic(
-          'email_characteristic_uuid'
-        ); // 실제 특성 UUID로 변경
-        const encoder = new TextEncoder();
-        const emailBuffer = encoder.encode(userEmail);
-        await emailCharacteristic.writeValue(emailBuffer);
-        console.log('Email sent to device:', userEmail);
-        addDevice(name);
-      }
-    } catch (error) {
-      console.error('Error connecting to device:', error);
-    }
+  const handleSelectDevice = (deviceName: string) => {
+    addDevice(deviceName);
     setShowDeviceSelection(false);
   };
 
@@ -209,7 +190,7 @@ const DeviceManagement: React.FC = () => {
         ))}
       </ul>
       <div
-        onClick={() => setShowLoader(true)}
+        onClick={handleAddDevice}
         className="bg-gray-200 p-4 text-center cursor-pointer flex items-center justify-center rounded-lg"
       >
         <FaPlus className="text-gray-500 text-xl" />
@@ -228,7 +209,7 @@ const DeviceManagement: React.FC = () => {
                 .map((foundDevice) => (
                   <li key={foundDevice.device.id} className="mb-2">
                     <button
-                      onClick={() => handleSelectDevice(foundDevice)}
+                      onClick={() => handleSelectDevice(foundDevice.name)}
                       className="bg-blue-500 text-white p-2 rounded w-full"
                     >
                       {foundDevice.name} (RSSI: {foundDevice.rssi ?? 'N/A'})
@@ -236,22 +217,6 @@ const DeviceManagement: React.FC = () => {
                   </li>
                 ))}
             </ul>
-          </div>
-        </div>
-      )}
-      {noDevicesFound && (
-        <div
-          className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50"
-          onClick={() => setNoDevicesFound(false)}
-        >
-          <div className="bg-white p-4 rounded-lg">
-            <h3 className="text-lg font-bold mb-4">No devices found</h3>
-            <button
-              onClick={() => setNoDevicesFound(false)}
-              className="bg-blue-500 text-white p-2 rounded"
-            >
-              Close
-            </button>
           </div>
         </div>
       )}
