@@ -6,16 +6,16 @@ interface UserState {
   email: string;
   phoneNumber: string;
   password: string;
+  isLoggedIn: boolean;
   checkboxes: {
     privacyPolicy: boolean;
     marketing: boolean;
     age: boolean;
     terms: boolean;
   };
-  isLoggedIn: boolean;
-  setUserId: (userId: number) => void;
-  setEmail: (email: string) => void;
+  setUser: (userId: number, email: string, token: string) => void;
   setPhoneNumber: (phoneNumber: string) => void;
+  setEmail: (email: string) => void;
   setPassword: (password: string) => void;
   setCheckboxes: (checkboxes: Partial<UserState['checkboxes']>) => void;
   login: (userId: number, email: string, token: string) => void;
@@ -27,49 +27,49 @@ const useUserStore = create<UserState>((set) => ({
   email: '',
   phoneNumber: '',
   password: '',
+  isLoggedIn: false,
   checkboxes: {
     privacyPolicy: false,
     marketing: false,
     age: false,
     terms: false,
   },
-  isLoggedIn: false,
-  setUserId: (userId) => set({ userId }),
-  setEmail: (email) => set({ email }),
+  setUser: (userId, email, token) => {
+    set({ userId, email, isLoggedIn: true });
+    localStorage.setItem('token', token);
+  },
   setPhoneNumber: (phoneNumber) => set({ phoneNumber }),
+  setEmail: (email) => set({ email }),
   setPassword: (password) => set({ password }),
   setCheckboxes: (checkboxes) =>
     set((state) => ({
-      checkboxes: {
-        ...state.checkboxes,
-        ...checkboxes,
-      },
+      checkboxes: { ...state.checkboxes, ...checkboxes },
     })),
   login: (userId, email, token) => {
-    localStorage.setItem('token', token);
-    setAuthToken(token);
     set({
       userId,
       email,
       isLoggedIn: true,
     });
+    localStorage.setItem('token', token);
+    setAuthToken(token);
   },
   logout: () => {
-    localStorage.removeItem('token');
-    setAuthToken(null);
     set({
       userId: null,
       email: '',
       phoneNumber: '',
       password: '',
+      isLoggedIn: false,
       checkboxes: {
         privacyPolicy: false,
         marketing: false,
         age: false,
         terms: false,
       },
-      isLoggedIn: false,
     });
+    localStorage.removeItem('token');
+    setAuthToken(null);
   },
 }));
 
