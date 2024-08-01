@@ -54,10 +54,10 @@ public class MqttConfig {
     }
 
     @Bean
-    public MessageProducer inbound() {
+    public MessageProducer inbound(MqttPahoClientFactory mqttClientFactory) {
         MqttPahoMessageDrivenChannelAdapter adapter =
                 new MqttPahoMessageDrivenChannelAdapter(
-                        brokerUrl, MqttAsyncClient.generateClientId(), topics);
+                        brokerUrl, MqttAsyncClient.generateClientId(), mqttClientFactory, topics);
         adapter.setCompletionTimeout(5000);
         adapter.setConverter(new DefaultPahoMessageConverter());
         adapter.setQos(1);
