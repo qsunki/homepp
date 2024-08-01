@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FaTrash, FaEdit, FaPlus } from 'react-icons/fa';
 import { useDeviceStore } from '../../stores/useDeviceStore';
+import { useUserStore } from '../../stores/useUserStore'; // 사용자 스토어 임포트
 import Loader from './Loader'; // Loader 컴포넌트 임포트
 import checkIcon from '../../assets/mypage/check.png';
 import cancelIcon from '../../assets/mypage/cancel.png';
@@ -10,6 +11,7 @@ const DeviceManagement: React.FC = () => {
   const addDevice = useDeviceStore((state) => state.addDevice);
   const deleteDevice = useDeviceStore((state) => state.deleteDevice);
   const editDevice = useDeviceStore((state) => state.editDevice);
+  const userEmail = useUserStore((state) => state.email); // 사용자 이메일 가져오기
 
   const [editingDevice, setEditingDevice] = useState<number | null>(null);
   const [newDeviceName, setNewDeviceName] = useState<string>('');
@@ -61,8 +63,31 @@ const DeviceManagement: React.FC = () => {
         optionalServices: ['battery_service'], // 필요한 서비스 UUID 추가
       });
 
-      console.log('Found device:', device.name);
-      setFoundDevices([device.name || 'Unknown Device']); // 검색된 장치 목록
+      // 이름이 있는 장치만 필터링
+      if (device.name) {
+        console.log('Found device:', device);
+        setFoundDevices([device.name]); // 이름이 있는 장치만 추가
+        console.log('Connecting to device...');
+        const server = await device.gatt?.connect();
+        if (server) {
+          console.log('Connected to device:', device);
+          console.log('Device Info:', device); // 연결된 기기 정보 출력
+          // 사용자 이메일 정보를 기기에 전송하는 로직
+          const emailService = await server.getPrimaryService(
+            'email_service_uuid'
+          ); // 실제 서비스 UUID로 변경
+          const emailCharacteristic = await emailService.getCharacteristic(
+            'email_characteristic_uuid'
+          ); // 실제 특성 UUID로 변경
+          const encoder = new TextEncoder();
+          const emailBuffer = encoder.encode(userEmail);
+          await emailCharacteristic.writeValue(emailBuffer);
+          console.log('Email sent to device:', userEmail);
+        }
+      } else {
+        console.log('Found an unnamed device.');
+      }
+
       setShowLoader(false);
       setShowDeviceSelection(true);
     } catch (error) {
