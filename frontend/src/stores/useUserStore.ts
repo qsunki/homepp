@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { setAuthToken } from '../api';
 
 interface UserState {
   userId: number | null;
@@ -45,7 +46,7 @@ const useUserStore = create<UserState>((set) => ({
       isLoggedIn: true,
     });
   },
-  logout: () =>
+  logout: () => {
     set({
       userId: null,
       phoneNumber: '',
@@ -58,7 +59,10 @@ const useUserStore = create<UserState>((set) => ({
         age: false,
         terms: false,
       },
-    }),
+    });
+    localStorage.removeItem('token');
+    setAuthToken(null);
+  },
   setCheckboxes: (checkboxes) =>
     set((state) => ({
       checkboxes: {

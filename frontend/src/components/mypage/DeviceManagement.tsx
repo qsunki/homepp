@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { FaTrash, FaEdit, FaPlus } from 'react-icons/fa';
 import { useDeviceStore } from '../../stores/useDeviceStore';
-import { useUserStore } from '../../stores/useUserStore'; // 사용자 스토어 임포트
-import Loader from './Loader'; // Loader 컴포넌트 임포트
+import { useUserStore } from '../../stores/useUserStore';
+import Loader from './Loader';
 import checkIcon from '../../assets/mypage/check.png';
 import cancelIcon from '../../assets/mypage/cancel.png';
 
@@ -12,12 +12,20 @@ interface FoundDevice {
   device: BluetoothDevice;
 }
 
+interface BluetoothAdvertisingEvent extends Event {
+  device: BluetoothDevice;
+  uuids: string[];
+  manufacturerData: Map<number, DataView>;
+  serviceData: Map<string, DataView>;
+  rssi: number;
+}
+
 const DeviceManagement: React.FC = () => {
   const devices = useDeviceStore((state) => state.devices);
   const addDevice = useDeviceStore((state) => state.addDevice);
   const deleteDevice = useDeviceStore((state) => state.deleteDevice);
   const editDevice = useDeviceStore((state) => state.editDevice);
-  const userEmail = useUserStore((state) => state.email); // 사용자 이메일 가져오기
+  const userEmail = useUserStore((state) => state.email);
 
   const [editingDevice, setEditingDevice] = useState<number | null>(null);
   const [newDeviceName, setNewDeviceName] = useState<string>('');
@@ -71,31 +79,30 @@ const DeviceManagement: React.FC = () => {
       console.log('Starting Bluetooth LE scan...');
       const scan = await nav.bluetooth.requestLEScan({});
 
-      const handleAdvertisementReceived = (
-        event: BluetoothAdvertisingEvent
-      ) => {
-        if (event.device.name && event.rssi !== undefined) {
+      const handleAdvertisementReceived = (event: Event) => {
+        const bluetoothEvent = event as BluetoothAdvertisingEvent;
+        if (bluetoothEvent.device.name && bluetoothEvent.rssi !== undefined) {
           console.log(
-            `Found device: ${event.device.name}, RSSI: ${event.rssi}`
+            `Found device: ${bluetoothEvent.device.name}, RSSI: ${bluetoothEvent.rssi}`
           );
           setFoundDevices((prevDevices) => {
             const existingDeviceIndex = prevDevices.findIndex(
-              (d) => d.device.id === event.device.id
+              (d) => d.device.id === bluetoothEvent.device.id
             );
             if (existingDeviceIndex !== -1) {
               prevDevices[existingDeviceIndex] = {
-                name: event.device.name!,
-                rssi: event.rssi!,
-                device: event.device,
+                name: bluetoothEvent.device.name!,
+                rssi: bluetoothEvent.rssi!,
+                device: bluetoothEvent.device,
               };
               return [...prevDevices];
             }
             return [
               ...prevDevices,
               {
-                name: event.device.name!,
-                rssi: event.rssi!,
-                device: event.device,
+                name: bluetoothEvent.device.name!,
+                rssi: bluetoothEvent.rssi!,
+                device: bluetoothEvent.device,
               },
             ];
           });
@@ -104,7 +111,7 @@ const DeviceManagement: React.FC = () => {
 
       navigator.bluetooth.addEventListener(
         'advertisementreceived',
-        handleAdvertisementReceived
+        handleAdvertisementReceived as EventListener
       );
 
       // 스캔 중지 함수 설정
@@ -113,7 +120,7 @@ const DeviceManagement: React.FC = () => {
         scan.stop();
         navigator.bluetooth.removeEventListener(
           'advertisementreceived',
-          handleAdvertisementReceived
+          handleAdvertisementReceived as EventListener
         );
         setShowLoader(false);
         if (foundDevices.length === 0) {
