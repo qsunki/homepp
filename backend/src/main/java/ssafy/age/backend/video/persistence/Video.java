@@ -64,4 +64,8 @@ public class Video {
         this.recordEndAt = recordEndAt;
         this.length = length;
     }
+
+    public void registerThreat() {
+        this.isThreat = true;
+    }
 }

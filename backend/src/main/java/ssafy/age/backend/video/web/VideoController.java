@@ -83,4 +83,9 @@ public class VideoController {
             @RequestPart VideoTimeInfo timeInfo) {
         videoService.saveVideoOnServer(camId, videoId, file, timeInfo);
     }
+
+    @PostMapping("/{videoId}/threat")
+    public void registerThreat(@PathVariable Long videoId) {
+        videoService.registerThreat(videoId);
+    }
 }

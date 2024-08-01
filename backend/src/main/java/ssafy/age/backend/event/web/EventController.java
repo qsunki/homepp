@@ -26,11 +26,6 @@ public class EventController {
         eventService.readEvent(eventId);
     }
 
-    @PostMapping("/{eventId}/threat")
-    public void registerThreat(@PathVariable Long eventId) {
-        eventService.registerThreat(eventId);
-    }
-
     @DeleteMapping("/{eventId}")
     public void deleteEvent(@PathVariable Long eventId) {
         eventService.deleteEvent(eventId);
