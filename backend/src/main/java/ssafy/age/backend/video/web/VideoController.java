@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.core.io.support.ResourceRegion;
@@ -21,6 +22,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ssafy.age.backend.cam.web.CamResponseDto;
 import ssafy.age.backend.event.persistence.EventType;
+import ssafy.age.backend.video.service.DownloadResponseDto;
+import ssafy.age.backend.video.service.StreamResponseDto;
 import ssafy.age.backend.video.service.VideoService;
 import ssafy.age.backend.video.service.VideoTimeInfo;
 
@@ -54,12 +57,22 @@ public class VideoController {
     @GetMapping("/videos/{videoId}/stream")
     public ResponseEntity<Resource> streamVide(
             @PathVariable Long videoId, HttpServletRequest request) throws IOException {
-        return videoService.streamVideo(videoId, request);
+        StreamResponseDto streamResponseDto = videoService.streamVideo(videoId, request);
+        return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
+                .headers(streamResponseDto.getHeaders())
+                .contentType(MediaType.valueOf("video/mp4"))
+                .contentLength(streamResponseDto.getContentLength())
+                .body(streamResponseDto.getResourceData());
     }
 
     @GetMapping("/videos/{videoId}/download")
     public ResponseEntity<Resource> downloadVideo(@PathVariable Long videoId) {
-        return videoService.downloadVideo(videoId);
+        DownloadResponseDto downloadResponseDto = videoService.downloadVideo(videoId);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + downloadResponseDto.getFilename() + "\"")
+                .body(downloadResponseDto.getVideoResource());
     }
 
     @PostMapping("/{camId}/videos")

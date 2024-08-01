@@ -1,8 +1,6 @@
 package ssafy.age.backend.video.service;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,6 +9,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -99,45 +98,43 @@ public class VideoService {
         videoRepository.deleteById(videoId);
     }
 
-    public ResponseEntity<Resource> downloadVideo(Long videoId) {
+    public DownloadResponseDto downloadVideo(Long videoId) {
             Video video = videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
-            // 비디오 파일 경로를 가져옵니다
             Path videoPath = Paths.get(video.getUrl());
 
             Resource videoResource;
             try {
-                // 비디오 파일을 리소스로 읽어옵니다
                 videoResource = new UrlResource(videoPath.toUri());
             } catch (MalformedURLException e) {
                 throw new RuntimeException(e);
             }
 
-        // 다운로드 헤더를 추가합니다
-            return ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .header(HttpHeaders.CONTENT_DISPOSITION,
-                            "attachment; filename=\"" + videoPath.getFileName().toString() + "\"")
-                    .body(videoResource);
+            DownloadResponseDto downloadResponseDto = new DownloadResponseDto();
+            downloadResponseDto.setFilename(videoPath.getFileName().toString());
+            downloadResponseDto.setVideoResource(videoResource);
+
+            return downloadResponseDto;
     }
 
-    public ResponseEntity<Resource> streamVideo(Long videoId, HttpServletRequest request) throws IOException {
-        // 비디오 파일 경로를 가져옵니다
+    public StreamResponseDto streamVideo(Long videoId, HttpServletRequest request) {
         Video video = videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
         Path videoPath = Paths.get(video.getUrl());
 
-        // 비디오 파일을 리소스로 읽어옵니다
-        Resource videoResource = new UrlResource(videoPath.toUri());
+        Resource videoResource;
+        try {
+            videoResource = new UrlResource(videoPath.toUri());
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
 
-        // 비디오 파일의 길이를 구합니다
         long videoLength = videoPath.toFile().length();
 
-        // HTTP Range 헤더를 처리하여 스트리밍을 구현합니다
         String rangeHeader = request.getHeader(HttpHeaders.RANGE);
+        StreamResponseDto streamResponseDto = new StreamResponseDto();
         if (rangeHeader == null) {
-            return ResponseEntity.status(HttpStatus.OK)
-                    .contentType(MediaType.valueOf("video/mp4"))
-                    .contentLength(videoLength)
-                    .body(videoResource);
+            streamResponseDto.setContentLength(videoLength);
+            streamResponseDto.setResourceData(videoResource);
+            return streamResponseDto;
         }
 
         String[] ranges = rangeHeader.replace("bytes=", "").split("-");
@@ -158,13 +155,15 @@ public class VideoService {
         try (RandomAccessFile file = new RandomAccessFile(videoPath.toFile(), "r")) {
             file.seek(start);
             file.readFully(data);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
-        return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
-                .headers(headers)
-                .contentType(MediaType.valueOf("video/mp4"))
-                .contentLength(contentLength)
-                .body(new ByteArrayResource(data));
+        streamResponseDto.setHeaders(headers);
+        streamResponseDto.setContentLength(contentLength);
+        streamResponseDto.setResourceData(new ByteArrayResource(data));
+
+        return streamResponseDto;
     }
 
     @Transactional
@@ -174,7 +173,7 @@ public class VideoService {
             Path path = Paths.get(fileDir + "videos" + "\\" + "cam" + camId +
                     "\\" + "video" + videoId + "\\" + file.getOriginalFilename());
 
-            StringBuffer dirPath = new StringBuffer(fileDir);
+            StringBuilder dirPath = new StringBuilder(fileDir);
             dirPath.append("videos");
             File directory = new File(dirPath.toString());
             if (!directory.exists()) {
