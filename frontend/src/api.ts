@@ -61,7 +61,7 @@ export const loginUser = async (
 ): Promise<AxiosResponse<{ accessToken: string; userId: number }>> => {
   try {
     const response = await api.post<{ accessToken: string; userId: number }>(
-      '/login',
+      '/members/login', // ensure this endpoint is correct
       loginData
     );
     setAuthToken(response.data.accessToken); // 로그인 성공 시 토큰 설정
@@ -91,30 +91,6 @@ export const getUserInfo = async (): Promise<AxiosResponse<UserData>> => {
       );
     } else {
       console.error('회원 정보 조회 오류:', error);
-    }
-    throw error;
-  }
-};
-
-// WebRTC 스트림 데이터 타입 정의 (필요에 따라 수정 가능)
-interface StreamData {
-  streamUrl: string; // 예시로 스트림 URL을 포함한 응답 데이터 형식
-}
-
-// WebRTC 스트림 API 호출 함수
-export const getStream = async (
-  camId: string
-): Promise<AxiosResponse<StreamData>> => {
-  try {
-    return await api.get<StreamData>(`/cams/${camId}/stream`);
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error(
-        '스트림 가져오기 오류:',
-        error.response ? error.response.data : error.message
-      );
-    } else {
-      console.error('스트림 가져오기 오류:', error);
     }
     throw error;
   }
