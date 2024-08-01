@@ -45,7 +45,8 @@ const DeviceManagement: React.FC = () => {
       const nav = navigator as Navigator & {
         bluetooth: {
           requestDevice: (options: {
-            filters: { services: string[] }[];
+            acceptAllDevices: boolean;
+            optionalServices: string[];
           }) => Promise<BluetoothDevice>;
         };
       };
