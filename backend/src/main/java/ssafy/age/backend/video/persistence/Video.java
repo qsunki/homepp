@@ -57,7 +57,8 @@ public class Video {
         this.isThreat = isThreat;
     }
 
-    public void updateVideo(String url, LocalDateTime recordStartAt, LocalDateTime recordEndAt, Long length) {
+    public void updateVideo(
+            String url, LocalDateTime recordStartAt, LocalDateTime recordEndAt, Long length) {
         this.url = url;
         this.recordStartAt = recordStartAt;
         this.recordEndAt = recordEndAt;

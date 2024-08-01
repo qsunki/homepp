@@ -16,9 +16,7 @@ import ssafy.age.backend.cam.exception.JsonParsingException;
 import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.cam.persistence.CamRepository;
 import ssafy.age.backend.cam.web.CamResponseDto;
-import ssafy.age.backend.envInfo.mqtt.CamMqttGateway;
 import ssafy.age.backend.member.persistence.Member;
-import ssafy.age.backend.video.persistence.VideoRepository;
 
 @Service
 @Slf4j

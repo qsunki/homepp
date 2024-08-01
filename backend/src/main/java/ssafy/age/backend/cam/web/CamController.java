@@ -7,14 +7,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import ssafy.age.backend.cam.persistence.CamRepository;
 import ssafy.age.backend.cam.persistence.CamStatus;
 import ssafy.age.backend.cam.service.CamService;
 import ssafy.age.backend.envInfo.service.EnvInfoService;
 import ssafy.age.backend.exception.InvalidInputException;
 import ssafy.age.backend.member.persistence.Member;
-import ssafy.age.backend.video.service.VideoTimeInfo;
 
 @Slf4j
 @RestController
@@ -49,8 +47,7 @@ public class CamController {
     @PatchMapping("/{camId}")
     @Operation(
             summary = "캠 정보 수정",
-            description =
-                    "request의 status가 null이면 이름 변경, status 값이 있으면 값에 따라서 등록/미등록 상태 변경")
+            description = "request의 status가 null이면 이름 변경, status 값이 있으면 값에 따라서 등록/미등록 상태 변경")
     public CamResponseDto updateCam(
             @PathVariable Long camId,
             @RequestBody CamRequestDto camRequestDto,

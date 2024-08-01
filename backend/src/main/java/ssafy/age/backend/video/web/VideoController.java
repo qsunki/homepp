@@ -1,26 +1,18 @@
 package ssafy.age.backend.video.web;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.core.io.support.ResourceRegion;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ssafy.age.backend.cam.web.CamResponseDto;
 import ssafy.age.backend.event.persistence.EventType;
 import ssafy.age.backend.video.service.DownloadResponseDto;
 import ssafy.age.backend.video.service.StreamResponseDto;
@@ -70,16 +62,17 @@ public class VideoController {
         DownloadResponseDto downloadResponseDto = videoService.downloadVideo(videoId);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .header(HttpHeaders.CONTENT_DISPOSITION,
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
                         "attachment; filename=\"" + downloadResponseDto.getFilename() + "\"")
                 .body(downloadResponseDto.getVideoResource());
     }
 
     @PostMapping("/{camId}/videos")
-    public Long recordVideo(@PathVariable Long camId, @RequestBody VideoRecordRequestDto videoRecordRequestDto) {
-        return videoService.recordVideo(camId,
-                videoRecordRequestDto.getVideoId(),
-                videoRecordRequestDto.getCommand());
+    public Long recordVideo(
+            @PathVariable Long camId, @RequestBody VideoRecordRequestDto videoRecordRequestDto) {
+        return videoService.recordVideo(
+                camId, videoRecordRequestDto.getVideoId(), videoRecordRequestDto.getCommand());
     }
 
     @PostMapping("/{camId}/videos/{videoId}")

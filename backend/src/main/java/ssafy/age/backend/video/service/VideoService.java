@@ -1,5 +1,7 @@
 package ssafy.age.backend.video.service;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -9,9 +11,6 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -24,9 +23,9 @@ import org.springframework.web.multipart.MultipartFile;
 import ssafy.age.backend.cam.exception.CamNotFoundException;
 import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.cam.persistence.CamRepository;
-import ssafy.age.backend.envInfo.mqtt.CamMqttGateway;
 import ssafy.age.backend.event.persistence.EventType;
 import ssafy.age.backend.exception.InvalidInputException;
+import ssafy.age.backend.mqtt.MqttGateway;
 import ssafy.age.backend.video.exception.VideoNotFoundException;
 import ssafy.age.backend.video.persistence.Video;
 import ssafy.age.backend.video.persistence.VideoRepository;
@@ -40,7 +39,7 @@ public class VideoService {
     private final VideoRepository videoRepository;
     private final VideoMapper videoMapper = VideoMapper.INSTANCE;
     private final CamRepository camRepository;
-    private final CamMqttGateway camMqttGateway;
+    private final MqttGateway mqttGateway;
 
     @Value("${file.dir}")
     private String fileDir;
@@ -99,20 +98,20 @@ public class VideoService {
     }
 
     public DownloadResponseDto downloadVideo(Long videoId) {
-            Video video = videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
-            Path videoPath = Paths.get(video.getUrl());
+        Video video = videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
+        Path videoPath = Paths.get(video.getUrl());
 
-            Resource videoResource;
-            try {
-                videoResource = new UrlResource(videoPath.toUri());
-            } catch (MalformedURLException e) {
-                throw new RuntimeException(e);
-            }
+        Resource videoResource;
+        try {
+            videoResource = new UrlResource(videoPath.toUri());
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
 
-            return DownloadResponseDto.builder()
-                    .filename(videoPath.getFileName().toString())
-                    .videoResource(videoResource)
-                    .build();
+        return DownloadResponseDto.builder()
+                .filename(videoPath.getFileName().toString())
+                .videoResource(videoResource)
+                .build();
     }
 
     public StreamResponseDto streamVideo(Long videoId, HttpServletRequest request) {
@@ -170,8 +169,18 @@ public class VideoService {
     public void saveVideoOnServer(
             Long camId, Long videoId, MultipartFile file, VideoTimeInfo timeInfo) {
         try {
-            Path path = Paths.get(fileDir + "videos" + "\\" + "cam" + camId +
-                    "\\" + "video" + videoId + "\\" + file.getOriginalFilename());
+            Path path =
+                    Paths.get(
+                            fileDir
+                                    + "videos"
+                                    + "\\"
+                                    + "cam"
+                                    + camId
+                                    + "\\"
+                                    + "video"
+                                    + videoId
+                                    + "\\"
+                                    + file.getOriginalFilename());
 
             StringBuilder dirPath = new StringBuilder(fileDir);
             dirPath.append("videos");
@@ -197,16 +206,21 @@ public class VideoService {
             Files.copy(file.getInputStream(), path);
             Resource resource = new FileSystemResource(path.toFile());
 
-            long seconds = ChronoUnit.SECONDS.between(timeInfo.getStartTime(), timeInfo.getEndTime());
-            long minutes = ChronoUnit.MINUTES.between(timeInfo.getStartTime(), timeInfo.getEndTime());
+            long seconds =
+                    ChronoUnit.SECONDS.between(timeInfo.getStartTime(), timeInfo.getEndTime());
+            long minutes =
+                    ChronoUnit.MINUTES.between(timeInfo.getStartTime(), timeInfo.getEndTime());
             long hours = ChronoUnit.HOURS.between(timeInfo.getStartTime(), timeInfo.getEndTime());
             long videoLength = seconds + minutes * 60 + hours * 60 * 60;
 
-            Video video = videoRepository.findById(videoId)
-                    .orElseThrow(VideoNotFoundException::new);
-            video.updateVideo(resource.getFile().getPath(), timeInfo.getStartTime(), timeInfo.getEndTime(), videoLength);
-            Cam cam = camRepository.findById(camId)
-                    .orElseThrow(CamNotFoundException::new);
+            Video video =
+                    videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
+            video.updateVideo(
+                    resource.getFile().getPath(),
+                    timeInfo.getStartTime(),
+                    timeInfo.getEndTime(),
+                    videoLength);
+            Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
             cam.addVideo(video);
             camRepository.save(cam);
         } catch (Exception e) {
@@ -219,17 +233,15 @@ public class VideoService {
         if (command == VideoCommand.START) {
             Video video = Video.builder().cam(cam).build();
             videoRepository.save(video);
-            camMqttGateway.sendToMqtt(video.getId() + " start",
-                    "cams/" + cam.getId() + "/video");
+            mqttGateway.sendToMqtt(video.getId() + " start", "cams/" + cam.getId() + "/video");
             return video.getId();
-        }
-        else if (command == VideoCommand.END) {
-            Video video = videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
-            camMqttGateway.sendToMqtt(video.getId().toString() + " end",
-                    "cams/" + cam.getId() + "/video");
+        } else if (command == VideoCommand.END) {
+            Video video =
+                    videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
+            mqttGateway.sendToMqtt(
+                    video.getId().toString() + " end", "cams/" + cam.getId() + "/video");
             return video.getId();
-        }
-        else {
+        } else {
             throw new InvalidInputException();
         }
     }
