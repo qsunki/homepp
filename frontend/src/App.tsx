@@ -10,14 +10,14 @@ import VideoList from './pages/VideoList';
 import VideoDetail from './pages/VideoDetail';
 import ScrollToTop from './utils/ScrollToTop';
 import { useUserStore } from './stores/useUserStore';
-import { setAuthToken, getUserInfo, UserData } from './api';
+import { setAuthToken, getUserInfo } from './api';
 import SignIn from './components/SignIn';
 import './App.css';
 import 'tw-elements';
 import 'tw-elements/dist/css/tw-elements.min.css';
 
 const App: React.FC = () => {
-  const { login, logout } = useUserStore();
+  const { setUser, logout } = useUserStore();
   const [showSignIn, setShowSignIn] = useState(false);
 
   useEffect(() => {
@@ -26,9 +26,9 @@ const App: React.FC = () => {
       setAuthToken(token);
       getUserInfo()
         .then((response) => {
-          const user: UserData = response.data;
+          const user = response.data;
           if (user.userId && user.email) {
-            login(user.userId, user.email, token); // 사용자 정보를 설정
+            setUser(user.userId, user.email, token); // 사용자 정보를 설정
           } else {
             logout();
           }
@@ -40,7 +40,7 @@ const App: React.FC = () => {
     } else {
       logout();
     }
-  }, [login, logout]);
+  }, [setUser, logout]);
 
   const handleSignInClose = () => {
     setShowSignIn(false);

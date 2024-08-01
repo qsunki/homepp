@@ -1,4 +1,4 @@
-import React, { useEffect, useState, FormEvent } from 'react';
+import React, { useState, useEffect, FormEvent } from 'react';
 import { useUserStore } from '../stores/useUserStore';
 import { registerUser } from '../api';
 import backArrow from '../assets/signup/backarrow.png';
@@ -18,16 +18,7 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
     setPassword,
     checkboxes,
     setCheckboxes,
-  } = useUserStore((state) => ({
-    phoneNumber: state.phoneNumber,
-    email: state.email,
-    password: state.password,
-    setPhoneNumber: state.setPhoneNumber,
-    setEmail: state.setEmail,
-    setPassword: state.setPassword,
-    checkboxes: state.checkboxes,
-    setCheckboxes: state.setCheckboxes,
-  }));
+  } = useUserStore();
   const [step, setStep] = useState(1);
   const [allChecked, setAllChecked] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -143,14 +134,9 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
         return;
       }
       try {
-        const response = await registerUser({ email, phoneNumber, password });
+        await registerUser({ email, phoneNumber, password });
         alert('회원가입이 완료되었습니다.');
-        if (response.data && response.data.userId) {
-          resetPopup();
-          onClose(); // 회원가입 후 팝업을 닫음
-        } else {
-          setErrorMessage('회원가입에 실패했습니다.');
-        }
+        handleClose(); // 회원가입 완료 후 팝업 닫기
       } catch (error) {
         if (axios.isAxiosError(error)) {
           console.error(
@@ -414,44 +400,9 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   onKeyDown={(e) =>
-                    handleKeyDown(e, async () => {
-                      if (password !== confirmPassword) {
-                        setErrorMessage('비밀번호를 확인해주세요.');
-                        return;
-                      }
-                      if (
-                        !passwordValidations.length ||
-                        !passwordValidations.hasNumber ||
-                        !passwordValidations.hasLetter
-                      ) {
-                        setErrorMessage('비밀번호가 조건을 충족하지 않습니다.');
-                        return;
-                      }
-                      try {
-                        const response = await registerUser({
-                          email,
-                          phoneNumber,
-                          password,
-                        });
-                        alert('회원가입이 완료되었습니다.');
-                        if (response.data && response.data.userId) {
-                          resetPopup();
-                          onClose(); // 회원가입 후 팝업을 닫음
-                        } else {
-                          setErrorMessage('회원가입에 실패했습니다.');
-                        }
-                      } catch (error) {
-                        if (axios.isAxiosError(error)) {
-                          console.error(
-                            '회원가입 오류:',
-                            error.response ? error.response.data : error.message
-                          );
-                        } else {
-                          console.error('회원가입 오류:', error);
-                        }
-                        setErrorMessage('회원가입 오류가 발생했습니다.');
-                      }
-                    })
+                    handleKeyDown(e, () =>
+                      handleNextStep(e as unknown as FormEvent<HTMLFormElement>)
+                    )
                   }
                 />
                 <div className="flex text-xs mt-1 space-x-4">
@@ -496,44 +447,9 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   onKeyDown={(e) =>
-                    handleKeyDown(e, async () => {
-                      if (password !== confirmPassword) {
-                        setErrorMessage('비밀번호를 확인해주세요.');
-                        return;
-                      }
-                      if (
-                        !passwordValidations.length ||
-                        !passwordValidations.hasNumber ||
-                        !passwordValidations.hasLetter
-                      ) {
-                        setErrorMessage('비밀번호가 조건을 충족하지 않습니다.');
-                        return;
-                      }
-                      try {
-                        const response = await registerUser({
-                          email,
-                          phoneNumber,
-                          password,
-                        });
-                        alert('회원가입이 완료되었습니다.');
-                        if (response.data && response.data.userId) {
-                          resetPopup();
-                          onClose(); // 회원가입 후 팝업을 닫음
-                        } else {
-                          setErrorMessage('회원가입에 실패했습니다.');
-                        }
-                      } catch (error) {
-                        if (axios.isAxiosError(error)) {
-                          console.error(
-                            '회원가입 오류:',
-                            error.response ? error.response.data : error.message
-                          );
-                        } else {
-                          console.error('회원가입 오류:', error);
-                        }
-                        setErrorMessage('회원가입 오류가 발생했습니다.');
-                      }
-                    })
+                    handleKeyDown(e, () =>
+                      handleNextStep(e as unknown as FormEvent<HTMLFormElement>)
+                    )
                   }
                 />
               </div>
