@@ -41,6 +41,7 @@ public class Video {
 
     @Builder
     public Video(
+            Long id,
             LocalDateTime recordStartAt,
             LocalDateTime recordEndAt,
             String url,
@@ -48,6 +49,7 @@ public class Video {
             Cam cam,
             String thumbnailUrl,
             Boolean isThreat) {
+        this.id = id;
         this.recordStartAt = recordStartAt;
         this.recordEndAt = recordEndAt;
         this.url = url;

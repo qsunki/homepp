@@ -3,10 +3,12 @@ package ssafy.age.backend.event.service;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.event.exception.EventNotFoundException;
 import ssafy.age.backend.event.persistence.Event;
 import ssafy.age.backend.event.persistence.EventRepository;
 import ssafy.age.backend.event.web.EventResponseDto;
+import ssafy.age.backend.video.persistence.Video;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +23,10 @@ public class EventService {
     }
 
     public void save(EventDto eventDto) {
-        eventRepository.save(eventMapper.toEvent(eventDto));
+        Event event = eventMapper.toEvent(eventDto);
+        event.setCam(Cam.builder().id(eventDto.getCamId()).build());
+        event.setVideo(Video.builder().id(eventDto.getVideoId()).build());
+        eventRepository.save(event);
     }
 
     public void deleteEvent(Long eventId) {

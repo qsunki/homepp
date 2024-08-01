@@ -2,10 +2,8 @@ package ssafy.age.backend.event.persistence;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.video.persistence.Video;
@@ -30,17 +28,19 @@ public class Event {
 
     @ManyToOne
     @JoinColumn(name = "cam_id")
+    @Setter
     private Cam cam;
 
     @ManyToOne
     @JoinColumn(name = "video_id")
+    @Setter
     private Video video;
 
     public Event(
             Long id,
             LocalDateTime occurredAt,
             EventType type,
-            boolean isRead,
+            Boolean isRead,
             Cam cam,
             Video video) {
         this.id = id;

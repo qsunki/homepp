@@ -20,7 +20,7 @@ public class EnvInfoService {
 
     public void save(EnvInfoDto envInfoDto) {
         EnvInfo envInfo = envInfoMapper.toEnvInfo(envInfoDto);
-        envInfo.setCam(camRepository.findById(envInfoDto.getCamId()).orElseThrow(CamNotFoundException::new));
+        envInfo.setCam(Cam.builder().id(envInfoDto.getCamId()).build());
         envInfoRepository.save(envInfo);
     }
     //
