@@ -1,5 +1,6 @@
 package ssafy.age.backend.share.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,8 +10,6 @@ import ssafy.age.backend.member.persistence.MemberRepository;
 import ssafy.age.backend.share.persistence.Share;
 import ssafy.age.backend.share.persistence.ShareRepository;
 import ssafy.age.backend.share.web.ShareDto;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +35,6 @@ public class ShareService {
         if (sharedMember == null) {
             throw new RuntimeException();
         }
-
 
         Share share =
                 Share.builder()
@@ -73,8 +71,9 @@ public class ShareService {
     private void verifyLoginUser(String email) {
         Member loginMember = memberRepository.findByEmail(authService.getMemberEmail());
         Member member = memberRepository.findByEmail(email);
-        if (member == loginMember) {
-            throw new RuntimeException();
+
+        if (member != loginMember) {
+            throw new AccessDeniedException();
         }
     }
 }
