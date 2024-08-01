@@ -1,27 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { FaTrash, FaEdit, FaPlus } from 'react-icons/fa';
-import QRCode from 'qrcode'; // QR 코드 라이브러리 임포트
-import { fetchCams, updateCam } from '../../api'; // API 함수 임포트
-import { useUserStore } from '../../stores/useUserStore'; // 사용자 스토어 임포트
+import QRCode from 'qrcode';
+import { fetchCams, updateCam } from '../../api';
+import { useUserStore } from '../../stores/useUserStore';
 import checkIcon from '../../assets/mypage/check.png';
 import cancelIcon from '../../assets/mypage/cancel.png';
 
 interface CamData {
   camId: number;
   name: string;
-  status?: string; // status 속성 추가
+  status?: string;
 }
 
 const DeviceManagement: React.FC = () => {
-  const userEmail = useUserStore((state) => state.email); // 사용자 이메일 가져오기
+  const userEmail = useUserStore((state) => state.email);
   const [devices, setDevices] = useState<CamData[]>([]);
   const [editingDevice, setEditingDevice] = useState<number | null>(null);
   const [newDeviceName, setNewDeviceName] = useState<string>('');
   const [deleteConfirmation, setDeleteConfirmation] = useState<number | null>(
     null
   );
-  const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null); // QR 코드 URL 상태 추가
-  const [showQRCodePopup, setShowQRCodePopup] = useState<boolean>(false); // QR 코드 팝업 상태 추가
+  const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
+  const [showQRCodePopup, setShowQRCodePopup] = useState<boolean>(false);
 
   useEffect(() => {
     loadDevices();
@@ -64,15 +64,13 @@ const DeviceManagement: React.FC = () => {
   };
 
   const handleAddDevice = async () => {
-    // 사용자 이메일로 QR 코드 생성
     try {
-      const qrCodeData = `mailto:${userEmail}`; // QR 코드 데이터 (예: 이메일 링크)
+      const qrCodeData = `mailto:${userEmail}`;
       const url = await QRCode.toDataURL(qrCodeData);
       setQrCodeUrl(url);
-      setShowQRCodePopup(true); // QR 코드 팝업을 표시
-      // 새로운 장치 등록 API 호출 (예시, 실제 API 호출 필요)
-      await updateCam(0, { name: 'New Cam', status: 'UNREGISTERED' }); // 실제 API에 맞게 수정 필요
-      loadDevices(); // 장치 목록 갱신
+      setShowQRCodePopup(true);
+      await updateCam(0, { name: 'New Cam', status: 'UNREGISTERED' });
+      loadDevices();
     } catch (error) {
       console.error('Error generating QR code:', error);
     }
@@ -93,7 +91,7 @@ const DeviceManagement: React.FC = () => {
 
   const confirmDeleteDevice = async (id: number) => {
     try {
-      await updateCam(id, { status: 'UNREGISTERED' }); // 실제 API에 맞게 수정 필요
+      await updateCam(id, { status: 'DELETED' });
       setDevices((prevDevices) =>
         prevDevices.filter((device) => device.camId !== id)
       );
