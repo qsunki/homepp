@@ -1,10 +1,16 @@
 package ssafy.age.backend.mqtt;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
 import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.integration.mqtt.support.MqttHeaders;
+import org.springframework.messaging.MessageHandler;
 import org.springframework.stereotype.Component;
+import ssafy.age.backend.envInfo.persistence.EnvInfo;
+import ssafy.age.backend.envInfo.service.EnvInfoDto;
 import ssafy.age.backend.envInfo.service.EnvInfoService;
 import ssafy.age.backend.event.service.EventService;
 
@@ -17,8 +23,19 @@ public class MqttMessageHandler {
     private final EnvInfoService envInfoService;
     private final EventService eventService;
 
+    @Bean
     @ServiceActivator(inputChannel = "mqttInputChannel")
-    public void handleMessage(String message) {
-        // TODO: 토픽 별 메시지 구분
+    public MessageHandler inboundMessageHandler() {
+        return message -> {
+            String topic = (String) message.getHeaders().get(MqttHeaders.RECEIVED_TOPIC);
+            if (topic.equals("server/envInfo")) {
+                try {
+                    EnvInfoDto envInfoDto = objectMapper.readValue((String) message.getPayload(), EnvInfoDto.class);
+                    envInfoService.save(envInfoDto);
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
     }
 }
