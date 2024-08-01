@@ -45,6 +45,7 @@ export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
         localStorage.setItem('token', response.data.accessToken);
         login(response.data.userId, inputEmail, inputPassword);
         navigate('/home'); // 로그인 성공 시 홈페이지로 리다이렉트
+        console.log('navigate 함수 호출됨');
         onClose();
       } else {
         setLoginError('로그인에 실패했습니다.');
