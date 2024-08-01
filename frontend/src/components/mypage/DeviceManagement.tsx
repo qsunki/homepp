@@ -19,6 +19,7 @@ const DeviceManagement: React.FC = () => {
     null
   );
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null); // QR 코드 URL 상태 추가
+  const [showQRCodePopup, setShowQRCodePopup] = useState<boolean>(false); // QR 코드 팝업 상태 추가
 
   const handleEditDevice = (id: number) => {
     setEditingDevice(id);
@@ -44,6 +45,7 @@ const DeviceManagement: React.FC = () => {
       const qrCodeData = `mailto:${userEmail}`; // QR 코드 데이터 (예: 이메일 링크)
       const url = await QRCode.toDataURL(qrCodeData);
       setQrCodeUrl(url);
+      setShowQRCodePopup(true); // QR 코드 팝업을 표시
       addDevice('New Device');
     } catch (error) {
       console.error('Error generating QR code:', error);
@@ -80,6 +82,11 @@ const DeviceManagement: React.FC = () => {
     ) {
       setDeleteConfirmation(null);
     }
+  };
+
+  const closeQRCodePopup = () => {
+    setShowQRCodePopup(false);
+    setQrCodeUrl(null);
   };
 
   return (
@@ -140,12 +147,6 @@ const DeviceManagement: React.FC = () => {
       >
         <FaPlus className="text-gray-500 text-xl" />
       </div>
-      {qrCodeUrl && (
-        <div className="mt-4">
-          <h3 className="text-lg font-bold mb-2">QR Code</h3>
-          <img src={qrCodeUrl} alt="QR Code" />
-        </div>
-      )}
       {deleteConfirmation !== null && (
         <div
           className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 delete-confirmation-overlay"
@@ -170,6 +171,24 @@ const DeviceManagement: React.FC = () => {
                 No
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {showQRCodePopup && qrCodeUrl && (
+        <div
+          className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50"
+          onClick={closeQRCodePopup}
+        >
+          <div className="bg-white p-4 rounded-lg text-center">
+            <h3 className="text-lg font-bold mb-4">QR Code</h3>
+            <p className="mb-4">보안 카메라로 찍어주세요</p>
+            <img src={qrCodeUrl} alt="QR Code" className="mb-4" />
+            <button
+              onClick={closeQRCodePopup}
+              className="bg-gray-300 text-black p-2 rounded"
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
