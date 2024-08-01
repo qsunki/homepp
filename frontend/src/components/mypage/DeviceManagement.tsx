@@ -272,6 +272,7 @@ const DeviceManagement: React.FC = () => {
             <h3 className="text-lg font-bold mb-4">Select a device to add</h3>
             <ul>
               {foundDevices
+                .filter((device) => device.name) // "알 수 없는 기기" 필터링
                 .sort((a, b) => b.rssi - a.rssi) // 신호 세기 순으로 정렬
                 .map((foundDevice) => (
                   <li key={foundDevice.device.id} className="mb-2">
