@@ -81,18 +81,19 @@ const DeviceManagement: React.FC = () => {
 
       const handleAdvertisementReceived = (event: Event) => {
         const bluetoothEvent = event as BluetoothAdvertisingEvent;
-        if (bluetoothEvent.device.name && bluetoothEvent.rssi !== undefined) {
-          console.log(
-            `Found device: ${bluetoothEvent.device.name}, RSSI: ${bluetoothEvent.rssi}`
-          );
+        const deviceName = bluetoothEvent.device.name ?? '';
+        const deviceRssi = bluetoothEvent.rssi ?? 0;
+
+        if (deviceName && deviceRssi !== undefined) {
+          console.log(`Found device: ${deviceName}, RSSI: ${deviceRssi}`);
           setFoundDevices((prevDevices) => {
             const existingDeviceIndex = prevDevices.findIndex(
               (d) => d.device.id === bluetoothEvent.device.id
             );
             if (existingDeviceIndex !== -1) {
               prevDevices[existingDeviceIndex] = {
-                name: bluetoothEvent.device.name!,
-                rssi: bluetoothEvent.rssi!,
+                name: deviceName,
+                rssi: deviceRssi,
                 device: bluetoothEvent.device,
               };
               return [...prevDevices];
@@ -100,8 +101,8 @@ const DeviceManagement: React.FC = () => {
             return [
               ...prevDevices,
               {
-                name: bluetoothEvent.device.name!,
-                rssi: bluetoothEvent.rssi!,
+                name: deviceName,
+                rssi: deviceRssi,
                 device: bluetoothEvent.device,
               },
             ];
@@ -135,6 +136,7 @@ const DeviceManagement: React.FC = () => {
     } catch (error) {
       console.error('Error during Bluetooth LE scan:', error);
       setShowLoader(false);
+      alert('Bluetooth scanning is not supported by your browser.');
     }
   };
 

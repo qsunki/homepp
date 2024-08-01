@@ -120,7 +120,10 @@ const VideoList: React.FC = () => {
       !filterDateRange[0] ||
       !filterDateRange[1] ||
       (video.date >= filterDateRange[0] &&
-        video.date <= new Date(filterDateRange[1]!.getTime() + 86400000 - 1));
+        video.date <=
+          new Date(
+            (filterDateRange[1] || new Date()).getTime() + 86400000 - 1
+          ));
     return matchesType && matchesCamera && matchesDateRange;
   });
 
