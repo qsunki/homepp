@@ -67,6 +67,7 @@ const DeviceManagement: React.FC = () => {
       console.log('Requesting Bluetooth device...');
       const device = await nav.bluetooth.requestDevice({
         acceptAllDevices: true,
+        optionalServices: [], // 필요한 서비스 UUID 추가
       });
 
       console.log('Found device:', device.name);
@@ -126,7 +127,7 @@ const DeviceManagement: React.FC = () => {
         console.log('Connected to device:', device.name);
         console.log('Device Info:', device.device); // 연결된 기기 정보 출력
 
-        // 기기의 모든 서비스와 특성 탐색
+        // 사용자 이메일 정보를 기기에 전송하는 로직
         const services = await server.getPrimaryServices();
         for (const service of services) {
           console.log(`Service: ${service.uuid}`);
