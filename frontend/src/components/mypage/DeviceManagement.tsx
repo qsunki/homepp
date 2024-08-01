@@ -67,7 +67,6 @@ const DeviceManagement: React.FC = () => {
       console.log('Requesting Bluetooth device...');
       const device = await nav.bluetooth.requestDevice({
         acceptAllDevices: true,
-        optionalServices: ['battery_service'], // 필요한 서비스 UUID 추가
       });
 
       console.log('Found device:', device.name);
@@ -126,17 +125,29 @@ const DeviceManagement: React.FC = () => {
       if (server) {
         console.log('Connected to device:', device.name);
         console.log('Device Info:', device.device); // 연결된 기기 정보 출력
-        // 사용자 이메일 정보를 기기에 전송하는 로직
-        const emailService = await server.getPrimaryService(
-          'email_service_uuid'
-        ); // 실제 서비스 UUID로 변경
-        const emailCharacteristic = await emailService.getCharacteristic(
-          'email_characteristic_uuid'
-        ); // 실제 특성 UUID로 변경
-        const encoder = new TextEncoder();
-        const emailBuffer = encoder.encode(userEmail);
-        await emailCharacteristic.writeValue(emailBuffer);
-        console.log('Email sent to device:', userEmail);
+
+        // 기기의 모든 서비스와 특성 탐색
+        const services = await server.getPrimaryServices();
+        for (const service of services) {
+          console.log(`Service: ${service.uuid}`);
+          const characteristics = await service.getCharacteristics();
+          for (const characteristic of characteristics) {
+            console.log(`  Characteristic: ${characteristic.uuid}`);
+          }
+        }
+
+        // 예시로 첫 번째 서비스와 첫 번째 특성에 사용자 이메일을 전송
+        if (services.length > 0) {
+          const firstService = services[0];
+          const characteristics = await firstService.getCharacteristics();
+          if (characteristics.length > 0) {
+            const firstCharacteristic = characteristics[0];
+            const encoder = new TextEncoder();
+            const emailBuffer = encoder.encode(userEmail);
+            await firstCharacteristic.writeValue(emailBuffer);
+            console.log('Email sent to device:', userEmail);
+          }
+        }
         addDevice(device.name);
       }
     } catch (error) {
