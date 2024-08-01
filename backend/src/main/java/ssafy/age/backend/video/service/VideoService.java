@@ -109,11 +109,10 @@ public class VideoService {
                 throw new RuntimeException(e);
             }
 
-            DownloadResponseDto downloadResponseDto = new DownloadResponseDto();
-            downloadResponseDto.setFilename(videoPath.getFileName().toString());
-            downloadResponseDto.setVideoResource(videoResource);
-
-            return downloadResponseDto;
+            return DownloadResponseDto.builder()
+                    .filename(videoPath.getFileName().toString())
+                    .videoResource(videoResource)
+                    .build();
     }
 
     public StreamResponseDto streamVideo(Long videoId, HttpServletRequest request) {
@@ -130,11 +129,12 @@ public class VideoService {
         long videoLength = videoPath.toFile().length();
 
         String rangeHeader = request.getHeader(HttpHeaders.RANGE);
-        StreamResponseDto streamResponseDto = new StreamResponseDto();
+
         if (rangeHeader == null) {
-            streamResponseDto.setContentLength(videoLength);
-            streamResponseDto.setResourceData(videoResource);
-            return streamResponseDto;
+            return StreamResponseDto.builder()
+                    .contentLength(videoLength)
+                    .resourceData(videoResource)
+                    .build();
         }
 
         String[] ranges = rangeHeader.replace("bytes=", "").split("-");
@@ -159,11 +159,11 @@ public class VideoService {
             throw new RuntimeException(e);
         }
 
-        streamResponseDto.setHeaders(headers);
-        streamResponseDto.setContentLength(contentLength);
-        streamResponseDto.setResourceData(new ByteArrayResource(data));
-
-        return streamResponseDto;
+        return StreamResponseDto.builder()
+                .headers(headers)
+                .contentLength(contentLength)
+                .resourceData(new ByteArrayResource(data))
+                .build();
     }
 
     @Transactional
