@@ -84,8 +84,8 @@ const DeviceManagement: React.FC = () => {
             );
             if (existingDeviceIndex !== -1) {
               prevDevices[existingDeviceIndex] = {
-                name: event.device.name,
-                rssi: event.rssi,
+                name: event.device.name!,
+                rssi: event.rssi!,
                 device: event.device,
               };
               return [...prevDevices];
@@ -93,8 +93,8 @@ const DeviceManagement: React.FC = () => {
             return [
               ...prevDevices,
               {
-                name: event.device.name,
-                rssi: event.rssi,
+                name: event.device.name!,
+                rssi: event.rssi!,
                 device: event.device,
               },
             ];
