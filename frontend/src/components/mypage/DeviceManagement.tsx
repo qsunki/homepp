@@ -17,7 +17,7 @@ const DeviceManagement: React.FC = () => {
   const addDevice = useDeviceStore((state) => state.addDevice);
   const deleteDevice = useDeviceStore((state) => state.deleteDevice);
   const editDevice = useDeviceStore((state) => state.editDevice);
-  const userEmail = useUserStore((state) => state.email);
+  const userEmail = useUserStore((state) => state.email); // userEmail 가져오기
 
   const [editingDevice, setEditingDevice] = useState<number | null>(null);
   const [newDeviceName, setNewDeviceName] = useState<string>('');
@@ -67,7 +67,7 @@ const DeviceManagement: React.FC = () => {
       console.log('Requesting Bluetooth device...');
       const device = await nav.bluetooth.requestDevice({
         acceptAllDevices: true,
-        optionalServices: [], // 필요한 서비스 UUID 추가
+        optionalServices: ['battery_service'], // 필요한 서비스 UUID 추가
       });
 
       console.log('Found device:', device.name);
@@ -122,20 +122,16 @@ const DeviceManagement: React.FC = () => {
   const handleSelectDevice = async (device: FoundDevice) => {
     console.log('Connecting to device...');
     try {
-      const server = await device.device.gatt?.connect();
+      const server = device.device.gatt?.connected
+        ? device.device.gatt
+        : await device.device.gatt?.connect();
+
       if (server) {
         console.log('Connected to device:', device.name);
         console.log('Device Info:', device.device); // 연결된 기기 정보 출력
 
-        // 사용자 이메일 정보를 기기에 전송하는 로직
+        // 기기의 모든 서비스 가져오기
         const services = await server.getPrimaryServices();
-        for (const service of services) {
-          console.log(`Service: ${service.uuid}`);
-          const characteristics = await service.getCharacteristics();
-          for (const characteristic of characteristics) {
-            console.log(`  Characteristic: ${characteristic.uuid}`);
-          }
-        }
 
         // 예시로 첫 번째 서비스와 첫 번째 특성에 사용자 이메일을 전송
         if (services.length > 0) {
@@ -149,6 +145,7 @@ const DeviceManagement: React.FC = () => {
             console.log('Email sent to device:', userEmail);
           }
         }
+
         addDevice(device.name);
       }
     } catch (error) {
