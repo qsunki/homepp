@@ -1,7 +1,7 @@
 import React, { useState, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '../stores/useUserStore';
-import { loginUser, setAuthToken } from '../api';
+import { loginUser } from '../api';
 import backArrow from '../assets/signin/backarrow.png';
 import naverLogin from '../assets/signin/naverlogin.png';
 import kakaoLogin from '../assets/signin/kakaologin.png';
@@ -41,7 +41,8 @@ export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
       console.log(response.data); // 응답 데이터 콘솔에 출력
 
       if (response.data.accessToken) {
-        setAuthToken(response.data.accessToken); // 토큰 설정
+        // JWT를 로컬 스토리지에 저장
+        localStorage.setItem('token', response.data.accessToken);
         login(response.data.userId, inputEmail, inputPassword);
         navigate('/home'); // 로그인 성공 시 홈페이지로 리다이렉트
         onClose();
