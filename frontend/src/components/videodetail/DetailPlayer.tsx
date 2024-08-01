@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useVideoStore } from '../../stores/useVideoStore';
+import React, { useState } from 'react';
+import { useVideoStore, Video } from '../../stores/useVideoStore';
+import ReactPlayer from 'react-player';
 import playIcon from '../../assets/videodetail/play.png';
 import pauseIcon from '../../assets/videodetail/pause.png';
 import volumeIcon from '../../assets/videodetail/volume.png';
 import pipIcon from '../../assets/videodetail/pip.png';
 import fullscreenIcon from '../../assets/videodetail/fullscreen.png';
-import recordIcon from '../../assets/livevideo/record.png';
-import stopIcon from '../../assets/livevideo/stop.png';
 import fireIcon from '../../assets/filter/fire.png';
 import soundIcon from '../../assets/filter/sound.png';
 import thiefIcon from '../../assets/filter/thief.png';
@@ -30,47 +29,12 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({
     reportVideo,
   } = useVideoStore();
   const [showVolumeSlider, setShowVolumeSlider] = useState<boolean>(false);
-  const [isRecording, setIsRecording] = useState<boolean>(false);
+  // const [isRecording, setIsRecording] = useState<boolean>(false);
   const [showReportConfirm, setShowReportConfirm] = useState<boolean>(false);
 
-  const selectedVideo = videos.find((video) => video.id === selectedVideoId);
-
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    if (isLive) {
-      // WebRTC 연결 설정
-      const pc = new RTCPeerConnection();
-
-      // WebRTC 연결 이벤트 설정
-      pc.ontrack = (event) => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = event.streams[0];
-        }
-      };
-
-      // WebRTC offer/answer 교환
-      pc.onicecandidate = (event) => {
-        if (event.candidate) {
-          // ICE 후보자를 신호 서버로 보내기
-        }
-      };
-
-      // 비디오 스트림 수신 및 설정
-      const startStream = async () => {
-        // 신호 서버에 offer 요청
-        const offer = await pc.createOffer();
-        await pc.setLocalDescription(offer);
-        // 신호 서버로 offer 보내기
-      };
-
-      startStream();
-
-      return () => {
-        pc.close();
-      };
-    }
-  }, [isLive]);
+  const selectedVideo: Video | undefined = videos.find(
+    (video) => video.id === selectedVideoId
+  );
 
   const handlePlayPause = () => {
     setIsPlaying(!isPlaying);
@@ -84,9 +48,9 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({
     setShowVolumeSlider(!showVolumeSlider);
   };
 
-  const handleRecordClick = () => {
-    setIsRecording(!isRecording);
-  };
+  // const handleRecordClick = () => {
+  //   setIsRecording(!isRecording);
+  // };
 
   const handleReportClick = () => {
     setShowReportConfirm(true);
@@ -153,8 +117,15 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({
               </div>
             </div>
           )}
-          <div
-            className="w-full bg-gray-300"
+          <ReactPlayer
+            url={
+              selectedVideo.url || 'https://www.youtube.com/watch?v=uTuuz__8gUM'
+            } // 임시 URL 사용
+            playing={isPlaying}
+            controls={true}
+            volume={volume / 100}
+            width="100%"
+            height="auto"
             style={{ aspectRatio: '11 / 7' }}
           />
           <div className="flex justify-between items-center mt-2 border-t pt-2 px-4 relative">
@@ -184,20 +155,6 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({
                 )}
               </div>
             </div>
-            {isLive && (
-              <div
-                className="absolute left-1/2 transform -translate-x-1/2"
-                style={{ marginTop: '2px' }}
-              >
-                <button onClick={handleRecordClick}>
-                  <img
-                    className="w-6 h-6"
-                    src={isRecording ? stopIcon : recordIcon}
-                    alt="Record/Stop"
-                  />
-                </button>
-              </div>
-            )}
             <div className="flex items-center">
               <button className="mr-2">
                 <img className="w-6 h-6" src={pipIcon} alt="PIP Mode" />
@@ -227,16 +184,6 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({
             </div>
           )}
         </>
-      )}
-      {isLive && (
-        <div className="w-full">
-          <video
-            ref={videoRef}
-            autoPlay
-            className="w-full h-auto"
-            style={{ aspectRatio: '11 / 7' }}
-          />
-        </div>
       )}
     </div>
   );

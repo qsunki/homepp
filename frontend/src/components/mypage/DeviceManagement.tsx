@@ -1,20 +1,28 @@
 import React, { useState } from 'react';
 import { FaTrash, FaEdit, FaPlus } from 'react-icons/fa';
 import { useDeviceStore } from '../../stores/useDeviceStore';
+import { useUserStore } from '../../stores/useUserStore';
 import Loader from './Loader'; // Loader 컴포넌트 임포트
 import checkIcon from '../../assets/mypage/check.png';
 import cancelIcon from '../../assets/mypage/cancel.png';
+
+interface FoundDevice {
+  name: string;
+  rssi?: number;
+  device: BluetoothDevice;
+}
 
 const DeviceManagement: React.FC = () => {
   const devices = useDeviceStore((state) => state.devices);
   const addDevice = useDeviceStore((state) => state.addDevice);
   const deleteDevice = useDeviceStore((state) => state.deleteDevice);
   const editDevice = useDeviceStore((state) => state.editDevice);
+  const userEmail = useUserStore((state) => state.email);
 
   const [editingDevice, setEditingDevice] = useState<number | null>(null);
   const [newDeviceName, setNewDeviceName] = useState<string>('');
   const [showLoader, setShowLoader] = useState<boolean>(false);
-  const [foundDevices, setFoundDevices] = useState<string[]>([]);
+  const [foundDevices, setFoundDevices] = useState<FoundDevice[]>([]);
   const [showDeviceSelection, setShowDeviceSelection] =
     useState<boolean>(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState<number | null>(
@@ -39,13 +47,53 @@ const DeviceManagement: React.FC = () => {
     setNewDeviceName('');
   };
 
-  const handleAddDevice = () => {
+  const handleAddDevice = async () => {
     setShowLoader(true);
-    setTimeout(() => {
-      setFoundDevices(['New Device 1', 'New Device 2', 'New Device 3']); // 검색된 장치 목록
+    try {
+      const nav = navigator as Navigator & {
+        bluetooth: {
+          requestDevice: (options: {
+            filters?: { services: string[] }[];
+            optionalServices?: string[];
+            acceptAllDevices?: boolean;
+          }) => Promise<BluetoothDevice>;
+        };
+      };
+
+      if (!nav.bluetooth) {
+        throw new Error('Bluetooth is not supported by your browser.');
+      }
+
+      console.log('Requesting Bluetooth device...');
+      const device = await nav.bluetooth.requestDevice({
+        acceptAllDevices: true,
+      });
+
+      console.log('Found device:', device.name);
+      setFoundDevices((prevDevices) => [
+        ...prevDevices,
+        {
+          name: device.name || 'Unknown Device',
+          device,
+        },
+      ]);
       setShowLoader(false);
       setShowDeviceSelection(true);
-    }, 3000); // 3초 동안 로더 표시 후 장치 검색
+    } catch (error) {
+      console.error('Error during Bluetooth device search:', error);
+      if ((error as DOMException).name === 'NotFoundError') {
+        console.log(
+          'No devices found. Please ensure your Bluetooth is enabled and try again.'
+        );
+      } else if ((error as DOMException).name === 'NotAllowedError') {
+        console.log('Permission to access Bluetooth devices was denied.');
+      } else if ((error as DOMException).name === 'SecurityError') {
+        console.log('This page must be served over HTTPS.');
+      } else {
+        console.error('Unknown error:', error);
+      }
+      setShowLoader(false);
+    }
   };
 
   const handleKeyDown = (
@@ -70,8 +118,41 @@ const DeviceManagement: React.FC = () => {
     setDeleteConfirmation(null);
   };
 
-  const handleSelectDevice = (deviceName: string) => {
-    addDevice(deviceName);
+  const handleSelectDevice = async (device: FoundDevice) => {
+    console.log('Connecting to device...');
+    try {
+      const server = await device.device.gatt?.connect();
+      if (server) {
+        console.log('Connected to device:', device.name);
+        console.log('Device Info:', device.device); // 연결된 기기 정보 출력
+
+        // 기기의 모든 서비스와 특성 탐색
+        const services = await server.getPrimaryServices();
+        for (const service of services) {
+          console.log(`Service: ${service.uuid}`);
+          const characteristics = await service.getCharacteristics();
+          for (const characteristic of characteristics) {
+            console.log(`  Characteristic: ${characteristic.uuid}`);
+          }
+        }
+
+        // 예시로 첫 번째 서비스와 첫 번째 특성에 사용자 이메일을 전송
+        if (services.length > 0) {
+          const firstService = services[0];
+          const characteristics = await firstService.getCharacteristics();
+          if (characteristics.length > 0) {
+            const firstCharacteristic = characteristics[0];
+            const encoder = new TextEncoder();
+            const emailBuffer = encoder.encode(userEmail);
+            await firstCharacteristic.writeValue(emailBuffer);
+            console.log('Email sent to device:', userEmail);
+          }
+        }
+        addDevice(device.name);
+      }
+    } catch (error) {
+      console.error('Error connecting to device:', error);
+    }
     setShowDeviceSelection(false);
   };
 
@@ -157,16 +238,18 @@ const DeviceManagement: React.FC = () => {
           <div className="bg-white p-4 rounded-lg">
             <h3 className="text-lg font-bold mb-4">Select a device to add</h3>
             <ul>
-              {foundDevices.map((deviceName) => (
-                <li key={deviceName} className="mb-2">
-                  <button
-                    onClick={() => handleSelectDevice(deviceName)}
-                    className="bg-blue-500 text-white p-2 rounded w-full"
-                  >
-                    {deviceName}
-                  </button>
-                </li>
-              ))}
+              {foundDevices
+                .sort((a, b) => (b.rssi ?? 0) - (a.rssi ?? 0)) // 신호 세기 순으로 정렬
+                .map((foundDevice) => (
+                  <li key={foundDevice.device.id} className="mb-2">
+                    <button
+                      onClick={() => handleSelectDevice(foundDevice)}
+                      className="bg-blue-500 text-white p-2 rounded w-full"
+                    >
+                      {foundDevice.name} (RSSI: {foundDevice.rssi ?? 'N/A'})
+                    </button>
+                  </li>
+                ))}
             </ul>
           </div>
         </div>

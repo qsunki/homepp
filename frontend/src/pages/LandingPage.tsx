@@ -11,7 +11,7 @@ import automated from '../assets/landingpage/automated.png';
 import noticetype from '../assets/landingpage/noticetype.png';
 import monitoring from '../assets/landingpage/monitoring.png';
 import characterHead from '../assets/landingpage/characterhead.png';
-import { SignIn } from '../components/SignIn';
+import SignIn from '../components/SignIn';
 
 const LandingPage: React.FC = () => {
   const [isSignInVisible, setSignInVisible] = useState(false);
