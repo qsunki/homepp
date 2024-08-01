@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaTrash, FaEdit, FaPlus } from 'react-icons/fa';
 import { useDeviceStore } from '../../stores/useDeviceStore';
-import Loader from './Loader'; // Loader 컴포넌트 임포트
+import { useUserStore } from '../../stores/useUserStore';
+import Loader from './Loader';
 import checkIcon from '../../assets/mypage/check.png';
 import cancelIcon from '../../assets/mypage/cancel.png';
 
@@ -11,11 +12,20 @@ interface FoundDevice {
   device: BluetoothDevice;
 }
 
+interface BluetoothAdvertisingEvent extends Event {
+  device: BluetoothDevice;
+  uuids: string[];
+  manufacturerData: Map<number, DataView>;
+  serviceData: Map<string, DataView>;
+  rssi: number;
+}
+
 const DeviceManagement: React.FC = () => {
   const devices = useDeviceStore((state) => state.devices);
   const addDevice = useDeviceStore((state) => state.addDevice);
   const deleteDevice = useDeviceStore((state) => state.deleteDevice);
   const editDevice = useDeviceStore((state) => state.editDevice);
+  const userEmail = useUserStore((state) => state.email);
 
   const [editingDevice, setEditingDevice] = useState<number | null>(null);
   const [newDeviceName, setNewDeviceName] = useState<string>('');
@@ -26,6 +36,13 @@ const DeviceManagement: React.FC = () => {
   const [deleteConfirmation, setDeleteConfirmation] = useState<number | null>(
     null
   );
+  const [noDevicesFound, setNoDevicesFound] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (showLoader) {
+      startScanning();
+    }
+  }, [showLoader]);
 
   const handleEditDevice = (id: number) => {
     setEditingDevice(id);
@@ -45,52 +62,81 @@ const DeviceManagement: React.FC = () => {
     setNewDeviceName('');
   };
 
-  const handleAddDevice = async () => {
-    setShowLoader(true);
+  const startScanning = async () => {
     try {
       const nav = navigator as Navigator & {
         bluetooth: {
-          requestDevice: (options: {
-            filters: { services: string[] }[];
-            acceptAllDevices: boolean;
-            optionalServices: string[];
-          }) => Promise<BluetoothDevice>;
+          requestLEScan: (options: {
+            filters?: { name?: string }[];
+          }) => Promise<BluetoothLEScan>;
         };
       };
 
-      if (!nav.bluetooth) {
-        throw new Error('Bluetooth is not supported by your browser.');
+      if (!nav.bluetooth || !nav.bluetooth.requestLEScan) {
+        throw new Error('Bluetooth scanning is not supported by your browser.');
       }
 
-      console.log('Requesting Bluetooth device...');
-      const device = await nav.bluetooth.requestDevice({
-        acceptAllDevices: true,
-        optionalServices: ['battery_service'], // 필요한 서비스 UUID 추가
-      });
+      console.log('Starting Bluetooth LE scan...');
+      const scan = await nav.bluetooth.requestLEScan({});
 
-      console.log('Found device:', device.name);
-      setFoundDevices([
-        {
-          name: device.name || 'Unknown Device',
-          device,
-        },
-      ]); // 검색된 장치 목록
-      setShowLoader(false);
-      setShowDeviceSelection(true);
-    } catch (error) {
-      console.error('Error during Bluetooth device search:', error);
-      if ((error as DOMException).name === 'NotFoundError') {
-        console.log(
-          'No devices found. Please ensure your Bluetooth is enabled and try again.'
+      const handleAdvertisementReceived = (event: Event) => {
+        const bluetoothEvent = event as BluetoothAdvertisingEvent;
+        const deviceName = bluetoothEvent.device.name ?? '';
+        const deviceRssi = bluetoothEvent.rssi ?? 0;
+
+        if (deviceName && deviceRssi !== undefined) {
+          console.log(`Found device: ${deviceName}, RSSI: ${deviceRssi}`);
+          setFoundDevices((prevDevices) => {
+            const existingDeviceIndex = prevDevices.findIndex(
+              (d) => d.device.id === bluetoothEvent.device.id
+            );
+            if (existingDeviceIndex !== -1) {
+              prevDevices[existingDeviceIndex] = {
+                name: deviceName,
+                rssi: deviceRssi,
+                device: bluetoothEvent.device,
+              };
+              return [...prevDevices];
+            }
+            return [
+              ...prevDevices,
+              {
+                name: deviceName,
+                rssi: deviceRssi,
+                device: bluetoothEvent.device,
+              },
+            ];
+          });
+        }
+      };
+
+      navigator.bluetooth.addEventListener(
+        'advertisementreceived',
+        handleAdvertisementReceived as EventListener
+      );
+
+      // 스캔 중지 함수 설정
+      const stopScanning = () => {
+        console.log('Stopping Bluetooth LE scan...');
+        scan.stop();
+        navigator.bluetooth.removeEventListener(
+          'advertisementreceived',
+          handleAdvertisementReceived as EventListener
         );
-      } else if ((error as DOMException).name === 'NotAllowedError') {
-        console.log('Permission to access Bluetooth devices was denied.');
-      } else if ((error as DOMException).name === 'SecurityError') {
-        console.log('This page must be served over HTTPS.');
-      } else {
-        console.error('Unknown error:', error);
-      }
+        setShowLoader(false);
+        if (foundDevices.length === 0) {
+          setNoDevicesFound(true);
+        } else {
+          setShowDeviceSelection(true);
+        }
+      };
+
+      // 일정 시간 후 스캔 중지
+      setTimeout(stopScanning, 10000);
+    } catch (error) {
+      console.error('Error during Bluetooth LE scan:', error);
       setShowLoader(false);
+      alert('Bluetooth scanning is not supported by your browser.');
     }
   };
 
@@ -116,8 +162,30 @@ const DeviceManagement: React.FC = () => {
     setDeleteConfirmation(null);
   };
 
-  const handleSelectDevice = (deviceName: string) => {
-    addDevice(deviceName);
+  const handleSelectDevice = async (foundDevice: FoundDevice) => {
+    const { device, name } = foundDevice;
+    console.log('Connecting to device...');
+    try {
+      const server = await device.gatt?.connect();
+      if (server) {
+        console.log('Connected to device:', device);
+        console.log('Device Info:', device); // 연결된 기기 정보 출력
+        // 사용자 이메일 정보를 기기에 전송하는 로직
+        const emailService = await server.getPrimaryService(
+          'email_service_uuid'
+        ); // 실제 서비스 UUID로 변경
+        const emailCharacteristic = await emailService.getCharacteristic(
+          'email_characteristic_uuid'
+        ); // 실제 특성 UUID로 변경
+        const encoder = new TextEncoder();
+        const emailBuffer = encoder.encode(userEmail);
+        await emailCharacteristic.writeValue(emailBuffer);
+        console.log('Email sent to device:', userEmail);
+        addDevice(name);
+      }
+    } catch (error) {
+      console.error('Error connecting to device:', error);
+    }
     setShowDeviceSelection(false);
   };
 
@@ -189,7 +257,7 @@ const DeviceManagement: React.FC = () => {
         ))}
       </ul>
       <div
-        onClick={handleAddDevice}
+        onClick={() => setShowLoader(true)}
         className="bg-gray-200 p-4 text-center cursor-pointer flex items-center justify-center rounded-lg"
       >
         <FaPlus className="text-gray-500 text-xl" />
@@ -204,19 +272,35 @@ const DeviceManagement: React.FC = () => {
             <h3 className="text-lg font-bold mb-4">Select a device to add</h3>
             <ul>
               {foundDevices
-                .filter((device) => device.name) // "알 수 없는 기기" 필터링
+                .filter((d) => d.name !== 'Unknown Device')
                 .sort((a, b) => (b.rssi ?? 0) - (a.rssi ?? 0)) // 신호 세기 순으로 정렬
                 .map((foundDevice) => (
                   <li key={foundDevice.device.id} className="mb-2">
                     <button
-                      onClick={() => handleSelectDevice(foundDevice.name)}
+                      onClick={() => handleSelectDevice(foundDevice)}
                       className="bg-blue-500 text-white p-2 rounded w-full"
                     >
-                      {foundDevice.name} (RSSI: {foundDevice.rssi ?? 'N/A'})
+                      {foundDevice.name} (RSSI: {foundDevice.rssi})
                     </button>
                   </li>
                 ))}
             </ul>
+          </div>
+        </div>
+      )}
+      {noDevicesFound && (
+        <div
+          className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50"
+          onClick={() => setNoDevicesFound(false)}
+        >
+          <div className="bg-white p-4 rounded-lg">
+            <h3 className="text-lg font-bold mb-4">No devices found</h3>
+            <button
+              onClick={() => setNoDevicesFound(false)}
+              className="bg-blue-500 text-white p-2 rounded"
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
