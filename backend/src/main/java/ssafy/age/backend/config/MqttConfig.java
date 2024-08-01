@@ -21,11 +21,8 @@ public class MqttConfig {
     @Value("${mqtt.broker.url}")
     private String brokerUrl;
 
-    @Value("${mqtt.broker.topics[0]}")
-    private String serviceEnvInfoTopic;
-
-    @Value("${mqtt.broker.topics[1]}")
-    private String serviceEventTopic;
+    @Value("${mqtt.broker.topics}")
+    private String[] topics;
 
     @Bean
     public MqttPahoClientFactory mqttClientFactory() {
@@ -59,7 +56,7 @@ public class MqttConfig {
     public MessageProducer inbound(MqttPahoClientFactory mqttPahoClientFactory) {
         MqttPahoMessageDrivenChannelAdapter adapter =
                 new MqttPahoMessageDrivenChannelAdapter(
-                        brokerUrl, "client", mqttPahoClientFactory, serviceEventTopic, serviceEnvInfoTopic);
+                        brokerUrl, "client", mqttPahoClientFactory, topics);
         adapter.setCompletionTimeout(5000);
         adapter.setConverter(new DefaultPahoMessageConverter());
         adapter.setQos(1);
