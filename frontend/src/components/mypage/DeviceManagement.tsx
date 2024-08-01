@@ -1,17 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaTrash, FaEdit, FaPlus } from 'react-icons/fa';
-import { useDeviceStore } from '../../stores/useDeviceStore';
-import { useUserStore } from '../../stores/useUserStore'; // 사용자 스토어 임포트
 import QRCode from 'qrcode'; // QR 코드 라이브러리 임포트
+import { fetchCams, updateCam } from '../../api'; // API 함수 임포트
+import { useUserStore } from '../../stores/useUserStore'; // 사용자 스토어 임포트
 import checkIcon from '../../assets/mypage/check.png';
 import cancelIcon from '../../assets/mypage/cancel.png';
 
-const DeviceManagement: React.FC = () => {
-  const devices = useDeviceStore((state) => state.devices);
-  const deleteDevice = useDeviceStore((state) => state.deleteDevice);
-  const editDevice = useDeviceStore((state) => state.editDevice);
-  const userEmail = useUserStore((state) => state.email); // 사용자 이메일 가져오기
+interface CamData {
+  camId: number;
+  name: string;
+  status?: string; // status 속성 추가
+}
 
+const DeviceManagement: React.FC = () => {
+  const userEmail = useUserStore((state) => state.email); // 사용자 이메일 가져오기
+  const [devices, setDevices] = useState<CamData[]>([]);
   const [editingDevice, setEditingDevice] = useState<number | null>(null);
   const [newDeviceName, setNewDeviceName] = useState<string>('');
   const [deleteConfirmation, setDeleteConfirmation] = useState<number | null>(
@@ -20,17 +23,39 @@ const DeviceManagement: React.FC = () => {
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null); // QR 코드 URL 상태 추가
   const [showQRCodePopup, setShowQRCodePopup] = useState<boolean>(false); // QR 코드 팝업 상태 추가
 
+  useEffect(() => {
+    loadDevices();
+  }, []);
+
+  const loadDevices = async () => {
+    try {
+      const response = await fetchCams();
+      setDevices(response.data);
+    } catch (error) {
+      console.error('캠 리스트 불러오기 오류:', error);
+    }
+  };
+
   const handleEditDevice = (id: number) => {
     setEditingDevice(id);
-    const device = devices.find((device) => device.id === id);
+    const device = devices.find((device) => device.camId === id);
     setNewDeviceName(device ? device.name : '');
   };
 
-  const handleSaveDeviceName = (id: number) => {
+  const handleSaveDeviceName = async (id: number) => {
     if (newDeviceName.trim() === '') return;
-    editDevice(id, newDeviceName);
-    setEditingDevice(null);
-    setNewDeviceName('');
+    try {
+      await updateCam(id, { name: newDeviceName });
+      setDevices((prevDevices) =>
+        prevDevices.map((device) =>
+          device.camId === id ? { ...device, name: newDeviceName } : device
+        )
+      );
+      setEditingDevice(null);
+      setNewDeviceName('');
+    } catch (error) {
+      console.error('캠 이름 변경 오류:', error);
+    }
   };
 
   const handleCancelEdit = () => {
@@ -45,6 +70,9 @@ const DeviceManagement: React.FC = () => {
       const url = await QRCode.toDataURL(qrCodeData);
       setQrCodeUrl(url);
       setShowQRCodePopup(true); // QR 코드 팝업을 표시
+      // 새로운 장치 등록 API 호출 (예시, 실제 API 호출 필요)
+      await updateCam(0, { name: 'New Cam', status: 'UNREGISTERED' }); // 실제 API에 맞게 수정 필요
+      loadDevices(); // 장치 목록 갱신
     } catch (error) {
       console.error('Error generating QR code:', error);
     }
@@ -63,9 +91,16 @@ const DeviceManagement: React.FC = () => {
     setDeleteConfirmation(id);
   };
 
-  const confirmDeleteDevice = (id: number) => {
-    deleteDevice(id);
-    setDeleteConfirmation(null);
+  const confirmDeleteDevice = async (id: number) => {
+    try {
+      await updateCam(id, { status: 'DELETED' }); // 실제 API에 맞게 수정 필요
+      setDevices((prevDevices) =>
+        prevDevices.filter((device) => device.camId !== id)
+      );
+      setDeleteConfirmation(null);
+    } catch (error) {
+      console.error('캠 삭제 오류:', error);
+    }
   };
 
   const cancelDeleteDevice = () => {
@@ -93,27 +128,27 @@ const DeviceManagement: React.FC = () => {
       <ul className="list-disc pl-5 mb-4">
         {devices.map((device) => (
           <li
-            key={device.id}
+            key={device.camId}
             className="flex justify-between items-center mb-4"
           >
-            {editingDevice === device.id ? (
+            {editingDevice === device.camId ? (
               <input
                 type="text"
                 value={newDeviceName}
                 onChange={(e) => setNewDeviceName(e.target.value)}
-                onKeyDown={(e) => handleKeyDown(e, device.id)}
+                onKeyDown={(e) => handleKeyDown(e, device.camId)}
                 className="border p-2 flex-grow mr-2 text-lg h-8"
               />
             ) : (
               <span className="text-lg">{device.name}</span>
             )}
             <div className="flex items-center">
-              {editingDevice === device.id ? (
+              {editingDevice === device.camId ? (
                 <>
                   <img
                     src={checkIcon}
                     alt="Save"
-                    onClick={() => handleSaveDeviceName(device.id)}
+                    onClick={() => handleSaveDeviceName(device.camId)}
                     className="cursor-pointer mr-3 text-xl h-6 w-6"
                   />
                   <img
@@ -126,11 +161,11 @@ const DeviceManagement: React.FC = () => {
               ) : (
                 <>
                   <FaEdit
-                    onClick={() => handleEditDevice(device.id)}
+                    onClick={() => handleEditDevice(device.camId)}
                     className="text-blue-500 cursor-pointer mr-4 text-xl"
                   />
                   <FaTrash
-                    onClick={() => handleDeleteDevice(device.id)}
+                    onClick={() => handleDeleteDevice(device.camId)}
                     className="text-red-500 cursor-pointer text-xl"
                   />
                 </>
@@ -153,7 +188,7 @@ const DeviceManagement: React.FC = () => {
           <div className="bg-white p-4 rounded-lg">
             <h3 className="text-lg font-bold mb-4">
               Are you sure you want to delete{' '}
-              {devices.find((d) => d.id === deleteConfirmation)?.name}?
+              {devices.find((d) => d.camId === deleteConfirmation)?.name}?
             </h3>
             <div className="flex justify-end">
               <button
