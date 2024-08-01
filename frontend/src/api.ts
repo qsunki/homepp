@@ -21,7 +21,7 @@ export const setAuthToken = (token: string | null) => {
 };
 
 // 사용자 데이터 타입 정의
-interface UserData {
+export interface UserData {
   email: string;
   phoneNumber: string;
   password: string;
