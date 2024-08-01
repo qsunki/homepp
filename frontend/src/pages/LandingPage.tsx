@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useUserStore } from '../stores/useUserStore';
 import { useNavigate } from 'react-router-dom';
 import characterImage from '../assets/landingpage/characterbg.png';
@@ -11,10 +11,12 @@ import automated from '../assets/landingpage/automated.png';
 import noticetype from '../assets/landingpage/noticetype.png';
 import monitoring from '../assets/landingpage/monitoring.png';
 import characterHead from '../assets/landingpage/characterhead.png';
-import SignIn from '../components/SignIn';
 
-const LandingPage: React.FC = () => {
-  const [isSignInVisible, setSignInVisible] = useState(false);
+interface LandingPageProps {
+  onSignInOpen: () => void;
+}
+
+const LandingPage: React.FC<LandingPageProps> = ({ onSignInOpen }) => {
   const { isLoggedIn } = useUserStore();
   const navigate = useNavigate();
 
@@ -22,12 +24,8 @@ const LandingPage: React.FC = () => {
     if (isLoggedIn) {
       navigate('/home'); // 로그인된 상태라면 홈화면으로 이동
     } else {
-      setSignInVisible(true); // 로그인되지 않은 상태라면 로그인 팝업 열기
+      onSignInOpen(); // 로그인되지 않은 상태라면 로그인 팝업 열기
     }
-  };
-
-  const closeSignInPopup = () => {
-    setSignInVisible(false);
   };
 
   return (
@@ -117,7 +115,6 @@ const LandingPage: React.FC = () => {
         <h2 className="text-3xl font-bold my-20">CORE FUNCTIONS</h2>
         <div className="flex flex-col w-full items-center gap-8">
           <div className="group relative flex flex-col items-center justify-center bg-gray-400 text-white rounded-lg shadow-lg p-6 w-full lg:w-1/2 transform transition-transform duration-300 hover:scale-105 hover:z-10 hover:shadow-2xl lg:mr-40">
-            {' '}
             <p className="text-2xl font-bold">01. 자동으로 켜지는 카메라</p>
             <img
               className="w-32 h-32 mt-4 transform transition-transform duration-300 group-hover:scale-125"
@@ -130,7 +127,6 @@ const LandingPage: React.FC = () => {
           </div>
 
           <div className="group relative flex flex-col items-center justify-center bg-slate-300 text-white rounded-lg shadow-lg p-6 w-full lg:w-1/2 transform transition-transform duration-300 hover:scale-105 hover:z-10 hover:shadow-2xl lg:ml-40">
-            {' '}
             <p className="text-2xl font-bold">02. 침입자, 화재, 큰소리 감지</p>
             <img
               className="w-32 h-32 mt-4 transform transition-transform duration-300 group-hover:scale-125"
@@ -146,7 +142,6 @@ const LandingPage: React.FC = () => {
           </div>
 
           <div className="group relative flex flex-col items-center justify-center bg-blue-200 text-white rounded-lg shadow-lg p-6 w-full lg:w-1/2 transform transition-transform duration-300 hover:scale-105 hover:z-10 hover:shadow-2xl lg:mr-40">
-            {' '}
             <p className="text-2xl font-bold">03. 원격 모니터링</p>
             <img
               className="w-32 h-32 mt-4 transform transition-transform duration-300 group-hover:scale-125"
@@ -176,7 +171,6 @@ const LandingPage: React.FC = () => {
           alt="캐릭터 머리"
         />
       </div>
-      {isSignInVisible && <SignIn onClose={closeSignInPopup} />}
     </div>
   );
 };
