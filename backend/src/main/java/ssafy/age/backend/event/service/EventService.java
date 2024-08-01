@@ -7,7 +7,6 @@ import ssafy.age.backend.event.exception.EventNotFoundException;
 import ssafy.age.backend.event.persistence.Event;
 import ssafy.age.backend.event.persistence.EventRepository;
 import ssafy.age.backend.event.web.EventResponseDto;
-import ssafy.age.backend.notification.service.FCMService;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +20,7 @@ public class EventService {
         return eventList.stream().map(eventMapper::toEventResponseDto).toList();
     }
 
-    public void handleEvent(EventDto eventDto) {
+    public void save(EventDto eventDto) {
         eventRepository.save(eventMapper.toEvent(eventDto));
     }
 
