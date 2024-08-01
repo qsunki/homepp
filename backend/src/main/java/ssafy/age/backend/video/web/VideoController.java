@@ -47,9 +47,9 @@ public class VideoController {
     }
 
     @GetMapping("/videos/{videoId}/stream")
-    public ResponseEntity<Resource> streamVide(
-            @PathVariable Long videoId, HttpServletRequest request) throws IOException {
-        StreamResponseDto streamResponseDto = videoService.streamVideo(videoId, request);
+    public ResponseEntity<Resource> streamVideo (
+            @PathVariable Long videoId, HttpServletRequest request) {
+        StreamResponseDto streamResponseDto = videoService.streamVideo(videoId, request.getHeader(HttpHeaders.RANGE));
         return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
                 .headers(streamResponseDto.getHeaders())
                 .contentType(MediaType.valueOf("video/mp4"))
@@ -82,5 +82,10 @@ public class VideoController {
             @RequestPart MultipartFile file,
             @RequestPart VideoTimeInfo timeInfo) {
         videoService.saveVideoOnServer(camId, videoId, file, timeInfo);
+    }
+
+    @PostMapping("/{videoId}/threat")
+    public void registerThreat(@PathVariable Long videoId) {
+        videoService.registerThreat(videoId);
     }
 }

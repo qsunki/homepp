@@ -13,5 +13,4 @@ public class EventResponseDto {
     private Cam cam;
     private Video video;
     private boolean isRead;
-    private boolean isThreat;
 }

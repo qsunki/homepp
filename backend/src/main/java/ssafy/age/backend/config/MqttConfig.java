@@ -1,5 +1,6 @@
 package ssafy.age.backend.config;
 
+import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -35,10 +36,10 @@ public class MqttConfig {
 
     @Bean
     @ServiceActivator(inputChannel = "mqttOutboundChannel")
-    public MessageHandler mqttOutbound() {
+    public MessageHandler mqttOutbound(MqttPahoClientFactory mqttClientFactory) {
         MqttPahoMessageHandler messageHandler =
-                new MqttPahoMessageHandler("serverClient", mqttClientFactory());
-        messageHandler.setDefaultTopic("test/topic");
+                new MqttPahoMessageHandler("serverClient", mqttClientFactory);
+        messageHandler.setDefaultTopic("/topic");
         return messageHandler;
     }
 
@@ -53,10 +54,10 @@ public class MqttConfig {
     }
 
     @Bean
-    public MessageProducer inbound(MqttPahoClientFactory mqttPahoClientFactory) {
+    public MessageProducer inbound(MqttPahoClientFactory mqttClientFactory) {
         MqttPahoMessageDrivenChannelAdapter adapter =
                 new MqttPahoMessageDrivenChannelAdapter(
-                        brokerUrl, "client", mqttPahoClientFactory, topics);
+                        brokerUrl, MqttAsyncClient.generateClientId(), mqttClientFactory, topics);
         adapter.setCompletionTimeout(5000);
         adapter.setConverter(new DefaultPahoMessageConverter());
         adapter.setQos(1);

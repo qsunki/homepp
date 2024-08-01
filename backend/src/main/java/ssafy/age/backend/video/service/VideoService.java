@@ -23,9 +23,12 @@ import org.springframework.web.multipart.MultipartFile;
 import ssafy.age.backend.cam.exception.CamNotFoundException;
 import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.cam.persistence.CamRepository;
+import ssafy.age.backend.event.exception.EventNotFoundException;
+import ssafy.age.backend.event.persistence.Event;
 import ssafy.age.backend.event.persistence.EventType;
 import ssafy.age.backend.exception.InvalidInputException;
 import ssafy.age.backend.mqtt.MqttGateway;
+import ssafy.age.backend.notification.service.FCMService;
 import ssafy.age.backend.video.exception.VideoNotFoundException;
 import ssafy.age.backend.video.persistence.Video;
 import ssafy.age.backend.video.persistence.VideoRepository;
@@ -40,6 +43,7 @@ public class VideoService {
     private final VideoMapper videoMapper = VideoMapper.INSTANCE;
     private final CamRepository camRepository;
     private final MqttGateway mqttGateway;
+    private final FCMService fcmService;
 
     @Value("${file.dir}")
     private String fileDir;
@@ -114,7 +118,7 @@ public class VideoService {
                 .build();
     }
 
-    public StreamResponseDto streamVideo(Long videoId, HttpServletRequest request) {
+    public StreamResponseDto streamVideo(Long videoId, String rangeHeader) {
         Video video = videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
         Path videoPath = Paths.get(video.getUrl());
 
@@ -126,8 +130,6 @@ public class VideoService {
         }
 
         long videoLength = videoPath.toFile().length();
-
-        String rangeHeader = request.getHeader(HttpHeaders.RANGE);
 
         if (rangeHeader == null) {
             return StreamResponseDto.builder()
@@ -243,6 +245,22 @@ public class VideoService {
             return video.getId();
         } else {
             throw new InvalidInputException();
+        }
+    }
+
+    public void registerThreat(Long videoId) {
+        Video video = videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
+        video.registerThreat();
+        for (Event event : video.getEventList()) {
+            fcmService.sendMessageToAll(
+                    event.getType().toString() + " 알림",
+                    event.getOccurredAt()
+                            + " "
+                            + event.getCam().getRegion()
+                            + "지역 "
+                            + event.getType()
+                            + " 발생\n"
+                            + "인근 지역 주민들은 주의 바랍니다.");
         }
     }
 }

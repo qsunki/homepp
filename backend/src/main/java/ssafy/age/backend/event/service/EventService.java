@@ -3,18 +3,18 @@ package ssafy.age.backend.event.service;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.event.exception.EventNotFoundException;
 import ssafy.age.backend.event.persistence.Event;
 import ssafy.age.backend.event.persistence.EventRepository;
 import ssafy.age.backend.event.web.EventResponseDto;
-import ssafy.age.backend.notification.service.FCMService;
+import ssafy.age.backend.video.persistence.Video;
 
 @Service
 @RequiredArgsConstructor
 public class EventService {
 
     private final EventRepository eventRepository;
-    private final FCMService fcmService;
     private final EventMapper eventMapper = EventMapper.INSTANCE;
 
     public List<EventResponseDto> getAllEvents() {
@@ -22,8 +22,11 @@ public class EventService {
         return eventList.stream().map(eventMapper::toEventResponseDto).toList();
     }
 
-    public void handleEvent(EventDto eventDto) {
-        eventRepository.save(eventMapper.toEvent(eventDto));
+    public void save(EventDto eventDto) {
+        Event event = eventMapper.toEvent(eventDto);
+        event.setCam(Cam.builder().id(eventDto.getCamId()).build());
+        event.setVideo(Video.builder().id(eventDto.getVideoId()).build());
+        eventRepository.save(event);
     }
 
     public void deleteEvent(Long eventId) {
@@ -33,19 +36,5 @@ public class EventService {
     public void readEvent(Long eventId) {
         Event event = eventRepository.findById(eventId).orElseThrow(EventNotFoundException::new);
         event.read();
-    }
-
-    public void registerThreat(Long eventId) {
-        Event event = eventRepository.findById(eventId).orElseThrow(EventNotFoundException::new);
-        event.registerThreat();
-        fcmService.sendMessageToAll(
-                event.getType().toString() + " 알림",
-                event.getOccurredAt()
-                        + " "
-                        + event.getCam().getRegion()
-                        + "지역 "
-                        + event.getType()
-                        + " 발생\n"
-                        + "인근 지역 주민들은 주의 바랍니다.");
     }
 }
