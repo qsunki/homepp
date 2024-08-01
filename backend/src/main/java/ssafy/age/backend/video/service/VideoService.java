@@ -114,7 +114,7 @@ public class VideoService {
                 .build();
     }
 
-    public StreamResponseDto streamVideo(Long videoId, HttpServletRequest request) {
+    public StreamResponseDto streamVideo(Long videoId, String rangeHeader) {
         Video video = videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
         Path videoPath = Paths.get(video.getUrl());
 
@@ -126,8 +126,6 @@ public class VideoService {
         }
 
         long videoLength = videoPath.toFile().length();
-
-        String rangeHeader = request.getHeader(HttpHeaders.RANGE);
 
         if (rangeHeader == null) {
             return StreamResponseDto.builder()

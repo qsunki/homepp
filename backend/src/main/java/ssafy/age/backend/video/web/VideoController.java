@@ -47,9 +47,9 @@ public class VideoController {
     }
 
     @GetMapping("/videos/{videoId}/stream")
-    public ResponseEntity<Resource> streamVide(
-            @PathVariable Long videoId, HttpServletRequest request) throws IOException {
-        StreamResponseDto streamResponseDto = videoService.streamVideo(videoId, request);
+    public ResponseEntity<Resource> streamVideo (
+            @PathVariable Long videoId, HttpServletRequest request) {
+        StreamResponseDto streamResponseDto = videoService.streamVideo(videoId, request.getHeader(HttpHeaders.RANGE));
         return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
                 .headers(streamResponseDto.getHeaders())
                 .contentType(MediaType.valueOf("video/mp4"))
