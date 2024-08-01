@@ -36,6 +36,13 @@ interface LoginData {
   phoneNumber?: string;
 }
 
+// 캠 데이터 타입 정의
+interface CamData {
+  camId: number;
+  name: string;
+  status?: string; // status 속성 추가
+}
+
 // 회원가입 API 호출 함수
 export const registerUser = async (
   userData: UserData
@@ -91,6 +98,43 @@ export const getUserInfo = async (): Promise<AxiosResponse<UserData>> => {
       );
     } else {
       console.error('회원 정보 조회 오류:', error);
+    }
+    throw error;
+  }
+};
+
+// 캠 리스트 조회 API 호출 함수
+export const fetchCams = async (): Promise<AxiosResponse<CamData[]>> => {
+  try {
+    return await api.get<CamData[]>('/cams');
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        '캠 리스트 조회 오류:',
+        error.response ? error.response.data : error.message
+      );
+    } else {
+      console.error('캠 리스트 조회 오류:', error);
+    }
+    throw error;
+  }
+};
+
+// 캠 수정 API 호출 함수 (등록, 이름변경, 삭제)
+export const updateCam = async (
+  camId: number,
+  data: Partial<CamData>
+): Promise<AxiosResponse<CamData>> => {
+  try {
+    return await api.patch<CamData>(`/cams/${camId}`, data);
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        '캠 수정 오류:',
+        error.response ? error.response.data : error.message
+      );
+    } else {
+      console.error('캠 수정 오류:', error);
     }
     throw error;
   }
