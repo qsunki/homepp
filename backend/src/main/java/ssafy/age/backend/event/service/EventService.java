@@ -37,7 +37,6 @@ public class EventService {
 
     public void registerThreat(Long eventId) {
         Event event = eventRepository.findById(eventId).orElseThrow(EventNotFoundException::new);
-        event.registerThreat();
         fcmService.sendMessageToAll(
                 event.getType().toString() + " 알림",
                 event.getOccurredAt()

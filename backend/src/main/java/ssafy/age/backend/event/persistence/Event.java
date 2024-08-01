@@ -28,8 +28,6 @@ public class Event {
 
     private Boolean isRead;
 
-    private Boolean isThreat;
-
     @ManyToOne
     @JoinColumn(name = "cam_id")
     private Cam cam;
@@ -43,23 +41,17 @@ public class Event {
             LocalDateTime occurredAt,
             EventType type,
             boolean isRead,
-            boolean isThreat,
             Cam cam,
             Video video) {
         this.id = id;
         this.occurredAt = occurredAt;
         this.type = type;
         this.isRead = isRead;
-        this.isThreat = isThreat;
         this.cam = cam;
         this.video = video;
     }
 
     public void read() {
         this.isRead = true;
-    }
-
-    public void registerThreat() {
-        this.isThreat = true;
     }
 }
