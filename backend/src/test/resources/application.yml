@@ -15,3 +15,4 @@ file:
 mqtt:
   broker:
     url: "tcp://localhost:1883"
+    topics: test/topic

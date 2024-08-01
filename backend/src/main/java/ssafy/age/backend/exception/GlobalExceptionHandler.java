@@ -14,4 +14,9 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleException(Exception e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
     }
+
+    @ExceptionHandler(InvalidInputException.class)
+    public ProblemDetail handleException(InvalidInputException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
 }

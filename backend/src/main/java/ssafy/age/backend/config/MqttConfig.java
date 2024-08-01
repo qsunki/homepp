@@ -21,13 +21,14 @@ public class MqttConfig {
     @Value("${mqtt.broker.url}")
     private String brokerUrl;
 
+    @Value("${mqtt.broker.topics}")
+    private String[] topics;
+
     @Bean
     public MqttPahoClientFactory mqttClientFactory() {
         DefaultMqttPahoClientFactory factory = new DefaultMqttPahoClientFactory();
         MqttConnectOptions options = new MqttConnectOptions();
         options.setServerURIs(new String[] {brokerUrl});
-        options.setUserName("username");
-        options.setPassword("password".toCharArray());
         factory.setConnectionOptions(options);
         return factory;
     }
@@ -52,10 +53,10 @@ public class MqttConfig {
     }
 
     @Bean
-    public MessageProducer inbound() {
+    public MessageProducer inbound(MqttPahoClientFactory mqttPahoClientFactory) {
         MqttPahoMessageDrivenChannelAdapter adapter =
                 new MqttPahoMessageDrivenChannelAdapter(
-                        brokerUrl, "testClient", "test/topic", "test/topic2");
+                        brokerUrl, "client", mqttPahoClientFactory, topics);
         adapter.setCompletionTimeout(5000);
         adapter.setConverter(new DefaultPahoMessageConverter());
         adapter.setQos(1);

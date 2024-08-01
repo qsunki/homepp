@@ -1,31 +1,32 @@
 package ssafy.age.backend.video.web;
 
 import jakarta.servlet.http.HttpServletRequest;
-import java.net.MalformedURLException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ssafy.age.backend.event.persistence.EventType;
+import ssafy.age.backend.video.service.DownloadResponseDto;
+import ssafy.age.backend.video.service.StreamResponseDto;
 import ssafy.age.backend.video.service.VideoService;
+import ssafy.age.backend.video.service.VideoTimeInfo;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/cams/videos")
+@RequestMapping("/api/v1/cams")
 @RequiredArgsConstructor
 public class VideoController {
     private final VideoService videoService;
 
-    @GetMapping
+    @GetMapping("/videos")
     public List<VideoResponseDto> getAllVideos(
             @RequestParam List<EventType> types,
             @RequestParam LocalDateTime startDate,
@@ -35,46 +36,51 @@ public class VideoController {
         return videoService.getAllVideos(types, startDate, endDate, camId, isThreat);
     }
 
-    @GetMapping("/{videoId}")
+    @GetMapping("/videos/{videoId}")
     public VideoResponseDto getVideoById(@PathVariable Long videoId) {
         return videoService.getVideoById(videoId);
     }
 
-    @DeleteMapping("/{videoId}")
+    @DeleteMapping("/videos/{videoId}")
     public void deleteVideo(@PathVariable Long videoId) {
         videoService.deleteVideo(videoId);
     }
 
-    @GetMapping("/{videoId}/stream")
-    public ResponseEntity<Resource> streamVideo(
-            @PathVariable Long videoId, HttpServletRequest request) throws MalformedURLException {
-        // 비디오 파일 경로를 가져옵니다
-        Path videoPath = Paths.get("src/main/resources/videos", videoId.toString() + ".mp4");
-
-        // 비디오 파일을 리소스로 읽어옵니다
-        Resource videoResource = new UrlResource(videoPath.toUri());
-
-        // HTTP Range 헤더를 처리하여 스트리밍을 구현합니다
+    @GetMapping("/videos/{videoId}/stream")
+    public ResponseEntity<Resource> streamVide(
+            @PathVariable Long videoId, HttpServletRequest request) throws IOException {
+        StreamResponseDto streamResponseDto = videoService.streamVideo(videoId, request);
         return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
+                .headers(streamResponseDto.getHeaders())
                 .contentType(MediaType.valueOf("video/mp4"))
-                .body(videoResource);
+                .contentLength(streamResponseDto.getContentLength())
+                .body(streamResponseDto.getResourceData());
     }
 
-    @GetMapping("/{videoId}/download")
-    public ResponseEntity<Resource> downloadVideo(@PathVariable Long videoId)
-            throws MalformedURLException {
-        // 비디오 파일 경로를 가져옵니다
-        Path videoPath = Paths.get("src/main/resources/videos", videoId.toString() + ".mp4");
-
-        // 비디오 파일을 리소스로 읽어옵니다
-        Resource videoResource = new UrlResource(videoPath.toUri());
-
-        // 다운로드 헤더를 추가합니다
+    @GetMapping("/videos/{videoId}/download")
+    public ResponseEntity<Resource> downloadVideo(@PathVariable Long videoId) {
+        DownloadResponseDto downloadResponseDto = videoService.downloadVideo(videoId);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .header(
                         HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + videoPath.getFileName().toString() + "\"")
-                .body(videoResource);
+                        "attachment; filename=\"" + downloadResponseDto.getFilename() + "\"")
+                .body(downloadResponseDto.getVideoResource());
+    }
+
+    @PostMapping("/{camId}/videos")
+    public Long recordVideo(
+            @PathVariable Long camId, @RequestBody VideoRecordRequestDto videoRecordRequestDto) {
+        return videoService.recordVideo(
+                camId, videoRecordRequestDto.getVideoId(), videoRecordRequestDto.getCommand());
+    }
+
+    @PostMapping("/{camId}/videos/{videoId}")
+    public void saveVideoOnServer(
+            @PathVariable Long camId,
+            @PathVariable Long videoId,
+            @RequestPart MultipartFile file,
+            @RequestPart VideoTimeInfo timeInfo) {
+        videoService.saveVideoOnServer(camId, videoId, file, timeInfo);
     }
 }
