@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { FaTrash, FaEdit, FaPlus } from 'react-icons/fa';
 import { useDeviceStore } from '../../stores/useDeviceStore';
+import { useUserStore } from '../../stores/useUserStore'; // 사용자 스토어 임포트
+import QRCode from 'qrcode'; // QR 코드 라이브러리 임포트
 import checkIcon from '../../assets/mypage/check.png';
 import cancelIcon from '../../assets/mypage/cancel.png';
 
@@ -9,12 +11,14 @@ const DeviceManagement: React.FC = () => {
   const addDevice = useDeviceStore((state) => state.addDevice);
   const deleteDevice = useDeviceStore((state) => state.deleteDevice);
   const editDevice = useDeviceStore((state) => state.editDevice);
+  const userEmail = useUserStore((state) => state.email); // 사용자 이메일 가져오기
 
   const [editingDevice, setEditingDevice] = useState<number | null>(null);
   const [newDeviceName, setNewDeviceName] = useState<string>('');
   const [deleteConfirmation, setDeleteConfirmation] = useState<number | null>(
     null
   );
+  const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null); // QR 코드 URL 상태 추가
 
   const handleEditDevice = (id: number) => {
     setEditingDevice(id);
@@ -34,8 +38,16 @@ const DeviceManagement: React.FC = () => {
     setNewDeviceName('');
   };
 
-  const handleAddDevice = () => {
-    addDevice('New Device');
+  const handleAddDevice = async () => {
+    // 사용자 이메일로 QR 코드 생성
+    try {
+      const qrCodeData = `mailto:${userEmail}`; // QR 코드 데이터 (예: 이메일 링크)
+      const url = await QRCode.toDataURL(qrCodeData);
+      setQrCodeUrl(url);
+      addDevice('New Device');
+    } catch (error) {
+      console.error('Error generating QR code:', error);
+    }
   };
 
   const handleKeyDown = (
@@ -128,6 +140,12 @@ const DeviceManagement: React.FC = () => {
       >
         <FaPlus className="text-gray-500 text-xl" />
       </div>
+      {qrCodeUrl && (
+        <div className="mt-4">
+          <h3 className="text-lg font-bold mb-2">QR Code</h3>
+          <img src={qrCodeUrl} alt="QR Code" />
+        </div>
+      )}
       {deleteConfirmation !== null && (
         <div
           className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 delete-confirmation-overlay"

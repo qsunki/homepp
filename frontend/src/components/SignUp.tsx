@@ -1,6 +1,6 @@
 import React, { useEffect, useState, FormEvent } from 'react';
 import { useUserStore } from '../stores/useUserStore';
-import { registerUser, checkEmailExists, checkPhoneNumberExists } from '../api';
+import { registerUser } from '../api';
 import backArrow from '../assets/signup/backarrow.png';
 import axios from 'axios';
 
@@ -24,8 +24,6 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
   const [allChecked, setAllChecked] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [emailErrorMessage, setEmailErrorMessage] = useState('');
-  const [phoneNumberErrorMessage, setPhoneNumberErrorMessage] = useState('');
 
   const [passwordValidations, setPasswordValidations] = useState({
     length: false,
@@ -86,8 +84,6 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
     setPassword('');
     setConfirmPassword('');
     setErrorMessage('');
-    setEmailErrorMessage('');
-    setPhoneNumberErrorMessage('');
   };
 
   const handleClose = () => {
@@ -106,8 +102,6 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
   const handleNextStep = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrorMessage('');
-    setEmailErrorMessage('');
-    setPhoneNumberErrorMessage('');
     if (step === 1) {
       if (!checkboxes.age || !checkboxes.terms || !checkboxes.privacyPolicy) {
         setErrorMessage('필수항목에 모두 동의해주세요.');
@@ -119,18 +113,6 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
         phoneNumber.replace(/-/g, '').length !== 11
       ) {
         setErrorMessage('휴대폰 번호를 확인해주세요.');
-        return;
-      }
-
-      try {
-        const response = await checkPhoneNumberExists(phoneNumber);
-        if (response.data.exists) {
-          setPhoneNumberErrorMessage('이미 존재하는 휴대폰 번호입니다.');
-          return;
-        }
-      } catch (error) {
-        console.error('전화번호 중복 확인 오류:', error);
-        setPhoneNumberErrorMessage('전화번호 중복 확인 오류가 발생했습니다.');
         return;
       }
     } else if (step === 3) {
