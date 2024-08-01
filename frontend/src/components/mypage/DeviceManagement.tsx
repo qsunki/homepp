@@ -7,7 +7,7 @@ import checkIcon from '../../assets/mypage/check.png';
 import cancelIcon from '../../assets/mypage/cancel.png';
 
 interface FoundDevice {
-  name: string;
+  name: string | undefined;
   rssi: number;
   device: BluetoothDevice;
 }
@@ -28,6 +28,7 @@ const DeviceManagement: React.FC = () => {
   const [deleteConfirmation, setDeleteConfirmation] = useState<number | null>(
     null
   );
+  const [noDevicesFound, setNoDevicesFound] = useState<boolean>(false);
 
   useEffect(() => {
     if (showLoader) {
@@ -115,7 +116,11 @@ const DeviceManagement: React.FC = () => {
           handleAdvertisementReceived
         );
         setShowLoader(false);
-        setShowDeviceSelection(true);
+        if (foundDevices.length === 0) {
+          setNoDevicesFound(true);
+        } else {
+          setShowDeviceSelection(true);
+        }
       };
 
       // 일정 시간 후 스캔 중지
@@ -167,7 +172,7 @@ const DeviceManagement: React.FC = () => {
         const emailBuffer = encoder.encode(userEmail);
         await emailCharacteristic.writeValue(emailBuffer);
         console.log('Email sent to device:', userEmail);
-        addDevice(name);
+        addDevice(name || 'Unknown Device');
       }
     } catch (error) {
       console.error('Error connecting to device:', error);
@@ -270,6 +275,22 @@ const DeviceManagement: React.FC = () => {
                   </li>
                 ))}
             </ul>
+          </div>
+        </div>
+      )}
+      {noDevicesFound && (
+        <div
+          className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50"
+          onClick={() => setNoDevicesFound(false)}
+        >
+          <div className="bg-white p-4 rounded-lg">
+            <h3 className="text-lg font-bold mb-4">No devices found</h3>
+            <button
+              onClick={() => setNoDevicesFound(false)}
+              className="bg-blue-500 text-white p-2 rounded"
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
