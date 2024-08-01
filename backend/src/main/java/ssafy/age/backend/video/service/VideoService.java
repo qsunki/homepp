@@ -1,6 +1,5 @@
 package ssafy.age.backend.video.service;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import java.io.*;
 import java.net.MalformedURLException;
@@ -12,6 +11,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.jcodec.api.JCodecException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
@@ -23,7 +23,6 @@ import org.springframework.web.multipart.MultipartFile;
 import ssafy.age.backend.cam.exception.CamNotFoundException;
 import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.cam.persistence.CamRepository;
-import ssafy.age.backend.event.exception.EventNotFoundException;
 import ssafy.age.backend.event.persistence.Event;
 import ssafy.age.backend.event.persistence.EventType;
 import ssafy.age.backend.exception.InvalidInputException;
@@ -33,6 +32,7 @@ import ssafy.age.backend.video.exception.VideoNotFoundException;
 import ssafy.age.backend.video.persistence.Video;
 import ssafy.age.backend.video.persistence.VideoRepository;
 import ssafy.age.backend.video.web.EventDetailDto;
+import ssafy.age.backend.video.web.ThumbnailExtractor;
 import ssafy.age.backend.video.web.VideoResponseDto;
 
 @Service
@@ -208,6 +208,8 @@ public class VideoService {
             Files.copy(file.getInputStream(), path);
             Resource resource = new FileSystemResource(path.toFile());
 
+            File videoFile = resource.getFile();
+
             long seconds =
                     ChronoUnit.SECONDS.between(timeInfo.getStartTime(), timeInfo.getEndTime());
             long minutes =
@@ -217,15 +219,33 @@ public class VideoService {
 
             Video video =
                     videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
+            Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
             video.updateVideo(
                     resource.getFile().getPath(),
                     timeInfo.getStartTime(),
                     timeInfo.getEndTime(),
                     videoLength);
-            Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
+
+            // 썸네일 생성
+            String thumbnailFilePath =
+                    dirPath.append("\\")
+                            .append(file.getOriginalFilename())
+                            .append(".png")
+                            .toString();
+
+            try {
+                ThumbnailExtractor.createThumbnail(
+                        resource.getFile().getPath(), thumbnailFilePath, 2.0);
+            } catch (IOException | JCodecException e) {
+                throw new IOException("Failed to create thumbnail: " + e.getMessage(), e);
+            }
+
+            video.setThumbnailUrl(thumbnailFilePath);
+
             cam.addVideo(video);
             camRepository.save(cam);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new CamNotFoundException();
         }
     }
