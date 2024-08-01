@@ -7,7 +7,7 @@ import checkIcon from '../../assets/mypage/check.png';
 import cancelIcon from '../../assets/mypage/cancel.png';
 
 interface FoundDevice {
-  name: string | undefined;
+  name: string;
   rssi: number;
   device: BluetoothDevice;
 }
@@ -172,7 +172,7 @@ const DeviceManagement: React.FC = () => {
         const emailBuffer = encoder.encode(userEmail);
         await emailCharacteristic.writeValue(emailBuffer);
         console.log('Email sent to device:', userEmail);
-        addDevice(name || 'Unknown Device');
+        addDevice(name);
       }
     } catch (error) {
       console.error('Error connecting to device:', error);
