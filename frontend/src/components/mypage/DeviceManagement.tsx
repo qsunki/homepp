@@ -8,7 +8,6 @@ import cancelIcon from '../../assets/mypage/cancel.png';
 
 const DeviceManagement: React.FC = () => {
   const devices = useDeviceStore((state) => state.devices);
-  const addDevice = useDeviceStore((state) => state.addDevice);
   const deleteDevice = useDeviceStore((state) => state.deleteDevice);
   const editDevice = useDeviceStore((state) => state.editDevice);
   const userEmail = useUserStore((state) => state.email); // 사용자 이메일 가져오기
@@ -46,7 +45,6 @@ const DeviceManagement: React.FC = () => {
       const url = await QRCode.toDataURL(qrCodeData);
       setQrCodeUrl(url);
       setShowQRCodePopup(true); // QR 코드 팝업을 표시
-      addDevice('New Device');
     } catch (error) {
       console.error('Error generating QR code:', error);
     }
