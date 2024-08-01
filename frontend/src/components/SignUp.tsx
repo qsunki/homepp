@@ -16,10 +16,18 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
     setPhoneNumber,
     setEmail,
     setPassword,
-    login,
     checkboxes,
     setCheckboxes,
-  } = useUserStore();
+  } = useUserStore((state) => ({
+    phoneNumber: state.phoneNumber,
+    email: state.email,
+    password: state.password,
+    setPhoneNumber: state.setPhoneNumber,
+    setEmail: state.setEmail,
+    setPassword: state.setPassword,
+    checkboxes: state.checkboxes,
+    setCheckboxes: state.setCheckboxes,
+  }));
   const [step, setStep] = useState(1);
   const [allChecked, setAllChecked] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -138,9 +146,8 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
         const response = await registerUser({ email, phoneNumber, password });
         alert('회원가입이 완료되었습니다.');
         if (response.data && response.data.userId) {
-          login(response.data.userId, email, password);
           resetPopup();
-          onClose();
+          onClose(); // 회원가입 후 팝업을 닫음
         } else {
           setErrorMessage('회원가입에 실패했습니다.');
         }
@@ -213,10 +220,7 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
   };
 
   return (
-    <div
-      className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-50 bg-black bg-opacity-50"
-      onClick={resetPopup}
-    >
+    <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-50 bg-black bg-opacity-50">
       <div
         className="bg-white p-8 rounded-lg relative w-96 shadow-lg"
         onClick={(e) => e.stopPropagation()}
@@ -431,9 +435,8 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                         });
                         alert('회원가입이 완료되었습니다.');
                         if (response.data && response.data.userId) {
-                          login(response.data.userId, email, password);
                           resetPopup();
-                          onClose();
+                          onClose(); // 회원가입 후 팝업을 닫음
                         } else {
                           setErrorMessage('회원가입에 실패했습니다.');
                         }
@@ -514,9 +517,8 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                         });
                         alert('회원가입이 완료되었습니다.');
                         if (response.data && response.data.userId) {
-                          login(response.data.userId, email, password);
                           resetPopup();
-                          onClose();
+                          onClose(); // 회원가입 후 팝업을 닫음
                         } else {
                           setErrorMessage('회원가입에 실패했습니다.');
                         }
@@ -541,46 +543,6 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
               <button
                 type="submit"
                 className="w-full bg-blue-600 text-white py-2 rounded mt-6"
-                onClick={async (e) => {
-                  e.preventDefault();
-                  if (password !== confirmPassword) {
-                    setErrorMessage('비밀번호를 확인해주세요.');
-                    return;
-                  }
-                  if (
-                    !passwordValidations.length ||
-                    !passwordValidations.hasNumber ||
-                    !passwordValidations.hasLetter
-                  ) {
-                    setErrorMessage('비밀번호가 조건을 충족하지 않습니다.');
-                    return;
-                  }
-                  try {
-                    const response = await registerUser({
-                      email,
-                      phoneNumber,
-                      password,
-                    });
-                    alert('회원가입이 완료되었습니다.');
-                    if (response.data && response.data.userId) {
-                      login(response.data.userId, email, password);
-                      resetPopup();
-                      onClose();
-                    } else {
-                      setErrorMessage('회원가입에 실패했습니다.');
-                    }
-                  } catch (error) {
-                    if (axios.isAxiosError(error)) {
-                      console.error(
-                        '회원가입 오류:',
-                        error.response ? error.response.data : error.message
-                      );
-                    } else {
-                      console.error('회원가입 오류:', error);
-                    }
-                    setErrorMessage('회원가입 오류가 발생했습니다.');
-                  }
-                }}
               >
                 완료
               </button>

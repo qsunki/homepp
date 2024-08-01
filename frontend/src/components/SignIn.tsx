@@ -41,9 +41,7 @@ export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
       console.log(response.data); // 응답 데이터 콘솔에 출력
 
       if (response.data.accessToken) {
-        // JWT를 로컬 스토리지에 저장
-        localStorage.setItem('token', response.data.accessToken);
-        login(response.data.userId, inputEmail, inputPassword);
+        login(response.data.userId, inputEmail, response.data.accessToken);
         navigate('/home'); // 로그인 성공 시 홈페이지로 리다이렉트
         console.log('navigate 함수 호출됨');
         onClose();
