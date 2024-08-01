@@ -1,6 +1,7 @@
+import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useUserStore } from '../stores/useUserStore';
-import { registerUser } from '../api';
+import { registerUser, checkEmailExists, checkPhoneNumberExists } from '../api';
 import backArrow from '../assets/signup/backarrow.png';
 
 interface SignUpProps {
@@ -26,6 +27,8 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
   const [allChecked, setAllChecked] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [emailErrorMessage, setEmailErrorMessage] = useState('');
+  const [phoneNumberErrorMessage, setPhoneNumberErrorMessage] = useState('');
 
   const [passwordValidations, setPasswordValidations] = useState({
     length: false,
@@ -98,6 +101,8 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
     setPassword('');
     setConfirmPassword('');
     setErrorMessage('');
+    setEmailErrorMessage('');
+    setPhoneNumberErrorMessage('');
   };
 
   // 팝업을 닫습니다.
@@ -118,6 +123,8 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
   // 다음 단계로 넘어갑니다.
   const handleNextStep = async () => {
     setErrorMessage('');
+    setEmailErrorMessage('');
+    setPhoneNumberErrorMessage('');
     if (step === 1) {
       if (!checkboxes.age || !checkboxes.terms || !checkboxes.privacyPolicy) {
         setErrorMessage('필수항목에 모두 동의해주세요.');
@@ -131,6 +138,18 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
         setErrorMessage('휴대폰 번호를 확인해주세요.');
         return;
       }
+
+      try {
+        const response = await checkPhoneNumberExists(phoneNumber);
+        if (response.data.exists) {
+          setPhoneNumberErrorMessage('이미 존재하는 휴대폰 번호입니다.');
+          return;
+        }
+      } catch (error) {
+        console.error('전화번호 중복 확인 오류:', error);
+        setPhoneNumberErrorMessage('전화번호 중복 확인 오류가 발생했습니다.');
+        return;
+      }
     } else if (step === 3) {
       // 이메일 형식 검증
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -138,48 +157,26 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
         setErrorMessage('이메일을 확인해주세요.');
         return;
       }
-    } else if (step === 4) {
-      if (password !== confirmPassword) {
-        setErrorMessage('비밀번호를 확인해주세요.');
-        return;
-      }
-      if (
-        !passwordValidations.length ||
-        !passwordValidations.hasNumber ||
-        !passwordValidations.hasLetter
-      ) {
-        setErrorMessage('비밀번호가 조건을 충족하지 않습니다.');
-        return;
-      }
+
       try {
-        // 회원가입 API 호출
-        const response = await registerUser({ email, phoneNumber, password });
-        alert('회원가입이 완료되었습니다.');
-        if (response.data.userId) {
-          login(
-            response.data.userId,
-            response.data.phoneNumber,
-            response.data.email,
-            response.data.password
-          );
-          resetPopup();
-          onClose();
-        } else {
-          setErrorMessage('회원가입에 실패했습니다.');
+        const response = await checkEmailExists(email);
+        if (response.data.exists) {
+          setEmailErrorMessage('이미 존재하는 이메일입니다.');
+          return;
         }
       } catch (error) {
-        if (error instanceof Error && error.message) {
-          setErrorMessage(error.message);
-        } else {
-          setErrorMessage('회원가입 오류가 발생했습니다.');
-        }
+        console.error('이메일 중복 확인 오류:', error);
+        setEmailErrorMessage('이메일 중복 확인 오류가 발생했습니다.');
+        return;
       }
     }
     setStep((prevStep) => prevStep + 1);
   };
 
   // 휴대폰 번호 입력 시 형식을 적용합니다.
-  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhoneNumberChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const value = e.target.value.replace(/\D/g, ''); // 숫자가 아닌 문자는 제거
     let formattedValue = value;
 
@@ -193,6 +190,34 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
     }
 
     setPhoneNumber(formattedValue);
+    setPhoneNumberErrorMessage('');
+
+    if (formattedValue.length === 13) {
+      try {
+        const response = await checkPhoneNumberExists(formattedValue);
+        if (response.data.exists) {
+          setPhoneNumberErrorMessage('이미 존재하는 휴대폰 번호입니다.');
+        }
+      } catch (error) {
+        console.error('전화번호 중복 확인 오류:', error);
+        setPhoneNumberErrorMessage('전화번호 중복 확인 오류가 발생했습니다.');
+      }
+    }
+  };
+
+  // 이메일 입력 시 중복 여부를 확인합니다.
+  const handleEmailChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+    setEmailErrorMessage('');
+    try {
+      const response = await checkEmailExists(e.target.value);
+      if (response.data.exists) {
+        setEmailErrorMessage('이미 존재하는 이메일입니다.');
+      }
+    } catch (error) {
+      console.error('이메일 중복 확인 오류:', error);
+      setEmailErrorMessage('이메일 중복 확인 오류가 발생했습니다.');
+    }
   };
 
   // Enter 키를 눌렀을 때 버튼을 클릭하는 함수입니다.
@@ -347,8 +372,10 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                 onChange={handlePhoneNumberChange}
                 onKeyDown={(e) => handleKeyDown(e, handleNextStep)}
               />
-              {errorMessage && (
-                <div className="text-red-500 text-xs mb-4">{errorMessage}</div>
+              {phoneNumberErrorMessage && (
+                <div className="text-red-500 text-xs mb-4">
+                  {phoneNumberErrorMessage}
+                </div>
               )}
             </div>
             <button
@@ -380,11 +407,13 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                 className="border rounded w-full py-2 px-3"
                 placeholder="이메일"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={handleEmailChange}
                 onKeyDown={(e) => handleKeyDown(e, handleNextStep)}
               />
-              {errorMessage && (
-                <div className="text-red-500 text-xs mb-4">{errorMessage}</div>
+              {emailErrorMessage && (
+                <div className="text-red-500 text-xs mb-4">
+                  {emailErrorMessage}
+                </div>
               )}
             </div>
 
@@ -439,6 +468,7 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                         phoneNumber,
                         password,
                       });
+                      console.log('회원가입 성공:', response.data); // 콘솔에 로그 추가
                       alert('회원가입이 완료되었습니다.');
                       if (response.data.userId) {
                         login(
@@ -453,9 +483,18 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                         setErrorMessage('회원가입에 실패했습니다.');
                       }
                     } catch (error) {
-                      if (error instanceof Error && error.message) {
+                      if (
+                        axios.isAxiosError(error) &&
+                        error.response?.status === 409
+                      ) {
+                        setErrorMessage(
+                          '이미 존재하는 이메일 또는 휴대폰 번호입니다.'
+                        );
+                      } else if (error instanceof Error && error.message) {
+                        console.error('회원가입 오류:', error.message); // 콘솔에 오류 로그 추가
                         setErrorMessage(error.message);
                       } else {
+                        console.error('회원가입 오류:', error); // 콘솔에 오류 로그 추가
                         setErrorMessage('회원가입 오류가 발생했습니다.');
                       }
                     }
@@ -524,6 +563,7 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                         phoneNumber,
                         password,
                       });
+                      console.log('회원가입 성공:', response.data); // 콘솔에 로그 추가
                       alert('회원가입이 완료되었습니다.');
                       if (response.data.userId) {
                         login(
@@ -538,9 +578,18 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                         setErrorMessage('회원가입에 실패했습니다.');
                       }
                     } catch (error) {
-                      if (error instanceof Error && error.message) {
+                      if (
+                        axios.isAxiosError(error) &&
+                        error.response?.status === 409
+                      ) {
+                        setErrorMessage(
+                          '이미 존재하는 이메일 또는 휴대폰 번호입니다.'
+                        );
+                      } else if (error instanceof Error && error.message) {
+                        console.error('회원가입 오류:', error.message); // 콘솔에 오류 로그 추가
                         setErrorMessage(error.message);
                       } else {
+                        console.error('회원가입 오류:', error); // 콘솔에 오류 로그 추가
                         setErrorMessage('회원가입 오류가 발생했습니다.');
                       }
                     }
@@ -573,6 +622,7 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                     phoneNumber,
                     password,
                   });
+                  console.log('회원가입 성공:', response.data); // 콘솔에 로그 추가
                   alert('회원가입이 완료되었습니다.');
                   if (response.data.userId) {
                     login(
@@ -587,9 +637,18 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
                     setErrorMessage('회원가입에 실패했습니다.');
                   }
                 } catch (error) {
-                  if (error instanceof Error && error.message) {
+                  if (
+                    axios.isAxiosError(error) &&
+                    error.response?.status === 409
+                  ) {
+                    setErrorMessage(
+                      '이미 존재하는 이메일 또는 휴대폰 번호입니다.'
+                    );
+                  } else if (error instanceof Error && error.message) {
+                    console.error('회원가입 오류:', error.message); // 콘솔에 오류 로그 추가
                     setErrorMessage(error.message);
                   } else {
+                    console.error('회원가입 오류:', error); // 콘솔에 오류 로그 추가
                     setErrorMessage('회원가입 오류가 발생했습니다.');
                   }
                 }

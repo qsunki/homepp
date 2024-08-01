@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 
 // 백엔드 API 기본 URL 설정
-const API_URL = 'http://localhost:8080/api/v1';
+const API_URL = 'http://i11a605.p.ssafy.io:8081/api/v1';
 
 // axios 인스턴스 생성
 const api = axios.create({
@@ -77,14 +77,21 @@ export const registerUser = (
 export const loginUser = (
   loginData: LoginData
 ): Promise<AxiosResponse<LoginData>> => {
-  return api.post<LoginData>('/login', loginData);
+  return api.post<LoginData>('/members/login', loginData);
 };
 
-// 회원 조회 API 호출 함수
-export const findUserByEmail = (
+// 이메일 중복 확인 API 호출 함수
+export const checkEmailExists = (
   email: string
-): Promise<AxiosResponse<UserData>> => {
-  return api.get<UserData>(`/members/${email}`);
+): Promise<AxiosResponse<{ exists: boolean }>> => {
+  return api.get<{ exists: boolean }>(`/members/emails/${email}`);
+};
+
+// 전화번호 중복 확인 API 호출 함수
+export const checkPhoneNumberExists = (
+  phoneNumber: string
+): Promise<AxiosResponse<{ exists: boolean }>> => {
+  return api.get<{ exists: boolean }>(`/members/phone-numbers/${phoneNumber}`);
 };
 
 // 비밀번호 변경 API 호출 함수
@@ -92,12 +99,12 @@ export const updateUserPassword = (
   email: string,
   password: string
 ): Promise<AxiosResponse<UserData>> => {
-  return api.patch<UserData>(`/members/${email}`, { password });
+  return api.patch<UserData>(`/members/emails/${email}`, { password });
 };
 
 // 회원 탈퇴 API 호출 함수
 export const deleteUser = (email: string): Promise<AxiosResponse<void>> => {
-  return api.delete<void>(`/members/${email}`);
+  return api.delete<void>(`/members/emails/${email}`);
 };
 
 // 공유회원 리스트 API 호출 함수
@@ -142,14 +149,14 @@ export const removeSharedMember = (
 
 // 로그아웃 API 호출 함수
 export const logoutUser = (): Promise<AxiosResponse<void>> => {
-  return api.post<void>('/logout');
+  return api.post<void>('/members/logout');
 };
 
 // FCM 토큰 등록 API 호출 함수
 export const registerFcmToken = (
   fcmToken: FcmToken
 ): Promise<AxiosResponse<FcmToken>> => {
-  return api.post<FcmToken>('/tokens', fcmToken);
+  return api.post<FcmToken>('/members/tokens', fcmToken);
 };
 
 // 캠 리스트 API 호출 함수
@@ -255,7 +262,9 @@ export const inviteUser = (
   email: string,
   inviteEmail: string
 ): Promise<AxiosResponse<{ email: string }>> => {
-  return api.post<{ email: string }>(`/invitations`, { email: inviteEmail });
+  return api.post<{ email: string }>(`/members/${email}/invitations`, {
+    email: inviteEmail,
+  });
 };
 
 // 초대한 사용자 삭제 API 호출 함수
@@ -263,15 +272,21 @@ export const removeInvitedUser = (
   email: string,
   inviteEmail: string
 ): Promise<AxiosResponse<void>> => {
-  return api.delete<void>(`/invitations`, { data: { email: inviteEmail } });
+  return api.delete<void>(`/members/${email}/invitations`, {
+    data: { email: inviteEmail },
+  });
 };
 
-// // 온도 조회 API 호출 함수
-// export const getTemperatures = (camId: string): Promise<AxiosResponse<any>> => {
-//   return api.get<any>(`/cams/${camId}/temperatures`);
-// };
+// 온도 조회 API 호출 함수
+export const getTemperatures = (
+  camId: string
+): Promise<AxiosResponse<unknown>> => {
+  return api.get<unknown>(`/cams/${camId}/temperatures`);
+};
 
-// // 습도 조회 API 호출 함수
-// export const getHumidities = (camId: string): Promise<AxiosResponse<any>> => {
-//   return api.get<any>(`/cams/${camId}/humidities`);
-// };
+// 습도 조회 API 호출 함수
+export const getHumidities = (
+  camId: string
+): Promise<AxiosResponse<unknown>> => {
+  return api.get<unknown>(`/cams/${camId}/humidities`);
+};

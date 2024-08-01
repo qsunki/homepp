@@ -36,22 +36,27 @@ export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
         email: inputEmail,
         password: inputPassword,
       });
-      if (response.data.userId && response.data.phoneNumber) {
-        login(
-          response.data.userId,
-          response.data.phoneNumber,
-          response.data.email,
-          response.data.password
-        );
+      console.log('로그인 성공:', response.data); // 콘솔에 성공 로그 추가
+
+      // 응답 데이터 구조 확인
+      const { userId, phoneNumber, email, password } = response.data;
+      console.log('응답 데이터:', { userId, phoneNumber, email, password });
+
+      if (userId && phoneNumber) {
+        login(userId, phoneNumber, email, password);
+        console.log('login 함수 호출됨');
         navigate('/home'); // 로그인 성공 시 홈페이지로 리다이렉트
+        console.log('navigate 함수 호출됨');
         onClose();
       } else {
         setLoginError('로그인에 실패했습니다.');
       }
     } catch (error) {
       if (error instanceof Error && error.message) {
+        console.error('로그인 오류:', error.message); // 콘솔에 오류 로그 추가
         setLoginError(error.message);
       } else {
+        console.error('로그인 오류:', error); // 콘솔에 오류 로그 추가
         setLoginError('로그인 오류가 발생했습니다.');
       }
     }
@@ -111,7 +116,7 @@ export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
               className="border rounded px-4 py-2 w-full"
               placeholder="이메일을 입력하세요"
             />
-            {loginError === '이메일을 확인해 주세요.' && (
+            {loginError && (
               <div className="text-red-500 text-xs">{loginError}</div>
             )}
           </div>
@@ -124,7 +129,7 @@ export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
               className="border rounded px-4 py-2 w-full"
               placeholder="비밀번호를 입력하세요"
             />
-            {loginError === '비밀번호를 확인해 주세요.' && (
+            {loginError && (
               <div className="text-red-500 text-xs">{loginError}</div>
             )}
           </div>
