@@ -3,6 +3,7 @@ package ssafy.age.backend.video.service;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -99,23 +100,24 @@ public class VideoService {
     }
 
     public ResponseEntity<Resource> downloadVideo(Long videoId) {
-        try {
             Video video = videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
             // 비디오 파일 경로를 가져옵니다
             Path videoPath = Paths.get(video.getUrl());
 
-            // 비디오 파일을 리소스로 읽어옵니다
-            Resource videoResource = new UrlResource(videoPath.toUri());
+            Resource videoResource;
+            try {
+                // 비디오 파일을 리소스로 읽어옵니다
+                videoResource = new UrlResource(videoPath.toUri());
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
 
-            // 다운로드 헤더를 추가합니다
+        // 다운로드 헤더를 추가합니다
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
                     .header(HttpHeaders.CONTENT_DISPOSITION,
                             "attachment; filename=\"" + videoPath.getFileName().toString() + "\"")
                     .body(videoResource);
-        } catch (Exception e) {
-            throw new RuntimeException();
-        }
     }
 
     public ResponseEntity<Resource> streamVideo(Long videoId, HttpServletRequest request) throws IOException {

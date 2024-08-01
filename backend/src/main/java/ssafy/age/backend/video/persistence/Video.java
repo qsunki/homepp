@@ -16,7 +16,7 @@ import ssafy.age.backend.event.persistence.Event;
 public class Video {
 
     @Id
-    @Column(name = "video_id", nullable = false)
+    @Column(name = "video_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

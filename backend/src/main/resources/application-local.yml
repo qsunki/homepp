@@ -32,13 +32,10 @@ jwt:
 mqtt:
   broker:
     url: "tcp://localhost:1883"
-    ports:
+    port:
       - "1883:1883"
-      - "9001:9001"
     qos: 2
     topics:
-      - "cams/+/video"
-      - "cams/+/stream"
       - "server/envInfo"
       - "server/event"
 

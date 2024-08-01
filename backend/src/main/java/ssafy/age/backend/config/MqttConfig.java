@@ -4,9 +4,9 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
+import org.springframework.integration.core.MessageProducer;
 import org.springframework.integration.mqtt.core.DefaultMqttPahoClientFactory;
 import org.springframework.integration.mqtt.core.MqttPahoClientFactory;
 import org.springframework.integration.mqtt.inbound.MqttPahoMessageDrivenChannelAdapter;
@@ -22,28 +22,17 @@ public class MqttConfig {
     private String brokerUrl;
 
     @Value("${mqtt.broker.topics[0]}")
-    private String camVideoTopic;
-
-    @Value("${mqtt.broker.topics[1]}")
-    private String camStreamTopic;
-
-    @Value("${mqtt.broker.topics[2]}")
     private String serviceEnvInfoTopic;
 
-    @Value("${mqtt.broker.topics[3]}")
+    @Value("${mqtt.broker.topics[1]}")
     private String serviceEventTopic;
-
-    @Bean
-    public MqttConnectOptions mqttConnectOptions() {
-        MqttConnectOptions option = new MqttConnectOptions();
-        option.setServerURIs(new String[] {brokerUrl});
-        return option;
-    }
 
     @Bean
     public MqttPahoClientFactory mqttClientFactory() {
         DefaultMqttPahoClientFactory factory = new DefaultMqttPahoClientFactory();
-        factory.setConnectionOptions(mqttConnectOptions());
+        MqttConnectOptions options = new MqttConnectOptions();
+        options.setServerURIs(new String[] {brokerUrl});
+        factory.setConnectionOptions(options);
         return factory;
     }
 
@@ -67,10 +56,10 @@ public class MqttConfig {
     }
 
     @Bean
-    public MqttPahoMessageDrivenChannelAdapter inbound(MqttPahoClientFactory mqttPahoClientFactory) {
+    public MessageProducer inbound(MqttPahoClientFactory mqttPahoClientFactory) {
         MqttPahoMessageDrivenChannelAdapter adapter =
                 new MqttPahoMessageDrivenChannelAdapter(
-                        brokerUrl, "client", mqttPahoClientFactory, camVideoTopic, camStreamTopic, serviceEventTopic, serviceEnvInfoTopic);
+                        brokerUrl, "client", mqttPahoClientFactory, serviceEventTopic, serviceEnvInfoTopic);
         adapter.setCompletionTimeout(5000);
         adapter.setConverter(new DefaultPahoMessageConverter());
         adapter.setQos(1);

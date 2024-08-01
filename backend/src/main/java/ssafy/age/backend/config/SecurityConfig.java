@@ -44,7 +44,7 @@ public class SecurityConfig {
                                         .requestMatchers(
                                                 "/api/v1/members",
                                                 "/api/v1/members/login",
-                                                "api/v1/cams/videos/*/stream",
+                                                "/api/v1/cams/videos/*/stream",
                                                 "/swagger-ui/**",
                                                 "/v3/api-docs/**")
                                         .permitAll()
