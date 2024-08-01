@@ -36,10 +36,10 @@ public class MqttConfig {
 
     @Bean
     @ServiceActivator(inputChannel = "mqttOutboundChannel")
-    public MessageHandler mqttOutbound() {
+    public MessageHandler mqttOutbound(MqttPahoClientFactory mqttClientFactory) {
         MqttPahoMessageHandler messageHandler =
-                new MqttPahoMessageHandler("serverClient", mqttClientFactory());
-        messageHandler.setDefaultTopic("test/topic");
+                new MqttPahoMessageHandler("serverClient", mqttClientFactory);
+        messageHandler.setDefaultTopic("/topic");
         return messageHandler;
     }
 
