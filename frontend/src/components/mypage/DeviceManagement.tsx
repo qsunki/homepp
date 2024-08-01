@@ -93,7 +93,7 @@ const DeviceManagement: React.FC = () => {
 
   const confirmDeleteDevice = async (id: number) => {
     try {
-      await updateCam(id, { status: 'DELETED' }); // 실제 API에 맞게 수정 필요
+      await updateCam(id, { status: 'UNREGISTERED' }); // 실제 API에 맞게 수정 필요
       setDevices((prevDevices) =>
         prevDevices.filter((device) => device.camId !== id)
       );
