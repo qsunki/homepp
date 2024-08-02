@@ -40,6 +40,9 @@ const MyPage: React.FC = () => {
   };
 
   const verifyPassword = (inputPassword: string) => {
+    console.log('Input password:', inputPassword); // 입력 비밀번호 확인용 로그 추가
+    console.log('Stored password:', password); // 저장된 비밀번호 확인용 로그 추가
+
     if (inputPassword === password) {
       openModal(<EditProfile onClose={closeModal} />);
     } else {

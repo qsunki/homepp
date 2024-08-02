@@ -14,12 +14,22 @@ interface UserState {
     terms: boolean;
   };
   token: string | null;
-  setUser: (userId: number, email: string, token: string) => void;
+  setUser: (
+    userId: number,
+    email: string,
+    password: string,
+    token: string
+  ) => void;
   setPhoneNumber: (phoneNumber: string) => void;
   setEmail: (email: string) => void;
   setPassword: (password: string) => void;
   setCheckboxes: (checkboxes: Partial<UserState['checkboxes']>) => void;
-  login: (userId: number, email: string, token: string) => void;
+  login: (
+    userId: number,
+    email: string,
+    password: string,
+    token: string
+  ) => void;
   logout: () => void;
 }
 
@@ -36,9 +46,9 @@ const useUserStore = create<UserState>((set) => ({
     terms: false,
   },
   token: localStorage.getItem('token'), // 초기 상태에 로컬 스토리지에서 토큰 가져오기
-  setUser: (userId, email, token) => {
-    console.log('setUser called:', { userId, email, token }); // 디버깅용 콘솔 메시지
-    set({ userId: userId || null, email, isLoggedIn: true, token });
+  setUser: (userId, email, password, token) => {
+    console.log('setUser called:', { userId, email, password, token }); // 디버깅용 콘솔 메시지
+    set({ userId: userId || null, email, password, isLoggedIn: true, token });
     localStorage.setItem('token', token); // 로그인 시 토큰 저장
     setAuthToken(token);
   },
@@ -49,11 +59,12 @@ const useUserStore = create<UserState>((set) => ({
     set((state) => ({
       checkboxes: { ...state.checkboxes, ...checkboxes },
     })),
-  login: (userId, email, token) => {
-    console.log('login called:', { userId, email, token }); // 디버깅용 콘솔 메시지
+  login: (userId, email, password, token) => {
+    console.log('login called:', { userId, email, password, token }); // 디버깅용 콘솔 메시지
     set({
       userId: userId || null,
       email,
+      password,
       isLoggedIn: true,
       token,
     });
