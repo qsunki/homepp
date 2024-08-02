@@ -19,6 +19,7 @@ import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.cam.persistence.CamRepository;
 import ssafy.age.backend.cam.web.CamResponseDto;
 import ssafy.age.backend.cam.web.StreamResponseDto;
+import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
 import ssafy.age.backend.mqtt.MqttService;
@@ -104,7 +105,8 @@ public class CamService {
 
     @Transactional
     public CamResponseDto createCam(String email, String ip) {
-        Member member = memberRepository.findByEmail(email);
+        Member member =
+                memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
         String region = getRegion(ip);
         Cam cam = camRepository.save(Cam.builder().ip(ip).member(member).region(region).build());
         member.getCamList().add(cam);
