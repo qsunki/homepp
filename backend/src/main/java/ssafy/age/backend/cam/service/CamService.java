@@ -2,13 +2,12 @@ package ssafy.age.backend.cam.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-
-import jakarta.transaction.Transactional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -74,12 +73,12 @@ public class CamService {
             JsonNode jsonNode = objectMapper.readTree(getJsonData(ip));
 
             return jsonNode.get("response")
-                            .get("whois")
-                            .get("korean")
-                            .get("user")
-                            .get("netinfo")
-                            .get("addr")
-                            .asText();
+                    .get("whois")
+                    .get("korean")
+                    .get("user")
+                    .get("netinfo")
+                    .get("addr")
+                    .asText();
         } catch (Exception e) {
             throw new JsonParsingException();
         }
