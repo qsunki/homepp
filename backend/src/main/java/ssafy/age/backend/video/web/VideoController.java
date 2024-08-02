@@ -1,7 +1,6 @@
 package ssafy.age.backend.video.web;
 
 import jakarta.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -47,9 +46,10 @@ public class VideoController {
     }
 
     @GetMapping("/videos/{videoId}/stream")
-    public ResponseEntity<Resource> streamVideo (
+    public ResponseEntity<Resource> streamVideo(
             @PathVariable Long videoId, HttpServletRequest request) {
-        StreamResponseDto streamResponseDto = videoService.streamVideo(videoId, request.getHeader(HttpHeaders.RANGE));
+        StreamResponseDto streamResponseDto =
+                videoService.streamVideo(videoId, request.getHeader(HttpHeaders.RANGE));
         return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
                 .headers(streamResponseDto.getHeaders())
                 .contentType(MediaType.valueOf("video/mp4"))

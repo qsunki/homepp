@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface EnvInfoRepository extends JpaRepository<EnvInfo, Long> {
 
-    List<EnvInfo> findByCamId(Long camId);
+    List<EnvInfo> findAllByCamId(Long camId);
 }

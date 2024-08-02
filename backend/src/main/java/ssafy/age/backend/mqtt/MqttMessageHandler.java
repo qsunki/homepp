@@ -8,10 +8,9 @@ import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.mqtt.support.MqttHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHandler;
-import org.springframework.messaging.MessagingException;
 import org.springframework.stereotype.Component;
-import ssafy.age.backend.envInfo.service.EnvInfoDto;
 import ssafy.age.backend.envInfo.service.EnvInfoService;
+import ssafy.age.backend.envInfo.web.EnvInfoReceivedDto;
 import ssafy.age.backend.event.service.EventDto;
 import ssafy.age.backend.event.service.EventService;
 
@@ -31,15 +30,17 @@ public class MqttMessageHandler implements MessageHandler {
         assert topic != null;
         if (topic.equals("server/envInfo")) {
             try {
-                EnvInfoDto envInfoDto = objectMapper.readValue((String) message.getPayload(), EnvInfoDto.class);
-                envInfoService.save(envInfoDto);
+                EnvInfoReceivedDto envInfoReceivedDto =
+                        objectMapper.readValue(
+                                (String) message.getPayload(), EnvInfoReceivedDto.class);
+                envInfoService.save(envInfoReceivedDto);
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
-        }
-        else if (topic.equals("server/event")) {
+        } else if (topic.equals("server/event")) {
             try {
-                EventDto eventDto = objectMapper.readValue((String) message.getPayload(), EventDto.class);
+                EventDto eventDto =
+                        objectMapper.readValue((String) message.getPayload(), EventDto.class);
                 eventService.save(eventDto);
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);

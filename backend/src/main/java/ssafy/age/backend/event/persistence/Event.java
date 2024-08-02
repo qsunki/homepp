@@ -2,7 +2,6 @@ package ssafy.age.backend.event.persistence;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import ssafy.age.backend.cam.persistence.Cam;

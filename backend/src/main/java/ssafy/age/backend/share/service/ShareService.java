@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ssafy.age.backend.auth.service.AuthService;
+import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
 import ssafy.age.backend.share.exception.AccessDeniedException;
@@ -31,8 +32,10 @@ public class ShareService {
     @Transactional
     public ShareDto createShare(String email, String sharedMemberEmail, String nickname) {
         verifyLoginUser(email);
-        Member member = memberRepository.findByEmail(email);
-        Member sharedMember = memberRepository.findByEmail(sharedMemberEmail);
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(MemberNotFoundException::new);
+        Member sharedMember = memberRepository.findByEmail(sharedMemberEmail)
+                .orElseThrow(MemberNotFoundException::new);
         if (sharedMember == null) {
             throw new RuntimeException();
         }
@@ -70,8 +73,10 @@ public class ShareService {
     }
 
     private void verifyLoginUser(String email) {
-        Member loginMember = memberRepository.findByEmail(authService.getMemberEmail());
-        Member member = memberRepository.findByEmail(email);
+        Member loginMember = memberRepository.findByEmail(authService.getMemberEmail())
+                .orElseThrow(MemberNotFoundException::new);
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(MemberNotFoundException::new);
 
         if (member != loginMember) {
             throw new AccessDeniedException();

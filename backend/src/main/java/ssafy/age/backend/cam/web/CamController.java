@@ -64,9 +64,9 @@ public class CamController {
             return camService.updateCamName(camId, camRequestDto.getName());
         }
     }
-    //
-    //    @GetMapping("/{camId}/envInfos")
-    //    public List<EnvInfoResponseDto> getEnvInfos(@PathVariable Long camId) {
-    //        return envInfoService.findAllByCamId(camId);
-    //    }
+
+    @GetMapping("/{camId}/stream")
+    public StreamResponseDto streamCam(@PathVariable Long camId) {
+        return camService.streamStart(camId);
+    }
 }
