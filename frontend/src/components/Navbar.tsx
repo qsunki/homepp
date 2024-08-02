@@ -18,7 +18,15 @@ interface Notification {
   timestamp: Date;
 }
 
-const Navbar: React.FC = () => {
+interface NavbarProps {
+  notifications: Notification[];
+  onDeleteNotification: (id: number) => void;
+}
+
+const Navbar: React.FC<NavbarProps> = ({
+  notifications,
+  onDeleteNotification,
+}) => {
   const [toggleMenu, setToggleMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string>('/');
@@ -28,33 +36,33 @@ const Navbar: React.FC = () => {
   const location = useLocation();
   const navRef = useRef<HTMLDivElement>(null);
 
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {
-      id: 1,
-      message: 'Unauthorized access detected in the living room.',
-      timestamp: new Date(),
-    },
-    {
-      id: 2,
-      message: 'Front door left open.',
-      timestamp: new Date(),
-    },
-    {
-      id: 3,
-      message: 'Motion detected in the backyard.',
-      timestamp: new Date(),
-    },
-    {
-      id: 4,
-      message: 'Smoke alarm triggered in the kitchen.',
-      timestamp: new Date(),
-    },
-    {
-      id: 5,
-      message: 'Water leakage detected in the basement.',
-      timestamp: new Date(),
-    },
-  ]);
+  // const [notifications, setNotifications] = useState<Notification[]>([
+  //   {
+  //     id: 1,
+  //     message: 'Unauthorized access detected in the living room.',
+  //     timestamp: new Date(),
+  //   },
+  //   {
+  //     id: 2,
+  //     message: 'Front door left open.',
+  //     timestamp: new Date(),
+  //   },
+  //   {
+  //     id: 3,
+  //     message: 'Motion detected in the backyard.',
+  //     timestamp: new Date(),
+  //   },
+  //   {
+  //     id: 4,
+  //     message: 'Smoke alarm triggered in the kitchen.',
+  //     timestamp: new Date(),
+  //   },
+  //   {
+  //     id: 5,
+  //     message: 'Water leakage detected in the basement.',
+  //     timestamp: new Date(),
+  //   },
+  // ]);
 
   useEffect(() => {
     setActiveMenu(location.pathname);
@@ -103,12 +111,6 @@ const Navbar: React.FC = () => {
     if (!toggleMenu) {
       setShowNotifications(false);
     }
-  };
-
-  const handleDeleteNotification = (id: number) => {
-    setNotifications((prev) =>
-      prev.filter((notification) => notification.id !== id)
-    );
   };
 
   return (
@@ -224,14 +226,14 @@ const Navbar: React.FC = () => {
                         </div>
                         <div className="flex space-x-2">
                           <button
-                            onClick={() => handleNavigate('/videodetail')}
+                            onClick={() => handleNavigate('/videodetail')} // 이 부분 확인
                             className="text-blue-500 hover:text-blue-700 transition-colors"
                           >
                             <FaArrowRight />
                           </button>
                           <button
                             onClick={() =>
-                              handleDeleteNotification(notification.id)
+                              onDeleteNotification(notification.id)
                             }
                             className="text-red-500 hover:text-red-700 transition-colors"
                           >
