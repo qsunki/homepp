@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +17,9 @@ import ssafy.age.backend.cam.exception.JsonParsingException;
 import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.cam.persistence.CamRepository;
 import ssafy.age.backend.cam.web.CamResponseDto;
+import ssafy.age.backend.cam.web.StreamResponseDto;
 import ssafy.age.backend.member.persistence.Member;
+import ssafy.age.backend.mqtt.MqttService;
 
 @Service
 @Slf4j
@@ -25,6 +28,7 @@ public class CamService {
 
     private final CamRepository camRepository;
     private final CamMapper camMapper = CamMapper.INSTANCE;
+    private final MqttService mqttService;
 
     @Value("${openAPI.secret}")
     private String key;
@@ -109,5 +113,14 @@ public class CamService {
     public CamResponseDto findCamById(Long camId) {
         Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
         return camMapper.toCamResponseDto(cam);
+    }
+
+    public StreamResponseDto streamStart(Long camId) {
+        if (!camRepository.existsById(camId)) {
+            throw new CamNotFoundException();
+        }
+        String key = UUID.randomUUID().toString();
+        mqttService.requestStreaming(camId, key);
+        return new StreamResponseDto(key);
     }
 }
