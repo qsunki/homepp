@@ -121,7 +121,9 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
 
       // 중복 전화번호 확인
       try {
+        console.log(`Checking phone number: ${phoneNumber}`);
         const isDuplicate = await checkDuplicatePhoneNumber(phoneNumber);
+        console.log(`Phone number ${phoneNumber} is duplicate: ${isDuplicate}`);
         if (isDuplicate) {
           setErrorMessage('이미 사용 중인 휴대폰 번호입니다.');
           return;
@@ -140,7 +142,9 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
 
       // 중복 이메일 확인
       try {
+        console.log(`Checking email: ${email}`);
         const isDuplicate = await checkDuplicateEmail(email);
+        console.log(`Email ${email} is duplicate: ${isDuplicate}`);
         if (isDuplicate) {
           setErrorMessage('이미 사용 중인 이메일입니다.');
           return;

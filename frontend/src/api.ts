@@ -46,7 +46,9 @@ interface CamData {
 // 중복 이메일 체크 API 호출 함수
 export const checkDuplicateEmail = async (email: string): Promise<boolean> => {
   try {
+    console.log(`Checking duplicate email: ${email}`);
     const response = await api.get<boolean>(`/members/emails/${email}`);
+    console.log('Email check response:', response.data);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -66,9 +68,11 @@ export const checkDuplicatePhoneNumber = async (
   phoneNumber: string
 ): Promise<boolean> => {
   try {
+    console.log(`Checking duplicate phone number: ${phoneNumber}`);
     const response = await api.get<boolean>(
       `/members/phone-numbers/${phoneNumber}`
     );
+    console.log('Phone number check response:', response.data);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
