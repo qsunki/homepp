@@ -32,6 +32,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('token'); // 로컬 스토리지에서 JWT 토큰 가져오기
+    const savedPassword = localStorage.getItem('password');
     console.log('useEffect token:', token); // 로컬 스토리지에 저장된 토큰 확인
     if (token) {
       setAuthToken(token); // JWT 토큰 설정
@@ -41,7 +42,7 @@ const App: React.FC = () => {
           console.log('getUserInfo response:', email); // API 응답 확인
           if (email) {
             // email이 응답으로 오는 경우, 임의의 userId를 설정
-            setUser(1, email, token);
+            setUser(1, email, savedPassword || '', token);
             registerFcmToken(email); // FCM 토큰 등록 함수 호출
             handleForegroundNotification();
           } else {
