@@ -4,7 +4,10 @@ spring:
     username: ${MYSQL_USER}
     password: ${MYSQL_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
-
+  servlet:
+    multipart:
+      max-file-size: 5GB
+      max-request-size: 5GB
   sql:
     init:
       mode: always
@@ -31,6 +34,8 @@ logging:
     ssafy:
       age:
         backend: debug
+    web: debug
+    sql: debug
 
 jwt:
   secret: ${JWT_SECRET}
