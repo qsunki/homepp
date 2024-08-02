@@ -38,7 +38,7 @@ const useUserStore = create<UserState>((set) => ({
   token: localStorage.getItem('token'), // 초기 상태에 로컬 스토리지에서 토큰 가져오기
   setUser: (userId, email, token) => {
     console.log('setUser called:', { userId, email, token }); // 디버깅용 콘솔 메시지
-    set({ userId, email, isLoggedIn: true, token });
+    set({ userId: userId || null, email, isLoggedIn: true, token });
     localStorage.setItem('token', token); // 로그인 시 토큰 저장
     setAuthToken(token);
   },
@@ -52,7 +52,7 @@ const useUserStore = create<UserState>((set) => ({
   login: (userId, email, token) => {
     console.log('login called:', { userId, email, token }); // 디버깅용 콘솔 메시지
     set({
-      userId,
+      userId: userId || null,
       email,
       isLoggedIn: true,
       token,

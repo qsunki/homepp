@@ -28,10 +28,11 @@ const App: React.FC = () => {
       setAuthToken(token); // 토큰 설정
       getUserInfo()
         .then((response) => {
-          const user = response.data;
-          console.log('getUserInfo response:', user); // API 응답 확인
-          if (user.userId && user.email) {
-            setUser(user.userId, user.email, token); // 사용자 정보를 설정
+          const email = response.data;
+          console.log('getUserInfo response:', email); // API 응답 확인
+          if (email) {
+            // email이 응답으로 오는 경우, 임의의 userId를 설정
+            setUser(1, email, token);
           } else {
             console.log('User info not valid, logging out');
             logout();
