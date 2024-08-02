@@ -1,6 +1,10 @@
 import React, { useState, useEffect, FormEvent } from 'react';
 import { useUserStore } from '../stores/useUserStore';
-import { registerUser, checkDuplicateEmail, checkDuplicatePhoneNumber } from '../api'; // 추가
+import {
+  registerUser,
+  checkDuplicateEmail,
+  checkDuplicatePhoneNumber,
+} from '../api'; // 추가
 import backArrow from '../assets/signup/backarrow.png';
 import axios from 'axios';
 
