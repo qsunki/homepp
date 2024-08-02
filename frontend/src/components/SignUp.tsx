@@ -4,7 +4,7 @@ import {
   registerUser,
   checkDuplicateEmail,
   checkDuplicatePhoneNumber,
-} from '../api'; // 추가
+} from '../api';
 import backArrow from '../assets/signup/backarrow.png';
 import axios from 'axios';
 
@@ -128,6 +128,7 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
         }
       } catch (error) {
         setErrorMessage('휴대폰 번호 확인 중 오류가 발생했습니다.');
+        console.error('휴대폰 번호 확인 중 오류:', error);
         return;
       }
     } else if (step === 3) {
@@ -146,6 +147,7 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
         }
       } catch (error) {
         setErrorMessage('이메일 확인 중 오류가 발생했습니다.');
+        console.error('이메일 확인 중 오류:', error);
         return;
       }
     } else if (step === 4) {
