@@ -76,7 +76,7 @@ const useUserStore = create<UserState>((set) => ({
     localStorage.removeItem('token');
     setAuthToken(null);
   },
-  setToken: (token) => {
+  setToken: (token: string | null) => {
     if (token) {
       localStorage.setItem('token', token);
       setAuthToken(token);
