@@ -32,7 +32,7 @@ const App: React.FC = () => {
           console.log('getUserInfo response:', email); // API 응답 확인
           if (email) {
             // email이 응답으로 오는 경우, 임의의 userId를 설정
-            setUser(1, email, token);
+            setUser(1, email, '', token); // 비밀번호 인자를 추가합니다
           } else {
             console.log('User info not valid, logging out');
             logout();
