@@ -14,6 +14,10 @@ spring:
     redis:
       password: ${REDIS_PASSWORD}
 
+server:
+  tomcat:
+    max-http-form-post-size: 5GB
+
 jwt:
   secret: ${JWT_SECRET}
 

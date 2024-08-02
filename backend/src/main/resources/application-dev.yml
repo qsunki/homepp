@@ -22,6 +22,10 @@ spring:
       host: dev-redis-1
       password: ${REDIS_PASSWORD}
 
+server:
+  tomcat:
+    max-http-form-post-size: 5GB
+
 logging:
   level:
     ssafy:
