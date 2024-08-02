@@ -1,11 +1,6 @@
 import React, { useState } from 'react';
 import { useVideoStore, Video } from '../../stores/useVideoStore';
 import ReactPlayer from 'react-player';
-import playIcon from '../../assets/videodetail/play.png';
-import pauseIcon from '../../assets/videodetail/pause.png';
-import volumeIcon from '../../assets/videodetail/volume.png';
-import pipIcon from '../../assets/videodetail/pip.png';
-import fullscreenIcon from '../../assets/videodetail/fullscreen.png';
 import fireIcon from '../../assets/filter/fire.png';
 import soundIcon from '../../assets/filter/sound.png';
 import thiefIcon from '../../assets/filter/thief.png';
@@ -19,38 +14,13 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({
   isLive = false,
   showDetails = false,
 }) => {
-  const {
-    selectedVideoId,
-    videos,
-    isPlaying,
-    setIsPlaying,
-    volume,
-    setVolume,
-    reportVideo,
-  } = useVideoStore();
-  const [showVolumeSlider, setShowVolumeSlider] = useState<boolean>(false);
-  // const [isRecording, setIsRecording] = useState<boolean>(false);
+  const { selectedVideoId, videos, isPlaying, volume, reportVideo } =
+    useVideoStore();
   const [showReportConfirm, setShowReportConfirm] = useState<boolean>(false);
 
   const selectedVideo: Video | undefined = videos.find(
     (video) => video.id === selectedVideoId
   );
-
-  const handlePlayPause = () => {
-    setIsPlaying(!isPlaying);
-  };
-
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setVolume(Number(e.target.value));
-  };
-
-  const handleVolumeClick = () => {
-    setShowVolumeSlider(!showVolumeSlider);
-  };
-
-  // const handleRecordClick = () => {
-  //   setIsRecording(!isRecording);
-  // };
 
   const handleReportClick = () => {
     setShowReportConfirm(true);
@@ -128,46 +98,6 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({
             height="auto"
             style={{ aspectRatio: '11 / 7' }}
           />
-          <div className="flex justify-between items-center mt-2 border-t pt-2 px-4 relative">
-            <div className="flex items-center">
-              <button className="mr-2" onClick={handlePlayPause}>
-                <img
-                  className="w-5 h-5"
-                  src={isPlaying ? pauseIcon : playIcon}
-                  alt="Play/Pause"
-                />
-              </button>
-              <button className="mr-2 relative" onClick={handleVolumeClick}>
-                <img className="w-7 h-7" src={volumeIcon} alt="Volume" />
-              </button>
-              <div>
-                {showVolumeSlider && (
-                  <div className="absolute left-full bottom-1/2 transform translate-x-2 translate-y-1/2 bg-transparent p-2">
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={volume}
-                      onChange={handleVolumeChange}
-                      className="w-24 bg-transparent"
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-            <div className="flex items-center">
-              <button className="mr-2">
-                <img className="w-6 h-6" src={pipIcon} alt="PIP Mode" />
-              </button>
-              <button>
-                <img
-                  className="w-8 h-8"
-                  src={fullscreenIcon}
-                  alt="Fullscreen"
-                />
-              </button>
-            </div>
-          </div>
           {showDetails && (
             <div className="flex justify-between items-center mt-4">
               <div className="text-xl">{selectedVideo.timestamp}</div>
