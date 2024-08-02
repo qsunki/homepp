@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +19,7 @@ import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.cam.persistence.CamRepository;
 import ssafy.age.backend.cam.web.CamResponseDto;
 import ssafy.age.backend.member.persistence.Member;
+import ssafy.age.backend.member.persistence.MemberRepository;
 
 @Service
 @Slf4j
@@ -25,6 +28,7 @@ public class CamService {
 
     private final CamRepository camRepository;
     private final CamMapper camMapper = CamMapper.INSTANCE;
+    private final MemberRepository memberRepository;
 
     @Value("${openAPI.secret}")
     private String key;
@@ -44,7 +48,6 @@ public class CamService {
     public CamResponseDto registerCam(Long camId, Member member) {
         Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
         cam.registerMember(member);
-        setCamRegion(cam);
 
         return camMapper.toCamResponseDto(camRepository.save(cam));
     }
@@ -61,35 +64,31 @@ public class CamService {
         }
     }
 
-    private void setCamRegion(Cam cam) {
+    private String getRegion(String ip) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode jsonNode = objectMapper.readTree(getJsonData(cam));
+            JsonNode jsonNode = objectMapper.readTree(getJsonData(ip));
 
-            String region =
-                    jsonNode.get("response")
+            return jsonNode.get("response")
                             .get("whois")
                             .get("korean")
                             .get("user")
                             .get("netinfo")
                             .get("addr")
                             .asText();
-
-            cam.setRegion(region);
-            camRepository.save(cam);
         } catch (Exception e) {
             throw new JsonParsingException();
         }
     }
 
-    private String getJsonData(Cam cam) {
+    private String getJsonData(String ip) {
         try {
             URL url =
                     new URL(
                             "https://apis.data.go.kr/B551505/whois/ip_address?serviceKey="
                                     + key
                                     + "&query="
-                                    + cam.getIp()
+                                    + ip
                                     + "&answer=json");
             BufferedReader br =
                     new BufferedReader(
@@ -100,9 +99,12 @@ public class CamService {
         }
     }
 
-    public CamResponseDto createCam(String ip) {
-        Cam cam = camRepository.save(Cam.builder().ip(ip).build());
-        setCamRegion(cam);
+    @Transactional
+    public CamResponseDto createCam(String email, String ip) {
+        Member member = memberRepository.findByEmail(email);
+        String region = getRegion(ip);
+        Cam cam = camRepository.save(Cam.builder().ip(ip).member(member).region(region).build());
+        member.getCamList().add(cam);
         return camMapper.toCamResponseDto(cam);
     }
 
