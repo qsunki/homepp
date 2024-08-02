@@ -11,6 +11,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jcodec.api.JCodecException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -37,6 +38,7 @@ import ssafy.age.backend.video.web.VideoResponseDto;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class VideoService {
 
     private final VideoRepository videoRepository;
@@ -78,6 +80,7 @@ public class VideoService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public VideoResponseDto getVideoById(Long videoId) {
 
         Video video = videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
@@ -210,12 +213,7 @@ public class VideoService {
 
             File videoFile = resource.getFile();
 
-            long seconds =
-                    ChronoUnit.SECONDS.between(timeInfo.getStartTime(), timeInfo.getEndTime());
-            long minutes =
-                    ChronoUnit.MINUTES.between(timeInfo.getStartTime(), timeInfo.getEndTime());
-            long hours = ChronoUnit.HOURS.between(timeInfo.getStartTime(), timeInfo.getEndTime());
-            long videoLength = seconds + minutes * 60 + hours * 60 * 60;
+            long videoLength = ChronoUnit.SECONDS.between(timeInfo.getStartTime(), timeInfo.getEndTime());
 
             Video video =
                     videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
@@ -241,11 +239,10 @@ public class VideoService {
             }
 
             video.setThumbnailUrl(thumbnailFilePath);
-
             cam.addVideo(video);
             camRepository.save(cam);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("An error occurred while saving the video on server: {}", e.getMessage());
             throw new CamNotFoundException();
         }
     }
