@@ -45,8 +45,13 @@ class ShareServiceTest {
         Member differentMember = mock(Member.class);
 
         given(authService.getMemberEmail()).willReturn(differentEmail);
-        given(memberRepository.findByEmail(differentEmail).orElseThrow(MemberNotFoundException::new)).willReturn(differentMember);
-        given(memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new)).willReturn(member);
+        given(
+                        memberRepository
+                                .findByEmail(differentEmail)
+                                .orElseThrow(MemberNotFoundException::new))
+                .willReturn(differentMember);
+        given(memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new))
+                .willReturn(member);
 
         // when & then
         assertThrows(
@@ -102,8 +107,13 @@ class ShareServiceTest {
         shareDto.setNickname(nickname);
 
         given(authService.getMemberEmail()).willReturn(email);
-        given(memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new)).willReturn(member);
-        given(memberRepository.findByEmail(sharedMemberEmail).orElseThrow(MemberNotFoundException::new)).willReturn(sharedMember);
+        given(memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new))
+                .willReturn(member);
+        given(
+                        memberRepository
+                                .findByEmail(sharedMemberEmail)
+                                .orElseThrow(MemberNotFoundException::new))
+                .willReturn(sharedMember);
         given(shareRepository.save(any(Share.class))).willReturn(share);
         given(shareMapper.toShareDto(any(Share.class))).willReturn(shareDto);
 
@@ -125,7 +135,8 @@ class ShareServiceTest {
         Member member = mock(Member.class);
 
         given(authService.getMemberEmail()).willReturn(email);
-        given(memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new)).willReturn(member);
+        given(memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new))
+                .willReturn(member);
         given(memberRepository.findByEmail(sharedMemberEmail)).willReturn(null);
 
         // when & then
@@ -159,8 +170,13 @@ class ShareServiceTest {
         updatedShareDto.setNickname(newNickname);
 
         given(authService.getMemberEmail()).willReturn(email);
-        given(memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new)).willReturn(member);
-        given(memberRepository.findByEmail(sharedMemberEmail).orElseThrow(MemberNotFoundException::new)).willReturn(sharedMember);
+        given(memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new))
+                .willReturn(member);
+        given(
+                        memberRepository
+                                .findByEmail(sharedMemberEmail)
+                                .orElseThrow(MemberNotFoundException::new))
+                .willReturn(sharedMember);
         given(shareRepository.findByMemberEmailAndSharedMemberEmail(email, sharedMemberEmail))
                 .willReturn(share);
         given(shareMapper.toShareDto(any(Share.class))).willReturn(updatedShareDto);

@@ -213,7 +213,8 @@ public class VideoService {
 
             File videoFile = resource.getFile();
 
-            long videoLength = ChronoUnit.SECONDS.between(timeInfo.getStartTime(), timeInfo.getEndTime());
+            long videoLength =
+                    ChronoUnit.SECONDS.between(timeInfo.getStartTime(), timeInfo.getEndTime());
 
             Video video =
                     videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);

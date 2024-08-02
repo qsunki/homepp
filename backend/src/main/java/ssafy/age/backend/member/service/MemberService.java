@@ -23,14 +23,17 @@ public class MemberService implements UserDetailsService {
     private final MemberMapper mapper = MemberMapper.INSTANCE;
 
     public MemberResponseDto findByEmail(String email) {
-        return mapper.toMemberResponseDto(memberRepository.findByEmail(email)
-                .orElseThrow(MemberNotFoundException::new));
+        return mapper.toMemberResponseDto(
+                memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new));
     }
 
     public MemberResponseDto updateMember(String password, String phoneNumber) {
         try {
-            Member foundMember = memberRepository.findByEmail(authService.getMemberEmail())
-                    .orElseThrow(MemberNotFoundException::new);;
+            Member foundMember =
+                    memberRepository
+                            .findByEmail(authService.getMemberEmail())
+                            .orElseThrow(MemberNotFoundException::new);
+            ;
             foundMember.updateMember(password, phoneNumber);
             memberRepository.save(foundMember);
             return mapper.toMemberResponseDto(foundMember);
@@ -43,8 +46,10 @@ public class MemberService implements UserDetailsService {
         try {
             String loggedInEmail = authService.getMemberEmail();
             if (email.equals(loggedInEmail)) {
-                memberRepository.delete(memberRepository.findByEmail(email)
-                        .orElseThrow(MemberNotFoundException::new));
+                memberRepository.delete(
+                        memberRepository
+                                .findByEmail(email)
+                                .orElseThrow(MemberNotFoundException::new));
             } else {
                 throw new MemberInvalidAccessException();
             }
@@ -65,8 +70,7 @@ public class MemberService implements UserDetailsService {
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         try {
-            return memberRepository.findByEmail(username)
-                    .orElseThrow(MemberNotFoundException::new);
+            return memberRepository.findByEmail(username).orElseThrow(MemberNotFoundException::new);
         } catch (Exception e) {
             throw new MemberNotFoundException();
         }

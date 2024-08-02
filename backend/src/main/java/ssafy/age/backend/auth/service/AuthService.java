@@ -61,8 +61,8 @@ public class AuthService {
         Authentication authentication =
                 authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(MemberNotFoundException::new);
+        Member member =
+                memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
 
         // 3. 인증 정보를 기반으로 JWT 토큰 생성
         TokenDto token = tokenProvider.generateTokenDto(authentication);
