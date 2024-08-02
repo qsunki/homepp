@@ -1,0 +1,460 @@
+.navbar {
+  background-color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  height: 60px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  /* z-index: 1000; */
+}
+
+.logo img {
+  height: 40px;
+  cursor: pointer;
+}
+
+.hamburgerIcon {
+  display: none;
+  font-size: 24px;
+  cursor: pointer;
+  position: absolute;
+  right: 20px;
+}
+
+.navLinks {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.navLinks li {
+  margin: 0 10px;
+}
+
+.navLinks a {
+  text-decoration: none;
+  color: black;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.navIcons {
+  display: flex;
+  align-items: center;
+}
+
+.alertBellIcon,
+.profileIcon {
+  height: 30px;
+  margin-left: 20px;
+  cursor: pointer;
+}
+
+.notificationIcon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* 중앙 정렬 */
+}
+
+.alertText {
+  margin-left: 8px;
+  font-size: 16px;
+  color: black;
+  font-weight: bold;
+  display: block; /* 모든 화면에서 보이게 설정 */
+}
+
+.alertTextDesktop {
+  margin-left: 8px;
+  font-size: 16px;
+  color: black;
+  font-weight: bold;
+  display: none; /* 큰 화면에서만 보이도록 설정 */
+}
+
+.notificationCount {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: red;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 12px;
+  z-index: 1001;
+}
+
+.notificationCountMenu {
+  position: static; /* 알림 수를 중앙 정렬 시 고정 */
+  margin-left: 8px; /* 텍스트와 알림 수 사이 간격 */
+}
+
+.notifications {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.95); /* 반투명 백그라운드 */
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  width: 300px;
+  max-height: 300px; /* 최대 높이를 설정하여 4개의 알림만 보이도록 함 */
+  overflow-y: auto; /* 스크롤 가능하게 설정 */
+  padding: 10px;
+  z-index: 1001;
+  border-radius: 10px; /* 부드러운 테두리 */
+  backdrop-filter: blur(10px); /* 배경 블러 효과 */
+  scrollbar-width: none; /* 스크롤바 숨김 (파이어폭스) */
+  transition: opacity 0.3s ease-in-out; /* 부드러운 애니메이션 */
+}
+
+/* 스크롤바 숨김 */
+.notifications::-webkit-scrollbar {
+  display: none; /* 크롬, 사파리, 오페라에서 스크롤바 숨김 */
+}
+
+.notificationItem {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  background: rgba(255, 255, 255, 0.8);
+  width: 100%;
+  margin-bottom: 5px;
+  border-radius: 8px; /* 부드러운 테두리 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 부드러운 그림자 */
+  transition: transform 0.3s ease-in-out; /* 부드러운 애니메이션 */
+}
+
+.notificationItem:hover {
+  transform: translateY(-2px); /* 호버 시 살짝 위로 이동 */
+}
+
+.notificationItem p {
+  margin: 0;
+  flex-grow: 1;
+  font-size: 14px;
+  color: #333;
+}
+
+.notificationItem button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #007aff; /* 애플 블루 */
+  margin-left: 10px;
+  display: flex;
+  align-items: center;
+  transition: color 0.3s ease-in-out;
+}
+
+.notificationItem button:hover {
+  color: #005bb5; /* 호버 시 더 진한 블루 */
+}
+
+.partialItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid #eee;
+  height: 50px; /* 절반 크기로 보이도록 설정 */
+  overflow: hidden; /* 잘리도록 설정 */
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  width: 150px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  z-index: 1001;
+  border-radius: 10px; /* 부드러운 테두리 */
+  backdrop-filter: blur(10px); /* 배경 블러 효과 */
+  transition: opacity 0.3s ease-in-out;
+}
+
+.dropdownMenu a,
+.dropdownMenu button {
+  text-decoration: none;
+  color: #007aff; /* 애플 블루 */
+  padding: 5px 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  transition: color 0.3s ease-in-out;
+}
+
+.dropdownMenu a:hover,
+.dropdownMenu button:hover {
+  color: #005bb5; /* 호버 시 더 진한 블루 */
+}
+
+.menuItem {
+  position: relative;
+}
+
+.menuItemHeader {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  justify-content: center;
+}
+
+.menuItemHeader img {
+  margin-right: 8px; /* 아이콘과 텍스트 사이 간격 */
+}
+
+.subMenu {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  width: 100%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  z-index: 1001;
+  border-radius: 10px; /* 부드러운 테두리 */
+  backdrop-filter: blur(10px); /* 배경 블러 효과 */
+}
+
+.subMenu .notificationItem {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.subMenuLink {
+  display: block;
+  padding: 10px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  margin-bottom: 5px;
+  border-radius: 8px;
+  transition: background 0.3s ease-in-out;
+}
+
+.subMenuLink:hover {
+  background: rgba(240, 240, 240, 0.8);
+}
+
+.logoutButton {
+  display: block;
+  padding: 10px;
+  text-align: center;
+  background: #ff4d4d;
+  color: white;
+  border: 1px solid #ddd;
+  margin-top: 5px;
+  border-radius: 8px;
+  transition: background 0.3s ease-in-out;
+  margin-left: auto; /* 오른쪽으로 이동 */
+}
+
+.logoutButton:hover {
+  background: #ff1a1a;
+}
+
+/* 로그인 버튼 */
+.btn {
+  margin: 1rem;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  color: white;
+  border: none;
+  outline: none;
+  background: #007aff; /* 애플 블루 */
+}
+
+.btn-offset {
+  border-radius: 0;
+  box-shadow: 6px 6px 0 0 #007aff, inset 6px 6px 0 0 #007aff;
+  transition: 0.3s;
+}
+
+.btn-offset:hover {
+  background: transparent;
+  box-shadow: 0 0 0 0 #007aff, inset 108px 72px 0 0 #007aff;
+}
+
+.btnLogin {
+  background: #007aff; /* 애플 블루 */
+}
+
+/* 임시 로그인 상태 변경 버튼 */
+.toggleLoginBtn {
+  margin-left: 20px; /* 알림 버튼 왼쪽으로 이동 */
+  padding: 5px 10px;
+  cursor: pointer;
+  background-color: #f1f1f1;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+/* 미디어 쿼리 */
+@media (max-width: 768px) {
+  .navLinks {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    background: white;
+    width: 100%;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 10px 0;
+    z-index: 1001;
+    align-items: center; /* 중앙 정렬 */
+  }
+
+  .navLinks.show {
+    display: flex;
+  }
+
+  .navLinks li {
+    margin: 10px 0;
+    text-align: center; /* 텍스트 중앙 정렬 */
+  }
+
+  .hamburgerIcon {
+    display: block;
+  }
+
+  .navIcons {
+    display: none;
+  }
+
+  .menuItemHeader {
+    display: flex;
+    justify-content: center; /* 아이콘과 텍스트 중앙 정렬 */
+    padding: 10px 20px;
+  }
+
+  .menuItemHeader .notificationCountMenu {
+    margin-left: 8px; /* 텍스트와 알림 수 사이 간격 */
+  }
+
+  .subMenu {
+    top: auto;
+    left: 0;
+    position: relative;
+    background: #f9f9f9;
+    max-height: 200px; /* 최대 높이를 설정하여 2개의 알림만 보이도록 함 */
+    overflow-y: auto; /* 스크롤 가능하게 설정 */
+  }
+
+  .subMenu::-webkit-scrollbar {
+    display: none; /* 스크롤바 숨기기 */
+  }
+
+  .menuItem {
+    display: block;
+  }
+
+  .mobileOnly {
+    display: block;
+  }
+
+  .alertText {
+    display: block; /* 작은 화면에서만 보이도록 설정 */
+  }
+
+  .alertTextDesktop {
+    display: none; /* 작은 화면에서 보이지 않도록 설정 */
+  }
+}
+
+@media (min-width: 769px) {
+  .mobileOnly {
+    display: none;
+  }
+
+  .notifications {
+    max-height: 300px; /* 최대 높이를 설정하여 4개의 알림만 보이도록 함 */
+  }
+
+  .alertText {
+    display: none; /* 큰 화면에서 보이지 않도록 설정 */
+  }
+
+  .alertTextDesktop {
+    display: none; /* 큰 화면에서 보이지 않도록 설정 */
+  }
+}
+
+/* 타임스탬프 스타일 */
+.notificationTimestamp {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 5px;
+}
+
+/* 알림 항목 레이아웃 및 공간 확보 */
+.notificationItem {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  background: white;
+  width: 100%;
+  margin-bottom: 5px;
+  border-radius: 4px;
+}
+
+.notificationMessage {
+  margin: 0;
+  font-size: 14px;
+  color: #333;
+  margin-top: 5px;
+}
+
+.notificationActions {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.notificationActions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: black;
+  margin-left: 10px;
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .notificationItem {
+    padding: 20px;
+    font-size: 16px;
+  }
+
+  .notificationMessage {
+    font-size: 16px;
+  }
+
+  .notificationTimestamp {
+    font-size: 14px;
+  }
+
+  .notificationActions button {
+    font-size: 20px;
+  }
+
+  .subMenu {
+    width: 300px;
+    margin: 0 auto;
+  }
+}

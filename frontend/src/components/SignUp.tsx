@@ -1,6 +1,6 @@
 import React, { useState, useEffect, FormEvent } from 'react';
 import { useUserStore } from '../stores/useUserStore';
-import { registerUser } from '../api';
+import { registerUser, checkDuplicateEmail, checkDuplicatePhoneNumber } from '../api'; // 추가
 import backArrow from '../assets/signup/backarrow.png';
 import axios from 'axios';
 
@@ -114,10 +114,34 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
         setErrorMessage('휴대폰 번호를 확인해주세요.');
         return;
       }
+
+      // 중복 전화번호 확인
+      try {
+        const isDuplicate = await checkDuplicatePhoneNumber(phoneNumber);
+        if (isDuplicate) {
+          setErrorMessage('이미 사용 중인 휴대폰 번호입니다.');
+          return;
+        }
+      } catch (error) {
+        setErrorMessage('휴대폰 번호 확인 중 오류가 발생했습니다.');
+        return;
+      }
     } else if (step === 3) {
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailPattern.test(email)) {
         setErrorMessage('이메일을 확인해주세요.');
+        return;
+      }
+
+      // 중복 이메일 확인
+      try {
+        const isDuplicate = await checkDuplicateEmail(email);
+        if (isDuplicate) {
+          setErrorMessage('이미 사용 중인 이메일입니다.');
+          return;
+        }
+      } catch (error) {
+        setErrorMessage('이메일 확인 중 오류가 발생했습니다.');
         return;
       }
     } else if (step === 4) {
