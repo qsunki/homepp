@@ -32,9 +32,10 @@ jwt:
 mqtt:
   broker:
     url: "tcp://localhost:1883"
+    topics: server/envInfo, server/event
 
 openAPI:
   secret: ${OPEN_API_KEY}
 
 file:
-  dir: D:/videos/
+  dir: D:\

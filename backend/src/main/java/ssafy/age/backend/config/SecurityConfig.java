@@ -43,7 +43,10 @@ public class SecurityConfig {
                                 authorize
                                         .requestMatchers(
                                                 "/api/v1/members",
-                                                "api/v1/members/login",
+                                                "/api/v1/members/login",
+                                                "/api/*/members/phone-numbers/*",
+                                                "/api/*/members/emails/*",
+                                                "/api/v1/cams/videos/*/stream",
                                                 "/swagger-ui/**",
                                                 "/v3/api-docs/**",
                                                 "/ws/**")
