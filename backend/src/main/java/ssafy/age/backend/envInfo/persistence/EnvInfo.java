@@ -2,10 +2,7 @@ package ssafy.age.backend.envInfo.persistence;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.envInfo.service.RecordStatus;
 
@@ -21,8 +18,8 @@ public class EnvInfo {
     private Long id;
 
     private LocalDateTime recordedAt;
-    private double temperature;
-    private double humidity;
+    private Double temperature;
+    private Double humidity;
 
     @Enumerated(value = EnumType.STRING)
     private RecordStatus status;
@@ -31,4 +28,20 @@ public class EnvInfo {
     @JoinColumn(name = "cam_id")
     @Setter
     private Cam cam;
+
+    @Builder
+    public EnvInfo(
+            Long id,
+            LocalDateTime recordedAt,
+            Double temperature,
+            Double humidity,
+            RecordStatus status,
+            Cam cam) {
+        this.id = id;
+        this.recordedAt = recordedAt;
+        this.temperature = temperature;
+        this.humidity = humidity;
+        this.status = status;
+        this.cam = cam;
+    }
 }
