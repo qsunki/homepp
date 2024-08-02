@@ -6,13 +6,14 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import ssafy.age.backend.auth.exception.InvalidTokenException;
-import ssafy.age.backend.member.exception.MemberBadRequestException;
 
 @Component
 public class ExceptionHandlerFilter extends OncePerRequestFilter {
@@ -22,7 +23,7 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         try {
             filterChain.doFilter(request, response);
-        } catch (MemberBadRequestException e) {
+        } catch (BadRequestException e) {
             setErrorResponse(HttpStatus.BAD_REQUEST, request, response, e);
         } catch (InvalidTokenException e) {
             setErrorResponse(HttpStatus.UNAUTHORIZED, request, response, e);

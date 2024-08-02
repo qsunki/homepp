@@ -35,3 +35,9 @@ openAPI:
 
 file:
   dir: /app/
+
+server:
+  error:
+    include-exception: false
+    include-stacktrace: never
+    include-binding-errors: never
