@@ -133,7 +133,9 @@ export const loginUser = async (
 // 회원 정보 조회 API 호출 함수 (토큰 유효성 검사)
 export const getUserInfo = async (): Promise<AxiosResponse<UserData>> => {
   try {
-    return await api.get<UserData>('/members');
+    const response = await api.get<UserData>('/members');
+    console.log('getUserInfo API response:', response.data); // API 응답 확인
+    return response;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error(

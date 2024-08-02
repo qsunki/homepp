@@ -23,21 +23,22 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('token'); // 로컬 스토리지에서 토큰 가져오기
-    console.log('useEffect token:', token); // 디버깅용 콘솔 메시지
+    console.log('useEffect token:', token); // 로컬 스토리지에 저장된 토큰 확인
     if (token) {
       setAuthToken(token); // 토큰 설정
       getUserInfo()
         .then((response) => {
           const user = response.data;
-          console.log('getUserInfo response:', user); // 디버깅용 콘솔 메시지
+          console.log('getUserInfo response:', user); // API 응답 확인
           if (user.userId && user.email) {
             setUser(user.userId, user.email, token); // 사용자 정보를 설정
           } else {
+            console.log('User info not valid, logging out');
             logout();
           }
         })
         .catch((error) => {
-          console.error('토큰 유효성 검사 실패:', error);
+          console.error('Token validation failed:', error);
           logout();
         });
     } else {
