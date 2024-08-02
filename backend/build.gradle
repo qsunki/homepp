@@ -93,3 +93,7 @@ spotless {
 		formatAnnotations()
 	}
 }
+
+test {
+	exclude '**/*'
+}
