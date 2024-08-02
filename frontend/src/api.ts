@@ -43,6 +43,44 @@ interface CamData {
   status?: string; // status 속성 추가
 }
 
+// 중복 이메일 체크 API 호출 함수
+export const checkDuplicateEmail = async (email: string): Promise<boolean> => {
+  try {
+    const response = await api.get<boolean>(`/emails/${email}`);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        '중복 이메일 체크 오류:',
+        error.response ? error.response.data : error.message
+      );
+    } else {
+      console.error('중복 이메일 체크 오류:', error);
+    }
+    throw error;
+  }
+};
+
+// 중복 전화번호 체크 API 호출 함수
+export const checkDuplicatePhoneNumber = async (
+  phoneNumber: string
+): Promise<boolean> => {
+  try {
+    const response = await api.get<boolean>(`/phone-numbers/${phoneNumber}`);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        '중복 전화번호 체크 오류:',
+        error.response ? error.response.data : error.message
+      );
+    } else {
+      console.error('중복 전화번호 체크 오류:', error);
+    }
+    throw error;
+  }
+};
+
 // 회원가입 API 호출 함수
 export const registerUser = async (
   userData: UserData
