@@ -38,10 +38,11 @@ export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
         email: inputEmail,
         password: inputPassword,
       });
-      console.log(response.data); // 응답 데이터 콘솔에 출력
+      console.log('loginUser response:', response.data); // 응답 데이터 콘솔에 출력
 
       if (response.data.accessToken) {
-        login(response.data.userId, inputEmail, response.data.accessToken);
+        console.log('로그인 성공:', response.data); // 디버깅용 콘솔 메시지
+        login(response.data.userId, inputEmail, response.data.accessToken); // 로그인 성공 시 토큰 저장 및 사용자 상태 설정
         navigate('/home'); // 로그인 성공 시 홈페이지로 리다이렉트
         console.log('navigate 함수 호출됨');
         onClose();

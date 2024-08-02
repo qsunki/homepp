@@ -35,10 +35,11 @@ const useUserStore = create<UserState>((set) => ({
     age: false,
     terms: false,
   },
-  token: localStorage.getItem('token'),
+  token: localStorage.getItem('token'), // 초기 상태에 로컬 스토리지에서 토큰 가져오기
   setUser: (userId, email, token) => {
+    console.log('setUser called:', { userId, email, token }); // 디버깅용 콘솔 메시지
     set({ userId, email, isLoggedIn: true, token });
-    localStorage.setItem('token', token);
+    localStorage.setItem('token', token); // 로그인 시 토큰 저장
     setAuthToken(token);
   },
   setPhoneNumber: (phoneNumber) => set({ phoneNumber }),
@@ -49,16 +50,18 @@ const useUserStore = create<UserState>((set) => ({
       checkboxes: { ...state.checkboxes, ...checkboxes },
     })),
   login: (userId, email, token) => {
+    console.log('login called:', { userId, email, token }); // 디버깅용 콘솔 메시지
     set({
       userId,
       email,
       isLoggedIn: true,
       token,
     });
-    localStorage.setItem('token', token);
+    localStorage.setItem('token', token); // 로그인 시 토큰 저장
     setAuthToken(token);
   },
   logout: () => {
+    console.log('logout called'); // 디버깅용 콘솔 메시지
     set({
       userId: null,
       email: '',
@@ -73,24 +76,8 @@ const useUserStore = create<UserState>((set) => ({
       },
       token: null,
     });
-    localStorage.removeItem('token');
+    localStorage.removeItem('token'); // 로그아웃 시 토큰 삭제
     setAuthToken(null);
-  },
-  setToken: (token: string | null) => {
-    if (token) {
-      localStorage.setItem('token', token);
-      setAuthToken(token);
-      set({ token });
-    } else {
-      localStorage.removeItem('token');
-      setAuthToken(null);
-      set({ token: null });
-    }
-  },
-  clearToken: () => {
-    localStorage.removeItem('token');
-    setAuthToken(null);
-    set({ token: null });
   },
 }));
 
