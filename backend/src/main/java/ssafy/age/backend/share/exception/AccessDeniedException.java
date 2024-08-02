@@ -8,6 +8,6 @@ public class AccessDeniedException extends BusinessException {
         super("로그인된 회원과 이메일이 일치하지 않습니다.", HttpStatus.NOT_ACCEPTABLE, cause);
     }
     public AccessDeniedException() {
-        super("로그인된 회원과 이메일이 일치하지 않습니다.");
+        super("로그인된 회원과 이메일이 일치하지 않습니다.", HttpStatus.NOT_ACCEPTABLE);
     }
 }

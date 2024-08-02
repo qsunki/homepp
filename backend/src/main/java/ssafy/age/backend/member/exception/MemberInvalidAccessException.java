@@ -8,6 +8,6 @@ public class MemberInvalidAccessException extends BusinessException {
         super("잘못된 접근입니다.", HttpStatus.UNAUTHORIZED, cause);
     }
     public MemberInvalidAccessException() {
-        super("잘못된 접근입니다.");
+        super("잘못된 접근입니다.", HttpStatus.UNAUTHORIZED);
     }
 }

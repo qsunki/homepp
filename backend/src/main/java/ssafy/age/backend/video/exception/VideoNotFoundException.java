@@ -8,6 +8,6 @@ public class VideoNotFoundException extends BusinessException {
         super("해당 비디오가 존재하지 않습니다.", HttpStatus.NOT_FOUND, cause);
     }
     public VideoNotFoundException() {
-        super("해당 비디오가 존재하지 않습니다.");
+        super("해당 비디오가 존재하지 않습니다.", HttpStatus.NOT_FOUND);
     }
 }

@@ -8,6 +8,6 @@ public class SharedMemberNotFoundException extends BusinessException {
         super("공유할 회원이 존재하지 않습니다.", HttpStatus.NOT_FOUND, cause);
     }
     public SharedMemberNotFoundException() {
-        super("공유할 회원이 존재하지 않습니다.");
+        super("공유할 회원이 존재하지 않습니다.", HttpStatus.NOT_FOUND);
     }
 }

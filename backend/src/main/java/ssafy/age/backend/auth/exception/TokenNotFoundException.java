@@ -8,6 +8,6 @@ public class TokenNotFoundException extends BusinessException {
         super("refresh token이 유효하지 않습니다.", HttpStatus.UNAUTHORIZED, cause);
     }
     public TokenNotFoundException() {
-        super("refresh token이 유효하지 않습니다.");
+        super("refresh token이 유효하지 않습니다.", HttpStatus.UNAUTHORIZED);
     }
 }
