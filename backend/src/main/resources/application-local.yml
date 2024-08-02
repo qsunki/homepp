@@ -15,6 +15,9 @@ spring:
         format_sql: true
     show-sql: true
     defer-datasource-initialization: true
+  mvc:
+    problem details:
+      enabled: true
 
 server:
   tomcat:

@@ -46,7 +46,7 @@ public class MemberService implements UserDetailsService {
                 throw new MemberInvalidAccessException();
             }
         } catch (Exception e) {
-            throw new MemberInvalidAccessException();
+            throw new MemberInvalidAccessException(e);
         }
     }
 
