@@ -61,11 +61,16 @@ public class Video {
     }
 
     public void updateVideo(
-            String url, LocalDateTime recordStartAt, LocalDateTime recordEndAt, Long length) {
+            String url,
+            LocalDateTime recordStartAt,
+            LocalDateTime recordEndAt,
+            Long length,
+            String thumbnailFilePath) {
         this.url = url;
         this.recordStartAt = recordStartAt;
         this.recordEndAt = recordEndAt;
         this.length = length;
+        this.thumbnailUrl = thumbnailFilePath;
     }
 
     public void registerThreat() {

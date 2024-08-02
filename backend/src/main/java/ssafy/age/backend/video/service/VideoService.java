@@ -213,36 +213,31 @@ public class VideoService {
 
             File videoFile = resource.getFile();
 
-            long videoLength = ChronoUnit.SECONDS.between(timeInfo.getStartTime(), timeInfo.getEndTime());
+            long videoLength =
+                    ChronoUnit.SECONDS.between(timeInfo.getStartTime(), timeInfo.getEndTime());
 
             Video video =
                     videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
             Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
+
+            // 썸네일 생성
+            String thumbnailFilePath =
+                    createThumbnail(
+                            resource.getFile().getPath(),
+                            file.getOriginalFilename(),
+                            dirPath.toString());
+
             video.updateVideo(
                     resource.getFile().getPath(),
                     timeInfo.getStartTime(),
                     timeInfo.getEndTime(),
-                    videoLength);
+                    videoLength,
+                    thumbnailFilePath);
 
-            // 썸네일 생성
-            String thumbnailFilePath =
-                    dirPath.append("\\")
-                            .append(file.getOriginalFilename())
-                            .append(".png")
-                            .toString();
-
-            try {
-                ThumbnailExtractor.createThumbnail(
-                        resource.getFile().getPath(), thumbnailFilePath, 2.0);
-            } catch (IOException | JCodecException e) {
-                throw new IOException("Failed to create thumbnail: " + e.getMessage(), e);
-            }
-
-            video.setThumbnailUrl(thumbnailFilePath);
             cam.addVideo(video);
             camRepository.save(cam);
         } catch (Exception e) {
-            log.error("An error occurred while saving the video on server: {}", e.getMessage());
+            log.error("비디오 서버에 안올라감: {}", e.getMessage());
             throw new CamNotFoundException();
         }
     }
@@ -278,6 +273,17 @@ public class VideoService {
                             + event.getType()
                             + " 발생\n"
                             + "인근 지역 주민들은 주의 바랍니다.");
+        }
+    }
+
+    private String createThumbnail(String videoFilePath, String originalFilename, String dirPath) {
+        try {
+            String thumbnailFilePath = dirPath + "\\" + originalFilename + ".png";
+            ThumbnailExtractor.createThumbnail(videoFilePath, thumbnailFilePath, 2.0);
+            return thumbnailFilePath;
+        } catch (IOException | JCodecException | ArrayIndexOutOfBoundsException e) {
+            log.error("썸네일 만들지 못함 : {}", e.getMessage());
+            return null;
         }
     }
 }
