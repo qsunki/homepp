@@ -7,10 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import ssafy.age.backend.cam.persistence.CamRepository;
 import ssafy.age.backend.cam.persistence.CamStatus;
 import ssafy.age.backend.cam.service.CamService;
-import ssafy.age.backend.envInfo.service.EnvInfoService;
 import ssafy.age.backend.exception.InvalidInputException;
 import ssafy.age.backend.member.persistence.Member;
 
@@ -21,8 +19,6 @@ import ssafy.age.backend.member.persistence.Member;
 public class CamController {
 
     private final CamService camService;
-    private final EnvInfoService envInfoService;
-    private final CamRepository camRepository;
 
     @GetMapping
     @Operation(summary = "캠 목록 조회", description = "모든 캠 목록 조회")
@@ -65,6 +61,11 @@ public class CamController {
             }
             return camService.updateCamName(camId, camRequestDto.getName());
         }
+    }
+
+    @GetMapping("/{camId}/stream")
+    public StreamResponseDto streamCam(@PathVariable Long camId) {
+        return camService.streamStart(camId);
     }
     //
     //    @GetMapping("/{camId}/envInfos")
