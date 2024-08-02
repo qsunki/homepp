@@ -108,7 +108,7 @@ export const loginUser = async (
 ): Promise<AxiosResponse<{ accessToken: string; userId: number }>> => {
   try {
     const response = await api.post<{ accessToken: string; userId: number }>(
-      '/members/login', // ensure this endpoint is correct
+      '/login',
       loginData
     );
     setAuthToken(response.data.accessToken); // 로그인 성공 시 토큰 설정
