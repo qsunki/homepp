@@ -15,6 +15,7 @@ import ssafy.age.backend.auth.exception.TokenNotFoundException;
 import ssafy.age.backend.auth.persistence.RefreshToken;
 import ssafy.age.backend.auth.persistence.RefreshTokenRepository;
 import ssafy.age.backend.member.exception.MemberDuplicateEntityException;
+import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.*;
 import ssafy.age.backend.member.service.MemberMapper;
 import ssafy.age.backend.member.web.MemberResponseDto;
@@ -60,7 +61,8 @@ public class AuthService {
         Authentication authentication =
                 authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
-        Member member = memberRepository.findByEmail(email);
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(MemberNotFoundException::new);
 
         // 3. 인증 정보를 기반으로 JWT 토큰 생성
         TokenDto token = tokenProvider.generateTokenDto(authentication);

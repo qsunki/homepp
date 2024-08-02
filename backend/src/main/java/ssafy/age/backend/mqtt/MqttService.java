@@ -11,17 +11,24 @@ public class MqttService {
     private final MqttGateway mqttGateway;
     private final ObjectMapper objectMapper;
 
-    public void requestRecord(long camId, long videoId, RecordCommand command)
-            throws JsonProcessingException {
+    public void requestRecord(long camId, long videoId, RecordCommand command) {
         MqttRecordRequestDto requestDto = new MqttRecordRequestDto(videoId, command);
-        String message = objectMapper.writeValueAsString(requestDto);
-        mqttGateway.sendToMqtt(message, getRecordRequestTopic(camId));
+        try {
+            String message = objectMapper.writeValueAsString(requestDto);
+            mqttGateway.sendToMqtt(message, getRecordRequestTopic(camId));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public void requestStreaming(long camId, String key) throws JsonProcessingException {
+    public void requestStreaming(long camId, String key) {
         MqttStreamRequestDto requestDto = new MqttStreamRequestDto(key);
-        String message = objectMapper.writeValueAsString(requestDto);
-        mqttGateway.sendToMqtt(message, getStreamingRequestTopic(camId));
+        try {
+            String message = objectMapper.writeValueAsString(requestDto);
+            mqttGateway.sendToMqtt(message, getStreamingRequestTopic(camId));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private String getRecordRequestTopic(long camId) {

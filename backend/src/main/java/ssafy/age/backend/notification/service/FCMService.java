@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ssafy.age.backend.auth.service.AuthService;
+import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
 import ssafy.age.backend.notification.persistence.FCMToken;
@@ -37,7 +38,8 @@ public class FCMService {
 
     public FCMTokenDto save(String token) {
         String memberEmail = authService.getMemberEmail();
-        Member member = memberRepository.findByEmail(memberEmail);
+        Member member = memberRepository.findByEmail(memberEmail)
+                .orElseThrow(MemberNotFoundException::new);
         FCMToken fcmToken = new FCMToken(token, member);
         FCMToken saved = fcmTokenRepository.save(fcmToken);
         return new FCMTokenDto(saved.getToken());

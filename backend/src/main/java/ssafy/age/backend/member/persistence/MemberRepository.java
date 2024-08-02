@@ -2,10 +2,12 @@ package ssafy.age.backend.member.persistence;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface MemberRepository extends JpaRepository<Member, Long> {
-    Member findByEmail(String email);
+import java.util.Optional;
 
-    Member findByPhoneNumber(String phoneNumber);
+public interface MemberRepository extends JpaRepository<Member, Long> {
+    Optional<Member> findByEmail(String email);
+
+    Optional<Member> findByPhoneNumber(String phoneNumber);
 
     boolean existsByEmail(String email);
 }
