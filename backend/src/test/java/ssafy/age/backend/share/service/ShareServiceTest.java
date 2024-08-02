@@ -17,7 +17,6 @@ import ssafy.age.backend.auth.service.AuthService;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
 import ssafy.age.backend.share.exception.AccessDeniedException;
-import ssafy.age.backend.share.exception.SharedMemberNotFoundException;
 import ssafy.age.backend.share.persistence.Share;
 import ssafy.age.backend.share.persistence.ShareRepository;
 import ssafy.age.backend.share.web.ShareDto;
@@ -129,12 +128,12 @@ class ShareServiceTest {
         given(memberRepository.findByEmail(sharedMemberEmail)).willReturn(null);
 
         // when & then
-//        assertThrows(
-//                SharedMemberNotFoundException.class,
-//                () -> {
-//                    shareService.createShare(email, sharedMemberEmail, nickname);
-//                });
-//        then(shareRepository).should(never()).save(any(Share.class));
+        //        assertThrows(
+        //                SharedMemberNotFoundException.class,
+        //                () -> {
+        //                    shareService.createShare(email, sharedMemberEmail, nickname);
+        //                });
+        //        then(shareRepository).should(never()).save(any(Share.class));
     }
 
     @Test

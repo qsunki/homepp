@@ -2,10 +2,8 @@ package ssafy.age.backend.envInfo.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ssafy.age.backend.cam.exception.CamNotFoundException;
 import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.cam.persistence.CamRepository;
-import ssafy.age.backend.cam.service.CamService;
 import ssafy.age.backend.envInfo.persistence.EnvInfo;
 import ssafy.age.backend.envInfo.persistence.EnvInfoMapper;
 import ssafy.age.backend.envInfo.persistence.EnvInfoRepository;
