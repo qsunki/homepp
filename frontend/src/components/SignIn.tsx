@@ -126,7 +126,7 @@ export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
               className="border rounded px-4 py-2 w-full"
               placeholder="비밀번호를 입력하세요"
               required
-              autoComplete="current-password" // 추가
+              autoComplete="current-password"
             />
           </div>
 

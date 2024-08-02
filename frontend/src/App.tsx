@@ -12,6 +12,7 @@ import ScrollToTop from './utils/ScrollToTop';
 import { useUserStore } from './stores/useUserStore';
 import { setAuthToken, getUserInfo } from './api';
 import SignIn from './components/SignIn';
+import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 import 'tw-elements';
 import 'tw-elements/dist/css/tw-elements.min.css';
@@ -57,14 +58,29 @@ const App: React.FC = () => {
         <Navbar />
         <div className="flex-grow">
           <Routes>
-            <Route path="/home" element={<HomePage />} />
-            <Route path="/mypage" element={<MyPage />} />
-            <Route path="/live-video" element={<LiveVideo />} />
-            <Route path="/videolist" element={<VideoList />} />
-            <Route path="/video/:id" element={<VideoDetail />} />
             <Route
               path="/"
               element={<LandingPage onSignInOpen={handleSignInOpen} />}
+            />
+            <Route
+              path="/home"
+              element={<ProtectedRoute element={HomePage} />}
+            />
+            <Route
+              path="/mypage"
+              element={<ProtectedRoute element={MyPage} />}
+            />
+            <Route
+              path="/live-video"
+              element={<ProtectedRoute element={LiveVideo} />}
+            />
+            <Route
+              path="/videolist"
+              element={<ProtectedRoute element={VideoList} />}
+            />
+            <Route
+              path="/video/:id"
+              element={<ProtectedRoute element={VideoDetail} />}
             />
           </Routes>
         </div>
