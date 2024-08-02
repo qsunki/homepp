@@ -7,6 +7,7 @@ import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.event.persistence.Event;
 
@@ -35,7 +36,7 @@ public class Video {
     @JoinColumn(name = "cam_id")
     private Cam cam;
 
-    private String thumbnailUrl;
+    @Setter private String thumbnailUrl;
 
     private Boolean isThreat;
 

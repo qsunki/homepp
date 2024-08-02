@@ -48,7 +48,6 @@ public class CamService {
     public CamResponseDto registerCam(Long camId, Member member) {
         Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
         cam.registerMember(member);
-        setCamRegion(cam);
 
         return camMapper.toCamResponseDto(camRepository.save(cam));
     }

@@ -11,6 +11,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.jcodec.api.JCodecException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
@@ -31,10 +33,12 @@ import ssafy.age.backend.video.exception.VideoNotFoundException;
 import ssafy.age.backend.video.persistence.Video;
 import ssafy.age.backend.video.persistence.VideoRepository;
 import ssafy.age.backend.video.web.EventDetailDto;
+import ssafy.age.backend.video.web.ThumbnailExtractor;
 import ssafy.age.backend.video.web.VideoResponseDto;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class VideoService {
 
     private final VideoRepository videoRepository;
@@ -76,6 +80,7 @@ public class VideoService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public VideoResponseDto getVideoById(Long videoId) {
 
         Video video = videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
@@ -206,24 +211,38 @@ public class VideoService {
             Files.copy(file.getInputStream(), path);
             Resource resource = new FileSystemResource(path.toFile());
 
-            long seconds =
-                    ChronoUnit.SECONDS.between(timeInfo.getStartTime(), timeInfo.getEndTime());
-            long minutes =
-                    ChronoUnit.MINUTES.between(timeInfo.getStartTime(), timeInfo.getEndTime());
-            long hours = ChronoUnit.HOURS.between(timeInfo.getStartTime(), timeInfo.getEndTime());
-            long videoLength = seconds + minutes * 60 + hours * 60 * 60;
+            File videoFile = resource.getFile();
+
+            long videoLength = ChronoUnit.SECONDS.between(timeInfo.getStartTime(), timeInfo.getEndTime());
 
             Video video =
                     videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
+            Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
             video.updateVideo(
                     resource.getFile().getPath(),
                     timeInfo.getStartTime(),
                     timeInfo.getEndTime(),
                     videoLength);
-            Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
+
+            // 썸네일 생성
+            String thumbnailFilePath =
+                    dirPath.append("\\")
+                            .append(file.getOriginalFilename())
+                            .append(".png")
+                            .toString();
+
+            try {
+                ThumbnailExtractor.createThumbnail(
+                        resource.getFile().getPath(), thumbnailFilePath, 2.0);
+            } catch (IOException | JCodecException e) {
+                throw new IOException("Failed to create thumbnail: " + e.getMessage(), e);
+            }
+
+            video.setThumbnailUrl(thumbnailFilePath);
             cam.addVideo(video);
             camRepository.save(cam);
         } catch (Exception e) {
+            log.error("An error occurred while saving the video on server: {}", e.getMessage());
             throw new CamNotFoundException();
         }
     }
