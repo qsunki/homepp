@@ -15,7 +15,7 @@ import Announcement from '../components/mypage/Announcement';
 import FAQ from '../components/mypage/FAQ';
 import Support from '../components/mypage/Support';
 import DeviceManagement from '../components/mypage/DeviceManagement';
-// import CamSharing from '../components/mypage/CamSharingManagement';
+import CamSharingManagement from '../components/mypage/CamSharingManagement'; // 추가된 부분
 import Settings from '../components/mypage/Settings';
 import { useUserStore } from '../stores/useUserStore';
 
@@ -97,7 +97,6 @@ const MyPage: React.FC = () => {
           </div>
           <div className="absolute left-0 bottom-0 w-1 h-full bg-gradient-to-r from-[#4286f4] to-[#373b44] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.320,1)] group-hover:w-full"></div>
         </div>
-
         <div
           className="relative flex items-center justify-center w-40 h-40 overflow-hidden bg-white shadow-lg rounded-xl transition-all duration-500 ease-[cubic-bezier(0.23,1,0.320,1)] group cursor-pointer"
           onClick={() => openModal(<Support />)}
@@ -120,7 +119,7 @@ const MyPage: React.FC = () => {
         </div>
         <div
           className="relative flex items-center justify-center w-40 h-40 overflow-hidden bg-white shadow-lg rounded-xl transition-all duration-500 ease-[cubic-bezier(0.23,1,0.320,1)] group cursor-pointer"
-          // onClick={() => openModal(<CamSharing />)}
+          onClick={() => openModal(<CamSharingManagement />)}
         >
           <div className="flex flex-col items-center gap-2 text-gray-900 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.320,1)] group-hover:z-10 group-hover:text-white">
             <MdVideocam className="text-3xl" />
