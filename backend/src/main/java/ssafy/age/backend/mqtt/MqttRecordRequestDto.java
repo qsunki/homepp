@@ -4,11 +4,11 @@ import lombok.Data;
 
 @Data
 public class MqttRecordRequestDto {
-    Long videoId;
+    String key;
     RecordCommand command;
 
-    public MqttRecordRequestDto(Long videoId, RecordCommand command) {
-        this.videoId = videoId;
+    public MqttRecordRequestDto(String key, RecordCommand command) {
+        this.key = key;
         this.command = command;
     }
 }
