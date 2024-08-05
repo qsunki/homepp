@@ -13,4 +13,6 @@ public class VideoResponseDto {
     private Long length;
     private List<EventDetailDto> events;
     private String thumbnailUrl;
+    private String downloadUrl;
+    private String streamUrl;
 }
