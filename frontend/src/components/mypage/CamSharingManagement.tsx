@@ -9,7 +9,6 @@ import {
 } from '../../api';
 import { useUserStore } from '../../stores/useUserStore';
 import { FaTrash, FaEdit, FaPlus } from 'react-icons/fa';
-import Modal from 'react-modal';
 import './CamSharingManagement.css';
 
 const CamSharingManagement: React.FC = () => {
@@ -23,12 +22,11 @@ const CamSharingManagement: React.FC = () => {
   const [editingMemberNickname, setEditingMemberNickname] =
     useState<string>('');
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [componentKey, setComponentKey] = useState<number>(0);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   useEffect(() => {
     loadSharedMembers();
-  }, [componentKey]);
+  }, []);
 
   const loadSharedMembers = async () => {
     try {
@@ -40,24 +38,27 @@ const CamSharingManagement: React.FC = () => {
   };
 
   const handleAddMember = async () => {
-    if (newMemberEmail.trim() === '' || newMemberNickname.trim() === '') return;
+    setAlertMessage(null);
+    setSuccessMessage(null);
+
+    if (newMemberEmail.trim() === '' || newMemberNickname.trim() === '') {
+      setAlertMessage('이메일과 닉네임을 모두 입력해주세요.');
+      return;
+    }
 
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailPattern.test(newMemberEmail)) {
       setAlertMessage('유효한 이메일 주소를 입력해주세요.');
-      setIsModalOpen(true);
       return;
     }
 
     if (newMemberEmail === userEmail) {
       setAlertMessage('자신의 이메일은 추가할 수 없습니다.');
-      setIsModalOpen(true);
       return;
     }
 
     if (sharedMembers.some((member) => member.email === newMemberEmail)) {
       setAlertMessage('이미 등록된 공유 사용자입니다.');
-      setIsModalOpen(true);
       return;
     }
 
@@ -65,15 +66,13 @@ const CamSharingManagement: React.FC = () => {
       const isEmailDuplicate = await checkDuplicateEmail(newMemberEmail);
       if (isEmailDuplicate) {
         setAlertMessage('가입되어 있지 않은 사용자입니다.');
-        setIsModalOpen(true);
         return;
       }
       await addSharedMember(userEmail, {
         email: newMemberEmail,
         nickname: newMemberNickname,
       });
-      setAlertMessage('공유 사용자가 추가되었습니다.');
-      setIsModalOpen(true);
+      setSuccessMessage('공유 사용자가 추가되었습니다.');
       loadSharedMembers();
       setNewMemberEmail('');
       setNewMemberNickname('');
@@ -117,15 +116,12 @@ const CamSharingManagement: React.FC = () => {
     }
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setAlertMessage(null);
-    setComponentKey((prevKey) => prevKey + 1);
-  };
-
   return (
-    <div key={componentKey}>
+    <div>
       <h2 className="text-2xl font-bold mb-4">Shared Member Management</h2>
+      {successMessage && (
+        <div className="text-blue-500 mb-4">{successMessage}</div>
+      )}
       <ul className="list-disc pl-5 mb-4">
         {sharedMembers.map((member) => (
           <li
@@ -195,20 +191,7 @@ const CamSharingManagement: React.FC = () => {
           <FaPlus />
         </button>
       </div>
-      <Modal
-        isOpen={isModalOpen}
-        onRequestClose={closeModal}
-        contentLabel="Alert"
-        className="modal"
-        overlayClassName="modal-overlay"
-      >
-        <div className="modal-content">
-          <h2>{alertMessage}</h2>
-          <button onClick={closeModal} className="modal-close-btn">
-            확인
-          </button>
-        </div>
-      </Modal>
+      {alertMessage && <div className="text-red-500 mb-4">{alertMessage}</div>}
     </div>
   );
 };
