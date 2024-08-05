@@ -1,7 +1,9 @@
 package ssafy.age.backend.video.service;
 
 import jakarta.transaction.Transactional;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,7 +20,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ssafy.age.backend.cam.exception.CamNotFoundException;
@@ -50,34 +52,16 @@ public class VideoService {
     @Value("${file.dir}")
     private String fileDir;
 
+    @Transactional
     public List<VideoResponseDto> getAllVideos(
             List<EventType> types,
             LocalDateTime startDate,
             LocalDateTime endDate,
             Long camId,
-            boolean isThreat) {
-
-        List<Video> videoList =
-                videoRepository.findAllVideos(types, startDate, endDate, camId, isThreat);
-
-        return videoList.stream()
-                .map(
-                        video -> {
-                            VideoResponseDto dto = videoMapper.toVideoResponseDto(video);
-
-                            List<EventDetailDto> eventDetails =
-                                    video.getEventList().stream()
-                                            .map(videoMapper::toEventDetailDto)
-                                            .collect(Collectors.toList());
-                            dto.setEventDetails(eventDetails);
-
-                            video.getEventList().stream()
-                                    .findFirst()
-                                    .ifPresent(event -> dto.setCamName(event.getCam().getName()));
-
-                            return dto;
-                        })
-                .collect(Collectors.toList());
+            Boolean isThreat) {
+        List<Video> videos =
+                videoRepository.findVideosByParams(types, startDate, endDate, camId, isThreat);
+        return videos.stream().map(videoMapper::toVideoResponseDto).toList();
     }
 
     @Transactional
@@ -88,12 +72,12 @@ public class VideoService {
         VideoResponseDto dto = videoMapper.toVideoResponseDto(video);
 
         List<EventDetailDto> eventDetails =
-                video.getEventList().stream()
+                video.getEvents().stream()
                         .map(videoMapper::toEventDetailDto)
                         .collect(Collectors.toList());
-        dto.setEventDetails(eventDetails);
+        dto.setEvents(eventDetails);
 
-        video.getEventList().stream()
+        video.getEvents().stream()
                 .findFirst()
                 .ifPresent(event -> dto.setCamName(event.getCam().getName()));
 
@@ -263,7 +247,7 @@ public class VideoService {
     public void registerThreat(Long videoId) {
         Video video = videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
         video.registerThreat();
-        for (Event event : video.getEventList()) {
+        for (Event event : video.getEvents()) {
             fcmService.sendMessageToAll(
                     event.getType().toString() + " 알림",
                     event.getOccurredAt()
