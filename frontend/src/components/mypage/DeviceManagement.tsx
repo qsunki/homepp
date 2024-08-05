@@ -69,7 +69,6 @@ const DeviceManagement: React.FC = () => {
       const url = await QRCode.toDataURL(qrCodeData);
       setQrCodeUrl(url);
       setShowQRCodePopup(true);
-      // API 호출 제거
     } catch (error) {
       console.error('Error generating QR code:', error);
     }
