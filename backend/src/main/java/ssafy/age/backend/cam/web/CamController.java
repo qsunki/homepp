@@ -6,12 +6,12 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ssafy.age.backend.cam.persistence.CamStatus;
+import org.springframework.web.multipart.MultipartFile;
 import ssafy.age.backend.cam.service.CamService;
-import ssafy.age.backend.exception.InvalidInputException;
-import ssafy.age.backend.member.persistence.Member;
 
 @Slf4j
 @RestController
@@ -43,30 +43,33 @@ public class CamController {
     }
 
     @PatchMapping("/{camId}")
-    @Operation(
-            summary = "캠 정보 수정",
-            description = "request의 status가 null이면 이름 변경, status 값이 있으면 값에 따라서 등록/미등록 상태 변경")
+    @Operation(summary = "캠 이름 수정", description = "캠 아이디에 따른 캠 이름 수정")
     public CamResponseDto updateCam(
-            @PathVariable Long camId,
-            @RequestBody CamRequestDto camRequestDto,
-            @AuthenticationPrincipal Member member) {
-        if (camRequestDto.getStatus() == CamStatus.UNREGISTERED) {
-            return camService.unregisterCam(camId);
-        } else if (camRequestDto.getStatus() == CamStatus.REGISTERED) {
-            if (camRequestDto.getName() != null) {
-                camService.updateCamName(camId, camRequestDto.getName());
-            }
-            return camService.registerCam(camId, member);
-        } else {
-            if (camRequestDto.getName() == null) {
-                throw new InvalidInputException();
-            }
-            return camService.updateCamName(camId, camRequestDto.getName());
-        }
+            @PathVariable Long camId, @RequestBody CamRequestDto camRequestDto) {
+        return camService.updateCamName(camId, camRequestDto.getName());
+    }
+
+    @DeleteMapping("/{camId}")
+    @Operation(summary = "캠 삭제", description = "캠 아이디에 따른 캠 삭제")
+    public void deleteCam(@PathVariable Long camId) {
+        camService.deleteCam(camId);
     }
 
     @GetMapping("/{camId}/stream")
     public StreamResponseDto streamCam(@PathVariable Long camId) {
         return camService.streamStart(camId);
+    }
+
+    @GetMapping("/{camId}/thumbnail")
+    @Operation(summary = "캠 실시간 썸네일 조회", description = "캠 id를 통해서 썸네일 조회")
+    public ResponseEntity<Resource> getCamThumbnail(@PathVariable Long camId) {
+        Resource thumbnail = camService.getCamThumbnail(camId);
+
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(thumbnail);
+    }
+
+    @PostMapping("/{camId}/thumbnail")
+    public void thumbnailOnServer(@PathVariable Long camId, @RequestPart MultipartFile file) {
+        camService.thumbnailOnServer(camId, file);
     }
 }
