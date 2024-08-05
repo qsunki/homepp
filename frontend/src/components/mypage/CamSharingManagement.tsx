@@ -48,6 +48,12 @@ const CamSharingManagement: React.FC = () => {
       return;
     }
 
+    if (newMemberEmail === userEmail) {
+      setAlertMessage('자신의 이메일은 추가할 수 없습니다.');
+      setIsModalOpen(true);
+      return;
+    }
+
     if (sharedMembers.some((member) => member.email === newMemberEmail)) {
       setAlertMessage('이미 등록된 공유 사용자입니다.');
       setIsModalOpen(true);
