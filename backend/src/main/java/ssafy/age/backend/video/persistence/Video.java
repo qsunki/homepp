@@ -2,7 +2,6 @@ package ssafy.age.backend.video.persistence;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,16 +20,14 @@ public class Video {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDateTime recordStartAt;
-
-    private LocalDateTime recordEndAt;
+    private LocalDateTime recordStartedAt;
 
     private String url;
 
     private Long length;
 
     @OneToMany(mappedBy = "video")
-    private List<Event> eventList = new ArrayList<>();
+    private List<Event> events;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cam_id")
@@ -43,18 +40,19 @@ public class Video {
     @Builder
     public Video(
             Long id,
-            LocalDateTime recordStartAt,
-            LocalDateTime recordEndAt,
+            LocalDateTime recordStartedAt,
+            LocalDateTime recordEndedAt,
             String url,
             Long length,
+            List<Event> events,
             Cam cam,
             String thumbnailUrl,
             Boolean isThreat) {
         this.id = id;
-        this.recordStartAt = recordStartAt;
-        this.recordEndAt = recordEndAt;
+        this.recordStartedAt = recordStartedAt;
         this.url = url;
         this.length = length;
+        this.events = events;
         this.cam = cam;
         this.thumbnailUrl = thumbnailUrl;
         this.isThreat = isThreat;
@@ -67,8 +65,7 @@ public class Video {
             Long length,
             String thumbnailFilePath) {
         this.url = url;
-        this.recordStartAt = recordStartAt;
-        this.recordEndAt = recordEndAt;
+        this.recordStartedAt = recordStartAt;
         this.length = length;
         this.thumbnailUrl = thumbnailFilePath;
     }
