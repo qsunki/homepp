@@ -11,7 +11,6 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jcodec.api.JCodecException;
@@ -34,7 +33,6 @@ import ssafy.age.backend.notification.service.FCMService;
 import ssafy.age.backend.video.exception.VideoNotFoundException;
 import ssafy.age.backend.video.persistence.Video;
 import ssafy.age.backend.video.persistence.VideoRepository;
-import ssafy.age.backend.video.web.EventDetailDto;
 import ssafy.age.backend.video.web.ThumbnailExtractor;
 import ssafy.age.backend.video.web.VideoResponseDto;
 
