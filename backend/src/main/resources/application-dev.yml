@@ -51,3 +51,6 @@ openAPI:
 
 file:
   dir: /app/
+  video: /app/videos
+  video-thumbnail: /app/video-thumbnails
+  cam-thumbnail: /app/cam-thumbnails

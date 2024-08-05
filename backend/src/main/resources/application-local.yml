@@ -29,7 +29,6 @@ logging:
       age:
         backend: debug
     web: debug
-    sql: debug
 
 jwt:
   secret: d8c02ed35fda0c0ffa4dc7f37117972390f3f6672103bbcadb684985aff2e1de
@@ -44,3 +43,6 @@ openAPI:
 
 file:
   dir: D:\
+  video: ${HOME}/homepp/videos
+  video-thumbnail: ${HOME}/homepp/video-thumbnails
+  cam-thumbnail: ${HOME}/homepp/cam-thumbnails
