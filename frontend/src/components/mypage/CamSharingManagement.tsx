@@ -9,6 +9,8 @@ import {
 } from '../../api';
 import { useUserStore } from '../../stores/useUserStore';
 import { FaTrash, FaEdit, FaPlus } from 'react-icons/fa';
+import Modal from 'react-modal';
+import './CamSharingManagement.css';
 
 const CamSharingManagement: React.FC = () => {
   const userEmail = useUserStore((state) => state.email);
@@ -21,6 +23,7 @@ const CamSharingManagement: React.FC = () => {
   const [editingMemberNickname, setEditingMemberNickname] =
     useState<string>('');
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
     loadSharedMembers();
@@ -37,10 +40,19 @@ const CamSharingManagement: React.FC = () => {
 
   const handleAddMember = async () => {
     if (newMemberEmail.trim() === '' || newMemberNickname.trim() === '') return;
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(newMemberEmail)) {
+      setAlertMessage('유효한 이메일 주소를 입력해주세요.');
+      setIsModalOpen(true);
+      return;
+    }
+
     try {
       const isEmailDuplicate = await checkDuplicateEmail(newMemberEmail);
       if (isEmailDuplicate) {
         setAlertMessage('가입되어 있지 않은 사용자입니다.');
+        setIsModalOpen(true);
         return;
       }
       await addSharedMember(userEmail, {
@@ -48,6 +60,7 @@ const CamSharingManagement: React.FC = () => {
         nickname: newMemberNickname,
       });
       setAlertMessage('공유 사용자가 추가되었습니다.');
+      setIsModalOpen(true);
       loadSharedMembers();
       setNewMemberEmail('');
       setNewMemberNickname('');
@@ -91,10 +104,14 @@ const CamSharingManagement: React.FC = () => {
     }
   };
 
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setAlertMessage(null);
+  };
+
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">Shared Member Management</h2>
-      {alertMessage && <div className="alert">{alertMessage}</div>}
       <ul className="list-disc pl-5 mb-4">
         {sharedMembers.map((member) => (
           <li
@@ -164,6 +181,20 @@ const CamSharingManagement: React.FC = () => {
           <FaPlus />
         </button>
       </div>
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={closeModal}
+        contentLabel="Alert"
+        className="modal"
+        overlayClassName="modal-overlay"
+      >
+        <div className="modal-content">
+          <h2>{alertMessage}</h2>
+          <button onClick={closeModal} className="modal-close-btn">
+            확인
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 };
