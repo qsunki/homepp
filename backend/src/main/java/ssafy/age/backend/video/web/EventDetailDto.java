@@ -6,7 +6,6 @@ import ssafy.age.backend.event.persistence.EventType;
 
 @Data
 public class EventDetailDto {
-
-    private LocalDateTime occurredAt;
     private EventType type;
+    private LocalDateTime occurredAt;
 }
