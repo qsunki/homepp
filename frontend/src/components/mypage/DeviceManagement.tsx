@@ -244,12 +244,11 @@ const DeviceManagement: React.FC = () => {
       )}
       <Modal
         isOpen={isMacModalOpen}
-        onRequestClose={closeMacModal}
         contentLabel="MAC Address Input"
         className="modal"
         overlayClassName="modal-overlay"
       >
-        <div className="modal-content">
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
           <h2 className="text-xl font-bold mb-4">Enter MAC Address</h2>
           <input
             type="text"
