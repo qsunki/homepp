@@ -18,6 +18,9 @@ RUN gradle build --no-daemon
 # Step 6: Base image for runtime with JDK 21
 FROM openjdk:21-jdk-slim
 
+RUN mkdir -p /app/videos
+RUN mkdir -p /app/video-thumbnails
+RUN mkdir -p /app/cam-thumbnails
 # Step 7: Set the working directory
 WORKDIR /app
 
