@@ -195,7 +195,10 @@ export interface SharedMember {
 export const fetchSharedMembers = async (
   email: string
 ): Promise<AxiosResponse<SharedMember[]>> => {
-  return await api.get<SharedMember[]>(`/members/${email}/sharedMembers`);
+  const encodedEmail = encodeURIComponent(email);
+  return await api.get<SharedMember[]>(
+    `/members/${encodedEmail}/sharedMembers`
+  );
 };
 
 // 공유 사용자 추가
@@ -203,8 +206,9 @@ export const addSharedMember = async (
   email: string,
   sharedMember: SharedMember
 ): Promise<AxiosResponse<SharedMember>> => {
+  const encodedEmail = encodeURIComponent(email);
   return await api.post<SharedMember>(
-    `/members/${email}/sharedMembers`,
+    `/members/${encodedEmail}/sharedMembers`,
     sharedMember
   );
 };
@@ -215,8 +219,10 @@ export const updateSharedMember = async (
   sharedMemberEmail: string,
   nickname: string
 ): Promise<AxiosResponse<SharedMember>> => {
+  const encodedEmail = encodeURIComponent(email);
+  const encodedSharedMemberEmail = encodeURIComponent(sharedMemberEmail);
   return await api.patch<SharedMember>(
-    `/members/${email}/sharedMembers/${sharedMemberEmail}`,
+    `/members/${encodedEmail}/sharedMembers/${encodedSharedMemberEmail}`,
     { email: sharedMemberEmail, nickname }
   );
 };
@@ -226,8 +232,10 @@ export const deleteSharedMember = async (
   email: string,
   sharedMemberEmail: string
 ): Promise<AxiosResponse<void>> => {
+  const encodedEmail = encodeURIComponent(email);
+  const encodedSharedMemberEmail = encodeURIComponent(sharedMemberEmail);
   return await api.delete<void>(
-    `/members/${email}/sharedMembers/${sharedMemberEmail}`
+    `/members/${encodedEmail}/sharedMembers/${encodedSharedMemberEmail}`
   );
 };
 
