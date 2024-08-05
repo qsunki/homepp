@@ -23,6 +23,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('token'); // 로컬 스토리지에서 토큰 가져오기
+    const savedPassword = localStorage.getItem('password'); // 로컬 스토리지에서 비밀번호 가져오기
     console.log('useEffect token:', token); // 로컬 스토리지에 저장된 토큰 확인
     if (token) {
       setAuthToken(token); // 토큰 설정
@@ -32,7 +33,7 @@ const App: React.FC = () => {
           console.log('getUserInfo response:', email); // API 응답 확인
           if (email) {
             // email이 응답으로 오는 경우, 임의의 userId를 설정
-            setUser(1, email, '', token); // 비밀번호 인자를 추가합니다
+            setUser(1, email, savedPassword || '', token); // 비밀번호 인자를 추가합니다
           } else {
             console.log('User info not valid, logging out');
             logout();
