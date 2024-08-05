@@ -49,6 +49,7 @@ public class SecurityConfig {
                                                 "/api/v1/cams/videos/*/stream",
                                                 "/swagger-ui/**",
                                                 "/v3/api-docs/**",
+                                                "/h2-console/**",
                                                 "/ws/**")
                                         .permitAll()
                                         .anyRequest()
