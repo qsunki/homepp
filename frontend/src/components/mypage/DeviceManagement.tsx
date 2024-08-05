@@ -32,7 +32,7 @@ const DeviceManagement: React.FC = () => {
       const response = await fetchCams();
       setDevices(response.data);
     } catch (error) {
-      console.error('캠 리스트 불러오기 오류:', error);
+      console.error('Error loading device list:', error);
     }
   };
 
@@ -54,7 +54,7 @@ const DeviceManagement: React.FC = () => {
       setEditingDevice(null);
       setNewDeviceName('');
     } catch (error) {
-      console.error('캠 이름 변경 오류:', error);
+      console.error('Error updating device name:', error);
     }
   };
 
@@ -110,7 +110,7 @@ const DeviceManagement: React.FC = () => {
       );
       setDeleteConfirmation(null);
     } catch (error) {
-      console.error('캠 삭제 오류:', error);
+      console.error('Error deleting device:', error);
     }
   };
 
@@ -185,6 +185,11 @@ const DeviceManagement: React.FC = () => {
           </li>
         ))}
       </ul>
+      {devices.length === 0 && (
+        <p className="text-center text-gray-500">
+          No devices have been registered yet.
+        </p>
+      )}
       <div
         onClick={handleAddDevice}
         className="bg-gray-200 p-4 text-center cursor-pointer flex items-center justify-center rounded-lg"
