@@ -9,6 +9,8 @@ values (1, '2024-07-29 15:49:40.798309', 'ssafy1@ssafy.com',
         '$2a$10$3r6F/VxEqrA2KJxSUk3uPO6PTvq8Kz/i039mf72/fn9at4de71w6C', '01042345678'),
        (5, '2024-07-29 15:49:40.798309', 'ssafy5@ssafy.com',
         '$2a$10$3r6F/VxEqrA2KJxSUk3uPO6PTvq8Kz/i039mf72/fn9at4de71w6C', '01052345678');
+       (6, '2024-07-29 15:49:40.798309', 'ssafy6@ssafy.com',
+        '$2a$10$3r6F/VxEqrA2KJxSUk3uPO6PTvq8Kz/i039mf72/fn9at4de71w6C', '01062345678');
 
 insert
 into member_roles (member_member_id, roles)
@@ -16,7 +18,8 @@ values (1, 'ROLE_USER'),
        (2, 'ROLE_USER'),
        (3, 'ROLE_USER'),
        (4, 'ROLE_USER'),
-       (5, 'ROLE_USER');
+       (5, 'ROLE_USER'),
+       (6, 'ROLE_USER');
 
 INSERT INTO `cam` (`cam_id`, `name`, `ip`, `status`, `region`, `member_id`)
 VALUES (1, 'Cam1', '192.168.1.1', 'REGISTERED', 'Region1', 1),

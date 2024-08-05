@@ -16,7 +16,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         HttpMethod.HEAD.name(),
                         HttpMethod.POST.name(),
                         HttpMethod.PUT.name(),
-                        HttpMethod.DELETE.name())
+                        HttpMethod.PATCH.name(),
+                        HttpMethod.DELETE.name(),
+                        HttpMethod.OPTIONS.name())
                 .allowedHeaders("*")
                 .allowCredentials(true)
                 .maxAge(3600);

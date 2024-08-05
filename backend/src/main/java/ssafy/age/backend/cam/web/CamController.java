@@ -42,6 +42,7 @@ public class CamController {
         return camService.findCamById(camId);
     }
 
+    @CrossOrigin
     @PatchMapping("/{camId}")
     @Operation(
             summary = "캠 정보 수정",
