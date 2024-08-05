@@ -36,6 +36,7 @@ logging:
         backend: debug
     web: debug
     sql: debug
+    org.springframework.web.cors.DefaultCorsProcessor: TRACE
 
 jwt:
   secret: ${JWT_SECRET}
