@@ -29,4 +29,9 @@ public class EventController {
     public void deleteEvent(@PathVariable Long eventId) {
         eventService.deleteEvent(eventId);
     }
+
+    @GetMapping("/count")
+    public Integer countEventsOnToday() {
+        return eventService.countEventsOnToday();
+    }
 }
