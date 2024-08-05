@@ -48,6 +48,12 @@ const CamSharingManagement: React.FC = () => {
       return;
     }
 
+    if (sharedMembers.some((member) => member.email === newMemberEmail)) {
+      setAlertMessage('이미 등록된 공유 사용자입니다.');
+      setIsModalOpen(true);
+      return;
+    }
+
     try {
       const isEmailDuplicate = await checkDuplicateEmail(newMemberEmail);
       if (isEmailDuplicate) {
