@@ -1,20 +1,16 @@
 package ssafy.age.backend.video.web;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.support.ResourceRegion;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ssafy.age.backend.event.persistence.EventType;
-import ssafy.age.backend.video.service.DownloadResponseDto;
-import ssafy.age.backend.video.service.StreamResponseDto;
 import ssafy.age.backend.video.service.VideoService;
 import ssafy.age.backend.video.service.VideoTimeInfo;
 
@@ -23,6 +19,7 @@ import ssafy.age.backend.video.service.VideoTimeInfo;
 @RequestMapping("/api/v1/cams")
 @RequiredArgsConstructor
 public class VideoController {
+    private static final MediaType VIDEO_TYPE = MediaType.valueOf("video/mp4");
     private final VideoService videoService;
 
     @GetMapping("/videos")
@@ -46,42 +43,42 @@ public class VideoController {
     }
 
     @GetMapping("/videos/{videoId}/stream")
-    public ResponseEntity<Resource> streamVideo(
-            @PathVariable Long videoId, HttpServletRequest request) {
-        StreamResponseDto streamResponseDto =
-                videoService.streamVideo(videoId, request.getHeader(HttpHeaders.RANGE));
+    public ResponseEntity<ResourceRegion> streamVideo(
+            @PathVariable Long videoId, @RequestHeader HttpHeaders headers) {
+        ResourceRegion region = videoService.getVideoResourceRegion(videoId, headers.getRange());
+
         return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
-                .headers(streamResponseDto.getHeaders())
-                .contentType(MediaType.valueOf("video/mp4"))
-                .contentLength(streamResponseDto.getContentLength())
-                .body(streamResponseDto.getResourceData());
+                .cacheControl(CacheControl.maxAge(10, TimeUnit.MINUTES))
+                .contentType(VIDEO_TYPE)
+                .header("Accept-Ranges", "bytes")
+                .eTag(region.getResource().getFilename())
+                .body(region);
     }
 
     @GetMapping("/videos/{videoId}/download")
     public ResponseEntity<Resource> downloadVideo(@PathVariable Long videoId) {
-        DownloadResponseDto downloadResponseDto = videoService.downloadVideo(videoId);
+        Resource resource = videoService.getVideoResource(videoId);
         return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .contentType(VIDEO_TYPE)
                 .header(
                         HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + downloadResponseDto.getFilename() + "\"")
-                .body(downloadResponseDto.getVideoResource());
+                        "attachment; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
+    }
+
+    @PostMapping("/{camId}/videos/record")
+    public VideoRecordResponseDto recordRequest(
+            @PathVariable Long camId, @RequestBody VideoRecordRequestDto videoRecordRequestDto) {
+        return videoService.recordVideo(
+                camId, videoRecordRequestDto.getKey(), videoRecordRequestDto.getCommand());
     }
 
     @PostMapping("/{camId}/videos")
-    public Long recordVideo(
-            @PathVariable Long camId, @RequestBody VideoRecordRequestDto videoRecordRequestDto) {
-        return videoService.recordVideo(
-                camId, videoRecordRequestDto.getVideoId(), videoRecordRequestDto.getCommand());
-    }
-
-    @PostMapping("/{camId}/videos/{videoId}")
     public void saveVideoOnServer(
             @PathVariable Long camId,
-            @PathVariable Long videoId,
             @RequestPart MultipartFile file,
             @RequestPart VideoTimeInfo timeInfo) {
-        videoService.saveVideoOnServer(camId, videoId, file, timeInfo);
+        videoService.saveVideo(camId, file, timeInfo.getStartTime(), timeInfo.getEndTime());
     }
 
     @PostMapping("/{videoId}/threat")
