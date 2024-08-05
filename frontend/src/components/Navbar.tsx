@@ -18,7 +18,15 @@ interface Notification {
   timestamp: Date;
 }
 
-const Navbar: React.FC = () => {
+interface NavbarProps {
+  notifications: Notification[];
+  onDeleteNotification: (id: number) => void;
+}
+
+const Navbar: React.FC<NavbarProps> = ({
+  notifications,
+  onDeleteNotification,
+}) => {
   const [toggleMenu, setToggleMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string>('/');
@@ -27,34 +35,6 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const navRef = useRef<HTMLDivElement>(null);
-
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {
-      id: 1,
-      message: 'Unauthorized access detected in the living room.',
-      timestamp: new Date(),
-    },
-    {
-      id: 2,
-      message: 'Front door left open.',
-      timestamp: new Date(),
-    },
-    {
-      id: 3,
-      message: 'Motion detected in the backyard.',
-      timestamp: new Date(),
-    },
-    {
-      id: 4,
-      message: 'Smoke alarm triggered in the kitchen.',
-      timestamp: new Date(),
-    },
-    {
-      id: 5,
-      message: 'Water leakage detected in the basement.',
-      timestamp: new Date(),
-    },
-  ]);
 
   useEffect(() => {
     setActiveMenu(location.pathname);
@@ -103,12 +83,6 @@ const Navbar: React.FC = () => {
     if (!toggleMenu) {
       setShowNotifications(false);
     }
-  };
-
-  const handleDeleteNotification = (id: number) => {
-    setNotifications((prev) =>
-      prev.filter((notification) => notification.id !== id)
-    );
   };
 
   return (
@@ -206,40 +180,46 @@ const Navbar: React.FC = () => {
                 <div className="absolute right-0 mt-2 w-80 bg-white border border-gray-200 shadow-lg rounded-lg overflow-hidden z-50">
                   <div className="p-2 bg-gray-100 font-bold">Notifications</div>
                   <ul className="max-h-60 overflow-y-auto scrollbar-hide">
-                    {notifications.map((notification) => (
-                      <li
-                        key={notification.id}
-                        className="p-2 border-b border-gray-200 flex justify-between items-center"
-                      >
-                        <div>
-                          <div
-                            className="cursor-pointer"
-                            onClick={() => handleNavigate('/videodetail')}
-                          >
-                            {notification.message}
-                          </div>
-                          <small className="text-gray-500">
-                            {notification.timestamp.toLocaleTimeString()}
-                          </small>
-                        </div>
-                        <div className="flex space-x-2">
-                          <button
-                            onClick={() => handleNavigate('/videodetail')}
-                            className="text-blue-500 hover:text-blue-700 transition-colors"
-                          >
-                            <FaArrowRight />
-                          </button>
-                          <button
-                            onClick={() =>
-                              handleDeleteNotification(notification.id)
-                            }
-                            className="text-red-500 hover:text-red-700 transition-colors"
-                          >
-                            <FaTrashAlt />
-                          </button>
-                        </div>
+                    {notifications.length === 0 ? (
+                      <li className="p-2 border-b border-gray-200 text-center text-gray-500">
+                        No Notifications
                       </li>
-                    ))}
+                    ) : (
+                      notifications.map((notification) => (
+                        <li
+                          key={notification.id}
+                          className="p-2 border-b border-gray-200 flex justify-between items-center"
+                        >
+                          <div>
+                            <div
+                              className="cursor-pointer"
+                              onClick={() => handleNavigate('/videodetail')}
+                            >
+                              {notification.message}
+                            </div>
+                            <small className="text-gray-500">
+                              {notification.timestamp.toLocaleTimeString()}
+                            </small>
+                          </div>
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={() => handleNavigate('/videodetail')} // 이 부분 확인
+                              className="text-blue-500 hover:text-blue-700 transition-colors"
+                            >
+                              <FaArrowRight />
+                            </button>
+                            <button
+                              onClick={() =>
+                                onDeleteNotification(notification.id)
+                              }
+                              className="text-red-500 hover:text-red-700 transition-colors"
+                            >
+                              <FaTrashAlt />
+                            </button>
+                          </div>
+                        </li>
+                      ))
+                    )}
                   </ul>
                 </div>
               )}
