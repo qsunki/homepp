@@ -247,6 +247,7 @@ const DeviceManagement: React.FC = () => {
         contentLabel="MAC Address Input"
         className="modal"
         overlayClassName="modal-overlay"
+        onRequestClose={closeMacModal} // 추가된 부분
       >
         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
           <h2 className="text-xl font-bold mb-4">Enter MAC Address</h2>
@@ -297,3 +298,24 @@ const DeviceManagement: React.FC = () => {
 };
 
 export default DeviceManagement;
+
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import Modal from 'react-modal';
+
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  throw new Error('Failed to find the root element');
+}
+
+Modal.setAppElement(rootElement);
+
+const root = ReactDOM.createRoot(rootElement);
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
