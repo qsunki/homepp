@@ -167,7 +167,7 @@ const CamSharingManagement: React.FC = () => {
         ))}
       </ul>
       <div className="flex mb-4 input-group">
-        <div className="flex-grow mr-2">
+        <div className="input-container flex-grow mr-2">
           <input
             required
             type="text"
@@ -179,7 +179,7 @@ const CamSharingManagement: React.FC = () => {
           />
           <label className="user-label">Email</label>
         </div>
-        <div className="flex-grow mr-2">
+        <div className="input-container flex-grow mr-2">
           <input
             required
             type="text"
