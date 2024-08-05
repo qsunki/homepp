@@ -22,6 +22,8 @@ const DeviceManagement: React.FC = () => {
   );
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
   const [showQRCodePopup, setShowQRCodePopup] = useState<boolean>(false);
+  const [macAddress, setMacAddress] = useState<string>('');
+  const [macAddressError, setMacAddressError] = useState<string | null>(null);
 
   useEffect(() => {
     loadDevices();
@@ -64,11 +66,20 @@ const DeviceManagement: React.FC = () => {
   };
 
   const handleAddDevice = async () => {
+    if (!validateMacAddress(macAddress)) {
+      setMacAddressError('유효한 MAC 주소를 입력해주세요.');
+      return;
+    }
+
     try {
-      const qrCodeData = `mailto:${userEmail}`;
+      const qrCodeData = JSON.stringify({
+        email: userEmail,
+        blt_address: macAddress,
+      });
       const url = await QRCode.toDataURL(qrCodeData);
       setQrCodeUrl(url);
       setShowQRCodePopup(true);
+      setMacAddress('');
     } catch (error) {
       console.error('Error generating QR code:', error);
     }
@@ -116,6 +127,18 @@ const DeviceManagement: React.FC = () => {
   const closeQRCodePopup = () => {
     setShowQRCodePopup(false);
     setQrCodeUrl(null);
+  };
+
+  const handleMacAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/[^a-fA-F0-9]/g, '').toUpperCase();
+    const formattedMacAddress = value.match(/.{1,2}/g)?.join(':') || '';
+    setMacAddress(formattedMacAddress);
+    setMacAddressError(null);
+  };
+
+  const validateMacAddress = (mac: string) => {
+    const macPattern = /^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/;
+    return macPattern.test(mac);
   };
 
   return (
@@ -170,6 +193,22 @@ const DeviceManagement: React.FC = () => {
           </li>
         ))}
       </ul>
+      <div className="mb-4">
+        <label className="block mb-2 text-sm" htmlFor="macAddress">
+          MAC Address
+        </label>
+        <input
+          id="macAddress"
+          type="text"
+          className="border rounded w-full py-2 px-3"
+          placeholder="00:00:00:00:00:00"
+          value={macAddress}
+          onChange={handleMacAddressChange}
+        />
+        {macAddressError && (
+          <div className="text-red-500 text-xs mt-2">{macAddressError}</div>
+        )}
+      </div>
       <div
         onClick={handleAddDevice}
         className="bg-gray-200 p-4 text-center cursor-pointer flex items-center justify-center rounded-lg"

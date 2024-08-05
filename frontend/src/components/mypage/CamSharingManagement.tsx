@@ -9,6 +9,8 @@ import {
 } from '../../api';
 import { useUserStore } from '../../stores/useUserStore';
 import { FaTrash, FaEdit, FaPlus } from 'react-icons/fa';
+import checkIcon from '../../assets/mypage/check.png';
+import cancelIcon from '../../assets/mypage/cancel.png';
 import './CamSharingManagement.css';
 
 const CamSharingManagement: React.FC = () => {
@@ -41,10 +43,7 @@ const CamSharingManagement: React.FC = () => {
     setAlertMessage(null);
     setSuccessMessage(null);
 
-    if (newMemberEmail.trim() === '' || newMemberNickname.trim() === '') {
-      setAlertMessage('이메일과 닉네임을 모두 입력해주세요.');
-      return;
-    }
+    if (newMemberEmail.trim() === '' || newMemberNickname.trim() === '') return;
 
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailPattern.test(newMemberEmail)) {
@@ -58,7 +57,7 @@ const CamSharingManagement: React.FC = () => {
     }
 
     if (newMemberEmail === userEmail) {
-      setAlertMessage('본인 이메일은 등록할 수 없습니다.');
+      setAlertMessage('본인의 이메일은 추가할 수 없습니다.');
       return;
     }
 
@@ -116,6 +115,15 @@ const CamSharingManagement: React.FC = () => {
     }
   };
 
+  const handleKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+    email: string
+  ) => {
+    if (e.key === 'Enter') {
+      handleSaveMember(email);
+    }
+  };
+
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">Shared Member Management</h2>
@@ -130,6 +138,7 @@ const CamSharingManagement: React.FC = () => {
                 type="text"
                 value={editingMemberNickname}
                 onChange={(e) => setEditingMemberNickname(e.target.value)}
+                onKeyDown={(e) => handleKeyDown(e, member.email)}
                 className="border p-2 flex-grow mr-2 text-lg h-8"
               />
             ) : (
@@ -138,15 +147,18 @@ const CamSharingManagement: React.FC = () => {
             <div className="flex items-center">
               {editingMemberEmail === member.email ? (
                 <>
-                  <button
+                  <img
+                    src={checkIcon}
+                    alt="Save"
                     onClick={() => handleSaveMember(member.email)}
-                    className="mr-2"
-                  >
-                    Save
-                  </button>
-                  <button onClick={() => setEditingMemberEmail(null)}>
-                    Cancel
-                  </button>
+                    className="cursor-pointer mr-3 text-xl h-6 w-6"
+                  />
+                  <img
+                    src={cancelIcon}
+                    alt="Cancel"
+                    onClick={() => setEditingMemberEmail(null)}
+                    className="cursor-pointer text-xl h-6 w-6"
+                  />
                 </>
               ) : (
                 <>
@@ -166,34 +178,30 @@ const CamSharingManagement: React.FC = () => {
           </li>
         ))}
       </ul>
-      <div className="flex mb-4 input-group">
-        <div className="input-container flex-grow mr-2">
+      <div className="flex mb-4">
+        <div className="input-group mr-2 flex-grow">
           <input
-            required
             type="text"
-            name="email"
-            autoComplete="off"
-            className="input"
+            required
             value={newMemberEmail}
             onChange={(e) => setNewMemberEmail(e.target.value)}
+            className="input"
           />
           <label className="user-label">Email</label>
         </div>
-        <div className="input-container flex-grow mr-2">
+        <div className="input-group mr-2 flex-grow">
           <input
-            required
             type="text"
-            name="nickname"
-            autoComplete="off"
-            className="input"
+            required
             value={newMemberNickname}
             onChange={(e) => setNewMemberNickname(e.target.value)}
+            className="input"
           />
           <label className="user-label">Nickname</label>
         </div>
         <button
           onClick={handleAddMember}
-          className="bg-blue-500 text-white p-2 rounded flex-shrink-0"
+          className="bg-blue-500 text-white p-2 rounded"
         >
           <FaPlus />
         </button>
