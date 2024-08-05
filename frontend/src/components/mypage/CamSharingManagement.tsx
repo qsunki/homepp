@@ -36,11 +36,11 @@ const CamSharingManagement: React.FC = () => {
   const handleAddMember = async () => {
     if (newMemberEmail.trim() === '' || newMemberNickname.trim() === '') return;
     try {
-      await addSharedMember(userEmail, {
+      const response = await addSharedMember(userEmail, {
         email: newMemberEmail,
         nickname: newMemberNickname,
       });
-      loadSharedMembers();
+      setSharedMembers((prevMembers) => [...prevMembers, response.data]);
       setNewMemberEmail('');
       setNewMemberNickname('');
     } catch (error) {
@@ -56,8 +56,17 @@ const CamSharingManagement: React.FC = () => {
   const handleSaveMember = async (email: string) => {
     if (editingMemberNickname.trim() === '') return;
     try {
-      await updateSharedMember(userEmail, email, editingMemberNickname);
-      loadSharedMembers();
+      const response = await updateSharedMember(
+        userEmail,
+        email,
+        editingMemberNickname
+      );
+      const updatedMember = response.data;
+      setSharedMembers((prevMembers) =>
+        prevMembers.map((member) =>
+          member.email === updatedMember.email ? updatedMember : member
+        )
+      );
       setEditingMemberEmail(null);
       setEditingMemberNickname('');
     } catch (error) {
@@ -68,7 +77,9 @@ const CamSharingManagement: React.FC = () => {
   const handleDeleteMember = async (email: string) => {
     try {
       await deleteSharedMember(userEmail, email);
-      loadSharedMembers();
+      setSharedMembers((prevMembers) =>
+        prevMembers.filter((member) => member.email !== email)
+      );
     } catch (error) {
       console.error('공유 사용자 삭제 오류:', error);
     }

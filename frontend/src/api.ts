@@ -192,7 +192,9 @@ export interface SharedMember {
 }
 
 // 공유 사용자 조회
-export const fetchSharedMembers = async (email: string) => {
+export const fetchSharedMembers = async (
+  email: string
+): Promise<AxiosResponse<SharedMember[]>> => {
   return await api.get<SharedMember[]>(`/members/${email}/sharedMembers`);
 };
 
@@ -200,8 +202,11 @@ export const fetchSharedMembers = async (email: string) => {
 export const addSharedMember = async (
   email: string,
   sharedMember: SharedMember
-) => {
-  return await api.post(`/members/${email}/sharedMembers`, sharedMember);
+): Promise<AxiosResponse<SharedMember>> => {
+  return await api.post<SharedMember>(
+    `/members/${email}/sharedMembers`,
+    sharedMember
+  );
 };
 
 // 공유 사용자 수정
@@ -209,12 +214,10 @@ export const updateSharedMember = async (
   email: string,
   sharedMemberEmail: string,
   nickname: string
-) => {
-  return await api.patch(
+): Promise<AxiosResponse<SharedMember>> => {
+  return await api.patch<SharedMember>(
     `/members/${email}/sharedMembers/${sharedMemberEmail}`,
-    {
-      nickname,
-    }
+    { email: sharedMemberEmail, nickname }
   );
 };
 
@@ -222,8 +225,8 @@ export const updateSharedMember = async (
 export const deleteSharedMember = async (
   email: string,
   sharedMemberEmail: string
-) => {
-  return await api.delete(
+): Promise<AxiosResponse<void>> => {
+  return await api.delete<void>(
     `/members/${email}/sharedMembers/${sharedMemberEmail}`
   );
 };
