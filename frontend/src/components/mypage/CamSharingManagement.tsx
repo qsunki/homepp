@@ -24,10 +24,11 @@ const CamSharingManagement: React.FC = () => {
     useState<string>('');
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [componentKey, setComponentKey] = useState<number>(0);
 
   useEffect(() => {
     loadSharedMembers();
-  }, []);
+  }, [componentKey]);
 
   const loadSharedMembers = async () => {
     try {
@@ -119,10 +120,11 @@ const CamSharingManagement: React.FC = () => {
   const closeModal = () => {
     setIsModalOpen(false);
     setAlertMessage(null);
+    setComponentKey((prevKey) => prevKey + 1);
   };
 
   return (
-    <div>
+    <div key={componentKey}>
       <h2 className="text-2xl font-bold mb-4">Shared Member Management</h2>
       <ul className="list-disc pl-5 mb-4">
         {sharedMembers.map((member) => (
