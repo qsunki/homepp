@@ -5,6 +5,7 @@ import {
   addSharedMember,
   updateSharedMember,
   deleteSharedMember,
+  checkDuplicateEmail,
 } from '../../api';
 import { useUserStore } from '../../stores/useUserStore';
 import { FaTrash, FaEdit, FaPlus } from 'react-icons/fa';
@@ -19,6 +20,7 @@ const CamSharingManagement: React.FC = () => {
   );
   const [editingMemberNickname, setEditingMemberNickname] =
     useState<string>('');
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
 
   useEffect(() => {
     loadSharedMembers();
@@ -36,11 +38,17 @@ const CamSharingManagement: React.FC = () => {
   const handleAddMember = async () => {
     if (newMemberEmail.trim() === '' || newMemberNickname.trim() === '') return;
     try {
-      const response = await addSharedMember(userEmail, {
+      const isEmailDuplicate = await checkDuplicateEmail(newMemberEmail);
+      if (isEmailDuplicate) {
+        setAlertMessage('가입되어 있지 않은 사용자입니다.');
+        return;
+      }
+      await addSharedMember(userEmail, {
         email: newMemberEmail,
         nickname: newMemberNickname,
       });
-      setSharedMembers((prevMembers) => [...prevMembers, response.data]);
+      setAlertMessage('공유 사용자가 추가되었습니다.');
+      loadSharedMembers();
       setNewMemberEmail('');
       setNewMemberNickname('');
     } catch (error) {
@@ -77,9 +85,7 @@ const CamSharingManagement: React.FC = () => {
   const handleDeleteMember = async (email: string) => {
     try {
       await deleteSharedMember(userEmail, email);
-      setSharedMembers((prevMembers) =>
-        prevMembers.filter((member) => member.email !== email)
-      );
+      loadSharedMembers();
     } catch (error) {
       console.error('공유 사용자 삭제 오류:', error);
     }
@@ -88,6 +94,7 @@ const CamSharingManagement: React.FC = () => {
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">Shared Member Management</h2>
+      {alertMessage && <div className="alert">{alertMessage}</div>}
       <ul className="list-disc pl-5 mb-4">
         {sharedMembers.map((member) => (
           <li
