@@ -8,14 +8,18 @@ import org.springframework.data.repository.query.Param;
 import ssafy.age.backend.event.persistence.EventType;
 
 public interface VideoRepository extends JpaRepository<Video, Long> {
+
     @Query(
-            "SELECT DISTINCT v FROM Video v JOIN v.eventList e WHERE e.type IN :types AND e.cam.id"
-                + " = :camId AND v.recordStartAt BETWEEN :startDate AND :endDate AND v.isThreat ="
-                + " :isThreat")
-    List<Video> findAllVideos(
+            "SELECT v FROM Video v JOIN v.events e JOIN v.cam c WHERE "
+                    + "(:types IS NULL OR e.type IN :types) AND "
+                    + "(:startDate IS NULL OR v.recordStartedAt >= :startDate) AND "
+                    + "(:endDate IS NULL OR v.recordStartedAt <= :endDate) AND "
+                    + "(:camId IS NULL OR c.id = :camId) AND "
+                    + "(:isThreat IS NULL OR v.isThreat = :isThreat)")
+    List<Video> findVideosByParams(
             @Param("types") List<EventType> types,
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate,
             @Param("camId") Long camId,
-            @Param("isThreat") boolean isThreat);
+            @Param("isThreat") Boolean isThreat);
 }
