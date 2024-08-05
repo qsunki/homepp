@@ -16,4 +16,9 @@ public class EnvInfoController {
     public List<EnvInfoResponseDto> getEnvInfos(@PathVariable Long camId) {
         return envInfoService.getEnvInfos(camId);
     }
+
+    @GetMapping("/api/v1/cams/{camId}/envInfo")
+    public EnvInfoResponseDto getEnvInfo(@PathVariable Long camId) {
+        return envInfoService.getEnvInfo(camId);
+    }
 }

@@ -30,4 +30,14 @@ public class EnvInfoService {
         List<EnvInfo> envInfos = envInfoRepository.findAllByCamId(camId);
         return envInfos.stream().map(envInfoMapper::toEnvInfoResponseDto).toList();
     }
+
+    public EnvInfoResponseDto getEnvInfo(Long camId) {
+        if (!camRepository.existsById(camId)) {
+            throw new CamNotFoundException();
+        }
+        List<EnvInfo> envInfos = envInfoRepository.findAllByCamId(camId);
+
+        EnvInfo latestEnvInfo = envInfos.getLast();
+        return envInfoMapper.toEnvInfoResponseDto(latestEnvInfo);
+    }
 }
