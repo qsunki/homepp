@@ -14,7 +14,6 @@ import ssafy.age.backend.event.service.EventService;
 public class EventController {
 
     private final EventService eventService;
-    private final EventMapper eventMapper = EventMapper.INSTANCE;
 
     @GetMapping
     public List<EventResponseDto> getAllEvents() {

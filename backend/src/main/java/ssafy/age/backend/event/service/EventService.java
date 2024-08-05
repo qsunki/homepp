@@ -3,6 +3,7 @@ package ssafy.age.backend.event.service;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ssafy.age.backend.auth.service.AuthService;
 import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.event.exception.EventNotFoundException;
 import ssafy.age.backend.event.persistence.Event;
@@ -15,10 +16,12 @@ import ssafy.age.backend.video.persistence.Video;
 public class EventService {
 
     private final EventRepository eventRepository;
+    private final AuthService authService;
     private final EventMapper eventMapper = EventMapper.INSTANCE;
 
     public List<EventResponseDto> getAllEvents() {
-        List<Event> eventList = eventRepository.findAll();
+        String email = authService.getMemberEmail();
+        List<Event> eventList = eventRepository.findAllEventsByMemberEmail(email);
         return eventList.stream().map(eventMapper::toEventResponseDto).toList();
     }
 
