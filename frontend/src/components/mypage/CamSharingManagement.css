@@ -1,11 +1,11 @@
 .input-group {
-  position: relative;
   display: flex;
-  align-items: center;
+  gap: 1rem; /* 입력 필드 간격을 추가하여 버튼이 잘리지 않도록 함 */
 }
 
 .input-container {
   position: relative;
+  flex-grow: 1; /* 입력 필드가 전체 공간을 차지하도록 함 */
 }
 
 .input {

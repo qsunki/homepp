@@ -34,30 +34,20 @@ const CamSharingManagement: React.FC = () => {
     try {
       const response = await fetchSharedMembers(userEmail);
       setSharedMembers(response.data);
+      setAlertMessage(null);
+      setSuccessMessage(null);
     } catch (error) {
       console.error('공유 사용자 목록 불러오기 오류:', error);
     }
   };
 
   const handleAddMember = async () => {
-    setAlertMessage(null);
-    setSuccessMessage(null);
-
     if (newMemberEmail.trim() === '' || newMemberNickname.trim() === '') return;
 
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailPattern.test(newMemberEmail)) {
       setAlertMessage('유효한 이메일 주소를 입력해주세요.');
-      return;
-    }
-
-    if (sharedMembers.some((member) => member.email === newMemberEmail)) {
-      setAlertMessage('이미 등록된 공유 사용자입니다.');
-      return;
-    }
-
-    if (newMemberEmail === userEmail) {
-      setAlertMessage('본인의 이메일은 추가할 수 없습니다.');
+      setSuccessMessage(null);
       return;
     }
 
@@ -65,13 +55,25 @@ const CamSharingManagement: React.FC = () => {
       const isEmailDuplicate = await checkDuplicateEmail(newMemberEmail);
       if (isEmailDuplicate) {
         setAlertMessage('가입되어 있지 않은 사용자입니다.');
+        setSuccessMessage(null);
         return;
       }
+
+      const isAlreadyShared = sharedMembers.some(
+        (member) => member.email === newMemberEmail
+      );
+      if (isAlreadyShared) {
+        setAlertMessage('이미 등록된 공유 사용자입니다.');
+        setSuccessMessage(null);
+        return;
+      }
+
       await addSharedMember(userEmail, {
         email: newMemberEmail,
         nickname: newMemberNickname,
       });
       setSuccessMessage('공유 사용자가 추가되었습니다.');
+      setAlertMessage(null);
       loadSharedMembers();
       setNewMemberEmail('');
       setNewMemberNickname('');
@@ -115,15 +117,6 @@ const CamSharingManagement: React.FC = () => {
     }
   };
 
-  const handleKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement>,
-    email: string
-  ) => {
-    if (e.key === 'Enter') {
-      handleSaveMember(email);
-    }
-  };
-
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">Shared Member Management</h2>
@@ -138,7 +131,6 @@ const CamSharingManagement: React.FC = () => {
                 type="text"
                 value={editingMemberNickname}
                 onChange={(e) => setEditingMemberNickname(e.target.value)}
-                onKeyDown={(e) => handleKeyDown(e, member.email)}
                 className="border p-2 flex-grow mr-2 text-lg h-8"
               />
             ) : (
@@ -178,24 +170,28 @@ const CamSharingManagement: React.FC = () => {
           </li>
         ))}
       </ul>
-      <div className="flex mb-4">
-        <div className="input-group mr-2 flex-grow">
+      <div className="flex mb-4 items-center">
+        <div className="input-container flex-grow mr-2">
           <input
-            type="text"
             required
+            type="text"
+            name="email"
+            autoComplete="off"
+            className="input"
             value={newMemberEmail}
             onChange={(e) => setNewMemberEmail(e.target.value)}
-            className="input"
           />
           <label className="user-label">Email</label>
         </div>
-        <div className="input-group mr-2 flex-grow">
+        <div className="input-container flex-grow mr-2">
           <input
-            type="text"
             required
+            type="text"
+            name="nickname"
+            autoComplete="off"
+            className="input"
             value={newMemberNickname}
             onChange={(e) => setNewMemberNickname(e.target.value)}
-            className="input"
           />
           <label className="user-label">Nickname</label>
         </div>

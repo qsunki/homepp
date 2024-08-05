@@ -5,6 +5,7 @@ import { fetchCams, updateCam } from '../../api';
 import { useUserStore } from '../../stores/useUserStore';
 import checkIcon from '../../assets/mypage/check.png';
 import cancelIcon from '../../assets/mypage/cancel.png';
+import Modal from 'react-modal';
 
 interface CamData {
   camId: number;
@@ -24,6 +25,7 @@ const DeviceManagement: React.FC = () => {
   const [showQRCodePopup, setShowQRCodePopup] = useState<boolean>(false);
   const [macAddress, setMacAddress] = useState<string>('');
   const [macAddressError, setMacAddressError] = useState<string | null>(null);
+  const [isMacModalOpen, setIsMacModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
     loadDevices();
@@ -65,7 +67,26 @@ const DeviceManagement: React.FC = () => {
     setNewDeviceName('');
   };
 
-  const handleAddDevice = async () => {
+  const handleAddDevice = () => {
+    setIsMacModalOpen(true);
+  };
+
+  const handleMacAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/[^a-fA-F0-9]/g, '').toUpperCase();
+    if (value.length > 12) {
+      value = value.slice(0, 12);
+    }
+    const formattedMacAddress = value.match(/.{1,2}/g)?.join(':') || '';
+    setMacAddress(formattedMacAddress);
+    setMacAddressError(null);
+  };
+
+  const validateMacAddress = (mac: string) => {
+    const macPattern = /^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/;
+    return macPattern.test(mac);
+  };
+
+  const handleGenerateQRCode = async () => {
     if (!validateMacAddress(macAddress)) {
       setMacAddressError('유효한 MAC 주소를 입력해주세요.');
       return;
@@ -79,6 +100,7 @@ const DeviceManagement: React.FC = () => {
       const url = await QRCode.toDataURL(qrCodeData);
       setQrCodeUrl(url);
       setShowQRCodePopup(true);
+      setIsMacModalOpen(false);
       setMacAddress('');
     } catch (error) {
       console.error('Error generating QR code:', error);
@@ -129,16 +151,10 @@ const DeviceManagement: React.FC = () => {
     setQrCodeUrl(null);
   };
 
-  const handleMacAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^a-fA-F0-9]/g, '').toUpperCase();
-    const formattedMacAddress = value.match(/.{1,2}/g)?.join(':') || '';
-    setMacAddress(formattedMacAddress);
+  const closeMacModal = () => {
+    setIsMacModalOpen(false);
+    setMacAddress('');
     setMacAddressError(null);
-  };
-
-  const validateMacAddress = (mac: string) => {
-    const macPattern = /^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/;
-    return macPattern.test(mac);
   };
 
   return (
@@ -193,22 +209,6 @@ const DeviceManagement: React.FC = () => {
           </li>
         ))}
       </ul>
-      <div className="mb-4">
-        <label className="block mb-2 text-sm" htmlFor="macAddress">
-          MAC Address
-        </label>
-        <input
-          id="macAddress"
-          type="text"
-          className="border rounded w-full py-2 px-3"
-          placeholder="00:00:00:00:00:00"
-          value={macAddress}
-          onChange={handleMacAddressChange}
-        />
-        {macAddressError && (
-          <div className="text-red-500 text-xs mt-2">{macAddressError}</div>
-        )}
-      </div>
       <div
         onClick={handleAddDevice}
         className="bg-gray-200 p-4 text-center cursor-pointer flex items-center justify-center rounded-lg"
@@ -242,6 +242,39 @@ const DeviceManagement: React.FC = () => {
           </div>
         </div>
       )}
+      <Modal
+        isOpen={isMacModalOpen}
+        onRequestClose={closeMacModal}
+        contentLabel="MAC Address Input"
+        className="modal"
+        overlayClassName="modal-overlay"
+      >
+        <div className="modal-content">
+          <h2 className="text-xl font-bold mb-4">Enter MAC Address</h2>
+          <input
+            type="text"
+            placeholder="00:00:00:00:00:00"
+            value={macAddress}
+            onChange={handleMacAddressChange}
+            className="border rounded w-full py-2 px-3 mb-2"
+          />
+          {macAddressError && (
+            <div className="text-red-500 text-xs mb-4">{macAddressError}</div>
+          )}
+          <button
+            onClick={handleGenerateQRCode}
+            className="bg-blue-500 text-white p-2 rounded mr-2"
+          >
+            Generate QR Code
+          </button>
+          <button
+            onClick={closeMacModal}
+            className="bg-gray-300 text-black p-2 rounded"
+          >
+            Cancel
+          </button>
+        </div>
+      </Modal>
       {showQRCodePopup && qrCodeUrl && (
         <div
           className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50"
@@ -249,7 +282,7 @@ const DeviceManagement: React.FC = () => {
         >
           <div className="bg-white p-4 rounded-lg text-center">
             <h3 className="text-lg font-bold mb-4">QR Code</h3>
-            <p className="mb-4">보안 카메라로 찍어주세요</p>
+            <p className="mb-4">Scan with your security camera</p>
             <img src={qrCodeUrl} alt="QR Code" className="mb-4" />
             <button
               onClick={closeQRCodePopup}
