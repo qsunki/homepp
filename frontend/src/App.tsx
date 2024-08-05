@@ -31,8 +31,8 @@ const App: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   useEffect(() => {
-    const token = localStorage.getItem('token'); // 로컬 스토리지에서 JWT 토큰 가져오기
-    const savedPassword = localStorage.getItem('password');
+    const token = localStorage.getItem('token'); // 로컬 스토리지에서 토큰 가져오기
+    const savedPassword = localStorage.getItem('password'); // 로컬 스토리지에서 비밀번호 가져오기
     console.log('useEffect token:', token); // 로컬 스토리지에 저장된 토큰 확인
     if (token) {
       setAuthToken(token); // JWT 토큰 설정

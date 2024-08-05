@@ -42,6 +42,7 @@ export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
 
       if (response.data.accessToken) {
         console.log('로그인 성공:', response.data); // 디버깅용 콘솔 메시지
+        localStorage.setItem('password', inputPassword); // 비밀번호 로컬 스토리지에 저장
         login(
           response.data.userId,
           inputEmail,
