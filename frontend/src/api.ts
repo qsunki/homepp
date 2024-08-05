@@ -186,4 +186,46 @@ export const updateCam = async (
   }
 };
 
+export interface SharedMember {
+  nickname: string;
+  email: string;
+}
+
+// 공유 사용자 조회
+export const fetchSharedMembers = async (email: string) => {
+  return await api.get<SharedMember[]>(`/members/${email}/sharedMembers`);
+};
+
+// 공유 사용자 추가
+export const addSharedMember = async (
+  email: string,
+  sharedMember: SharedMember
+) => {
+  return await api.post(`/members/${email}/sharedMembers`, sharedMember);
+};
+
+// 공유 사용자 수정
+export const updateSharedMember = async (
+  email: string,
+  sharedMemberEmail: string,
+  nickname: string
+) => {
+  return await api.patch(
+    `/members/${email}/sharedMembers/${sharedMemberEmail}`,
+    {
+      nickname,
+    }
+  );
+};
+
+// 공유 사용자 삭제
+export const deleteSharedMember = async (
+  email: string,
+  sharedMemberEmail: string
+) => {
+  return await api.delete(
+    `/members/${email}/sharedMembers/${sharedMemberEmail}`
+  );
+};
+
 export default api;

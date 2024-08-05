@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import {
   fetchSharedMembers,
+  SharedMember,
   addSharedMember,
   updateSharedMember,
   deleteSharedMember,
-} from './api';
-import { useUserStore } from './useUserStore';
+} from '../../api';
+import { useUserStore } from '../../stores/useUserStore';
 import { FaTrash, FaEdit, FaPlus } from 'react-icons/fa';
 
 const CamSharingManagement: React.FC = () => {
