@@ -52,13 +52,13 @@ const CamSharingManagement: React.FC = () => {
       return;
     }
 
-    if (newMemberEmail === userEmail) {
-      setAlertMessage('자신의 이메일은 추가할 수 없습니다.');
+    if (sharedMembers.some((member) => member.email === newMemberEmail)) {
+      setAlertMessage('이미 등록된 공유 사용자입니다.');
       return;
     }
 
-    if (sharedMembers.some((member) => member.email === newMemberEmail)) {
-      setAlertMessage('이미 등록된 공유 사용자입니다.');
+    if (newMemberEmail === userEmail) {
+      setAlertMessage('본인 이메일은 등록할 수 없습니다.');
       return;
     }
 
@@ -119,9 +119,6 @@ const CamSharingManagement: React.FC = () => {
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">Shared Member Management</h2>
-      {successMessage && (
-        <div className="text-blue-500 mb-4">{successMessage}</div>
-      )}
       <ul className="list-disc pl-5 mb-4">
         {sharedMembers.map((member) => (
           <li
@@ -169,29 +166,44 @@ const CamSharingManagement: React.FC = () => {
           </li>
         ))}
       </ul>
-      <div className="flex mb-4">
-        <input
-          type="text"
-          placeholder="Email"
-          value={newMemberEmail}
-          onChange={(e) => setNewMemberEmail(e.target.value)}
-          className="border p-2 flex-grow mr-2 text-lg h-8"
-        />
-        <input
-          type="text"
-          placeholder="Nickname"
-          value={newMemberNickname}
-          onChange={(e) => setNewMemberNickname(e.target.value)}
-          className="border p-2 flex-grow mr-2 text-lg h-8"
-        />
+      <div className="flex mb-4 input-group">
+        <div className="flex-grow mr-2">
+          <input
+            required
+            type="text"
+            name="email"
+            autoComplete="off"
+            className="input"
+            value={newMemberEmail}
+            onChange={(e) => setNewMemberEmail(e.target.value)}
+          />
+          <label className="user-label">Email</label>
+        </div>
+        <div className="flex-grow mr-2">
+          <input
+            required
+            type="text"
+            name="nickname"
+            autoComplete="off"
+            className="input"
+            value={newMemberNickname}
+            onChange={(e) => setNewMemberNickname(e.target.value)}
+          />
+          <label className="user-label">Nickname</label>
+        </div>
         <button
           onClick={handleAddMember}
-          className="bg-blue-500 text-white p-2 rounded"
+          className="bg-blue-500 text-white p-2 rounded flex-shrink-0"
         >
           <FaPlus />
         </button>
       </div>
-      {alertMessage && <div className="text-red-500 mb-4">{alertMessage}</div>}
+      {alertMessage && (
+        <div className="text-red-500 text-xs mb-4">{alertMessage}</div>
+      )}
+      {successMessage && (
+        <div className="text-blue-500 text-xs mb-4">{successMessage}</div>
+      )}
     </div>
   );
 };
