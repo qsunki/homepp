@@ -66,24 +66,13 @@ public class VideoService {
 
     @Transactional
     public VideoResponseDto getVideoById(Long videoId) {
-
         Video video = videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
-
-        VideoResponseDto dto = videoMapper.toVideoResponseDto(video);
-
-        List<EventDetailDto> eventDetails =
-                video.getEvents().stream()
-                        .map(videoMapper::toEventDetailDto)
-                        .collect(Collectors.toList());
-        dto.setEvents(eventDetails);
-
-        video.getEvents().stream()
-                .findFirst()
-                .ifPresent(event -> dto.setCamName(event.getCam().getName()));
-
-        return dto;
+        return videoMapper.toVideoResponseDto(video);
     }
 
+    /*
+     * TODO: 외래키 제약조건으로 삭제불가능한 것 수정하기
+     */
     public void deleteVideo(Long videoId) {
         videoRepository.deleteById(videoId);
     }
