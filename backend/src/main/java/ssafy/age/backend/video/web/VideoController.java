@@ -27,11 +27,11 @@ public class VideoController {
 
     @GetMapping("/videos")
     public List<VideoResponseDto> getAllVideos(
-            @RequestParam List<EventType> types,
-            @RequestParam LocalDateTime startDate,
-            @RequestParam LocalDateTime endDate,
-            @RequestParam Long camId,
-            @RequestParam boolean isThreat) {
+            @RequestParam(required = false) List<EventType> types,
+            @RequestParam(required = false) LocalDateTime startDate,
+            @RequestParam(required = false) LocalDateTime endDate,
+            @RequestParam(required = false) Long camId,
+            @RequestParam(required = false) boolean isThreat) {
         return videoService.getAllVideos(types, startDate, endDate, camId, isThreat);
     }
 
