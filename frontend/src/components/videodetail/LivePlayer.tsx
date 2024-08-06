@@ -14,7 +14,10 @@ const LivePlayer: React.FC = () => {
 
   useEffect(() => {
     console.log('Initializing WebSocket and STOMP client...');
-    const socket = new SockJS('http://i11a605.p.ssafy.io:8081/ws');
+
+    const socketUrl = `https://i11a605.p.ssafy.io/live-video`;
+    const socket = new SockJS(socketUrl);
+
     const stompClient = new Client({
       webSocketFactory: () => socket,
       onConnect: () => {
@@ -108,12 +111,14 @@ const LivePlayer: React.FC = () => {
   };
 
   return (
-    <video
-      ref={remoteVideoRef}
-      autoPlay
-      playsInline
-      className="w-full h-auto"
-    />
+    <div>
+      <video
+        ref={remoteVideoRef}
+        autoPlay
+        playsInline
+        className="w-full h-auto"
+      />
+    </div>
   );
 };
 
