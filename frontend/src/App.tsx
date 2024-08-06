@@ -10,11 +10,15 @@ import VideoList from './pages/VideoList';
 import VideoDetail from './pages/VideoDetail';
 import ScrollToTop from './utils/ScrollToTop';
 import { useUserStore } from './stores/useUserStore';
-import { setAuthToken, getUserInfo } from './api';
+import { setAuthToken, getUserInfo, sendFcmTokenToServer } from './api';
 import SignIn from './components/SignIn';
 import ProtectedRoute from './components/ProtectedRoute';
-import { messaging, getToken, onMessage } from './utils/firebase';
-import api from './api';
+import {
+  messaging,
+  requestPermissionAndGetToken,
+  VAPID_KEY,
+} from './utils/firebase';
+import { onMessage, MessagePayload } from 'firebase/messaging';
 import './App.css';
 import 'tw-elements';
 import 'tw-elements/dist/css/tw-elements.min.css';
@@ -57,18 +61,30 @@ const App: React.FC = () => {
     } else {
       logout();
     }
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker
+        .register('/firebase-messaging-sw.js')
+        .then((registration) => {
+          console.log(
+            'Service Worker registration successful with scope: ',
+            registration.scope
+          );
+        })
+        .catch((error) => {
+          console.log('Service Worker registration failed: ', error);
+        });
+    }
   }, [setUser, logout]);
 
   const registerFcmToken = async (email: string) => {
     try {
-      const fcmToken = await getToken(messaging, {
-        vapidKey: 'YOUR_VAPID_KEY',
-      });
+      const fcmToken = await requestPermissionAndGetToken(VAPID_KEY);
+      console.log('FCM 토큰:', fcmToken); // FCM 토큰 콘솔 출력
       if (fcmToken) {
-        await api.post(`/api/v1/members/${email}/tokens`, {
-          token: fcmToken,
-        });
         console.log('FCM 토큰 등록 성공:', fcmToken);
+        await sendFcmTokenToServer(email, fcmToken); // 서버에 FCM 토큰 전송
+        console.log('서버에 FCM 토큰 전송 성공:', fcmToken);
       } else {
         console.log('FCM 토큰을 가져올 수 없습니다.');
       }
@@ -78,7 +94,7 @@ const App: React.FC = () => {
   };
 
   const handleForegroundNotification = () => {
-    onMessage(messaging, (payload) => {
+    onMessage(messaging, (payload: MessagePayload) => {
       console.log('포그라운드에서 알림 수신:', payload);
       setNotifications((prev) => [
         ...prev,

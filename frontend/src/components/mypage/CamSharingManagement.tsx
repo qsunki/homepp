@@ -25,6 +25,7 @@ const CamSharingManagement: React.FC = () => {
     useState<string>('');
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [nicknameError, setNicknameError] = useState<string | null>(null);
 
   useEffect(() => {
     loadSharedMembers();
@@ -47,6 +48,12 @@ const CamSharingManagement: React.FC = () => {
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailPattern.test(newMemberEmail)) {
       setAlertMessage('유효한 이메일 주소를 입력해주세요.');
+      setSuccessMessage(null);
+      return;
+    }
+
+    if (newMemberEmail === userEmail) {
+      setAlertMessage('자기 자신은 공유 사용자로 추가할 수 없습니다.');
       setSuccessMessage(null);
       return;
     }
@@ -85,10 +92,14 @@ const CamSharingManagement: React.FC = () => {
   const handleEditMember = (email: string, nickname: string) => {
     setEditingMemberEmail(email);
     setEditingMemberNickname(nickname);
+    setNicknameError(null);
   };
 
   const handleSaveMember = async (email: string) => {
-    if (editingMemberNickname.trim() === '') return;
+    if (editingMemberNickname.trim() === '') {
+      setNicknameError('Nickname cannot be empty.');
+      return;
+    }
     try {
       const response = await updateSharedMember(
         userEmail,
@@ -103,6 +114,7 @@ const CamSharingManagement: React.FC = () => {
       );
       setEditingMemberEmail(null);
       setEditingMemberNickname('');
+      setNicknameError(null);
     } catch (error) {
       console.error('공유 사용자 수정 오류:', error);
     }
@@ -127,12 +139,17 @@ const CamSharingManagement: React.FC = () => {
             className="flex justify-between items-center mb-4"
           >
             {editingMemberEmail === member.email ? (
-              <input
-                type="text"
-                value={editingMemberNickname}
-                onChange={(e) => setEditingMemberNickname(e.target.value)}
-                className="border p-2 flex-grow mr-2 text-lg h-8"
-              />
+              <div className="flex flex-col flex-grow mr-2">
+                <input
+                  type="text"
+                  value={editingMemberNickname}
+                  onChange={(e) => setEditingMemberNickname(e.target.value)}
+                  className="border p-2 text-lg h-8"
+                />
+                {nicknameError && (
+                  <span className="text-red-500 text-sm">{nicknameError}</span>
+                )}
+              </div>
             ) : (
               <span className="text-lg">{member.nickname}</span>
             )}
