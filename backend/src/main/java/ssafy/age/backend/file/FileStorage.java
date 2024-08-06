@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import javax.imageio.ImageIO;
 import org.jcodec.api.FrameGrab;
 import org.jcodec.api.JCodecException;
@@ -33,7 +34,7 @@ public class FileStorage {
     private String camThumbnailDir;
 
     private void save(String path, MultipartFile file) throws IOException {
-        Files.copy(file.getInputStream(), Path.of(path));
+        Files.copy(file.getInputStream(), Path.of(path), StandardCopyOption.REPLACE_EXISTING);
     }
 
     public void saveVideo(long videoId, MultipartFile file) {
