@@ -219,7 +219,9 @@ export const fetchVideos = async (params?: {
   try {
     const queryParams = new URLSearchParams();
     if (params?.types) {
-      params.types.forEach((type) => queryParams.append('types', type));
+      params.types.forEach((type) =>
+        queryParams.append('types', type.toUpperCase())
+      );
     }
     if (params?.startDate) queryParams.append('startDate', params.startDate);
     if (params?.endDate) queryParams.append('endDate', params.endDate);
