@@ -51,6 +51,7 @@ const VideoList: React.FC = () => {
   const [showCameraOptions, setShowCameraOptions] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [videos, setVideos] = useState<Video[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -112,7 +113,7 @@ const VideoList: React.FC = () => {
         if (selectedTypes.length) {
           selectedTypes.forEach((type) =>
             params.append('types', type.toUpperCase())
-          ); // 타입을 대문자로 변환
+          );
         }
         if (startDate) {
           params.append('startDate', startDate);
@@ -126,24 +127,30 @@ const VideoList: React.FC = () => {
         params.append('isThreat', 'false');
 
         const response = await fetchVideos(Object.fromEntries(params));
-        const apiVideos = response.data.map((video: ApiVideo) => ({
-          id: video.videoId,
-          thumbnail: video.thumbnailUrl || 'https://via.placeholder.com/150',
-          startTime: new Date(video.recordStartAt).toLocaleTimeString(),
-          length: `${Math.floor(video.length / 60)}:${(video.length % 60)
-            .toString()
-            .padStart(2, '0')}`,
-          type: video.eventDetails.map((event) => event.type),
-          date: new Date(video.recordStartAt),
-          camera: video.camName,
-          title:
-            video.camName +
-            ' - ' +
-            video.eventDetails.map((event) => event.type).join(', '),
-        }));
-        setVideos(apiVideos);
+        if (response.data) {
+          const apiVideos = response.data.map((video: ApiVideo) => ({
+            id: video.videoId,
+            thumbnail: video.thumbnailUrl || 'https://via.placeholder.com/150',
+            startTime: new Date(video.recordStartAt).toLocaleTimeString(),
+            length: `${Math.floor(video.length / 60)}:${(video.length % 60)
+              .toString()
+              .padStart(2, '0')}`,
+            type: video.eventDetails.map((event) => event.type),
+            date: new Date(video.recordStartAt),
+            camera: video.camName,
+            title:
+              video.camName +
+              ' - ' +
+              video.eventDetails.map((event) => event.type).join(', '),
+          }));
+          setVideos(apiVideos);
+        } else {
+          setVideos([]);
+        }
+        setError(null);
       } catch (error) {
         console.error('Failed to fetch videos', error);
+        setError('Failed to fetch videos. Please try again later.');
       }
     };
 
@@ -175,7 +182,7 @@ const VideoList: React.FC = () => {
           />
           <FilterIcon
             icon={soundIcon}
-            label="Noise"
+            label="Loud Noise"
             isSelected={selectedTypes.includes('SOUND')}
             onClick={() => handleTypeToggle('SOUND')}
           />
@@ -250,7 +257,7 @@ const VideoList: React.FC = () => {
               />
               <FilterIcon
                 icon={soundIcon}
-                label="Noise"
+                label="Loud Noise"
                 isSelected={selectedTypes.includes('SOUND')}
                 onClick={() => handleTypeToggle('SOUND')}
               />
@@ -306,6 +313,7 @@ const VideoList: React.FC = () => {
         )}
       </div>
       <div className="md:w-3/4 p-4">
+        {error && <div className="text-center text-red-500">{error}</div>}
         {videos.length === 0 ? (
           <div className="text-center text-gray-500">
             No videos found for the selected filters.
