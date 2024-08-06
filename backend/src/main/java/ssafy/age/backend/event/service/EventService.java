@@ -6,6 +6,7 @@ import java.time.LocalTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ssafy.age.backend.auth.service.AuthService;
 import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.event.exception.EventNotFoundException;
@@ -22,6 +23,7 @@ public class EventService {
     private final AuthService authService;
     private final EventMapper eventMapper = EventMapper.INSTANCE;
 
+    @Transactional
     public List<EventResponseDto> getAllEvents() {
         String email = authService.getMemberEmail();
         List<Event> eventList = eventRepository.findAllEventsByMemberEmail(email);
