@@ -203,8 +203,8 @@ export interface Video {
 // 비디오 목록 조회 API 호출 함수
 export const fetchVideos = async (params: {
   types: string[];
-  startDate?: string;
-  endDate?: string;
+  startDate: string;
+  endDate: string;
   camId: number;
   isThreat: boolean;
 }): Promise<AxiosResponse<Video[]>> => {

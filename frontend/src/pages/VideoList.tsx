@@ -105,12 +105,15 @@ const VideoList: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const startDate = filterDateRange[0]
-          ? filterDateRange[0].toISOString()
-          : undefined;
-        const endDate = filterDateRange[1]
-          ? filterDateRange[1].toISOString()
-          : undefined;
+        const startDate = filterDateRange[0]?.toISOString();
+        const endDate = filterDateRange[1]?.toISOString();
+
+        // startDate와 endDate가 없으면 요청을 보내지 않음
+        if (!startDate || !endDate) {
+          console.error('Invalid date range');
+          return;
+        }
+
         const types = selectedTypes.length
           ? selectedTypes
           : ['INVASION', 'FIRE', 'CUSTOM', 'SOUND'];
@@ -118,27 +121,15 @@ const VideoList: React.FC = () => {
           selectedCamera === 'All Cameras'
             ? 0
             : parseInt(selectedCamera.replace('Camera ', ''));
-        const params: {
-          types: string[];
-          startDate?: string;
-          endDate?: string;
-          camId: number;
-          isThreat: boolean;
-        } = {
+
+        const response = await fetchVideos({
           types,
+          startDate,
+          endDate,
           camId,
           isThreat: false,
-        };
+        });
 
-        if (startDate) {
-          params.startDate = startDate;
-        }
-
-        if (endDate) {
-          params.endDate = endDate;
-        }
-
-        const response = await fetchVideos(params);
         const apiVideos = response.data.map((video: ApiVideo) => ({
           id: video.videoId,
           thumbnail: video.thumbnailUrl || 'https://via.placeholder.com/150',
