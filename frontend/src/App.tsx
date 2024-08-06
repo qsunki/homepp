@@ -62,11 +62,26 @@ const App: React.FC = () => {
     } else {
       logout();
     }
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker
+        .register('/firebase-messaging-sw.js')
+        .then((registration) => {
+          console.log(
+            'Service Worker registration successful with scope: ',
+            registration.scope
+          );
+        })
+        .catch((error) => {
+          console.log('Service Worker registration failed: ', error);
+        });
+    }
   }, [setUser, logout]);
 
   const registerFcmToken = async (email: string) => {
     try {
       const fcmToken = await requestPermissionAndGetToken(VAPID_KEY);
+      console.log('FCM 토큰:', fcmToken); // FCM 토큰 콘솔 출력
       if (fcmToken) {
         await api.post(`/members/${email}/tokens`, { token: fcmToken });
         console.log('FCM 토큰 등록 성공:', fcmToken);
