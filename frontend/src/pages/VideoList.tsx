@@ -51,17 +51,25 @@ const VideoList: React.FC = () => {
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const handleDateChange = (dates: [Date | null, Date | null]) =>
+  const handleDateChange = (dates: [Date | null, Date | null]) => {
+    console.log('Date range changed:', dates);
     setFilterDateRange(dates);
-
-  const handleTypeToggle = (type: string) => {
-    setSelectedTypes((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
-    );
   };
 
-  const handleCameraChange = (event: React.ChangeEvent<HTMLInputElement>) =>
+  const handleTypeToggle = (type: string) => {
+    setSelectedTypes((prev) => {
+      const updatedTypes = prev.includes(type)
+        ? prev.filter((t) => t !== type)
+        : [...prev, type];
+      console.log('Selected types:', updatedTypes);
+      return updatedTypes;
+    });
+  };
+
+  const handleCameraChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('Camera changed:', event.target.value);
     setSelectedCamera(event.target.value);
+  };
 
   const handleVideoClick = (id: number) => navigate(`/video/${id}`);
 
@@ -140,6 +148,8 @@ const VideoList: React.FC = () => {
         if (endDate) params.endDate = endDate;
         if (camId) params.camId = camId;
         if (isReported !== null) params.isThreat = isReported;
+
+        console.log('Fetching videos with params:', params);
 
         const response = await fetchVideos(params);
         const apiVideos = response.data.map((video: ApiVideo) => ({

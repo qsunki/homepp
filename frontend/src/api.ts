@@ -229,6 +229,8 @@ export const fetchVideos = async (params?: {
     if (params?.isThreat !== undefined)
       queryParams.append('isThreat', params.isThreat.toString());
 
+    console.log('API request URL:', `/cams/videos?${queryParams.toString()}`);
+
     const response = await api.get<Video[]>(
       `/cams/videos?${queryParams.toString()}`
     );
