@@ -138,7 +138,7 @@ const VideoList: React.FC = () => {
           startDate,
           endDate,
           camId,
-          isThreat: isReported ?? undefined,
+          isThreat: isReported,
         };
 
         const response = await fetchVideos(params);
@@ -201,7 +201,7 @@ const VideoList: React.FC = () => {
             Reported Videos
             <input
               type="checkbox"
-              checked={isReported || false}
+              checked={!!isReported}
               onChange={() => setIsReported((prev) => !prev)}
             />
           </label>
@@ -284,7 +284,7 @@ const VideoList: React.FC = () => {
                 Reported Videos
                 <input
                   type="checkbox"
-                  checked={isReported || false}
+                  checked={!!isReported}
                   onChange={() => setIsReported((prev) => !prev)}
                 />
               </label>
