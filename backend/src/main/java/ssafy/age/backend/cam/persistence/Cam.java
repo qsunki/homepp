@@ -35,6 +35,8 @@ public class Cam {
     @Builder.Default
     private List<Video> videoList = new ArrayList<>();
 
+    @Setter private String thumbnailUrl;
+
     public Cam(
             Long id,
             String name,
@@ -42,7 +44,8 @@ public class Cam {
             String region,
             CamStatus status,
             Member member,
-            List<Video> videoList) {
+            List<Video> videoList,
+            String thumbnailUrl) {
         this.id = id;
         this.name = name;
         this.ip = ip;
@@ -50,6 +53,7 @@ public class Cam {
         this.status = status;
         this.member = member;
         this.videoList = videoList;
+        this.thumbnailUrl = thumbnailUrl;
     }
 
     public void updateCamName(String name) {

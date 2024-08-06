@@ -4,7 +4,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ssafy.age.backend.event.service.EventMapper;
 import ssafy.age.backend.event.service.EventService;
 
 @Slf4j
@@ -14,7 +13,6 @@ import ssafy.age.backend.event.service.EventService;
 public class EventController {
 
     private final EventService eventService;
-    private final EventMapper eventMapper = EventMapper.INSTANCE;
 
     @GetMapping
     public List<EventResponseDto> getAllEvents() {
@@ -29,5 +27,10 @@ public class EventController {
     @DeleteMapping("/{eventId}")
     public void deleteEvent(@PathVariable Long eventId) {
         eventService.deleteEvent(eventId);
+    }
+
+    @GetMapping("/count")
+    public Integer countEventsOnToday() {
+        return eventService.countEventsOnToday();
     }
 }
