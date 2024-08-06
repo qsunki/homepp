@@ -7,7 +7,7 @@ import ssafy.age.backend.video.web.EventDetailDto;
 @Data
 public class ThreatResponseDto {
     private Boolean isRead;
-    private String recordStartAt;
+    private String recordStartedAt;
     private String region;
     private List<EventDetailDto> eventDetails;
 }

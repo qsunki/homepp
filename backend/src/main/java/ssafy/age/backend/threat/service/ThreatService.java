@@ -1,7 +1,6 @@
 package ssafy.age.backend.threat.service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,7 @@ public class ThreatService {
 
     public List<ThreatResponseDto> getThreatsByMember(String email) {
         List<Threat> threats = threatRepository.findAllByMemberEmail(email);
-        return threats.stream().map(threatMapper::toThreatResponseDto).collect(Collectors.toList());
+        return threats.stream().map(threatMapper::toThreatResponseDto).toList();
     }
 
     public void readThreat(Long threatId) {
