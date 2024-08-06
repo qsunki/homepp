@@ -6,4 +6,5 @@ import lombok.Data;
 public class CamResponseDto {
     private Long camId;
     private String name;
+    private String thumbnailUrl;
 }

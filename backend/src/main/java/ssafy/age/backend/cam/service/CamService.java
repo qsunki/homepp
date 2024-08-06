@@ -4,15 +4,23 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import ssafy.age.backend.cam.exception.CamNotFoundException;
 import ssafy.age.backend.cam.exception.JsonParsingException;
 import ssafy.age.backend.cam.persistence.Cam;
@@ -37,6 +45,9 @@ public class CamService {
     @Value("${openAPI.secret}")
     private String key;
 
+    @Value("${file.dir}")
+    private String fileDir;
+
     public List<CamResponseDto> getAllCams() {
         List<Cam> camList = camRepository.findAll();
         return camList.stream().map(camMapper::toCamResponseDto).toList();
@@ -47,6 +58,10 @@ public class CamService {
         cam.updateCamName(name);
 
         return camMapper.toCamResponseDto(camRepository.save(cam));
+    }
+
+    public void deleteCam(Long camId) {
+        camRepository.deleteById(camId);
     }
 
     public CamResponseDto registerCam(Long camId, Member member) {
@@ -125,5 +140,42 @@ public class CamService {
         String key = UUID.randomUUID().toString();
         mqttService.requestStreaming(camId, key);
         return new StreamResponseDto(key);
+    }
+
+    public void thumbnailOnServer(Long camId, MultipartFile file) {
+        try {
+            Path path = Paths.get(fileDir + camId + ".png");
+            File dir = new File(fileDir);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+
+            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+            Resource resource = new FileSystemResource(path.toFile());
+
+            Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
+
+            cam.setThumbnailUrl(resource.getFile().getPath());
+            camRepository.save(cam);
+        } catch (Exception e) {
+            log.error("썸네일 서버에 안올라감: {}", e.getMessage());
+            throw new CamNotFoundException();
+        }
+    }
+
+    public Resource getCamThumbnail(Long camId) {
+        try {
+            Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
+            Path path = Paths.get(cam.getThumbnailUrl());
+
+            if (Files.exists(path)) {
+                return new FileSystemResource(path.toFile());
+            } else {
+                throw new RuntimeException("썸네일 파일이 존재하지 않습니다.");
+            }
+        } catch (Exception e) {
+            log.error("썸네일 파일을 불러오는 중 오류 발생: {}", e.getMessage());
+            throw new RuntimeException("썸네일 파일 불러오기 실패", e);
+        }
     }
 }
