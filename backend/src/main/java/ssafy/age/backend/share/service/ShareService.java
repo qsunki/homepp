@@ -35,12 +35,8 @@ public class ShareService {
         Member member =
                 memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
         Member sharedMember =
-                memberRepository
-                        .findByEmail(sharedMemberEmail)
+                memberRepository.findByEmail(sharedMemberEmail)
                         .orElseThrow(MemberNotFoundException::new);
-        if (sharedMember == null) {
-            throw new RuntimeException();
-        }
 
         Share share =
                 Share.builder()
@@ -76,8 +72,7 @@ public class ShareService {
 
     private void verifyLoginUser(String email) {
         Member loginMember =
-                memberRepository
-                        .findByEmail(authService.getMemberEmail())
+                memberRepository.findByEmail(authService.getMemberEmail())
                         .orElseThrow(MemberNotFoundException::new);
         Member member =
                 memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);

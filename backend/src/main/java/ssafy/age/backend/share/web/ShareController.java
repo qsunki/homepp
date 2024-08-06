@@ -20,8 +20,7 @@ public class ShareController {
             description = "로그인 된 회원의 비디오를 공유해 줄 회원 목록(이메일과 닉네임)을 가져옵니다.")
     @GetMapping
     public List<ShareDto> getAllShares(@PathVariable String email) {
-        List<ShareDto> shareDtoList = shareService.getAllShares(email);
-        return shareDtoList.stream().toList();
+        return shareService.getAllShares(email);
     }
 
     @Operation(
