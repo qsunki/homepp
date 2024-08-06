@@ -162,6 +162,7 @@ const VideoList: React.FC = () => {
         setVideos(apiVideos);
       } catch (error) {
         console.error('Failed to fetch videos', error);
+        setVideos([]); // 오류 발생 시 빈 배열로 초기화
       }
     };
 
