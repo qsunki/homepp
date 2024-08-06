@@ -144,25 +144,28 @@ const VideoList: React.FC = () => {
         console.log('Fetching videos with params:', params);
 
         const response = await fetchVideos(params);
-        const apiVideos = response.data.map((video: ApiVideo) => ({
-          id: video.videoId,
-          thumbnail: video.thumbnailUrl || 'https://via.placeholder.com/150',
-          startTime: new Date(video.recordStartAt).toLocaleTimeString(),
-          length: `${Math.floor(video.length / 60)}:${(video.length % 60)
-            .toString()
-            .padStart(2, '0')}`,
-          type: video.eventDetails.map((event) => event.type),
-          date: new Date(video.recordStartAt),
-          camera: video.camName,
-          title:
-            video.camName +
-            ' - ' +
-            video.eventDetails.map((event) => event.type).join(', '),
-        }));
+        const apiVideos = response.data
+          ? response.data.map((video: ApiVideo) => ({
+              id: video.videoId,
+              thumbnail:
+                video.thumbnailUrl || 'https://via.placeholder.com/150',
+              startTime: new Date(video.recordStartAt).toLocaleTimeString(),
+              length: `${Math.floor(video.length / 60)}:${(video.length % 60)
+                .toString()
+                .padStart(2, '0')}`,
+              type: video.eventDetails.map((event) => event.type),
+              date: new Date(video.recordStartAt),
+              camera: video.camName,
+              title:
+                video.camName +
+                ' - ' +
+                video.eventDetails.map((event) => event.type).join(', '),
+            }))
+          : [];
         setVideos(apiVideos);
       } catch (error) {
         console.error('Failed to fetch videos', error);
-        setVideos([]); // Clear videos on error
+        setVideos([]); // Ensure videos is set to an empty array on error
       }
     };
 
@@ -183,20 +186,20 @@ const VideoList: React.FC = () => {
           <FilterIcon
             icon={fireIcon}
             label="Fire"
-            isSelected={selectedTypes.includes('FIRE')}
-            onClick={() => handleTypeToggle('FIRE')}
+            isSelected={selectedTypes.includes('Fire')}
+            onClick={() => handleTypeToggle('Fire')}
           />
           <FilterIcon
             icon={thiefIcon}
             label="Invasion"
-            isSelected={selectedTypes.includes('INVASION')}
-            onClick={() => handleTypeToggle('INVASION')}
+            isSelected={selectedTypes.includes('Invasion')}
+            onClick={() => handleTypeToggle('Invasion')}
           />
           <FilterIcon
             icon={soundIcon}
             label="Sound"
-            isSelected={selectedTypes.includes('SOUND')}
-            onClick={() => handleTypeToggle('SOUND')}
+            isSelected={selectedTypes.includes('Sound')}
+            onClick={() => handleTypeToggle('Sound')}
           />
         </div>
         <div className="mb-4 relative">
@@ -266,20 +269,20 @@ const VideoList: React.FC = () => {
               <FilterIcon
                 icon={fireIcon}
                 label="Fire"
-                isSelected={selectedTypes.includes('FIRE')}
-                onClick={() => handleTypeToggle('FIRE')}
+                isSelected={selectedTypes.includes('Fire')}
+                onClick={() => handleTypeToggle('Fire')}
               />
               <FilterIcon
                 icon={thiefIcon}
                 label="Invasion"
-                isSelected={selectedTypes.includes('INVASION')}
-                onClick={() => handleTypeToggle('INVASION')}
+                isSelected={selectedTypes.includes('Invasion')}
+                onClick={() => handleTypeToggle('Invasion')}
               />
               <FilterIcon
                 icon={soundIcon}
                 label="Sound"
-                isSelected={selectedTypes.includes('SOUND')}
-                onClick={() => handleTypeToggle('SOUND')}
+                isSelected={selectedTypes.includes('Sound')}
+                onClick={() => handleTypeToggle('Sound')}
               />
             </div>
             <div className="mb-4 relative">
@@ -341,9 +344,7 @@ const VideoList: React.FC = () => {
         )}
       </div>
       <div className="md:w-3/4 p-4">
-        {videos.length === 0 ? (
-          <p className="text-center text-gray-500">No videos found.</p>
-        ) : (
+        {videos.length > 0 ? (
           Object.entries(groupedVideos).map(([date, videos]) => (
             <div key={date} className="mb-6">
               <div className="text-xl font-bold mb-2">{date}</div>
@@ -380,6 +381,8 @@ const VideoList: React.FC = () => {
               </div>
             </div>
           ))
+        ) : (
+          <p className="text-center text-gray-500">No videos found.</p>
         )}
       </div>
       {showScrollButton && (
