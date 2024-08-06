@@ -19,9 +19,13 @@ import ssafy.age.backend.event.persistence.Event;
 import ssafy.age.backend.event.persistence.EventRepository;
 import ssafy.age.backend.event.persistence.EventType;
 import ssafy.age.backend.file.FileStorage;
+import ssafy.age.backend.member.persistence.Member;
+import ssafy.age.backend.member.persistence.MemberRepository;
 import ssafy.age.backend.mqtt.MqttService;
 import ssafy.age.backend.mqtt.RecordCommand;
 import ssafy.age.backend.notification.service.FCMService;
+import ssafy.age.backend.threat.persistence.Threat;
+import ssafy.age.backend.threat.persistence.ThreatRepository;
 import ssafy.age.backend.video.exception.VideoNotFoundException;
 import ssafy.age.backend.video.persistence.Video;
 import ssafy.age.backend.video.persistence.VideoRepository;
@@ -43,6 +47,8 @@ public class VideoService {
     private final FCMService fcmService;
     private final EventRepository eventRepository;
     private final FileStorage fileStorage;
+    private final MemberRepository memberRepository;
+    private final ThreatRepository threatRepository;
     private final AuthService authService;
 
     @Transactional
@@ -119,9 +125,16 @@ public class VideoService {
         return new VideoRecordResponseDto(key);
     }
 
+    @Transactional
     public void registerThreat(Long videoId) {
         Video video = videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
         video.registerThreat();
+        List<Member> members = memberRepository.findAll();
+        for (Member member : members) {
+            Threat threat = Threat.builder().member(member).video(video).isRead(false).build();
+            threatRepository.save(threat);
+        }
+
         for (Event event : video.getEvents()) {
             fcmService.sendMessageToAll(
                     event.getType().toString() + " 알림",
