@@ -42,6 +42,7 @@ const VideoList: React.FC = () => {
   >([null, null]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedCamera, setSelectedCamera] = useState<string>('All Cameras');
+  const [showFilters, setShowFilters] = useState(false);
   const [showCameraOptions, setShowCameraOptions] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [videos, setVideos] = useState<Video[]>([]);
@@ -63,6 +64,8 @@ const VideoList: React.FC = () => {
     setSelectedCamera(event.target.value);
 
   const handleVideoClick = (id: number) => navigate(`/video/${id}`);
+
+  const toggleFilters = () => setShowFilters(!showFilters);
 
   const closeDropdown = () => setShowCameraOptions(false);
 
@@ -139,28 +142,28 @@ const VideoList: React.FC = () => {
         };
 
         const response = await fetchVideos(params);
-        if (response.data) {
-          const apiVideos = response.data.map((video: ApiVideo) => ({
-            id: video.videoId,
-            thumbnail: video.thumbnailUrl || 'https://via.placeholder.com/150',
-            startTime: new Date(video.recordStartAt).toLocaleTimeString(),
-            length: `${Math.floor(video.length / 60)}:${(video.length % 60)
-              .toString()
-              .padStart(2, '0')}`,
-            type: video.eventDetails.map((event) => event.type),
-            date: new Date(video.recordStartAt),
-            camera: video.camName,
-            title:
-              video.camName +
-              ' - ' +
-              video.eventDetails.map((event) => event.type).join(', '),
-          }));
-          setVideos(apiVideos);
-        } else {
-          setVideos([]);
-        }
+        const apiVideos = response.data
+          ? response.data.map((video: ApiVideo) => ({
+              id: video.videoId,
+              thumbnail:
+                video.thumbnailUrl || 'https://via.placeholder.com/150',
+              startTime: new Date(video.recordStartAt).toLocaleTimeString(),
+              length: `${Math.floor(video.length / 60)}:${(video.length % 60)
+                .toString()
+                .padStart(2, '0')}`,
+              type: video.eventDetails.map((event) => event.type),
+              date: new Date(video.recordStartAt),
+              camera: video.camName,
+              title:
+                video.camName +
+                ' - ' +
+                video.eventDetails.map((event) => event.type).join(', '),
+            }))
+          : [];
+        setVideos(apiVideos);
       } catch (error) {
         console.error('Failed to fetch videos', error);
+        setVideos([]);
       }
     };
 
@@ -202,7 +205,7 @@ const VideoList: React.FC = () => {
             Reported Videos
             <input
               type="checkbox"
-              checked={isReported || false}
+              checked={!!isReported}
               onChange={() => setIsReported((prev) => !prev)}
             />
           </label>
@@ -249,6 +252,94 @@ const VideoList: React.FC = () => {
             dateFormat="MM/dd/yyyy"
           />
         </div>
+      </div>
+      <div className="md:hidden p-4">
+        <button
+          onClick={toggleFilters}
+          className="border p-2 rounded flex items-center space-x-2 w-full"
+        >
+          <span>Filter Videos</span>
+          <i className="fas fa-filter"></i>
+        </button>
+        {showFilters && (
+          <div className="mt-2">
+            <div className="mb-4 flex flex-wrap">
+              <FilterIcon
+                icon={fireIcon}
+                label="Fire"
+                isSelected={selectedTypes.includes('Fire')}
+                onClick={() => handleTypeToggle('Fire')}
+              />
+              <FilterIcon
+                icon={thiefIcon}
+                label="Intrusion"
+                isSelected={selectedTypes.includes('Intrusion')}
+                onClick={() => handleTypeToggle('Intrusion')}
+              />
+              <FilterIcon
+                icon={soundIcon}
+                label="Loud Noise"
+                isSelected={selectedTypes.includes('Loud Noise')}
+                onClick={() => handleTypeToggle('Loud Noise')}
+              />
+            </div>
+            <div className="mb-4 relative">
+              <label>
+                Reported Videos
+                <input
+                  type="checkbox"
+                  checked={!!isReported}
+                  onChange={() => setIsReported((prev) => !prev)}
+                />
+              </label>
+            </div>
+            <div className="mb-4 relative">
+              <button
+                className="p-2 rounded bg-gray-200"
+                onClick={() => setShowCameraOptions(!showCameraOptions)}
+              >
+                {selectedCamera}
+              </button>
+              {showCameraOptions && (
+                <div
+                  ref={dropdownRef}
+                  className={`${styles.cameraForm} absolute bg-white border mt-1 rounded z-10`}
+                >
+                  {cameras.map((camera) => (
+                    <React.Fragment key={camera}>
+                      <input
+                        type="radio"
+                        id={camera}
+                        name="camera"
+                        value={camera}
+                        className={styles.cameraRadioInput}
+                        checked={selectedCamera === camera}
+                        onChange={handleCameraChange}
+                      />
+                      <label
+                        htmlFor={camera}
+                        className={styles.cameraRadioLabel}
+                      >
+                        {camera}
+                      </label>
+                    </React.Fragment>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="mt-4">
+              <DatePicker
+                selected={filterDateRange[0]}
+                onChange={handleDateChange}
+                startDate={filterDateRange[0] || undefined}
+                endDate={filterDateRange[1] || undefined}
+                selectsRange
+                inline
+                dateFormat="MM/dd/yyyy"
+              />
+            </div>
+          </div>
+        )}
       </div>
       <div className="md:w-3/4 p-4">
         {Object.entries(groupedVideos).map(([date, videos]) => (
