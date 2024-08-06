@@ -218,7 +218,7 @@ export const fetchVideos = async (params?: {
 }): Promise<AxiosResponse<Video[]>> => {
   try {
     const queryParams = new URLSearchParams();
-    if (params?.types) {
+    if (params?.types && params.types.length) {
       params.types.forEach((type) =>
         queryParams.append('types', type.toUpperCase())
       );

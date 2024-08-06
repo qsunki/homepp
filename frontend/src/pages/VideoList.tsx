@@ -144,10 +144,6 @@ const VideoList: React.FC = () => {
         console.log('Fetching videos with params:', params);
 
         const response = await fetchVideos(params);
-        if (!response.data) {
-          throw new Error('No data received');
-        }
-
         const apiVideos = response.data.map((video: ApiVideo) => ({
           id: video.videoId,
           thumbnail: video.thumbnailUrl || 'https://via.placeholder.com/150',
@@ -166,7 +162,6 @@ const VideoList: React.FC = () => {
         setVideos(apiVideos);
       } catch (error) {
         console.error('Failed to fetch videos', error);
-        setVideos([]); // 오류 발생 시 빈 배열로 초기화
       }
     };
 
