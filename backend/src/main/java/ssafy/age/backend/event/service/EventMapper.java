@@ -1,7 +1,6 @@
 package ssafy.age.backend.event.service;
 
 import java.util.List;
-import java.util.Map;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
