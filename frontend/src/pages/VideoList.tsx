@@ -117,10 +117,10 @@ const VideoList: React.FC = () => {
     const fetchData = async () => {
       try {
         const startDate = filterDateRange[0]
-          ? filterDateRange[0].toISOString().slice(0, -1)
+          ? filterDateRange[0].toISOString()
           : undefined;
         const endDate = filterDateRange[1]
-          ? filterDateRange[1].toISOString().slice(0, -1)
+          ? filterDateRange[1].toISOString()
           : undefined;
         const camId =
           selectedCamera === 'All Cameras'
