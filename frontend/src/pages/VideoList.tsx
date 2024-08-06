@@ -105,10 +105,9 @@ const VideoList: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const startDate = filterDateRange[0]?.toISOString();
-        const endDate = filterDateRange[1]?.toISOString();
+        const startDate = filterDateRange[0]?.toISOString() ?? '';
+        const endDate = filterDateRange[1]?.toISOString() ?? '';
 
-        // startDate와 endDate가 없으면 요청을 보내지 않음
         if (!startDate || !endDate) {
           console.error('Invalid date range');
           return;
