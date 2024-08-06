@@ -217,7 +217,19 @@ export const fetchVideos = async (params?: {
   isThreat?: boolean;
 }): Promise<AxiosResponse<Video[]>> => {
   try {
-    const response = await api.get<Video[]>('/cams/videos', { params });
+    const queryParams = new URLSearchParams();
+    if (params?.types) {
+      params.types.forEach((type) => queryParams.append('types', type));
+    }
+    if (params?.startDate) queryParams.append('startDate', params.startDate);
+    if (params?.endDate) queryParams.append('endDate', params.endDate);
+    if (params?.camId) queryParams.append('camId', params.camId.toString());
+    if (params?.isThreat !== undefined)
+      queryParams.append('isThreat', params.isThreat.toString());
+
+    const response = await api.get<Video[]>(
+      `/cams/videos?${queryParams.toString()}`
+    );
     return response;
   } catch (error) {
     if (axios.isAxiosError(error)) {
