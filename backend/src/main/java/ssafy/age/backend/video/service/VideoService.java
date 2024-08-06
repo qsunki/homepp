@@ -135,17 +135,24 @@ public class VideoService {
             threatRepository.save(threat);
         }
 
+        StringBuilder types = new StringBuilder();
         for (Event event : video.getEvents()) {
-            fcmService.sendMessageToAll(
-                    event.getType().toString() + " 알림",
-                    event.getOccurredAt()
-                            + " "
-                            + event.getCam().getRegion()
-                            + "지역 "
-                            + event.getType()
-                            + " 발생\n"
-                            + "인근 지역 주민들은 주의 바랍니다.");
+            types.append(event.getType());
+            if (!event.equals(video.getEvents().getLast())) {
+                types.append('/');
+            }
         }
+
+        String messageTitle = video.getCam().getRegion()
+                + types + " 발생";
+
+        String messageBody = "금일 " +
+                video.getRecordStartedAt().getHour() + "시 " +
+                video.getRecordStartedAt().getMinute() + "분 경 " +
+                video.getCam().getRegion() + " 인근 " +
+                types + " 발생, 인근 지역 주민들은 주의 바랍니다.";
+
+        fcmService.sendMessageToAll(messageTitle, messageBody);
     }
 
     public ResourceRegion getVideoResourceRegion(Long videoId, List<HttpRange> ranges) {
