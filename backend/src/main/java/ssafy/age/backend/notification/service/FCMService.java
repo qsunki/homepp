@@ -9,12 +9,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ssafy.age.backend.auth.service.AuthService;
+import ssafy.age.backend.event.persistence.Event;
 import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
 import ssafy.age.backend.notification.persistence.FCMToken;
 import ssafy.age.backend.notification.persistence.FCMTokenRepository;
 import ssafy.age.backend.notification.web.FCMTokenDto;
+import ssafy.age.backend.video.persistence.Video;
 
 @Service
 @Slf4j
@@ -29,10 +31,10 @@ public class FCMService {
         return fcmTokenRepository.findAll();
     }
 
-    public void sendMessageToAll(String title, String body) {
+    public void sendMessageToAll(Video video) {
         List<FCMToken> fcmTokens = fcmTokenRepository.findAll();
         for (FCMToken fcmToken : fcmTokens) {
-            sendMessage(fcmToken.getToken(), title, body);
+            sendMessage(fcmToken.getToken(), video);
         }
     }
 
@@ -45,13 +47,8 @@ public class FCMService {
         return new FCMTokenDto(saved.getToken());
     }
 
-    public void sendMessage(String targetToken, String title, String body) {
-        Message message =
-                Message.builder()
-                        .setToken(targetToken)
-                        .setNotification(
-                                Notification.builder().setTitle(title).setBody(body).build())
-                        .build();
+    public void sendMessage(String targetToken, Video video) {
+        Message message = buildMessage(targetToken, video);
 
         try {
             String response = FirebaseMessaging.getInstance().send(message);
@@ -59,5 +56,29 @@ public class FCMService {
         } catch (FirebaseMessagingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public Message buildMessage(String targetToken, Video video) {
+        StringBuilder types = new StringBuilder();
+        for (Event event : video.getEvents()) {
+            types.append(event.getType());
+            if (!event.equals(video.getEvents().getLast())) {
+                types.append('/');
+            }
+        }
+
+        String messageTitle = video.getCam().getRegion()
+                + types + " 발생";
+
+        String messageBody = "금일 " +
+                video.getRecordStartedAt().getHour() + "시 " +
+                video.getRecordStartedAt().getMinute() + "분 경 " +
+                video.getCam().getRegion() + " 인근 " +
+                types + " 발생, 인근 지역 주민들은 주의 바랍니다.";
+        return Message.builder()
+                .setToken(targetToken)
+                .setNotification(
+                        Notification.builder().setTitle(messageTitle).setBody(messageBody).build())
+                .build();
     }
 }
