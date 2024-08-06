@@ -47,7 +47,7 @@ const VideoList: React.FC = () => {
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [videos, setVideos] = useState<Video[]>([]);
   const [cameras, setCameras] = useState<string[]>([]);
-  const [isReported, setIsReported] = useState<boolean | undefined>(undefined);
+  const [isReported, setIsReported] = useState<boolean | null>(null);
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -122,24 +122,24 @@ const VideoList: React.FC = () => {
         const endDate = filterDateRange[1]
           ? filterDateRange[1].toISOString().slice(0, -1)
           : undefined;
-        const types = selectedTypes.length ? selectedTypes : undefined;
         const camId =
           selectedCamera === 'All Cameras'
             ? undefined
-            : parseInt(selectedCamera.replace('Camera ', ''), 10);
+            : parseInt(selectedCamera.replace('Camera ', ''));
+
         const params: {
           types?: string[];
           startDate?: string;
           endDate?: string;
           camId?: number;
           isThreat?: boolean;
-        } = {
-          types,
-          startDate,
-          endDate,
-          camId,
-          isThreat: isReported,
-        };
+        } = {};
+
+        if (selectedTypes.length) params.types = selectedTypes;
+        if (startDate) params.startDate = startDate;
+        if (endDate) params.endDate = endDate;
+        if (camId) params.camId = camId;
+        if (isReported !== null) params.isThreat = isReported;
 
         const response = await fetchVideos(params);
         const apiVideos = response.data.map((video: ApiVideo) => ({
@@ -201,7 +201,7 @@ const VideoList: React.FC = () => {
             Reported Videos
             <input
               type="checkbox"
-              checked={!!isReported}
+              checked={isReported || false}
               onChange={() => setIsReported((prev) => !prev)}
             />
           </label>
@@ -284,7 +284,7 @@ const VideoList: React.FC = () => {
                 Reported Videos
                 <input
                   type="checkbox"
-                  checked={!!isReported}
+                  checked={isReported || false}
                   onChange={() => setIsReported((prev) => !prev)}
                 />
               </label>
