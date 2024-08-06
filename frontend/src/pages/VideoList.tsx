@@ -8,7 +8,7 @@ import styles from '../utils/filter/Filter1.module.css';
 import thiefIcon from 'assets/filter/thief.png';
 import fireIcon from 'assets/filter/fire.png';
 import soundIcon from 'assets/filter/sound.png';
-import { fetchVideos, Video as ApiVideo } from '../api';
+import { fetchVideos, fetchCams, Video as ApiVideo } from '../api';
 
 interface Video {
   id: number;
@@ -42,11 +42,12 @@ const VideoList: React.FC = () => {
   >([null, null]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedCamera, setSelectedCamera] = useState<string>('All Cameras');
+  const [isReported, setIsReported] = useState<boolean | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [showCameraOptions, setShowCameraOptions] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [videos, setVideos] = useState<Video[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [cams, setCams] = useState<{ camId: number; name: string }[]>([]);
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -102,10 +103,10 @@ const VideoList: React.FC = () => {
     const fetchData = async () => {
       try {
         const startDate = filterDateRange[0]
-          ? filterDateRange[0].toISOString()
+          ? filterDateRange[0].toISOString().slice(0, -1)
           : undefined;
         const endDate = filterDateRange[1]
-          ? filterDateRange[1].toISOString()
+          ? filterDateRange[1].toISOString().slice(0, -1)
           : undefined;
         const types = selectedTypes.length ? selectedTypes : undefined;
         const camId =
@@ -123,8 +124,12 @@ const VideoList: React.FC = () => {
           startDate,
           endDate,
           camId,
-          isThreat: false,
         };
+
+        if (isReported !== null) {
+          // isReported가 null이 아닐 때만 isThreat 설정
+          params.isThreat = isReported;
+        }
 
         const response = await fetchVideos(params);
         const apiVideos = response.data.map((video: ApiVideo) => ({
@@ -144,13 +149,25 @@ const VideoList: React.FC = () => {
         }));
         setVideos(apiVideos);
       } catch (error) {
-        setError('Failed to fetch videos');
         console.error('Failed to fetch videos', error);
       }
     };
 
     fetchData();
-  }, [filterDateRange, selectedTypes, selectedCamera]);
+  }, [filterDateRange, selectedTypes, selectedCamera, isReported]);
+
+  useEffect(() => {
+    const loadCams = async () => {
+      try {
+        const response = await fetchCams();
+        setCams(response.data);
+      } catch (error) {
+        console.error('Error loading cameras:', error);
+      }
+    };
+
+    loadCams();
+  }, []);
 
   const groupedVideos = videos.reduce((acc, video) => {
     const dateKey = video.date.toDateString();
@@ -182,6 +199,24 @@ const VideoList: React.FC = () => {
             onClick={() => handleTypeToggle('Loud Noise')}
           />
         </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">
+            Reported Status
+          </label>
+          <select
+            value={isReported === null ? '' : isReported.toString()}
+            onChange={(e) =>
+              setIsReported(
+                e.target.value === '' ? null : e.target.value === 'true'
+              )
+            }
+            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+          >
+            <option value="">All Videos</option>
+            <option value="true">Reported</option>
+            <option value="false">Not Reported</option>
+          </select>
+        </div>
         <div className="mb-4 relative">
           <button
             className="p-2 rounded bg-gray-200"
@@ -194,24 +229,37 @@ const VideoList: React.FC = () => {
               ref={dropdownRef}
               className={`${styles.cameraForm} absolute bg-white border mt-1 rounded z-10`}
             >
-              {['All Cameras', 'Camera 1', 'Camera 2', 'Camera 3'].map(
-                (camera) => (
-                  <React.Fragment key={camera}>
-                    <input
-                      type="radio"
-                      id={camera}
-                      name="camera"
-                      value={camera}
-                      className={styles.cameraRadioInput}
-                      checked={selectedCamera === camera}
-                      onChange={handleCameraChange}
-                    />
-                    <label htmlFor={camera} className={styles.cameraRadioLabel}>
-                      {camera}
-                    </label>
-                  </React.Fragment>
-                )
-              )}
+              {cams.map((camera) => (
+                <React.Fragment key={camera.camId}>
+                  <input
+                    type="radio"
+                    id={camera.name}
+                    name="camera"
+                    value={camera.name}
+                    className={styles.cameraRadioInput}
+                    checked={selectedCamera === camera.name}
+                    onChange={handleCameraChange}
+                  />
+                  <label
+                    htmlFor={camera.name}
+                    className={styles.cameraRadioLabel}
+                  >
+                    {camera.name}
+                  </label>
+                </React.Fragment>
+              ))}
+              <input
+                type="radio"
+                id="All Cameras"
+                name="camera"
+                value="All Cameras"
+                className={styles.cameraRadioInput}
+                checked={selectedCamera === 'All Cameras'}
+                onChange={handleCameraChange}
+              />
+              <label htmlFor="All Cameras" className={styles.cameraRadioLabel}>
+                All Cameras
+              </label>
             </div>
           )}
         </div>
@@ -257,6 +305,24 @@ const VideoList: React.FC = () => {
                 onClick={() => handleTypeToggle('Loud Noise')}
               />
             </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700">
+                Reported Status
+              </label>
+              <select
+                value={isReported === null ? '' : isReported.toString()}
+                onChange={(e) =>
+                  setIsReported(
+                    e.target.value === '' ? null : e.target.value === 'true'
+                  )
+                }
+                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+              >
+                <option value="">All Videos</option>
+                <option value="true">Reported</option>
+                <option value="false">Not Reported</option>
+              </select>
+            </div>
             <div className="mb-4 relative">
               <button
                 className="p-2 rounded bg-gray-200"
@@ -269,27 +335,40 @@ const VideoList: React.FC = () => {
                   ref={dropdownRef}
                   className={`${styles.cameraForm} absolute bg-white border mt-1 rounded z-10`}
                 >
-                  {['All Cameras', 'Camera 1', 'Camera 2', 'Camera 3'].map(
-                    (camera) => (
-                      <React.Fragment key={camera}>
-                        <input
-                          type="radio"
-                          id={camera}
-                          name="camera"
-                          value={camera}
-                          className={styles.cameraRadioInput}
-                          checked={selectedCamera === camera}
-                          onChange={handleCameraChange}
-                        />
-                        <label
-                          htmlFor={camera}
-                          className={styles.cameraRadioLabel}
-                        >
-                          {camera}
-                        </label>
-                      </React.Fragment>
-                    )
-                  )}
+                  {cams.map((camera) => (
+                    <React.Fragment key={camera.camId}>
+                      <input
+                        type="radio"
+                        id={camera.name}
+                        name="camera"
+                        value={camera.name}
+                        className={styles.cameraRadioInput}
+                        checked={selectedCamera === camera.name}
+                        onChange={handleCameraChange}
+                      />
+                      <label
+                        htmlFor={camera.name}
+                        className={styles.cameraRadioLabel}
+                      >
+                        {camera.name}
+                      </label>
+                    </React.Fragment>
+                  ))}
+                  <input
+                    type="radio"
+                    id="All Cameras"
+                    name="camera"
+                    value="All Cameras"
+                    className={styles.cameraRadioInput}
+                    checked={selectedCamera === 'All Cameras'}
+                    onChange={handleCameraChange}
+                  />
+                  <label
+                    htmlFor="All Cameras"
+                    className={styles.cameraRadioLabel}
+                  >
+                    All Cameras
+                  </label>
                 </div>
               )}
             </div>
@@ -308,7 +387,6 @@ const VideoList: React.FC = () => {
         )}
       </div>
       <div className="md:w-3/4 p-4">
-        {error && <div className="text-red-500 text-center mb-4">{error}</div>}
         {Object.entries(groupedVideos).map(([date, videos]) => (
           <div key={date} className="mb-6">
             <div className="text-xl font-bold mb-2">{date}</div>
@@ -345,8 +423,10 @@ const VideoList: React.FC = () => {
             </div>
           </div>
         ))}
-        {videos.length === 0 && !error && (
-          <div className="text-center text-gray-500">No videos found.</div>
+        {videos.length === 0 && (
+          <div className="text-center text-gray-500">
+            No videos available for the selected filters.
+          </div>
         )}
       </div>
       {showScrollButton && (
