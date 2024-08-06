@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ssafy.age.backend.auth.service.AuthService;
+import ssafy.age.backend.cam.exception.CamNotFoundException;
+import ssafy.age.backend.cam.persistence.CamRepository;
 import ssafy.age.backend.event.exception.EventNotFoundException;
 import ssafy.age.backend.event.persistence.Event;
 import ssafy.age.backend.event.persistence.EventRepository;
@@ -18,6 +20,7 @@ import ssafy.age.backend.event.web.EventResponseDto;
 public class EventService {
 
     private final EventRepository eventRepository;
+    private final CamRepository camRepository;
     private final AuthService authService;
     private final EventMapper eventMapper = EventMapper.INSTANCE;
 
@@ -29,7 +32,12 @@ public class EventService {
     }
 
     public void save(EventDto eventDto) {
-        Event event = eventMapper.toEvent(eventDto);
+        Event event = Event.builder()
+                .occurredAt(eventDto.getOccurredAt())
+                .type(eventDto.getType())
+                .cam(camRepository.findById(eventDto.getCamId()).orElseThrow(CamNotFoundException::new))
+                .isRead(false)
+                .build();
         eventRepository.save(event);
     }
 
