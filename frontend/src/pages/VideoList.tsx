@@ -8,12 +8,7 @@ import styles from '../utils/filter/Filter1.module.css';
 import thiefIcon from 'assets/filter/thief.png';
 import fireIcon from 'assets/filter/fire.png';
 import soundIcon from 'assets/filter/sound.png';
-import {
-  fetchVideos,
-  fetchCams,
-  Video as ApiVideo,
-  setAuthToken,
-} from '../api';
+import { fetchVideos, fetchCams, Video as ApiVideo } from '../api';
 
 interface Video {
   id: number;
