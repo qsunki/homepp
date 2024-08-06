@@ -37,14 +37,9 @@ const FilterIcon: React.FC<{
 );
 
 const VideoList: React.FC = () => {
-  // 초기 날짜 설정 (오늘 기준으로 한 달 전)
-  const initialEndDate = new Date();
-  const initialStartDate = new Date();
-  initialStartDate.setMonth(initialStartDate.getMonth() - 1);
-
   const [filterDateRange, setFilterDateRange] = useState<
     [Date | null, Date | null]
-  >([initialStartDate, initialEndDate]);
+  >([null, null]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedCamera, setSelectedCamera] = useState<string>('All Cameras');
   const [showFilters, setShowFilters] = useState(false);
@@ -106,8 +101,8 @@ const VideoList: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const startDate = filterDateRange[0]?.toISOString().slice(0, -1) || '';
-        const endDate = filterDateRange[1]?.toISOString().slice(0, -1) || '';
+        const startDate = filterDateRange[0]?.toISOString().slice(0, 19);
+        const endDate = filterDateRange[1]?.toISOString().slice(0, 19);
         const types = selectedTypes.length
           ? selectedTypes
           : ['FIRE', 'INVASION', 'SOUND'];
@@ -115,36 +110,44 @@ const VideoList: React.FC = () => {
           selectedCamera === 'All Cameras'
             ? 0
             : parseInt(selectedCamera.replace('Camera ', ''));
-        const params = {
+        const params: {
+          types: string[];
+          startDate?: string;
+          endDate?: string;
+          camId?: number;
+          isThreat: boolean;
+        } = {
           types,
-          startDate,
-          endDate,
           camId,
           isThreat: false,
         };
 
-        const response = await fetchVideos(params);
-
-        if (response.data) {
-          const apiVideos = response.data.map((video: ApiVideo) => ({
-            id: video.videoId,
-            thumbnail: video.thumbnailUrl || 'https://via.placeholder.com/150',
-            startTime: new Date(video.recordStartAt).toLocaleTimeString(),
-            length: `${Math.floor(video.length / 60)}:${(video.length % 60)
-              .toString()
-              .padStart(2, '0')}`,
-            type: video.eventDetails.map((event) => event.type),
-            date: new Date(video.recordStartAt),
-            camera: video.camName,
-            title:
-              video.camName +
-              ' - ' +
-              video.eventDetails.map((event) => event.type).join(', '),
-          }));
-          setVideos(apiVideos);
-        } else {
-          setVideos([]);
+        if (startDate) {
+          params.startDate = startDate;
         }
+
+        if (endDate) {
+          params.endDate = endDate;
+        }
+
+        const response = await fetchVideos(params);
+        const apiVideos = response.data.map((video: ApiVideo) => ({
+          id: video.videoId,
+          thumbnail: video.thumbnailUrl || 'https://via.placeholder.com/150',
+          startTime: new Date(video.recordStartAt).toLocaleTimeString(),
+          length: `${Math.floor(video.length / 60)}:${(video.length % 60)
+            .toString()
+            .padStart(2, '0')}`,
+          type: video.eventDetails.map((event) => event.type),
+          date: new Date(video.recordStartAt),
+          camera: video.camName,
+          title:
+            video.camName +
+            ' - ' +
+            video.eventDetails.map((event) => event.type).join(', '),
+        }));
+        setVideos(apiVideos);
+        setError(null);
       } catch (error) {
         setError('Failed to fetch videos');
         console.error('Failed to fetch videos', error);
@@ -168,20 +171,20 @@ const VideoList: React.FC = () => {
           <FilterIcon
             icon={fireIcon}
             label="Fire"
-            isSelected={selectedTypes.includes('FIRE')}
-            onClick={() => handleTypeToggle('FIRE')}
+            isSelected={selectedTypes.includes('Fire')}
+            onClick={() => handleTypeToggle('Fire')}
           />
           <FilterIcon
             icon={thiefIcon}
             label="Intrusion"
-            isSelected={selectedTypes.includes('INVASION')}
-            onClick={() => handleTypeToggle('INVASION')}
+            isSelected={selectedTypes.includes('Intrusion')}
+            onClick={() => handleTypeToggle('Intrusion')}
           />
           <FilterIcon
             icon={soundIcon}
             label="Loud Noise"
-            isSelected={selectedTypes.includes('SOUND')}
-            onClick={() => handleTypeToggle('SOUND')}
+            isSelected={selectedTypes.includes('Loud Noise')}
+            onClick={() => handleTypeToggle('Loud Noise')}
           />
         </div>
         <div className="mb-4 relative">
@@ -243,20 +246,20 @@ const VideoList: React.FC = () => {
               <FilterIcon
                 icon={fireIcon}
                 label="Fire"
-                isSelected={selectedTypes.includes('FIRE')}
-                onClick={() => handleTypeToggle('FIRE')}
+                isSelected={selectedTypes.includes('Fire')}
+                onClick={() => handleTypeToggle('Fire')}
               />
               <FilterIcon
                 icon={thiefIcon}
                 label="Intrusion"
-                isSelected={selectedTypes.includes('INVASION')}
-                onClick={() => handleTypeToggle('INVASION')}
+                isSelected={selectedTypes.includes('Intrusion')}
+                onClick={() => handleTypeToggle('Intrusion')}
               />
               <FilterIcon
                 icon={soundIcon}
                 label="Loud Noise"
-                isSelected={selectedTypes.includes('SOUND')}
-                onClick={() => handleTypeToggle('SOUND')}
+                isSelected={selectedTypes.includes('Loud Noise')}
+                onClick={() => handleTypeToggle('Loud Noise')}
               />
             </div>
             <div className="mb-4 relative">
@@ -312,9 +315,7 @@ const VideoList: React.FC = () => {
       <div className="md:w-3/4 p-4">
         {error && <div className="text-red-500 mb-4">{error}</div>}
         {videos.length === 0 ? (
-          <div className="text-gray-500 text-center mt-8">
-            No videos found for the selected filters.
-          </div>
+          <div className="text-center text-gray-500">No videos available.</div>
         ) : (
           Object.entries(groupedVideos).map(([date, videos]) => (
             <div key={date} className="mb-6">
