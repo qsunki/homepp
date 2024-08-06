@@ -18,14 +18,12 @@ public class ThreatController {
 
     @GetMapping("/threats")
     public List<ThreatResponseDto> getThreats() {
-        List<ThreatResponseDto> threats = threatService.getAllThreats();
-        return threats.stream().toList();
+        return threatService.getAllThreats();
     }
 
     @GetMapping("/{email}/threats")
     public List<ThreatResponseDto> getThreats(@PathVariable String email) {
-        List<ThreatResponseDto> threats = threatService.getThreatsByMember(email);
-        return threats.stream().toList();
+        return threatService.getThreatsByMember(email);
     }
 
     @PatchMapping("/{email}/threats/{threatId}")
