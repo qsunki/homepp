@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ssafy.age.backend.cam.service.CamService;
-import ssafy.age.backend.mqtt.MqttGateway;
 
 @Slf4j
 @RestController
@@ -76,7 +75,8 @@ public class CamController {
     }
 
     @PostMapping("/{camId}/control")
-    public void controlDetection(@PathVariable Long camId, @RequestBody ControlRequestDto controlRequestDto) {
+    public void controlDetection(
+            @PathVariable Long camId, @RequestBody ControlRequestDto controlRequestDto) {
         camService.controlDetection(camId, controlRequestDto.getCommand());
     }
 }

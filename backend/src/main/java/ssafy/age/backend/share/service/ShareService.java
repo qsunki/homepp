@@ -35,7 +35,8 @@ public class ShareService {
         Member member =
                 memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
         Member sharedMember =
-                memberRepository.findByEmail(sharedMemberEmail)
+                memberRepository
+                        .findByEmail(sharedMemberEmail)
                         .orElseThrow(MemberNotFoundException::new);
 
         Share share =

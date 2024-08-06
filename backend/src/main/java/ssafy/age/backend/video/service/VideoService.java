@@ -60,7 +60,8 @@ public class VideoService {
             Boolean isThreat) {
         String email = authService.getMemberEmail();
         List<Video> videos =
-                videoRepository.findVideosByParams(email, types, startDate, endDate, camId, isThreat);
+                videoRepository.findVideosByParams(
+                        email, types, startDate, endDate, camId, isThreat);
         return videos.stream().map(videoMapper::toVideoResponseDto).toList();
     }
 

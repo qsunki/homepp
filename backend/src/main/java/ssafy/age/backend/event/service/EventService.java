@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ssafy.age.backend.auth.service.AuthService;
-import ssafy.age.backend.cam.exception.CamNotFoundException;
 import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.cam.persistence.CamRepository;
 import ssafy.age.backend.event.exception.EventNotFoundException;
@@ -33,12 +32,13 @@ public class EventService {
     }
 
     public void save(EventDto eventDto) {
-        Event event = Event.builder()
-                .occurredAt(eventDto.getOccurredAt())
-                .type(eventDto.getType())
-                .cam(Cam.builder().id(eventDto.getCamId()).build())
-                .isRead(false)
-                .build();
+        Event event =
+                Event.builder()
+                        .occurredAt(eventDto.getOccurredAt())
+                        .type(eventDto.getType())
+                        .cam(Cam.builder().id(eventDto.getCamId()).build())
+                        .isRead(false)
+                        .build();
         eventRepository.save(event);
     }
 
