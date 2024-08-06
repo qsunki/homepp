@@ -15,7 +15,7 @@ const LivePlayer: React.FC = () => {
   useEffect(() => {
     console.log('Initializing WebSocket and STOMP client...');
 
-    const socketUrl = `https://i11a605.p.ssafy.io/live-video`;
+    const socketUrl = `https://i11a605.p.ssafy.io:8081/ws`;
     const socket = new SockJS(socketUrl);
 
     const stompClient = new Client({
