@@ -144,21 +144,22 @@ const VideoList: React.FC = () => {
         console.log('Fetching videos with params:', params);
 
         const response = await fetchVideos(params);
-        const apiVideos = response.data.map((video: ApiVideo) => ({
-          id: video.videoId,
-          thumbnail: video.thumbnailUrl || 'https://via.placeholder.com/150',
-          startTime: new Date(video.recordStartAt).toLocaleTimeString(),
-          length: `${Math.floor(video.length / 60)}:${(video.length % 60)
-            .toString()
-            .padStart(2, '0')}`,
-          type: video.eventDetails.map((event) => event.type),
-          date: new Date(video.recordStartAt),
-          camera: video.camName,
-          title:
-            video.camName +
-            ' - ' +
-            video.eventDetails.map((event) => event.type).join(', '),
-        }));
+        const apiVideos =
+          response.data?.map((video: ApiVideo) => ({
+            id: video.videoId,
+            thumbnail: video.thumbnailUrl || 'https://via.placeholder.com/150',
+            startTime: new Date(video.recordStartAt).toLocaleTimeString(),
+            length: `${Math.floor(video.length / 60)}:${(video.length % 60)
+              .toString()
+              .padStart(2, '0')}`,
+            type: video.eventDetails.map((event) => event.type),
+            date: new Date(video.recordStartAt),
+            camera: video.camName,
+            title:
+              video.camName +
+              ' - ' +
+              video.eventDetails.map((event) => event.type).join(', '),
+          })) || [];
         setVideos(apiVideos);
       } catch (error) {
         console.error('Failed to fetch videos', error);
@@ -341,44 +342,43 @@ const VideoList: React.FC = () => {
         )}
       </div>
       <div className="md:w-3/4 p-4">
-        {videos.length > 0 ? (
-          Object.entries(groupedVideos).map(([date, videos]) => (
-            <div key={date} className="mb-6">
-              <div className="text-xl font-bold mb-2">{date}</div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4">
-                {videos.map((video) => (
-                  <div
-                    key={video.id}
-                    className="border rounded overflow-hidden cursor-pointer"
-                    onClick={() => handleVideoClick(video.id)}
-                  >
-                    <div className="relative w-full h-0 pb-[63.64%]">
-                      <img
-                        src={video.thumbnail}
-                        alt="Thumbnail"
-                        className="absolute top-0 left-0 w-full h-full object-cover"
-                      />
-                      <span className="absolute bottom-0 right-0 m-1 p-1 bg-black text-white text-xs rounded">
-                        {video.length}
-                      </span>
-                    </div>
-                    <div className="p-2">
-                      <h3 className="text-sm font-bold">{video.title}</h3>
-                      <p className="text-xs text-gray-600">{video.startTime}</p>
-                      <p className="text-xs text-gray-600">
-                        {video.type.join(', ')}
-                      </p>
-                      <p className="text-xs text-gray-600">
-                        {video.date.toDateString()}
-                      </p>
-                      <p className="text-xs text-gray-600">{video.camera}</p>
-                    </div>
+        {Object.entries(groupedVideos).map(([date, videos]) => (
+          <div key={date} className="mb-6">
+            <div className="text-xl font-bold mb-2">{date}</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4">
+              {videos.map((video) => (
+                <div
+                  key={video.id}
+                  className="border rounded overflow-hidden cursor-pointer"
+                  onClick={() => handleVideoClick(video.id)}
+                >
+                  <div className="relative w-full h-0 pb-[63.64%]">
+                    <img
+                      src={video.thumbnail}
+                      alt="Thumbnail"
+                      className="absolute top-0 left-0 w-full h-full object-cover"
+                    />
+                    <span className="absolute bottom-0 right-0 m-1 p-1 bg-black text-white text-xs rounded">
+                      {video.length}
+                    </span>
                   </div>
-                ))}
-              </div>
+                  <div className="p-2">
+                    <h3 className="text-sm font-bold">{video.title}</h3>
+                    <p className="text-xs text-gray-600">{video.startTime}</p>
+                    <p className="text-xs text-gray-600">
+                      {video.type.join(', ')}
+                    </p>
+                    <p className="text-xs text-gray-600">
+                      {video.date.toDateString()}
+                    </p>
+                    <p className="text-xs text-gray-600">{video.camera}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))
-        ) : (
+          </div>
+        ))}
+        {videos.length === 0 && (
           <p className="text-center text-gray-500">No videos found.</p>
         )}
       </div>
