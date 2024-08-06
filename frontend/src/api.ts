@@ -239,4 +239,18 @@ export const deleteSharedMember = async (
   );
 };
 
+// FCM 토큰을 서버로 전송하는 함수
+export const sendFcmTokenToServer = async (email: string, token: string) => {
+  try {
+    const response = await api.post(
+      `/members/${encodeURIComponent(email)}/tokens`,
+      { token }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Failed to send FCM token to server:', error);
+    throw error;
+  }
+};
+
 export default api;

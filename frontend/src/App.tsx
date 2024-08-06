@@ -13,7 +13,12 @@ import { useUserStore } from './stores/useUserStore';
 import { setAuthToken, getUserInfo } from './api';
 import SignIn from './components/SignIn';
 import ProtectedRoute from './components/ProtectedRoute';
-import { messaging, getToken, onMessage } from './utils/firebase';
+import {
+  messaging,
+  requestPermissionAndGetToken,
+  VAPID_KEY,
+} from './utils/firebase';
+import { onMessage, MessagePayload } from 'firebase/messaging';
 import api from './api';
 import './App.css';
 import 'tw-elements';
@@ -61,13 +66,9 @@ const App: React.FC = () => {
 
   const registerFcmToken = async (email: string) => {
     try {
-      const fcmToken = await getToken(messaging, {
-        vapidKey: 'YOUR_VAPID_KEY',
-      });
+      const fcmToken = await requestPermissionAndGetToken(VAPID_KEY);
       if (fcmToken) {
-        await api.post(`/api/v1/members/${email}/tokens`, {
-          token: fcmToken,
-        });
+        await api.post(`/members/${email}/tokens`, { token: fcmToken });
         console.log('FCM 토큰 등록 성공:', fcmToken);
       } else {
         console.log('FCM 토큰을 가져올 수 없습니다.');
@@ -78,7 +79,7 @@ const App: React.FC = () => {
   };
 
   const handleForegroundNotification = () => {
-    onMessage(messaging, (payload) => {
+    onMessage(messaging, (payload: MessagePayload) => {
       console.log('포그라운드에서 알림 수신:', payload);
       setNotifications((prev) => [
         ...prev,
