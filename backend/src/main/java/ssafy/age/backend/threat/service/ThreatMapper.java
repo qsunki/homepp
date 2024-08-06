@@ -14,5 +14,6 @@ public interface ThreatMapper {
     @Mapping(source = "video.recordStartedAt", target = "recordStartedAt")
     @Mapping(source = "video.cam.region", target = "region")
     @Mapping(source = "video.events", target = "eventDetails")
+    @Mapping(source = "id", target = "threatId")
     ThreatResponseDto toThreatResponseDto(Threat threat);
 }

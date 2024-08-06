@@ -81,7 +81,7 @@ public class VideoController {
         videoService.saveVideo(camId, file, timeInfo.getStartTime(), timeInfo.getEndTime());
     }
 
-    @PostMapping("/{videoId}/threat")
+    @PostMapping("/videos/{videoId}/threat")
     public void registerThreat(@PathVariable Long videoId) {
         videoService.registerThreat(videoId);
     }

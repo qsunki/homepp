@@ -10,4 +10,5 @@ public class ThreatResponseDto {
     private String recordStartedAt;
     private String region;
     private List<EventDetailDto> eventDetails;
+    private Long threatId;
 }

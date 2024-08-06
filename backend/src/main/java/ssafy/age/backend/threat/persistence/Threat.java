@@ -5,6 +5,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.video.persistence.Video;
 
@@ -14,6 +16,8 @@ import ssafy.age.backend.video.persistence.Video;
 @Table(name = "threat_notification")
 @Builder
 public class Threat {
+
+    private static final Logger log = LoggerFactory.getLogger(Threat.class);
 
     @Id
     @Column(name = "threat_id")
