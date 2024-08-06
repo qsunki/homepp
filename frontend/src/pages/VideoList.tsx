@@ -110,7 +110,9 @@ const VideoList: React.FC = () => {
 
         const params = new URLSearchParams();
         if (selectedTypes.length) {
-          selectedTypes.forEach((type) => params.append('types', type));
+          selectedTypes.forEach((type) =>
+            params.append('types', type.toUpperCase())
+          ); // 타입을 대문자로 변환
         }
         if (startDate) {
           params.append('startDate', startDate);
@@ -162,20 +164,20 @@ const VideoList: React.FC = () => {
           <FilterIcon
             icon={fireIcon}
             label="Fire"
-            isSelected={selectedTypes.includes('Fire')}
-            onClick={() => handleTypeToggle('Fire')}
+            isSelected={selectedTypes.includes('FIRE')}
+            onClick={() => handleTypeToggle('FIRE')}
           />
           <FilterIcon
             icon={thiefIcon}
             label="Intrusion"
-            isSelected={selectedTypes.includes('Intrusion')}
-            onClick={() => handleTypeToggle('Intrusion')}
+            isSelected={selectedTypes.includes('INVASION')}
+            onClick={() => handleTypeToggle('INVASION')}
           />
           <FilterIcon
             icon={soundIcon}
-            label="Loud Noise"
-            isSelected={selectedTypes.includes('Loud Noise')}
-            onClick={() => handleTypeToggle('Loud Noise')}
+            label="Noise"
+            isSelected={selectedTypes.includes('SOUND')}
+            onClick={() => handleTypeToggle('SOUND')}
           />
         </div>
         <div className="mb-4 relative">
@@ -237,20 +239,20 @@ const VideoList: React.FC = () => {
               <FilterIcon
                 icon={fireIcon}
                 label="Fire"
-                isSelected={selectedTypes.includes('Fire')}
-                onClick={() => handleTypeToggle('Fire')}
+                isSelected={selectedTypes.includes('FIRE')}
+                onClick={() => handleTypeToggle('FIRE')}
               />
               <FilterIcon
                 icon={thiefIcon}
                 label="Intrusion"
-                isSelected={selectedTypes.includes('Intrusion')}
-                onClick={() => handleTypeToggle('Intrusion')}
+                isSelected={selectedTypes.includes('INVASION')}
+                onClick={() => handleTypeToggle('INVASION')}
               />
               <FilterIcon
                 icon={soundIcon}
-                label="Loud Noise"
-                isSelected={selectedTypes.includes('Loud Noise')}
-                onClick={() => handleTypeToggle('Loud Noise')}
+                label="Noise"
+                isSelected={selectedTypes.includes('SOUND')}
+                onClick={() => handleTypeToggle('SOUND')}
               />
             </div>
             <div className="mb-4 relative">
