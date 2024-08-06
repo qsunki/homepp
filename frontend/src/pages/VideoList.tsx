@@ -105,30 +105,24 @@ const VideoList: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const startDate = filterDateRange[0]?.toISOString() ?? '';
-        const endDate = filterDateRange[1]?.toISOString() ?? '';
+        const startDate = filterDateRange[0]?.toISOString();
+        const endDate = filterDateRange[1]?.toISOString();
 
-        if (!startDate || !endDate) {
-          console.error('Invalid date range');
-          return;
-        }
-
-        const types = selectedTypes.length
-          ? selectedTypes
-          : ['INVASION', 'FIRE', 'CUSTOM', 'SOUND'];
+        const types = selectedTypes.length ? selectedTypes : undefined;
         const camId =
           selectedCamera === 'All Cameras'
-            ? 0
+            ? undefined
             : parseInt(selectedCamera.replace('Camera ', ''));
 
-        const response = await fetchVideos({
+        const params = {
           types,
           startDate,
           endDate,
           camId,
           isThreat: false,
-        });
+        };
 
+        const response = await fetchVideos(params);
         const apiVideos = response.data.map((video: ApiVideo) => ({
           id: video.videoId,
           thumbnail: video.thumbnailUrl || 'https://via.placeholder.com/150',
