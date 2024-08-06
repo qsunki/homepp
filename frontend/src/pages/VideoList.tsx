@@ -106,27 +106,25 @@ const VideoList: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const startDate = filterDateRange[0]?.toISOString().slice(0, -1);
-        const endDate = filterDateRange[1]?.toISOString().slice(0, -1);
+        const startDate = filterDateRange[0]?.toISOString().slice(0, -1) || '';
+        const endDate = filterDateRange[1]?.toISOString().slice(0, -1) || '';
+        const types = selectedTypes.length
+          ? selectedTypes
+          : ['FIRE', 'INVASION', 'SOUND'];
+        const camId =
+          selectedCamera === 'All Cameras'
+            ? 0
+            : parseInt(selectedCamera.replace('Camera ', ''));
+        const params = {
+          types,
+          startDate,
+          endDate,
+          camId,
+          isThreat: false,
+        };
 
-        const params = new URLSearchParams();
-        if (selectedTypes.length) {
-          selectedTypes.forEach((type) =>
-            params.append('types', type.toUpperCase())
-          );
-        }
-        if (startDate) {
-          params.append('startDate', startDate);
-        }
-        if (endDate) {
-          params.append('endDate', endDate);
-        }
-        if (selectedCamera !== 'All Cameras') {
-          params.append('camId', selectedCamera.replace('Camera ', ''));
-        }
-        params.append('isThreat', 'false');
+        const response = await fetchVideos(params);
 
-        const response = await fetchVideos(Object.fromEntries(params));
         if (response.data) {
           const apiVideos = response.data.map((video: ApiVideo) => ({
             id: video.videoId,
@@ -147,10 +145,9 @@ const VideoList: React.FC = () => {
         } else {
           setVideos([]);
         }
-        setError(null);
       } catch (error) {
+        setError('Failed to fetch videos');
         console.error('Failed to fetch videos', error);
-        setError('Failed to fetch videos. Please try again later.');
       }
     };
 
@@ -313,9 +310,9 @@ const VideoList: React.FC = () => {
         )}
       </div>
       <div className="md:w-3/4 p-4">
-        {error && <div className="text-center text-red-500">{error}</div>}
+        {error && <div className="text-red-500 mb-4">{error}</div>}
         {videos.length === 0 ? (
-          <div className="text-center text-gray-500">
+          <div className="text-gray-500 text-center mt-8">
             No videos found for the selected filters.
           </div>
         ) : (
