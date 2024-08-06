@@ -71,13 +71,9 @@ public class ShareService {
     }
 
     private void verifyLoginUser(String email) {
-        Member loginMember =
-                memberRepository.findByEmail(authService.getMemberEmail())
-                        .orElseThrow(MemberNotFoundException::new);
-        Member member =
-                memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
+        String loggedEmail = authService.getMemberEmail();
 
-        if (member != loginMember) {
+        if (!email.equals(loggedEmail)) {
             throw new AccessDeniedException();
         }
     }
