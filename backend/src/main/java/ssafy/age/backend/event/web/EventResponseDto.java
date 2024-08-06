@@ -10,7 +10,8 @@ import ssafy.age.backend.video.persistence.Video;
 public class EventResponseDto {
     private LocalDateTime occurredAt;
     private EventType type;
-    private Cam cam;
-    private Video video;
-    private boolean isRead;
+    private Long camId;
+    private Long videoId;
+    private String camName;
+    private Boolean isRead;
 }

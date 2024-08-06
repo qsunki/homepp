@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ssafy.age.backend.cam.exception.CamNotFoundException;
 import ssafy.age.backend.cam.persistence.CamRepository;
+import ssafy.age.backend.envInfo.exception.EnvInfoNotFoundException;
 import ssafy.age.backend.envInfo.persistence.EnvInfo;
 import ssafy.age.backend.envInfo.persistence.EnvInfoRepository;
 import ssafy.age.backend.envInfo.web.EnvInfoReceivedDto;
@@ -29,5 +30,16 @@ public class EnvInfoService {
         }
         List<EnvInfo> envInfos = envInfoRepository.findAllByCamId(camId);
         return envInfos.stream().map(envInfoMapper::toEnvInfoResponseDto).toList();
+    }
+
+    public EnvInfoResponseDto getEnvInfo(Long camId) {
+        if (!camRepository.existsById(camId)) {
+            throw new CamNotFoundException();
+        }
+
+        return envInfoMapper.toEnvInfoResponseDto(
+                envInfoRepository
+                        .findLatestByCamId(camId)
+                        .orElseThrow(EnvInfoNotFoundException::new));
     }
 }

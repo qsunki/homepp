@@ -178,4 +178,8 @@ public class CamService {
             throw new RuntimeException("썸네일 파일 불러오기 실패", e);
         }
     }
+
+    public void controlDetection(Long camId, String command) {
+        mqttService.requestControl(camId, command);
+    }
 }

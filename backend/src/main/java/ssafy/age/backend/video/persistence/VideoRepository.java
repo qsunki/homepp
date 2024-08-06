@@ -11,12 +11,14 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
 
     @Query(
             "SELECT v FROM Video v LEFT OUTER JOIN v.events e JOIN v.cam c WHERE "
+                    + ":email = c.member.email AND"
                     + "(:types IS NULL OR e.type IN :types) AND "
                     + "(:startDate IS NULL OR v.recordStartedAt >= :startDate) AND "
                     + "(:endDate IS NULL OR v.recordStartedAt <= :endDate) AND "
                     + "(:camId IS NULL OR c.id = :camId) AND "
                     + "(:isThreat IS NULL OR v.isThreat = :isThreat)")
     List<Video> findVideosByParams(
+            @Param("email") String email,
             @Param("types") List<EventType> types,
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate,

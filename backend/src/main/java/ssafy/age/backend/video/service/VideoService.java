@@ -13,6 +13,7 @@ import org.springframework.core.io.support.ResourceRegion;
 import org.springframework.http.HttpRange;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import ssafy.age.backend.auth.service.AuthService;
 import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.event.persistence.Event;
 import ssafy.age.backend.event.persistence.EventRepository;
@@ -48,6 +49,7 @@ public class VideoService {
     private final FileStorage fileStorage;
     private final MemberRepository memberRepository;
     private final ThreatRepository threatRepository;
+    private final AuthService authService;
 
     @Transactional
     public List<VideoResponseDto> getAllVideos(
@@ -56,8 +58,9 @@ public class VideoService {
             LocalDateTime endDate,
             Long camId,
             Boolean isThreat) {
+        String email = authService.getMemberEmail();
         List<Video> videos =
-                videoRepository.findVideosByParams(types, startDate, endDate, camId, isThreat);
+                videoRepository.findVideosByParams(email, types, startDate, endDate, camId, isThreat);
         return videos.stream().map(videoMapper::toVideoResponseDto).toList();
     }
 
