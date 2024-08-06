@@ -22,6 +22,7 @@ const DeviceManagement: React.FC = () => {
   );
   const [qrCodeData, setQrCodeData] = useState<string | null>(null);
   const [showQRCodePopup, setShowQRCodePopup] = useState<boolean>(false);
+  const [nameError, setNameError] = useState<string | null>(null);
 
   useEffect(() => {
     loadDevices();
@@ -40,10 +41,14 @@ const DeviceManagement: React.FC = () => {
     setEditingDevice(id);
     const device = devices.find((device) => device.camId === id);
     setNewDeviceName(device ? device.name : '');
+    setNameError(null);
   };
 
   const handleSaveDeviceName = async (id: number) => {
-    if (newDeviceName.trim() === '') return;
+    if (newDeviceName.trim() === '') {
+      setNameError('Device name cannot be empty.');
+      return;
+    }
     try {
       await updateCam(id, { name: newDeviceName });
       setDevices((prevDevices) =>
@@ -53,6 +58,7 @@ const DeviceManagement: React.FC = () => {
       );
       setEditingDevice(null);
       setNewDeviceName('');
+      setNameError(null);
     } catch (error) {
       console.error('Error updating device name:', error);
     }
@@ -61,6 +67,7 @@ const DeviceManagement: React.FC = () => {
   const handleCancelEdit = () => {
     setEditingDevice(null);
     setNewDeviceName('');
+    setNameError(null);
   };
 
   const handleAddDevice = () => {
@@ -143,13 +150,18 @@ const DeviceManagement: React.FC = () => {
             className="flex justify-between items-center mb-4"
           >
             {editingDevice === device.camId ? (
-              <input
-                type="text"
-                value={newDeviceName}
-                onChange={(e) => setNewDeviceName(e.target.value)}
-                onKeyDown={(e) => handleKeyDown(e, device.camId)}
-                className="border p-2 flex-grow mr-2 text-lg h-8"
-              />
+              <div className="flex flex-col flex-grow mr-2">
+                <input
+                  type="text"
+                  value={newDeviceName}
+                  onChange={(e) => setNewDeviceName(e.target.value)}
+                  onKeyDown={(e) => handleKeyDown(e, device.camId)}
+                  className="border p-2 text-lg h-8"
+                />
+                {nameError && (
+                  <span className="text-red-500 text-sm">{nameError}</span>
+                )}
+              </div>
             ) : (
               <span className="text-lg">{device.name}</span>
             )}
