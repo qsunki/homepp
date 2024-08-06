@@ -34,11 +34,25 @@ public class MqttService {
         }
     }
 
+    public void requestControl(long camId, String command) {
+        MqttControlRequestDto requestDto = new MqttControlRequestDto(command);
+        try {
+            String message = objectMapper.writeValueAsString(requestDto);
+            mqttGateway.sendToMqtt(message, getControlRequestTopic(camId));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private String getRecordRequestTopic(long camId) {
         return "cams/" + camId + "/video";
     }
 
     private String getStreamingRequestTopic(long camId) {
         return "cams/" + camId + "/stream";
+    }
+
+    private String getControlRequestTopic(long camId) {
+        return "cams/" + camId + "/control";
     }
 }
