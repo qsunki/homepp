@@ -101,34 +101,30 @@ const VideoList: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const startDate = filterDateRange[0]?.toISOString().slice(0, 19);
-        const endDate = filterDateRange[1]?.toISOString().slice(0, 19);
-        const types = selectedTypes.length
-          ? selectedTypes
-          : ['FIRE', 'INVASION', 'SOUND'];
+        const startDate = filterDateRange[0]
+          ? filterDateRange[0].toISOString()
+          : undefined;
+        const endDate = filterDateRange[1]
+          ? filterDateRange[1].toISOString()
+          : undefined;
+        const types = selectedTypes.length ? selectedTypes : undefined;
         const camId =
           selectedCamera === 'All Cameras'
-            ? 0
+            ? undefined
             : parseInt(selectedCamera.replace('Camera ', ''));
         const params: {
-          types: string[];
+          types?: string[];
           startDate?: string;
           endDate?: string;
           camId?: number;
-          isThreat: boolean;
+          isThreat?: boolean;
         } = {
           types,
+          startDate,
+          endDate,
           camId,
           isThreat: false,
         };
-
-        if (startDate) {
-          params.startDate = startDate;
-        }
-
-        if (endDate) {
-          params.endDate = endDate;
-        }
 
         const response = await fetchVideos(params);
         const apiVideos = response.data.map((video: ApiVideo) => ({
@@ -147,7 +143,6 @@ const VideoList: React.FC = () => {
             video.eventDetails.map((event) => event.type).join(', '),
         }));
         setVideos(apiVideos);
-        setError(null);
       } catch (error) {
         setError('Failed to fetch videos');
         console.error('Failed to fetch videos', error);
@@ -313,46 +308,45 @@ const VideoList: React.FC = () => {
         )}
       </div>
       <div className="md:w-3/4 p-4">
-        {error && <div className="text-red-500 mb-4">{error}</div>}
-        {videos.length === 0 ? (
-          <div className="text-center text-gray-500">No videos available.</div>
-        ) : (
-          Object.entries(groupedVideos).map(([date, videos]) => (
-            <div key={date} className="mb-6">
-              <div className="text-xl font-bold mb-2">{date}</div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4">
-                {videos.map((video) => (
-                  <div
-                    key={video.id}
-                    className="border rounded overflow-hidden cursor-pointer"
-                    onClick={() => handleVideoClick(video.id)}
-                  >
-                    <div className="relative w-full h-0 pb-[63.64%]">
-                      <img
-                        src={video.thumbnail}
-                        alt="Thumbnail"
-                        className="absolute top-0 left-0 w-full h-full object-cover"
-                      />
-                      <span className="absolute bottom-0 right-0 m-1 p-1 bg-black text-white text-xs rounded">
-                        {video.length}
-                      </span>
-                    </div>
-                    <div className="p-2">
-                      <h3 className="text-sm font-bold">{video.title}</h3>
-                      <p className="text-xs text-gray-600">{video.startTime}</p>
-                      <p className="text-xs text-gray-600">
-                        {video.type.join(', ')}
-                      </p>
-                      <p className="text-xs text-gray-600">
-                        {video.date.toDateString()}
-                      </p>
-                      <p className="text-xs text-gray-600">{video.camera}</p>
-                    </div>
+        {error && <div className="text-red-500 text-center mb-4">{error}</div>}
+        {Object.entries(groupedVideos).map(([date, videos]) => (
+          <div key={date} className="mb-6">
+            <div className="text-xl font-bold mb-2">{date}</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4">
+              {videos.map((video) => (
+                <div
+                  key={video.id}
+                  className="border rounded overflow-hidden cursor-pointer"
+                  onClick={() => handleVideoClick(video.id)}
+                >
+                  <div className="relative w-full h-0 pb-[63.64%]">
+                    <img
+                      src={video.thumbnail}
+                      alt="Thumbnail"
+                      className="absolute top-0 left-0 w-full h-full object-cover"
+                    />
+                    <span className="absolute bottom-0 right-0 m-1 p-1 bg-black text-white text-xs rounded">
+                      {video.length}
+                    </span>
                   </div>
-                ))}
-              </div>
+                  <div className="p-2">
+                    <h3 className="text-sm font-bold">{video.title}</h3>
+                    <p className="text-xs text-gray-600">{video.startTime}</p>
+                    <p className="text-xs text-gray-600">
+                      {video.type.join(', ')}
+                    </p>
+                    <p className="text-xs text-gray-600">
+                      {video.date.toDateString()}
+                    </p>
+                    <p className="text-xs text-gray-600">{video.camera}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))
+          </div>
+        ))}
+        {videos.length === 0 && !error && (
+          <div className="text-center text-gray-500">No videos found.</div>
         )}
       </div>
       {showScrollButton && (
