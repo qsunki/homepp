@@ -1,4 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
+import SockJS from 'sockjs-client';
+import { Client, IMessage } from '@stomp/stompjs';
 
 // 백엔드 API 기본 URL 설정
 const API_URL = 'https://i11a605.p.ssafy.io/api/v1';
@@ -37,11 +39,50 @@ interface LoginData {
 }
 
 // 캠 데이터 타입 정의
-interface CamData {
+export interface CamData {
   camId: number;
   name: string;
   status?: string; // status 속성 추가
 }
+
+// 비디오 데이터 타입 정의
+export interface Video {
+  videoId: number;
+  camName: string;
+  recordStartAt: string;
+  length: number;
+  eventDetails: {
+    occurredAt: string;
+    type: string;
+  }[];
+  thumbnailUrl: string;
+  threat: boolean;
+}
+
+// 공유 사용자 데이터 타입 정의
+export interface SharedMember {
+  nickname: string;
+  email: string;
+}
+
+// 회원가입 API 호출 함수
+export const registerUser = async (
+  userData: UserData
+): Promise<AxiosResponse<UserData>> => {
+  try {
+    return await api.post<UserData>('/members', userData);
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        '회원가입 오류:',
+        error.response ? error.response.data : error.message
+      );
+    } else {
+      console.error('회원가입 오류:', error);
+    }
+    throw error;
+  }
+};
 
 // 중복 이메일 체크 API 호출 함수
 export const checkDuplicateEmail = async (email: string): Promise<boolean> => {
@@ -82,25 +123,6 @@ export const checkDuplicatePhoneNumber = async (
       );
     } else {
       console.error('중복 전화번호 체크 오류:', error);
-    }
-    throw error;
-  }
-};
-
-// 회원가입 API 호출 함수
-export const registerUser = async (
-  userData: UserData
-): Promise<AxiosResponse<UserData>> => {
-  try {
-    return await api.post<UserData>('/members', userData);
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error(
-        '회원가입 오류:',
-        error.response ? error.response.data : error.message
-      );
-    } else {
-      console.error('회원가입 오류:', error);
     }
     throw error;
   }
@@ -186,20 +208,6 @@ export const updateCam = async (
   }
 };
 
-// 비디오 데이터 타입 정의
-export interface Video {
-  videoId: number;
-  camName: string;
-  recordStartAt: string;
-  length: number;
-  eventDetails: {
-    occurredAt: string;
-    type: string;
-  }[];
-  thumbnailUrl: string;
-  threat: boolean;
-}
-
 // 비디오 목록 조회 API 호출 함수
 export const fetchVideos = async (params?: {
   types?: string[];
@@ -224,10 +232,68 @@ export const fetchVideos = async (params?: {
   }
 };
 
-export interface SharedMember {
-  nickname: string;
-  email: string;
-}
+// 캠의 WebSocket 키 조회 API 호출 함수 추가
+export const fetchWebSocketKey = async (camId: string): Promise<string> => {
+  try {
+    const response = await api.get<{ key: string }>(`/cams/${camId}/stream`);
+    return response.data.key;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        'WebSocket 키 조회 오류:',
+        error.response ? error.response.data : error.message
+      );
+    } else {
+      console.error('WebSocket 키 조회 오류:', error);
+    }
+    throw error;
+  }
+};
+
+// WebSocket 연결 및 메시지 전송 함수
+export const connectWebSocket = (
+  key: string,
+  onMessage: (message: IMessage) => void
+): Client => {
+  const socket = new SockJS('http://i11a605.p.ssafy.io:8081/ws');
+  const client = new Client({
+    webSocketFactory: () => socket,
+    debug: (str) => {
+      console.log('STOMP Debug: ', str);
+    },
+    onConnect: (frame) => {
+      console.log('STOMP client connected, frame:', frame);
+      client.subscribe(`/sub/client/${key}`, onMessage);
+    },
+    onStompError: (frame) => {
+      console.error('Broker reported error:', frame.headers['message']);
+      console.error('Additional details:', frame.body);
+    },
+    onDisconnect: () => {
+      console.log('STOMP client disconnected');
+    },
+  });
+
+  client.activate();
+  return client;
+};
+
+// WebSocket 메시지 발행 함수
+export const publishWebSocketMessage = (
+  client: Client,
+  key: string,
+  message: object
+) => {
+  if (client && client.connected) {
+    client.publish({
+      destination: `/pub/client/${key}`,
+      body: JSON.stringify(message),
+    });
+    console.log('Published message:', message);
+  } else {
+    console.error('STOMP client is not connected');
+  }
+};
 
 // 공유 사용자 조회
 export const fetchSharedMembers = async (
