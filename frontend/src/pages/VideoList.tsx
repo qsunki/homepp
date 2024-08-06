@@ -8,7 +8,12 @@ import styles from '../utils/filter/Filter1.module.css';
 import thiefIcon from 'assets/filter/thief.png';
 import fireIcon from 'assets/filter/fire.png';
 import soundIcon from 'assets/filter/sound.png';
-import { fetchVideos, fetchCams, Video as ApiVideo } from '../api';
+import {
+  fetchVideos,
+  fetchCams,
+  Video as ApiVideo,
+  setAuthToken,
+} from '../api';
 
 interface Video {
   id: number;
@@ -144,22 +149,25 @@ const VideoList: React.FC = () => {
         console.log('Fetching videos with params:', params);
 
         const response = await fetchVideos(params);
-        const apiVideos =
-          response.data?.map((video: ApiVideo) => ({
-            id: video.videoId,
-            thumbnail: video.thumbnailUrl || 'https://via.placeholder.com/150',
-            startTime: new Date(video.recordStartAt).toLocaleTimeString(),
-            length: `${Math.floor(video.length / 60)}:${(video.length % 60)
-              .toString()
-              .padStart(2, '0')}`,
-            type: video.eventDetails.map((event) => event.type),
-            date: new Date(video.recordStartAt),
-            camera: video.camName,
-            title:
-              video.camName +
-              ' - ' +
-              video.eventDetails.map((event) => event.type).join(', '),
-          })) || [];
+        if (!response.data) {
+          throw new Error('No data received');
+        }
+
+        const apiVideos = response.data.map((video: ApiVideo) => ({
+          id: video.videoId,
+          thumbnail: video.thumbnailUrl || 'https://via.placeholder.com/150',
+          startTime: new Date(video.recordStartAt).toLocaleTimeString(),
+          length: `${Math.floor(video.length / 60)}:${(video.length % 60)
+            .toString()
+            .padStart(2, '0')}`,
+          type: video.eventDetails.map((event) => event.type),
+          date: new Date(video.recordStartAt),
+          camera: video.camName,
+          title:
+            video.camName +
+            ' - ' +
+            video.eventDetails.map((event) => event.type).join(', '),
+        }));
         setVideos(apiVideos);
       } catch (error) {
         console.error('Failed to fetch videos', error);
