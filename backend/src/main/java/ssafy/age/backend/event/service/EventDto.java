@@ -10,6 +10,4 @@ public class EventDto {
     private LocalDateTime occurredAt;
     private EventType type;
     private Long camId;
-    private Long videoId;
-    private Video video;
 }

@@ -21,6 +21,8 @@ public interface EventMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "isRead", ignore = true)
+    @Mapping(target = "video", ignore = true)
+    @Mapping(source = "camId", target = "cam.id")
     Event toEvent(EventDto eventDto);
 
     EventDetailDto eventToEventDetailDto(Event event);

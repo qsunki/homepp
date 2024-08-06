@@ -12,6 +12,7 @@ import ssafy.age.backend.video.persistence.Video;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "event")
 @Builder
+@ToString
 public class Event {
     @Id
     @Column(name = "event_id")
