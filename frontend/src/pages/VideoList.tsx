@@ -105,8 +105,8 @@ const VideoList: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const startDate = filterDateRange[0]?.toISOString();
-        const endDate = filterDateRange[1]?.toISOString();
+        const startDate = filterDateRange[0]?.toISOString().slice(0, -1);
+        const endDate = filterDateRange[1]?.toISOString().slice(0, -1);
 
         const types = selectedTypes.length ? selectedTypes : undefined;
         const camId =
