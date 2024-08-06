@@ -10,7 +10,7 @@ import VideoList from './pages/VideoList';
 import VideoDetail from './pages/VideoDetail';
 import ScrollToTop from './utils/ScrollToTop';
 import { useUserStore } from './stores/useUserStore';
-import { setAuthToken, getUserInfo } from './api';
+import { setAuthToken, getUserInfo, sendFcmTokenToServer } from './api';
 import SignIn from './components/SignIn';
 import ProtectedRoute from './components/ProtectedRoute';
 import {
@@ -47,7 +47,7 @@ const App: React.FC = () => {
           if (email) {
             // email이 응답으로 오는 경우, 임의의 userId를 설정
             setUser(1, email, savedPassword || '', token);
-            registerFcmToken(); // FCM 토큰 등록 함수 호출
+            registerFcmToken(email); // FCM 토큰 등록 함수 호출
             handleForegroundNotification();
           } else {
             console.log('User info not valid, logging out');
@@ -77,12 +77,14 @@ const App: React.FC = () => {
     }
   }, [setUser, logout]);
 
-  const registerFcmToken = async () => {
+  const registerFcmToken = async (email: string) => {
     try {
       const fcmToken = await requestPermissionAndGetToken(VAPID_KEY);
       console.log('FCM 토큰:', fcmToken); // FCM 토큰 콘솔 출력
       if (fcmToken) {
         console.log('FCM 토큰 등록 성공:', fcmToken);
+        await sendFcmTokenToServer(email, fcmToken); // 서버에 FCM 토큰 전송
+        console.log('서버에 FCM 토큰 전송 성공:', fcmToken);
       } else {
         console.log('FCM 토큰을 가져올 수 없습니다.');
       }

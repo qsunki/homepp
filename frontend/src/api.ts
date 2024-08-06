@@ -246,6 +246,7 @@ export const sendFcmTokenToServer = async (email: string, token: string) => {
       `/members/${encodeURIComponent(email)}/tokens`,
       { token }
     );
+    console.log('서버에 FCM 토큰 전송 성공:', response.data);
     return response.data;
   } catch (error) {
     console.error('Failed to send FCM token to server:', error);
