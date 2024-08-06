@@ -49,6 +49,7 @@ public class EventService {
     public void readEvent(Long eventId) {
         Event event = eventRepository.findById(eventId).orElseThrow(EventNotFoundException::new);
         event.read();
+        eventRepository.save(event);
     }
 
     public Integer countEventsOnToday() {
