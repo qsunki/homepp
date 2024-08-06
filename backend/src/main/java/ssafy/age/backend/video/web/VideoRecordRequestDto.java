@@ -5,6 +5,6 @@ import ssafy.age.backend.video.service.VideoCommand;
 
 @Data
 public class VideoRecordRequestDto {
-    private Long videoId;
+    private String key;
     private VideoCommand command;
 }

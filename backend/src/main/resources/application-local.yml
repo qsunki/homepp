@@ -28,6 +28,7 @@ logging:
     ssafy:
       age:
         backend: debug
+    web: debug
 
 jwt:
   secret: d8c02ed35fda0c0ffa4dc7f37117972390f3f6672103bbcadb684985aff2e1de
@@ -42,3 +43,6 @@ openAPI:
 
 file:
   dir: D:\
+  video: ${VIDEO_DIR}
+  video-thumbnail: ${VIDEO_THUMBNAIL_DIR}
+  cam-thumbnail: ${CAM_THUMBNAIL_DIR}

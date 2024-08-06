@@ -1,269 +1,125 @@
 package ssafy.age.backend.video.service;
 
 import jakarta.transaction.Transactional;
-import java.io.*;
-import java.net.MalformedURLException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jcodec.api.JCodecException;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.*;
+import org.springframework.core.io.support.ResourceRegion;
+import org.springframework.http.HttpRange;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import ssafy.age.backend.cam.exception.CamNotFoundException;
 import ssafy.age.backend.cam.persistence.Cam;
-import ssafy.age.backend.cam.persistence.CamRepository;
 import ssafy.age.backend.event.persistence.Event;
+import ssafy.age.backend.event.persistence.EventRepository;
 import ssafy.age.backend.event.persistence.EventType;
-import ssafy.age.backend.exception.InvalidInputException;
-import ssafy.age.backend.mqtt.MqttGateway;
+import ssafy.age.backend.file.FileStorage;
+import ssafy.age.backend.mqtt.MqttService;
+import ssafy.age.backend.mqtt.RecordCommand;
 import ssafy.age.backend.notification.service.FCMService;
 import ssafy.age.backend.video.exception.VideoNotFoundException;
 import ssafy.age.backend.video.persistence.Video;
 import ssafy.age.backend.video.persistence.VideoRepository;
-import ssafy.age.backend.video.web.EventDetailDto;
-import ssafy.age.backend.video.web.ThumbnailExtractor;
+import ssafy.age.backend.video.web.VideoRecordResponseDto;
 import ssafy.age.backend.video.web.VideoResponseDto;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class VideoService {
+    private static final String THUMBNAIL = "thumbnail";
+    private static final String STREAM = "stream";
+    private static final String DOWNLOAD = "download";
+    private static final String URL_PREFIX = "/api/v1/cams/vidoes";
 
     private final VideoRepository videoRepository;
     private final VideoMapper videoMapper = VideoMapper.INSTANCE;
-    private final CamRepository camRepository;
-    private final MqttGateway mqttGateway;
+    private final MqttService mqttService;
     private final FCMService fcmService;
+    private final EventRepository eventRepository;
+    private final FileStorage fileStorage;
 
-    @Value("${file.dir}")
-    private String fileDir;
-
+    @Transactional
     public List<VideoResponseDto> getAllVideos(
             List<EventType> types,
             LocalDateTime startDate,
             LocalDateTime endDate,
             Long camId,
-            boolean isThreat) {
-
-        List<Video> videoList =
-                videoRepository.findAllVideos(types, startDate, endDate, camId, isThreat);
-
-        return videoList.stream()
-                .map(
-                        video -> {
-                            VideoResponseDto dto = videoMapper.toVideoResponseDto(video);
-
-                            List<EventDetailDto> eventDetails =
-                                    video.getEventList().stream()
-                                            .map(videoMapper::toEventDetailDto)
-                                            .collect(Collectors.toList());
-                            dto.setEventDetails(eventDetails);
-
-                            video.getEventList().stream()
-                                    .findFirst()
-                                    .ifPresent(event -> dto.setCamName(event.getCam().getName()));
-
-                            return dto;
-                        })
-                .collect(Collectors.toList());
+            Boolean isThreat) {
+        List<Video> videos =
+                videoRepository.findVideosByParams(types, startDate, endDate, camId, isThreat);
+        return videos.stream().map(videoMapper::toVideoResponseDto).toList();
     }
 
     @Transactional
     public VideoResponseDto getVideoById(Long videoId) {
-
         Video video = videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
-
-        VideoResponseDto dto = videoMapper.toVideoResponseDto(video);
-
-        List<EventDetailDto> eventDetails =
-                video.getEventList().stream()
-                        .map(videoMapper::toEventDetailDto)
-                        .collect(Collectors.toList());
-        dto.setEventDetails(eventDetails);
-
-        video.getEventList().stream()
-                .findFirst()
-                .ifPresent(event -> dto.setCamName(event.getCam().getName()));
-
-        return dto;
+        return videoMapper.toVideoResponseDto(video);
     }
 
+    /*
+     * TODO: 외래키 제약조건으로 삭제불가능한 것 수정하기
+     */
     public void deleteVideo(Long videoId) {
         videoRepository.deleteById(videoId);
     }
 
-    public DownloadResponseDto downloadVideo(Long videoId) {
-        Video video = videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
-        Path videoPath = Paths.get(video.getUrl());
-
-        Resource videoResource;
-        try {
-            videoResource = new UrlResource(videoPath.toUri());
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
-
-        return DownloadResponseDto.builder()
-                .filename(videoPath.getFileName().toString())
-                .videoResource(videoResource)
-                .build();
-    }
-
-    public StreamResponseDto streamVideo(Long videoId, String rangeHeader) {
-        Video video = videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
-        Path videoPath = Paths.get(video.getUrl());
-
-        Resource videoResource;
-        try {
-            videoResource = new UrlResource(videoPath.toUri());
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
-
-        long videoLength = videoPath.toFile().length();
-
-        if (rangeHeader == null) {
-            return StreamResponseDto.builder()
-                    .contentLength(videoLength)
-                    .resourceData(videoResource)
-                    .build();
-        }
-
-        String[] ranges = rangeHeader.replace("bytes=", "").split("-");
-        long start = Long.parseLong(ranges[0]);
-        long end = ranges.length > 1 ? Long.parseLong(ranges[1]) : videoLength - 1;
-
-        if (end > videoLength - 1) {
-            end = videoLength - 1;
-        }
-
-        long contentLength = end - start + 1;
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Range", "bytes " + start + "-" + end + "/" + videoLength);
-        headers.add(HttpHeaders.ACCEPT_RANGES, "bytes");
-
-        byte[] data = new byte[(int) contentLength];
-        try (RandomAccessFile file = new RandomAccessFile(videoPath.toFile(), "r")) {
-            file.seek(start);
-            file.readFully(data);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        return StreamResponseDto.builder()
-                .headers(headers)
-                .contentLength(contentLength)
-                .resourceData(new ByteArrayResource(data))
-                .build();
+    public Resource getVideoResource(Long videoId) {
+        return fileStorage.loadVideoResource(videoId);
     }
 
     @Transactional
-    public void saveVideoOnServer(
-            Long camId, Long videoId, MultipartFile file, VideoTimeInfo timeInfo) {
-        try {
-            Path path =
-                    Paths.get(
-                            fileDir
-                                    + "videos"
-                                    + "\\"
-                                    + "cam"
-                                    + camId
-                                    + "\\"
-                                    + "video"
-                                    + videoId
-                                    + "\\"
-                                    + file.getOriginalFilename());
+    public void saveVideo(
+            Long camId, MultipartFile file, LocalDateTime startTime, LocalDateTime endTime) {
+        // 비디오 엔티티생성 및 이벤트 연관관계 매핑
+        Duration duration = Duration.between(startTime, endTime);
+        long videoLength = duration.getSeconds();
 
-            StringBuilder dirPath = new StringBuilder(fileDir);
-            dirPath.append("videos");
-            File directory = new File(dirPath.toString());
-            if (!directory.exists()) {
-                directory.mkdir();
-            }
-            dirPath.append("\\");
-            dirPath.append("cam");
-            dirPath.append(camId);
-            directory = new File(dirPath.toString());
-            if (!directory.exists()) {
-                directory.mkdir();
-            }
-            dirPath.append("\\");
-            dirPath.append("video");
-            dirPath.append(videoId);
-            directory = new File(dirPath.toString());
-            if (!directory.exists()) {
-                directory.mkdir();
-            }
+        List<Event> events = eventRepository.findAllByOccurredAtBetween(startTime, endTime);
+        Cam cam = Cam.builder().id(camId).build();
+        Video video =
+                Video.builder()
+                        .cam(cam)
+                        .events(events)
+                        .isThreat(false)
+                        .length(videoLength)
+                        .recordStartedAt(startTime)
+                        .build();
+        Video saved = videoRepository.save(video);
 
-            Files.copy(file.getInputStream(), path);
-            Resource resource = new FileSystemResource(path.toFile());
+        // 녹화영상 저장
+        fileStorage.saveVideo(saved.getId(), file);
+        // 썸네일 생성 및 등록
+        fileStorage.saveVideoThumbnail(saved.getId());
 
-            File videoFile = resource.getFile();
-
-            long videoLength =
-                    ChronoUnit.SECONDS.between(timeInfo.getStartTime(), timeInfo.getEndTime());
-
-            Video video =
-                    videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
-            Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
-
-            // 썸네일 생성
-            String thumbnailFilePath =
-                    createThumbnail(
-                            resource.getFile().getPath(),
-                            file.getOriginalFilename(),
-                            dirPath.toString());
-
-            video.updateVideo(
-                    resource.getFile().getPath(),
-                    timeInfo.getStartTime(),
-                    timeInfo.getEndTime(),
-                    videoLength,
-                    thumbnailFilePath);
-
-            cam.addVideo(video);
-            camRepository.save(cam);
-        } catch (Exception e) {
-            log.error("비디오 서버에 안올라감: {}", e.getMessage());
-            throw new CamNotFoundException();
-        }
+        String thumbnailUrl = URL_PREFIX + "/" + saved.getId() + "/" + THUMBNAIL;
+        String streamUrl = URL_PREFIX + "/" + saved.getId() + "/" + STREAM;
+        String downloadUrl = URL_PREFIX + "/" + saved.getId() + "/" + DOWNLOAD;
+        saved.setThumbnailUrl(thumbnailUrl);
+        saved.setStreamUrl(streamUrl);
+        saved.setDownloadUrl(downloadUrl);
+        videoRepository.save(saved);
     }
 
-    public Long recordVideo(Long camId, Long videoId, VideoCommand command) {
-        Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
+    public VideoRecordResponseDto recordVideo(Long camId, String key, VideoCommand command) {
         if (command == VideoCommand.START) {
-            Video video = Video.builder().cam(cam).build();
-            videoRepository.save(video);
-            mqttGateway.sendToMqtt(video.getId() + " start", "cams/" + cam.getId() + "/video");
-            return video.getId();
-        } else if (command == VideoCommand.END) {
-            Video video =
-                    videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
-            mqttGateway.sendToMqtt(
-                    video.getId().toString() + " end", "cams/" + cam.getId() + "/video");
-            return video.getId();
-        } else {
-            throw new InvalidInputException();
+            key = UUID.randomUUID().toString();
+            mqttService.requestRecord(camId, key, RecordCommand.START);
+            return new VideoRecordResponseDto(key);
         }
+        // when command == VideoCommand.END
+        mqttService.requestRecord(camId, key, RecordCommand.END);
+        return new VideoRecordResponseDto(key);
     }
 
     public void registerThreat(Long videoId) {
         Video video = videoRepository.findById(videoId).orElseThrow(VideoNotFoundException::new);
         video.registerThreat();
-        for (Event event : video.getEventList()) {
+        for (Event event : video.getEvents()) {
             fcmService.sendMessageToAll(
                     event.getType().toString() + " 알림",
                     event.getOccurredAt()
@@ -276,14 +132,43 @@ public class VideoService {
         }
     }
 
-    private String createThumbnail(String videoFilePath, String originalFilename, String dirPath) {
+    public ResourceRegion getVideoResourceRegion(Long videoId, List<HttpRange> ranges) {
+        Resource resource = fileStorage.loadVideoResource(videoId);
+        long chunkSize = 1024 * 1024;
+        long contentLength;
+
         try {
-            String thumbnailFilePath = dirPath + "\\" + originalFilename + ".png";
-            ThumbnailExtractor.createThumbnail(videoFilePath, thumbnailFilePath, 2.0);
-            return thumbnailFilePath;
-        } catch (IOException | JCodecException | ArrayIndexOutOfBoundsException e) {
-            log.error("썸네일 만들지 못함 : {}", e.getMessage());
-            return null;
+            contentLength = resource.contentLength();
+        } catch (IOException e) {
+            throw new RuntimeException("video resource의 content length를 불러올 수 없습니다.", e);
+        }
+
+        HttpRange httpRange = getFirstRange(ranges);
+        long start = getRangeStart(httpRange, contentLength);
+        long end = getRangeEnd(httpRange, contentLength);
+        long rangeLength = Long.min(chunkSize, end - start + 1);
+
+        log.debug("Streaming start === {} , end == {}", start, end);
+        return new ResourceRegion(resource, start, rangeLength);
+    }
+
+    private HttpRange getFirstRange(List<HttpRange> ranges) {
+        return ranges.isEmpty() ? HttpRange.createByteRange(0) : ranges.getFirst();
+    }
+
+    private long getRangeStart(HttpRange httpRange, long contentLength) {
+        try {
+            return httpRange.getRangeStart(contentLength);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    private long getRangeEnd(HttpRange httpRange, long contentLength) {
+        try {
+            return httpRange.getRangeEnd(contentLength);
+        } catch (Exception e) {
+            return contentLength - 1;
         }
     }
 }

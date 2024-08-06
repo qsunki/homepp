@@ -4,7 +4,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ssafy.age.backend.event.service.EventMapper;
 import ssafy.age.backend.event.service.EventService;
 
 @Slf4j
