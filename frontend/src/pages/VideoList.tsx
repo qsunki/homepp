@@ -108,21 +108,22 @@ const VideoList: React.FC = () => {
         const startDate = filterDateRange[0]?.toISOString().slice(0, -1);
         const endDate = filterDateRange[1]?.toISOString().slice(0, -1);
 
-        const types = selectedTypes.length ? selectedTypes : undefined;
-        const camId =
-          selectedCamera === 'All Cameras'
-            ? undefined
-            : parseInt(selectedCamera.replace('Camera ', ''));
+        const params = new URLSearchParams();
+        if (selectedTypes.length) {
+          selectedTypes.forEach((type) => params.append('types', type));
+        }
+        if (startDate) {
+          params.append('startDate', startDate);
+        }
+        if (endDate) {
+          params.append('endDate', endDate);
+        }
+        if (selectedCamera !== 'All Cameras') {
+          params.append('camId', selectedCamera.replace('Camera ', ''));
+        }
+        params.append('isThreat', 'false');
 
-        const params = {
-          types,
-          startDate,
-          endDate,
-          camId,
-          isThreat: false,
-        };
-
-        const response = await fetchVideos(params);
+        const response = await fetchVideos(Object.fromEntries(params));
         const apiVideos = response.data.map((video: ApiVideo) => ({
           id: video.videoId,
           thumbnail: video.thumbnailUrl || 'https://via.placeholder.com/150',
@@ -303,42 +304,48 @@ const VideoList: React.FC = () => {
         )}
       </div>
       <div className="md:w-3/4 p-4">
-        {Object.entries(groupedVideos).map(([date, videos]) => (
-          <div key={date} className="mb-6">
-            <div className="text-xl font-bold mb-2">{date}</div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4">
-              {videos.map((video) => (
-                <div
-                  key={video.id}
-                  className="border rounded overflow-hidden cursor-pointer"
-                  onClick={() => handleVideoClick(video.id)}
-                >
-                  <div className="relative w-full h-0 pb-[63.64%]">
-                    <img
-                      src={video.thumbnail}
-                      alt="Thumbnail"
-                      className="absolute top-0 left-0 w-full h-full object-cover"
-                    />
-                    <span className="absolute bottom-0 right-0 m-1 p-1 bg-black text-white text-xs rounded">
-                      {video.length}
-                    </span>
-                  </div>
-                  <div className="p-2">
-                    <h3 className="text-sm font-bold">{video.title}</h3>
-                    <p className="text-xs text-gray-600">{video.startTime}</p>
-                    <p className="text-xs text-gray-600">
-                      {video.type.join(', ')}
-                    </p>
-                    <p className="text-xs text-gray-600">
-                      {video.date.toDateString()}
-                    </p>
-                    <p className="text-xs text-gray-600">{video.camera}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+        {videos.length === 0 ? (
+          <div className="text-center text-gray-500">
+            No videos found for the selected filters.
           </div>
-        ))}
+        ) : (
+          Object.entries(groupedVideos).map(([date, videos]) => (
+            <div key={date} className="mb-6">
+              <div className="text-xl font-bold mb-2">{date}</div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4">
+                {videos.map((video) => (
+                  <div
+                    key={video.id}
+                    className="border rounded overflow-hidden cursor-pointer"
+                    onClick={() => handleVideoClick(video.id)}
+                  >
+                    <div className="relative w-full h-0 pb-[63.64%]">
+                      <img
+                        src={video.thumbnail}
+                        alt="Thumbnail"
+                        className="absolute top-0 left-0 w-full h-full object-cover"
+                      />
+                      <span className="absolute bottom-0 right-0 m-1 p-1 bg-black text-white text-xs rounded">
+                        {video.length}
+                      </span>
+                    </div>
+                    <div className="p-2">
+                      <h3 className="text-sm font-bold">{video.title}</h3>
+                      <p className="text-xs text-gray-600">{video.startTime}</p>
+                      <p className="text-xs text-gray-600">
+                        {video.type.join(', ')}
+                      </p>
+                      <p className="text-xs text-gray-600">
+                        {video.date.toDateString()}
+                      </p>
+                      <p className="text-xs text-gray-600">{video.camera}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))
+        )}
       </div>
       {showScrollButton && (
         <button
