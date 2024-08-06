@@ -19,7 +19,6 @@ import {
   VAPID_KEY,
 } from './utils/firebase';
 import { onMessage, MessagePayload } from 'firebase/messaging';
-import api from './api';
 import './App.css';
 import 'tw-elements';
 import 'tw-elements/dist/css/tw-elements.min.css';
@@ -48,7 +47,7 @@ const App: React.FC = () => {
           if (email) {
             // email이 응답으로 오는 경우, 임의의 userId를 설정
             setUser(1, email, savedPassword || '', token);
-            registerFcmToken(email); // FCM 토큰 등록 함수 호출
+            registerFcmToken(); // FCM 토큰 등록 함수 호출
             handleForegroundNotification();
           } else {
             console.log('User info not valid, logging out');
@@ -78,12 +77,11 @@ const App: React.FC = () => {
     }
   }, [setUser, logout]);
 
-  const registerFcmToken = async (email: string) => {
+  const registerFcmToken = async () => {
     try {
       const fcmToken = await requestPermissionAndGetToken(VAPID_KEY);
       console.log('FCM 토큰:', fcmToken); // FCM 토큰 콘솔 출력
       if (fcmToken) {
-        await api.post(`/members/${email}/tokens`, { token: fcmToken });
         console.log('FCM 토큰 등록 성공:', fcmToken);
       } else {
         console.log('FCM 토큰을 가져올 수 없습니다.');

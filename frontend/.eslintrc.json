@@ -1,7 +1,8 @@
 {
   "env": {
     "browser": true,
-    "es2021": true
+    "es2021": true,
+    "serviceworker": true // 서비스 워커 환경 추가
   },
   "extends": [
     "eslint:recommended",
@@ -22,6 +23,10 @@
     "prettier/prettier": "error",
     "react/react-in-jsx-scope": "off",
     "@typescript-eslint/no-non-null-assertion": "warn"
+  },
+  "globals": {
+    "firebase": "readonly",
+    "importScripts": "readonly" // importScripts를 글로벌로 인식
   },
   "settings": {
     "react": {
