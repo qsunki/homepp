@@ -8,6 +8,7 @@ import styles from '../utils/filter/Filter1.module.css';
 import thiefIcon from 'assets/filter/thief.png';
 import fireIcon from 'assets/filter/fire.png';
 import soundIcon from 'assets/filter/sound.png';
+import { fetchVideos, Video as ApiVideo } from '../api';
 
 interface Video {
   id: number;
@@ -19,21 +20,6 @@ interface Video {
   camera: string;
   title: string;
 }
-
-const videoData: Video[] = Array.from({ length: 20 }, (_, idx) => {
-  const date = new Date();
-  date.setDate(date.getDate() - Math.floor(idx / 3));
-  return {
-    id: idx,
-    thumbnail: 'https://via.placeholder.com/150',
-    startTime: '07:28:31AM',
-    length: '2:38',
-    type: ['Fire', 'Intrusion', 'Loud Noise'].slice(0, (idx % 3) + 1),
-    date: date,
-    camera: `Camera ${(idx % 3) + 1}`,
-    title: `Sample Video ${idx + 1}`,
-  };
-});
 
 const FilterIcon: React.FC<{
   icon: string;
@@ -59,6 +45,7 @@ const VideoList: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [showCameraOptions, setShowCameraOptions] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const [videos, setVideos] = useState<Video[]>([]);
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -110,24 +97,50 @@ const VideoList: React.FC = () => {
     };
   }, []);
 
-  const filteredVideos = videoData.filter((video) => {
-    const matchesType =
-      selectedTypes.length === 0 ||
-      selectedTypes.some((type) => video.type.includes(type));
-    const matchesCamera =
-      selectedCamera === 'All Cameras' || video.camera === selectedCamera;
-    const matchesDateRange =
-      !filterDateRange[0] ||
-      !filterDateRange[1] ||
-      (video.date >= filterDateRange[0] &&
-        video.date <=
-          new Date(
-            (filterDateRange[1] || new Date()).getTime() + 86400000 - 1
-          ));
-    return matchesType && matchesCamera && matchesDateRange;
-  });
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const startDate = filterDateRange[0]?.toISOString() || '';
+        const endDate = filterDateRange[1]?.toISOString() || '';
+        const types = selectedTypes.length
+          ? selectedTypes
+          : ['INVASION', 'FIRE', 'CUSTOM', 'SOUND'];
+        const camId =
+          selectedCamera === 'All Cameras'
+            ? 0
+            : parseInt(selectedCamera.replace('Camera ', ''));
+        const response = await fetchVideos({
+          types,
+          startDate,
+          endDate,
+          camId,
+          isThreat: false,
+        });
+        const apiVideos = response.data.map((video: ApiVideo) => ({
+          id: video.videoId,
+          thumbnail: video.thumbnailUrl || 'https://via.placeholder.com/150',
+          startTime: new Date(video.recordStartAt).toLocaleTimeString(),
+          length: `${Math.floor(video.length / 60)}:${(video.length % 60)
+            .toString()
+            .padStart(2, '0')}`,
+          type: video.eventDetails.map((event) => event.type),
+          date: new Date(video.recordStartAt),
+          camera: video.camName,
+          title:
+            video.camName +
+            ' - ' +
+            video.eventDetails.map((event) => event.type).join(', '),
+        }));
+        setVideos(apiVideos);
+      } catch (error) {
+        console.error('Failed to fetch videos', error);
+      }
+    };
 
-  const groupedVideos = filteredVideos.reduce((acc, video) => {
+    fetchData();
+  }, [filterDateRange, selectedTypes, selectedCamera]);
+
+  const groupedVideos = videos.reduce((acc, video) => {
     const dateKey = video.date.toDateString();
     if (!acc[dateKey]) acc[dateKey] = [];
     acc[dateKey].push(video);

@@ -186,6 +186,44 @@ export const updateCam = async (
   }
 };
 
+// 비디오 데이터 타입 정의
+export interface Video {
+  videoId: number;
+  camName: string;
+  recordStartAt: string;
+  length: number;
+  eventDetails: {
+    occurredAt: string;
+    type: string;
+  }[];
+  thumbnailUrl: string;
+  threat: boolean;
+}
+
+// 비디오 목록 조회 API 호출 함수
+export const fetchVideos = async (params: {
+  types: string[];
+  startDate: string;
+  endDate: string;
+  camId: number;
+  isThreat: boolean;
+}): Promise<AxiosResponse<Video[]>> => {
+  try {
+    const response = await api.get<Video[]>('/cams/videos', { params });
+    return response;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        '비디오 목록 조회 오류:',
+        error.response ? error.response.data : error.message
+      );
+    } else {
+      console.error('비디오 목록 조회 오류:', error);
+    }
+    throw error;
+  }
+};
+
 export interface SharedMember {
   nickname: string;
   email: string;
