@@ -45,6 +45,20 @@ export interface CamData {
   status?: string; // status 속성 추가
 }
 
+// 비디오 데이터 타입 정의
+export interface Video {
+  videoId: number;
+  camName: string;
+  recordStartAt: string;
+  length: number;
+  eventDetails: {
+    occurredAt: string;
+    type: string;
+  }[];
+  thumbnailUrl: string;
+  threat: boolean;
+}
+
 // 공유 사용자 데이터 타입 정의
 export interface SharedMember {
   nickname: string;
@@ -194,6 +208,30 @@ export const updateCam = async (
   }
 };
 
+// 비디오 목록 조회 API 호출 함수
+export const fetchVideos = async (params?: {
+  types?: string[];
+  startDate?: string;
+  endDate?: string;
+  camId?: number;
+  isThreat?: boolean;
+}): Promise<AxiosResponse<Video[]>> => {
+  try {
+    const response = await api.get<Video[]>('/cams/videos', { params });
+    return response;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        '비디오 목록 조회 오류:',
+        error.response ? error.response.data : error.message
+      );
+    } else {
+      console.error('비디오 목록 조회 오류:', error);
+    }
+    throw error;
+  }
+};
+
 // 캠의 WebSocket 키 조회 API 호출 함수 추가
 export const fetchWebSocketKey = async (camId: string): Promise<string> => {
   try {
@@ -303,6 +341,21 @@ export const deleteSharedMember = async (
   return await api.delete<void>(
     `/members/${encodedEmail}/sharedMembers/${encodedSharedMemberEmail}`
   );
+};
+
+// FCM 토큰을 서버로 전송하는 함수
+export const sendFcmTokenToServer = async (email: string, token: string) => {
+  try {
+    const response = await api.post(
+      `/members/${encodeURIComponent(email)}/tokens`,
+      { token }
+    );
+    console.log('서버에 FCM 토큰 전송 성공:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to send FCM token to server:', error);
+    throw error;
+  }
 };
 
 export default api;
