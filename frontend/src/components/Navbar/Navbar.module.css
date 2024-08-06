@@ -276,13 +276,17 @@
 
 .btn-offset {
   border-radius: 0;
-  box-shadow: 6px 6px 0 0 #007aff, inset 6px 6px 0 0 #007aff;
+  box-shadow:
+    6px 6px 0 0 #007aff,
+    inset 6px 6px 0 0 #007aff;
   transition: 0.3s;
 }
 
 .btn-offset:hover {
   background: transparent;
-  box-shadow: 0 0 0 0 #007aff, inset 108px 72px 0 0 #007aff;
+  box-shadow:
+    0 0 0 0 #007aff,
+    inset 108px 72px 0 0 #007aff;
 }
 
 .btnLogin {

@@ -127,12 +127,15 @@ const VideoList: React.FC = () => {
     return matchesType && matchesCamera && matchesDateRange;
   });
 
-  const groupedVideos = filteredVideos.reduce((acc, video) => {
-    const dateKey = video.date.toDateString();
-    if (!acc[dateKey]) acc[dateKey] = [];
-    acc[dateKey].push(video);
-    return acc;
-  }, {} as Record<string, Video[]>);
+  const groupedVideos = filteredVideos.reduce(
+    (acc, video) => {
+      const dateKey = video.date.toDateString();
+      if (!acc[dateKey]) acc[dateKey] = [];
+      acc[dateKey].push(video);
+      return acc;
+    },
+    {} as Record<string, Video[]>
+  );
 
   return (
     <div className="flex">
