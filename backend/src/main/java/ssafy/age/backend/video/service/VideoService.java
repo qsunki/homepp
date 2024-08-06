@@ -174,4 +174,8 @@ public class VideoService {
             return contentLength - 1;
         }
     }
+
+    public Resource getVideoThumbnailResource(Long videoId) {
+        return fileStorage.loadVideoThumbnailResource(videoId);
+    }
 }

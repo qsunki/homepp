@@ -47,6 +47,7 @@ public class SecurityConfig {
                                                 "/api/*/members/phone-numbers/*",
                                                 "/api/*/members/emails/*",
                                                 "/api/v1/cams/videos/*/stream",
+                                                "/api/v1/cams/videos/*/thumbnail",
                                                 "/swagger-ui/**",
                                                 "/v3/api-docs/**",
                                                 "/h2-console/**",

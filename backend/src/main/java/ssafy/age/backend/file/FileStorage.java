@@ -85,4 +85,18 @@ public class FileStorage {
             throw new RuntimeException("비디오 경로가 잘못되었습니다.", e);
         }
     }
+
+    public Resource loadVideoThumbnailResource(Long videoId) {
+        String path = getVideoThumbnailPath(videoId);
+        Path file = Path.of(path);
+        try {
+            Resource resource = new UrlResource(file.toUri());
+            if (resource.exists() || resource.isReadable()) {
+                return resource;
+            }
+            throw new RuntimeException("비디오 썸네일이 존재하지 않습니다.");
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("비디오 썸네일 경로가 잘못되었습니다.", e);
+        }
+    }
 }
