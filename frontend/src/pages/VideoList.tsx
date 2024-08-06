@@ -47,7 +47,7 @@ const VideoList: React.FC = () => {
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [videos, setVideos] = useState<Video[]>([]);
   const [cameras, setCameras] = useState<string[]>([]);
-  const [isReported, setIsReported] = useState<boolean | null>(null);
+  const [isReported, setIsReported] = useState<boolean | undefined>(undefined);
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -126,7 +126,7 @@ const VideoList: React.FC = () => {
         const camId =
           selectedCamera === 'All Cameras'
             ? undefined
-            : parseInt(selectedCamera.replace('Camera ', ''));
+            : parseInt(selectedCamera.replace('Camera ', ''), 10);
         const params: {
           types?: string[];
           startDate?: string;
@@ -142,28 +142,24 @@ const VideoList: React.FC = () => {
         };
 
         const response = await fetchVideos(params);
-        const apiVideos = response.data
-          ? response.data.map((video: ApiVideo) => ({
-              id: video.videoId,
-              thumbnail:
-                video.thumbnailUrl || 'https://via.placeholder.com/150',
-              startTime: new Date(video.recordStartAt).toLocaleTimeString(),
-              length: `${Math.floor(video.length / 60)}:${(video.length % 60)
-                .toString()
-                .padStart(2, '0')}`,
-              type: video.eventDetails.map((event) => event.type),
-              date: new Date(video.recordStartAt),
-              camera: video.camName,
-              title:
-                video.camName +
-                ' - ' +
-                video.eventDetails.map((event) => event.type).join(', '),
-            }))
-          : [];
+        const apiVideos = response.data.map((video: ApiVideo) => ({
+          id: video.videoId,
+          thumbnail: video.thumbnailUrl || 'https://via.placeholder.com/150',
+          startTime: new Date(video.recordStartAt).toLocaleTimeString(),
+          length: `${Math.floor(video.length / 60)}:${(video.length % 60)
+            .toString()
+            .padStart(2, '0')}`,
+          type: video.eventDetails.map((event) => event.type),
+          date: new Date(video.recordStartAt),
+          camera: video.camName,
+          title:
+            video.camName +
+            ' - ' +
+            video.eventDetails.map((event) => event.type).join(', '),
+        }));
         setVideos(apiVideos);
       } catch (error) {
         console.error('Failed to fetch videos', error);
-        setVideos([]);
       }
     };
 
@@ -184,20 +180,20 @@ const VideoList: React.FC = () => {
           <FilterIcon
             icon={fireIcon}
             label="Fire"
-            isSelected={selectedTypes.includes('FIRE')}
-            onClick={() => handleTypeToggle('FIRE')}
+            isSelected={selectedTypes.includes('Fire')}
+            onClick={() => handleTypeToggle('Fire')}
           />
           <FilterIcon
             icon={thiefIcon}
             label="Intrusion"
-            isSelected={selectedTypes.includes('INVASION')}
-            onClick={() => handleTypeToggle('INVASION')}
+            isSelected={selectedTypes.includes('Intrusion')}
+            onClick={() => handleTypeToggle('Intrusion')}
           />
           <FilterIcon
             icon={soundIcon}
             label="Sound"
-            isSelected={selectedTypes.includes('SOUND')}
-            onClick={() => handleTypeToggle('SOUND')}
+            isSelected={selectedTypes.includes('Sound')}
+            onClick={() => handleTypeToggle('Sound')}
           />
         </div>
         <div className="mb-4 relative">
@@ -205,7 +201,7 @@ const VideoList: React.FC = () => {
             Reported Videos
             <input
               type="checkbox"
-              checked={!!isReported}
+              checked={isReported || false}
               onChange={() => setIsReported((prev) => !prev)}
             />
           </label>
@@ -267,20 +263,20 @@ const VideoList: React.FC = () => {
               <FilterIcon
                 icon={fireIcon}
                 label="Fire"
-                isSelected={selectedTypes.includes('FIRE')}
-                onClick={() => handleTypeToggle('FIRE')}
+                isSelected={selectedTypes.includes('Fire')}
+                onClick={() => handleTypeToggle('Fire')}
               />
               <FilterIcon
                 icon={thiefIcon}
                 label="Intrusion"
-                isSelected={selectedTypes.includes('INVASION')}
-                onClick={() => handleTypeToggle('INVASION')}
+                isSelected={selectedTypes.includes('Intrusion')}
+                onClick={() => handleTypeToggle('Intrusion')}
               />
               <FilterIcon
                 icon={soundIcon}
                 label="Sound"
-                isSelected={selectedTypes.includes('SOUND')}
-                onClick={() => handleTypeToggle('SOUND')}
+                isSelected={selectedTypes.includes('Sound')}
+                onClick={() => handleTypeToggle('Sound')}
               />
             </div>
             <div className="mb-4 relative">
@@ -288,7 +284,7 @@ const VideoList: React.FC = () => {
                 Reported Videos
                 <input
                   type="checkbox"
-                  checked={!!isReported}
+                  checked={isReported || false}
                   onChange={() => setIsReported((prev) => !prev)}
                 />
               </label>
