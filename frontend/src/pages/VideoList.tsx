@@ -37,9 +37,14 @@ const FilterIcon: React.FC<{
 );
 
 const VideoList: React.FC = () => {
+  // 초기 날짜 설정 (오늘 기준으로 한 달 전)
+  const initialEndDate = new Date();
+  const initialStartDate = new Date();
+  initialStartDate.setMonth(initialStartDate.getMonth() - 1);
+
   const [filterDateRange, setFilterDateRange] = useState<
     [Date | null, Date | null]
-  >([null, null]);
+  >([initialStartDate, initialEndDate]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedCamera, setSelectedCamera] = useState<string>('All Cameras');
   const [showFilters, setShowFilters] = useState(false);
@@ -100,8 +105,12 @@ const VideoList: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const startDate = filterDateRange[0]?.toISOString() || '';
-        const endDate = filterDateRange[1]?.toISOString() || '';
+        const startDate = filterDateRange[0]
+          ? filterDateRange[0].toISOString()
+          : undefined;
+        const endDate = filterDateRange[1]
+          ? filterDateRange[1].toISOString()
+          : undefined;
         const types = selectedTypes.length
           ? selectedTypes
           : ['INVASION', 'FIRE', 'CUSTOM', 'SOUND'];
@@ -109,13 +118,27 @@ const VideoList: React.FC = () => {
           selectedCamera === 'All Cameras'
             ? 0
             : parseInt(selectedCamera.replace('Camera ', ''));
-        const response = await fetchVideos({
+        const params: {
+          types: string[];
+          startDate?: string;
+          endDate?: string;
+          camId: number;
+          isThreat: boolean;
+        } = {
           types,
-          startDate,
-          endDate,
           camId,
           isThreat: false,
-        });
+        };
+
+        if (startDate) {
+          params.startDate = startDate;
+        }
+
+        if (endDate) {
+          params.endDate = endDate;
+        }
+
+        const response = await fetchVideos(params);
         const apiVideos = response.data.map((video: ApiVideo) => ({
           id: video.videoId,
           thumbnail: video.thumbnailUrl || 'https://via.placeholder.com/150',
