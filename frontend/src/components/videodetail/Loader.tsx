@@ -19,7 +19,7 @@ const Loader: React.FC = () => {
           <circle className={styles.back} cx="17" cy="17" r="14"></circle>
           <circle className={styles.front} cx="17" cy="17" r="14"></circle>
         </svg>
-        <div className={styles.text} data-text="Searching"></div>
+        <div className={styles.text} data-text="Loading"></div>
       </div>
     </div>,
     document.body
