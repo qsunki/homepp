@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import SockJS from 'sockjs-client';
-import { Client } from '@stomp/stompjs';
+import { Client, IMessage } from '@stomp/stompjs';
 import Loader from './Loader';
+import { fetchCams, CamData } from '../../api';
 
 interface Signal {
-  type: 'answer' | 'candidate';
+  type: 'answer' | 'candidate' | 'offer';
   data: RTCSessionDescriptionInit | RTCIceCandidateInit;
 }
 
@@ -15,89 +16,58 @@ interface Cam {
 
 const LivePlayer: React.FC = () => {
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
-  const [peerConnection, setPeerConnection] =
-    useState<RTCPeerConnection | null>(null);
+  const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
   const [cams, setCams] = useState<Cam[]>([]);
-  const [selectedCamId, setSelectedCamId] = useState<string>('1'); // 기본적으로 캠1을 선택
+  const [selectedCamId, setSelectedCamId] = useState<string>('1');
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const clientRef = useRef<Client | null>(null);
 
   useEffect(() => {
-    // 캠 리스트 조회
-    const fetchCams = async () => {
+    const getCams = async () => {
       try {
-        const response = await fetch('/api/v1/cams', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        setCams(data);
+        const response = await fetchCams();
+        console.log('Fetched cams:', response.data);
+        const camsData: Cam[] = response.data.map((cam: CamData) => ({
+          id: cam.camId.toString(),
+          name: cam.name,
+        }));
+        setCams(camsData);
       } catch (error) {
         console.error('Failed to fetch cams:', error);
       }
     };
 
-    fetchCams();
+    getCams();
   }, []);
 
   useEffect(() => {
     if (!selectedCamId) return;
 
-    // 캠 선택 후 WebSocket 키 조회 (주석 처리됨)
-    /*
-    const fetchWebSocketKey = async () => {
-      try {
-        setIsLoading(true);
-        const response = await fetch(`/api/v1/cams/${selectedCamId}/stream`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        setWebSocketKey(data.key); // 서버 응답에 따라 key 값을 설정합니다.
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Failed to fetch WebSocket key:', error);
-        setIsLoading(false);
-      }
-    };
-
-    fetchWebSocketKey();
-    */
-    setIsLoading(false); // WebSocket 키 조회가 주석 처리되었으므로 로딩 상태를 바로 false로 설정
+    setIsLoading(false);
   }, [selectedCamId]);
 
   useEffect(() => {
-    if (isLoading) return; // 로딩 중일 때는 실행하지 않음
+    if (isLoading) return;
 
-    const webSocketKey = '123'; // 테스트용 키값
+    console.log('Initializing WebSocket and STOMP client with key:', '123');
 
-    console.log('Initializing WebSocket and STOMP client...');
-
-    const socketUrl = `https://i11a605.p.ssafy.io:8081/ws`;
+    const socketUrl = `http://i11a605.p.ssafy.io:8081/ws`;
     const socket = new SockJS(socketUrl);
 
-    const stompClient = new Client({
+    const client = new Client({
       webSocketFactory: () => socket,
-      onConnect: () => {
-        console.log('STOMP client connected');
-        stompClient.subscribe(`/sub/client/${webSocketKey}`, (message) => {
+      debug: (str) => {
+        console.log('STOMP Debug: ', str);
+      },
+      onConnect: (frame) => {
+        console.log('STOMP client connected, frame:', frame);
+        client.subscribe(`/sub/client/123`, (message: IMessage) => {
+          console.log('Received message:', message);
           const signal: Signal = JSON.parse(message.body);
           console.log('Received signal:', signal);
           handleSignal(signal);
         });
+        sendOffer();
       },
       onStompError: (frame) => {
         console.error('Broker reported error:', frame.headers['message']);
@@ -108,31 +78,117 @@ const LivePlayer: React.FC = () => {
       },
     });
 
-    stompClient.activate();
+    clientRef.current = client;
+    client.activate();
     console.log('STOMP client activation requested');
 
+    return () => {
+      console.log('Deactivating STOMP client');
+      client.deactivate();
+      if (peerConnectionRef.current) {
+        peerConnectionRef.current.close();
+      }
+    };
+  }, [isLoading]);
+
+  const handleSignal = (signal: Signal) => {
+    console.log('Handling signal:', signal);
+    const peerConnection = peerConnectionRef.current;
+
+    if (!peerConnection) {
+      console.error('No RTCPeerConnection available to handle signal');
+      return;
+    }
+
+    switch (signal.type) {
+      case 'offer':
+        console.log('Handling offer signal:', signal.data);
+        peerConnection
+          .setRemoteDescription(
+            new RTCSessionDescription(signal.data as RTCSessionDescriptionInit)
+          )
+          .then(() => {
+            console.log('Remote description set successfully.');
+            return peerConnection.createAnswer();
+          })
+          .then((answer) => {
+            return peerConnection
+              .setLocalDescription(answer)
+              .then(() => answer);
+          })
+          .then((answer) => {
+            if (clientRef.current?.connected) {
+              clientRef.current.publish({
+                destination: `/pub/client/123`,
+                body: JSON.stringify({ type: 'answer', data: answer }),
+              });
+              console.log('Published answer:', answer);
+            }
+          })
+          .catch((error) => {
+            console.error('Failed to handle offer:', error);
+          });
+        break;
+      case 'answer':
+        console.log('Handling answer signal:', signal.data);
+        peerConnection
+          .setRemoteDescription(
+            new RTCSessionDescription(signal.data as RTCSessionDescriptionInit)
+          )
+          .then(() => {
+            console.log('Remote description set successfully.');
+          })
+          .catch((error) => {
+            console.error('Failed to set remote description:', error);
+          });
+        break;
+      case 'candidate':
+        console.log('Handling candidate signal:', signal.data);
+        peerConnection
+          .addIceCandidate(
+            new RTCIceCandidate(signal.data as RTCIceCandidateInit)
+          )
+          .then(() => {
+            console.log('ICE candidate added successfully.');
+          })
+          .catch((error) => {
+            console.error('Failed to add ICE candidate:', error);
+          });
+        break;
+      default:
+        console.warn('Unknown signal type:', signal.type);
+        break;
+    }
+  };
+
+  const sendOffer = () => {
+    if (!clientRef.current?.connected) {
+      console.error('STOMP client is not connected');
+      return;
+    }
+
     const pc = new RTCPeerConnection();
-    setPeerConnection(pc);
+    peerConnectionRef.current = pc;
     console.log('RTCPeerConnection created:', pc);
 
     pc.onicecandidate = (event) => {
-      if (event.candidate) {
-        console.log('ICE candidate event:', event.candidate);
-        stompClient.publish({
-          destination: `/pub/client/${webSocketKey}`,
+      console.log('icecandidate event occurred', event);
+      if (event.candidate && clientRef.current?.connected) {
+        console.log('Publishing ICE candidate:', event.candidate);
+        clientRef.current.publish({
+          destination: `/pub/client/123`,
           body: JSON.stringify({
             type: 'candidate',
-            data: event.candidate.toJSON(),
+            data: event.candidate,
           }),
         });
-        console.log('Published ICE candidate:', event.candidate.toJSON());
       }
     };
 
     pc.ontrack = (event) => {
-      console.log('Track event:', event);
+      console.log('Track event occurred:', event);
+      const [remoteStream] = event.streams;
       if (remoteVideoRef.current) {
-        const [remoteStream] = event.streams;
         remoteVideoRef.current.srcObject = remoteStream;
         console.log('Remote stream set to video element');
       }
@@ -141,48 +197,23 @@ const LivePlayer: React.FC = () => {
     pc.createOffer({
       offerToReceiveAudio: true,
       offerToReceiveVideo: true,
-    }).then((offer) => {
-      pc.setLocalDescription(offer);
-      console.log('Created and set local description:', offer);
-      stompClient.publish({
-        destination: `/pub/client/${webSocketKey}`,
-        body: JSON.stringify({ type: 'offer', data: offer }),
+    })
+      .then((offer) => {
+        console.log('Offer created:', offer);
+        return pc.setLocalDescription(offer).then(() => offer);
+      })
+      .then((offer) => {
+        console.log('Publishing offer:', offer);
+        if (clientRef.current?.connected) {
+          clientRef.current.publish({
+            destination: `/pub/client/123`,
+            body: JSON.stringify({ type: 'offer', data: offer }),
+          });
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to create offer:', error);
       });
-      console.log('Published offer:', offer);
-    });
-
-    return () => {
-      console.log('Deactivating STOMP client and closing RTCPeerConnection');
-      stompClient.deactivate();
-      if (pc) {
-        pc.close();
-      }
-    };
-  }, [isLoading, selectedCamId]);
-
-  const handleSignal = (signal: Signal) => {
-    if (!peerConnection) {
-      console.error('No RTCPeerConnection available to handle signal');
-      return;
-    }
-
-    switch (signal.type) {
-      case 'answer':
-        console.log('Handling answer signal:', signal.data);
-        peerConnection.setRemoteDescription(
-          new RTCSessionDescription(signal.data as RTCSessionDescriptionInit)
-        );
-        break;
-      case 'candidate':
-        console.log('Handling candidate signal:', signal.data);
-        peerConnection.addIceCandidate(
-          new RTCIceCandidate(signal.data as RTCIceCandidateInit)
-        );
-        break;
-      default:
-        console.warn('Unknown signal type:', signal.type);
-        break;
-    }
   };
 
   return (
@@ -206,6 +237,7 @@ const LivePlayer: React.FC = () => {
         ref={remoteVideoRef}
         autoPlay
         playsInline
+        controls
         className="w-full h-auto"
       />
     </div>
