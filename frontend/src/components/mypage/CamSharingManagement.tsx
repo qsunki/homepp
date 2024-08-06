@@ -51,6 +51,12 @@ const CamSharingManagement: React.FC = () => {
       return;
     }
 
+    if (newMemberEmail === userEmail) {
+      setAlertMessage('자기 자신은 공유 사용자로 추가할 수 없습니다.');
+      setSuccessMessage(null);
+      return;
+    }
+
     try {
       const isEmailDuplicate = await checkDuplicateEmail(newMemberEmail);
       if (isEmailDuplicate) {
