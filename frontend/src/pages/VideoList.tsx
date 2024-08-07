@@ -6,6 +6,7 @@ import 'tw-elements/dist/css/tw-elements.min.css';
 import { FaCaretUp } from 'react-icons/fa';
 import { format } from 'date-fns';
 import styles from '../utils/filter/Filter1.module.css';
+import customStyles from './VideoList.module.css'; // Importing the custom CSS module
 import thiefIcon from 'assets/filter/thief.png';
 import fireIcon from 'assets/filter/fire.png';
 import soundIcon from 'assets/filter/sound.png';
@@ -211,13 +212,14 @@ const VideoList: React.FC = () => {
           />
         </div>
         <div className="mb-4 relative">
-          <label>
-            Reported Videos
+          <label>Reported Videos</label>
+          <label className={`${customStyles.switch} ml-2`}>
             <input
               type="checkbox"
               checked={isReported || false}
               onChange={() => setIsReported((prev) => !prev)}
             />
+            <span className={customStyles.slider}></span>
           </label>
         </div>
         <div className="mb-4 relative">
@@ -297,13 +299,14 @@ const VideoList: React.FC = () => {
               />
             </div>
             <div className="mb-4 relative">
-              <label>
-                Reported Videos
+              <label>Reported Videos</label>
+              <label className={`${customStyles.switch} ml-2`}>
                 <input
                   type="checkbox"
                   checked={isReported || false}
                   onChange={() => setIsReported((prev) => !prev)}
                 />
+                <span className={customStyles.slider}></span>
               </label>
             </div>
             <div className="mb-4 relative">
