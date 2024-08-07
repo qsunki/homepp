@@ -3,16 +3,18 @@ package ssafy.age.backend.notification.service;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
-import com.google.firebase.messaging.Notification;
+
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ssafy.age.backend.auth.exception.TokenNotFoundException;
 import ssafy.age.backend.auth.service.AuthService;
 import ssafy.age.backend.event.persistence.Event;
 import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
+import ssafy.age.backend.notification.exception.FCMTokenNotFoundException;
 import ssafy.age.backend.notification.persistence.FCMToken;
 import ssafy.age.backend.notification.persistence.FCMTokenRepository;
 import ssafy.age.backend.notification.web.FCMTokenDto;
@@ -34,7 +36,7 @@ public class FCMService {
     public void sendMessageToAll(Video video) {
         List<FCMToken> fcmTokens = fcmTokenRepository.findAll();
         for (FCMToken fcmToken : fcmTokens) {
-            sendMessage(fcmToken.getToken(), video);
+            sendThreatMessage(fcmToken.getToken(), video);
         }
     }
 
@@ -47,8 +49,16 @@ public class FCMService {
         return new FCMTokenDto(saved.getToken());
     }
 
-    public void sendMessage(String targetToken, Video video) {
-        Message message = buildMessage(targetToken, video);
+    public void sendSuccessMessage() {
+        String email = authService.getMemberEmail();
+        FCMToken token = fcmTokenRepository.findByMemberEmail(email)
+                .orElseThrow(FCMTokenNotFoundException::new);
+
+        Message message = Message.builder()
+                .setToken(token.getToken())
+                .putData("messageType", "register")
+                .putData("result", "success")
+                .build();
 
         try {
             String response = FirebaseMessaging.getInstance().send(message);
@@ -58,7 +68,18 @@ public class FCMService {
         }
     }
 
-    public Message buildMessage(String targetToken, Video video) {
+    public void sendThreatMessage(String targetToken, Video video) {
+        Message message = buildThreatMessage(targetToken, video);
+
+        try {
+            String response = FirebaseMessaging.getInstance().send(message);
+            log.debug(response);
+        } catch (FirebaseMessagingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Message buildThreatMessage(String targetToken, Video video) {
         StringBuilder types = new StringBuilder();
         for (Event event : video.getEvents()) {
             types.append(event.getType());
@@ -77,8 +98,9 @@ public class FCMService {
                 types + " 발생, 인근 지역 주민들은 주의 바랍니다.";
         return Message.builder()
                 .setToken(targetToken)
-                .setNotification(
-                        Notification.builder().setTitle(messageTitle).setBody(messageBody).build())
+                .putData("messageTitle", messageTitle)
+                .putData("messageBody", messageBody)
+                .putData("messageType", "threat")
                 .build();
     }
 }
