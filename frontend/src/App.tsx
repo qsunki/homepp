@@ -80,8 +80,9 @@ const App: React.FC = () => {
 
   const registerFcmToken = async (email: string) => {
     try {
+      console.log('Requesting FCM token...');
       const fcmToken = await requestPermissionAndGetToken(VAPID_KEY);
-      console.log('FCM 토큰:', fcmToken); // FCM 토큰 콘솔 출력
+      console.log('FCM token received:', fcmToken); // FCM 토큰 콘솔 출력
       if (fcmToken) {
         console.log('FCM 토큰 등록 성공:', fcmToken);
         await sendFcmTokenToServer(email, fcmToken); // 서버에 FCM 토큰 전송
@@ -105,6 +106,9 @@ const App: React.FC = () => {
           timestamp: new Date(),
         },
       ]);
+      alert(
+        `Message received: ${payload.notification?.title}\n${payload.notification?.body}`
+      );
     });
   };
 

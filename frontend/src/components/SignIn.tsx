@@ -1,12 +1,13 @@
 import React, { useState, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '../stores/useUserStore';
-import { loginUser } from '../api';
+import { loginUser, sendFcmTokenToServer } from '../api';
 import backArrow from '../assets/signin/backarrow.png';
 import naverLogin from '../assets/signin/naverlogin.png';
 import kakaoLogin from '../assets/signin/kakaologin.png';
 import SignUp from './SignUp';
 import axios from 'axios';
+import { requestPermissionAndGetToken, VAPID_KEY } from '../utils/firebase';
 
 interface SignInProps {
   onClose: () => void;
@@ -49,6 +50,10 @@ export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
           inputPassword,
           response.data.accessToken
         ); // 비밀번호를 추가로 전달
+
+        // 로그인 후 FCM 토큰 요청 및 서버 전송
+        await registerFcmToken(inputEmail);
+
         navigate('/home'); // 로그인 성공 시 홈페이지로 리다이렉트
         console.log('navigate 함수 호출됨');
         onClose();
@@ -65,6 +70,22 @@ export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
         console.error('로그인 오류:', error);
       }
       setLoginError('로그인 오류가 발생했습니다.');
+    }
+  };
+
+  const registerFcmToken = async (email: string) => {
+    try {
+      const fcmToken = await requestPermissionAndGetToken(VAPID_KEY);
+      console.log('FCM 토큰:', fcmToken); // FCM 토큰 콘솔 출력
+      if (fcmToken) {
+        console.log('FCM 토큰 등록 성공:', fcmToken);
+        await sendFcmTokenToServer(email, fcmToken); // 서버에 FCM 토큰 전송
+        console.log('서버에 FCM 토큰 전송 성공:', fcmToken);
+      } else {
+        console.log('FCM 토큰을 가져올 수 없습니다.');
+      }
+    } catch (error) {
+      console.error('FCM 토큰 등록 실패:', error);
     }
   };
 
