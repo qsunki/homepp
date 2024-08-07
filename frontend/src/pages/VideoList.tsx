@@ -4,6 +4,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import 'tw-elements/dist/css/tw-elements.min.css';
 import { FaCaretUp } from 'react-icons/fa';
+import { format } from 'date-fns';
 import styles from '../utils/filter/Filter1.module.css';
 import thiefIcon from 'assets/filter/thief.png';
 import fireIcon from 'assets/filter/fire.png';
@@ -117,10 +118,10 @@ const VideoList: React.FC = () => {
     const fetchData = async () => {
       try {
         const startDate = filterDateRange[0]
-          ? filterDateRange[0].toISOString()
+          ? format(filterDateRange[0], "yyyy-MM-dd'T'HH:mm:ss")
           : undefined;
         const endDate = filterDateRange[1]
-          ? filterDateRange[1].toISOString()
+          ? format(filterDateRange[1], "yyyy-MM-dd'T'HH:mm:ss")
           : undefined;
         const camId =
           selectedCamera === 'All Cameras'
