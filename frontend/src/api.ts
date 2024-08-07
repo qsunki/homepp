@@ -17,8 +17,10 @@ const api = axios.create({
 export const setAuthToken = (token: string | null) => {
   if (token) {
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    console.log('Authorization token set:', token); // 디버깅용 콘솔 출력
   } else {
     delete api.defaults.headers.common['Authorization'];
+    console.log('Authorization token removed'); // 디버깅용 콘솔 출력
   }
 };
 
@@ -92,7 +94,7 @@ export const loginUser = async (
       loginData
     );
     const { accessToken } = response.data;
-    setAuthToken(response.data.accessToken); // 로그인 성공 시 토큰 설정
+    setAuthToken(accessToken); // 로그인 성공 시 토큰 설정
     localStorage.setItem('token', accessToken); // 로컬 스토리지에 토큰 저장
     return response;
   } catch (error) {
@@ -103,6 +105,33 @@ export const loginUser = async (
       );
     } else {
       console.error('로그인 오류:', error);
+    }
+    throw error;
+  }
+};
+
+// JWT 토큰 재발행 API 호출 함수
+export const reissueToken = async (
+  refreshToken: string
+): Promise<{ accessToken: string; refreshToken: string }> => {
+  try {
+    const response = await api.post<{
+      accessToken: string;
+      refreshToken: string;
+    }>('/members/reissue', { refreshToken });
+    const { accessToken, refreshToken: newRefreshToken } = response.data;
+    setAuthToken(accessToken); // 새로운 accessToken 설정
+    localStorage.setItem('token', accessToken); // 새로운 accessToken 저장
+    localStorage.setItem('refreshToken', newRefreshToken); // 새로운 refreshToken 저장
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        '토큰 재발행 오류:',
+        error.response ? error.response.data : error.message
+      );
+    } else {
+      console.error('토큰 재발행 오류:', error);
     }
     throw error;
   }
@@ -415,14 +444,23 @@ export const sendFcmTokenToServer = async (email: string, token: string) => {
 // 실시간 썸네일 가져오기 API 호출 함수
 export const fetchLiveThumbnail = async (camId: number): Promise<string> => {
   try {
-    const response = await api.post<string>(`/cams/${camId}/thumbnail`);
+    console.log('Fetching live thumbnail for camId:', camId);
+    const response: AxiosResponse<string> = await api.post<string>(
+      `/cams/${camId}/thumbnail`
+    );
+    console.log('Live thumbnail response:', response.data);
     return response.data;
-  } catch (error) {
+  } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
       console.error(
         '실시간 썸네일 가져오기 오류:',
         error.response ? error.response.data : error.message
       );
+      if (error.response) {
+        console.error('Error response status:', error.response.status);
+        console.error('Error response headers:', error.response.headers);
+        console.error('Error response data:', error.response.data);
+      }
     } else {
       console.error('실시간 썸네일 가져오기 오류:', error);
     }
