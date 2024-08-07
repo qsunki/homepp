@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import 'tw-elements/dist/css/tw-elements.min.css';
-import { FaCaretUp } from 'react-icons/fa';
+import { FaCaretUp, FaCaretDown } from 'react-icons/fa'; // Import caret down icon
 import { format } from 'date-fns';
 import styles from '../utils/filter/Filter1.module.css';
 import customStyles from './VideoList.module.css'; // Importing the custom CSS module
@@ -52,6 +52,7 @@ const VideoList: React.FC = () => {
   const [isReported, setIsReported] = useState<boolean | null>(null);
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const cameraFormRef = useRef<HTMLDivElement>(null);
 
   const handleDateChange = (dates: [Date | null, Date | null]) =>
     setFilterDateRange(dates);
@@ -181,6 +182,17 @@ const VideoList: React.FC = () => {
     fetchData();
   }, [filterDateRange, selectedTypes, selectedCamera, isReported, cameras]);
 
+  useEffect(() => {
+    if (cameraFormRef.current) {
+      const maxWidth = Math.max(
+        ...Array.from(cameraFormRef.current.querySelectorAll('span')).map(
+          (el) => (el as HTMLElement).offsetWidth
+        )
+      );
+      cameraFormRef.current.style.minWidth = `${maxWidth + 40}px`; // Add some padding
+    }
+  }, [showCameraOptions, cameras]);
+
   const groupedVideos = videos.reduce((acc, video) => {
     const dateKey = video.date.toDateString();
     if (!acc[dateKey]) acc[dateKey] = [];
@@ -212,35 +224,34 @@ const VideoList: React.FC = () => {
           />
         </div>
         <div className="mb-4 relative">
-          <label>Reported Videos</label>
-          <label className={`${customStyles.reportedSwitch} ml-2`}>
+          <label className={`${customStyles.switch} ml-2`}>
             <input
               type="checkbox"
               checked={isReported || false}
               onChange={() => setIsReported((prev) => !prev)}
             />
-            <span className={customStyles.reportedSlider}></span>
+            <span className={customStyles.slider}></span>
           </label>
         </div>
         <div className="mb-4 relative">
           <button
-            className="p-2 rounded bg-gray-200"
+            className="p-2 rounded bg-gray-200 flex items-center justify-between w-[200px]" // Set fixed width
             onClick={() => setShowCameraOptions(!showCameraOptions)}
           >
             {selectedCamera}
+            <FaCaretDown /> {/* Add caret down icon */}
           </button>
           {showCameraOptions && (
             <div
               ref={dropdownRef}
               className={`${styles.cameraForm} absolute bg-white border mt-1 rounded z-10`}
             >
-              <div className="camera-container">
+              <div className={customStyles.cameraContainer} ref={cameraFormRef}>
                 <form>
                   {cameras.map((camera) => (
                     <label key={camera.id}>
                       <input
                         type="radio"
-                        id={camera.name}
                         name="camera"
                         value={camera.name}
                         checked={selectedCamera === camera.name}
@@ -297,34 +308,37 @@ const VideoList: React.FC = () => {
               />
             </div>
             <div className="mb-4 relative">
-              <label className={`${customStyles.reportedSwitch} ml-2`}>
+              <label className={`${customStyles.switch} ml-2`}>
                 <input
                   type="checkbox"
                   checked={isReported || false}
                   onChange={() => setIsReported((prev) => !prev)}
                 />
-                <span className={customStyles.reportedSlider}></span>
+                <span className={customStyles.slider}></span>
               </label>
             </div>
             <div className="mb-4 relative">
               <button
-                className="p-2 rounded bg-gray-200"
+                className="p-2 rounded bg-gray-200 flex items-center justify-between w-[200px]" // Set fixed width
                 onClick={() => setShowCameraOptions(!showCameraOptions)}
               >
                 {selectedCamera}
+                <FaCaretDown /> {/* Add caret down icon */}
               </button>
               {showCameraOptions && (
                 <div
                   ref={dropdownRef}
                   className={`${styles.cameraForm} absolute bg-white border mt-1 rounded z-10`}
                 >
-                  <div className="camera-container">
+                  <div
+                    className={customStyles.cameraContainer}
+                    ref={cameraFormRef}
+                  >
                     <form>
                       {cameras.map((camera) => (
                         <label key={camera.id}>
                           <input
                             type="radio"
-                            id={camera.name}
                             name="camera"
                             value={camera.name}
                             checked={selectedCamera === camera.name}

@@ -6,8 +6,6 @@ importScripts(
 );
 
 firebase.initializeApp({
-  // Your web app's Firebase configuration here
-  // See https://firebase.google.com/docs/web/setup#add-sdks-initialize
   apiKey: 'AIzaSyAPmerBQN_IWn3EQP8k2onJRJqcxQikHWs',
   authDomain: 'homepp-ab3e3.firebaseapp.com',
   projectId: 'homepp-ab3e3',
