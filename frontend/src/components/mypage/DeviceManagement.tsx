@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaTrash, FaEdit, FaPlus } from 'react-icons/fa';
 import QRCode from 'qrcode.react';
-import { fetchCams, updateCam } from '../../api';
+import { fetchCams, updateCam, deleteCam } from '../../api';
 import { useUserStore } from '../../stores/useUserStore';
 import checkIcon from '../../assets/mypage/check.png';
 import cancelIcon from '../../assets/mypage/cancel.png';
@@ -111,7 +111,7 @@ const DeviceManagement: React.FC = () => {
 
   const confirmDeleteDevice = async (id: number) => {
     try {
-      await updateCam(id, { status: 'DELETED' });
+      await deleteCam(id);
       setDevices((prevDevices) =>
         prevDevices.filter((device) => device.camId !== id)
       );

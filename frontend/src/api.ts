@@ -70,7 +70,7 @@ export interface Video {
   camName: string;
   recordStartAt: string;
   length: number;
-  eventDetails: {
+  events: {
     occurredAt: string;
     type: string;
   }[];
@@ -251,6 +251,25 @@ export const updateCam = async (
       );
     } else {
       console.error('캠 수정 오류:', error);
+    }
+    throw error;
+  }
+};
+
+// 기기 삭제 API 호출 함수
+export const deleteCam = async (
+  camId: number
+): Promise<AxiosResponse<void>> => {
+  try {
+    return await api.delete<void>(`/cams/${camId}`);
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        '캠 삭제 오류:',
+        error.response ? error.response.data : error.message
+      );
+    } else {
+      console.error('캠 삭제 오류:', error);
     }
     throw error;
   }
