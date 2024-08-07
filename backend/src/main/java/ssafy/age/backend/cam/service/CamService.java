@@ -21,6 +21,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import ssafy.age.backend.auth.service.AuthService;
 import ssafy.age.backend.cam.exception.CamNotFoundException;
 import ssafy.age.backend.cam.exception.JsonParsingException;
 import ssafy.age.backend.cam.persistence.Cam;
@@ -41,6 +42,7 @@ public class CamService {
     private final CamMapper camMapper = CamMapper.INSTANCE;
     private final MemberRepository memberRepository;
     private final MqttService mqttService;
+    private final AuthService authService;
 
     @Value("${openAPI.secret}")
     private String key;
@@ -48,9 +50,16 @@ public class CamService {
     @Value("${file.dir}")
     private String fileDir;
 
-    public List<CamResponseDto> getAllCams() {
-        List<Cam> camList = camRepository.findAll();
-        return camList.stream().map(camMapper::toCamResponseDto).toList();
+    public List<CamResponseDto> getCams() {
+        String email = authService.getMemberEmail();
+        List<Cam> cams = camRepository.findCamsByMemberEmail(email);
+        return cams.stream().map(camMapper::toCamResponseDto).toList();
+    }
+
+    public List<CamResponseDto> getCamsBySharedEmail() {
+        String sharedEmail = authService.getMemberEmail();
+        List<Cam> cams = camRepository.findCamsBySharedMemberEmail(sharedEmail);
+        return cams.stream().map(camMapper::toCamResponseDto).toList();
     }
 
     public CamResponseDto updateCamName(Long camId, String name) {
@@ -122,8 +131,8 @@ public class CamService {
     public CamResponseDto createCam(String email, String ip) {
         Member member =
                 memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
-        String region = getRegion(ip);
-        Cam cam = camRepository.save(Cam.builder().ip(ip).member(member).region(region).build());
+        //        String region = getRegion(ip);
+        Cam cam = camRepository.save(Cam.builder().ip(ip).member(member).build());
         member.getCamList().add(cam);
         return camMapper.toCamResponseDto(cam);
     }
