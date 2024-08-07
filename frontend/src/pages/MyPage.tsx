@@ -66,7 +66,7 @@ const MyPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-gray-50">
+    <div className="flex flex-col items-center bg-gray-50">
       <div className="mt-20">
         <h1 className="text-xl font-bold flex items-center">
           안녕하세요, {username}님{' '}

@@ -1,0 +1,7 @@
+.card:hover .cardButton {
+  opacity: 1;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
