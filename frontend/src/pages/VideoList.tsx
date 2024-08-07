@@ -47,7 +47,7 @@ const VideoList: React.FC = () => {
   const [showCameraOptions, setShowCameraOptions] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [videos, setVideos] = useState<Video[]>([]);
-  const [cameras, setCameras] = useState<string[]>(['All Cameras']);
+  const [cameras, setCameras] = useState<{ name: string; id: number }[]>([]);
   const [isReported, setIsReported] = useState<boolean | null>(null);
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -104,8 +104,11 @@ const VideoList: React.FC = () => {
     const fetchCameras = async () => {
       try {
         const response = await fetchCams();
-        const cameraNames = response.data.map((cam) => cam.name);
-        setCameras(['All Cameras', ...cameraNames]);
+        const cameraData = response.data.map((cam) => ({
+          name: cam.name,
+          id: cam.camId,
+        }));
+        setCameras([{ name: 'All Cameras', id: -1 }, ...cameraData]);
       } catch (error) {
         console.error('Failed to fetch cameras', error);
       }
@@ -126,7 +129,7 @@ const VideoList: React.FC = () => {
         const camId =
           selectedCamera === 'All Cameras'
             ? undefined
-            : parseInt(selectedCamera.replace('Camera ', ''));
+            : cameras.find((cam) => cam.name === selectedCamera)?.id;
 
         const params: {
           types?: string[];
@@ -175,7 +178,7 @@ const VideoList: React.FC = () => {
     };
 
     fetchData();
-  }, [filterDateRange, selectedTypes, selectedCamera, isReported]);
+  }, [filterDateRange, selectedTypes, selectedCamera, isReported, cameras]);
 
   const groupedVideos = videos.reduce((acc, video) => {
     const dateKey = video.date.toDateString();
@@ -230,18 +233,21 @@ const VideoList: React.FC = () => {
               className={`${styles.cameraForm} absolute bg-white border mt-1 rounded z-10`}
             >
               {cameras.map((camera) => (
-                <React.Fragment key={camera}>
+                <React.Fragment key={camera.id}>
                   <input
                     type="radio"
-                    id={camera}
+                    id={camera.name}
                     name="camera"
-                    value={camera}
+                    value={camera.name}
                     className={styles.cameraRadioInput}
-                    checked={selectedCamera === camera}
+                    checked={selectedCamera === camera.name}
                     onChange={handleCameraChange}
                   />
-                  <label htmlFor={camera} className={styles.cameraRadioLabel}>
-                    {camera}
+                  <label
+                    htmlFor={camera.name}
+                    className={styles.cameraRadioLabel}
+                  >
+                    {camera.name}
                   </label>
                 </React.Fragment>
               ))}
@@ -313,21 +319,21 @@ const VideoList: React.FC = () => {
                   className={`${styles.cameraForm} absolute bg-white border mt-1 rounded z-10`}
                 >
                   {cameras.map((camera) => (
-                    <React.Fragment key={camera}>
+                    <React.Fragment key={camera.id}>
                       <input
                         type="radio"
-                        id={camera}
+                        id={camera.name}
                         name="camera"
-                        value={camera}
+                        value={camera.name}
                         className={styles.cameraRadioInput}
-                        checked={selectedCamera === camera}
+                        checked={selectedCamera === camera.name}
                         onChange={handleCameraChange}
                       />
                       <label
-                        htmlFor={camera}
+                        htmlFor={camera.name}
                         className={styles.cameraRadioLabel}
                       >
-                        {camera}
+                        {camera.name}
                       </label>
                     </React.Fragment>
                   ))}
