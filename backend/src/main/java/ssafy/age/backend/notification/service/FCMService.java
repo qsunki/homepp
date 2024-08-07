@@ -45,15 +45,16 @@ public class FCMService {
         Member member =
                 memberRepository.findByEmail(memberEmail).orElseThrow(MemberNotFoundException::new);
         FCMToken fcmToken = new FCMToken(token, member);
-        member.getFcmTokenList().add(fcmToken);
-        memberRepository.save(member);
         FCMToken saved = fcmTokenRepository.save(fcmToken);
+        member.getFcmTokenList().add(saved);
+        memberRepository.save(member);
         return new FCMTokenDto(saved.getToken());
     }
 
     public void sendSuccessMessage() {
         String email = authService.getMemberEmail();
         List<FCMToken> fcmTokens = fcmTokenRepository.findByMemberEmail(email);
+        log.debug("fcmTokens length: {}", fcmTokens.size());
         for (FCMToken fcmToken : fcmTokens) {
             log.debug("FCM token element : {}", fcmToken.getToken());
         }
