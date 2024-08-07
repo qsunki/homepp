@@ -32,6 +32,7 @@ const DetailList: React.FC<DetailListProps> = ({
     if (showLiveThumbnail) {
       const fetchThumbnail = async () => {
         try {
+          console.log('Fetching live thumbnail...');
           const thumbnailUrl = await fetchLiveThumbnail(1); // 캠 ID를 1로 가정
           setLiveThumbnailUrl(thumbnailUrl);
         } catch (error) {

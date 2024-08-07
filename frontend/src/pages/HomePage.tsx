@@ -10,7 +10,8 @@ import humidity from '../assets/homepage/humidity.png';
 import character from '../assets/icon/character.png';
 import { FiVideo } from 'react-icons/fi';
 import { useVideoStore } from '../stores/useVideoStore';
-import { fetchLiveThumbnail } from '../api';
+import { fetchLiveThumbnail, reissueToken } from '../api';
+import axios from 'axios';
 
 const HomePage: React.FC = () => {
   const [showChatBot, setShowChatBot] = useState(false);
@@ -19,18 +20,39 @@ const HomePage: React.FC = () => {
   const { liveThumbnailUrl, setLiveThumbnailUrl } = useVideoStore();
 
   useEffect(() => {
-    if (!isLoggedIn) {
-      navigate('/');
-    } else {
-      const fetchThumbnail = async () => {
-        try {
-          const thumbnailUrl = await fetchLiveThumbnail(1); // 캠 ID를 1로 가정
-          setLiveThumbnailUrl(thumbnailUrl);
-        } catch (error) {
+    const handleFetchThumbnail = async () => {
+      try {
+        const thumbnailUrl = await fetchLiveThumbnail(1); // 캠 ID를 1로 가정
+        setLiveThumbnailUrl(thumbnailUrl);
+      } catch (error: unknown) {
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          // accessToken 만료된 경우
+          try {
+            const refreshToken = localStorage.getItem('refreshToken');
+            if (refreshToken) {
+              const { accessToken, refreshToken: newRefreshToken } =
+                await reissueToken(refreshToken);
+              localStorage.setItem('token', accessToken);
+              localStorage.setItem('refreshToken', newRefreshToken);
+              const thumbnailUrl = await fetchLiveThumbnail(1); // 캠 ID를 1로 가정
+              setLiveThumbnailUrl(thumbnailUrl);
+            } else {
+              navigate('/login');
+            }
+          } catch (reissueError) {
+            console.error('Failed to reissue token:', reissueError);
+            navigate('/login');
+          }
+        } else {
           console.error('Failed to fetch live thumbnail:', error);
         }
-      };
-      fetchThumbnail();
+      }
+    };
+
+    if (isLoggedIn) {
+      handleFetchThumbnail();
+    } else {
+      navigate('/');
     }
   }, [isLoggedIn, navigate, setLiveThumbnailUrl]);
 
