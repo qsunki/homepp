@@ -133,8 +133,8 @@ public class CamService {
     public CamResponseDto createCam(String email, String ip) {
         Member member =
                 memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
-        String region = getRegion(ip);
-        Cam cam = camRepository.save(Cam.builder().ip(ip).region(region).member(member).build());
+        //        String region = getRegion(ip);
+        Cam cam = camRepository.save(Cam.builder().ip(ip).member(member).build());
         member.getCamList().add(cam);
         fcmService.sendSuccessMessage();
         return camMapper.toCamResponseDto(cam);

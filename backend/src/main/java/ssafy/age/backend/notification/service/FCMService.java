@@ -3,6 +3,7 @@ package ssafy.age.backend.notification.service;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +13,6 @@ import ssafy.age.backend.event.persistence.Event;
 import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
-import ssafy.age.backend.notification.exception.FCMTokenNotFoundException;
 import ssafy.age.backend.notification.persistence.FCMToken;
 import ssafy.age.backend.notification.persistence.FCMTokenRepository;
 import ssafy.age.backend.notification.web.FCMTokenDto;
@@ -38,34 +38,41 @@ public class FCMService {
         }
     }
 
+    @Transactional
     public FCMTokenDto save(String token) {
+        log.debug("FCM token: {}", token);
         String memberEmail = authService.getMemberEmail();
         Member member =
                 memberRepository.findByEmail(memberEmail).orElseThrow(MemberNotFoundException::new);
         FCMToken fcmToken = new FCMToken(token, member);
         FCMToken saved = fcmTokenRepository.save(fcmToken);
+        member.getFcmTokenList().add(saved);
+        memberRepository.save(member);
         return new FCMTokenDto(saved.getToken());
     }
 
     public void sendSuccessMessage() {
         String email = authService.getMemberEmail();
-        FCMToken token =
-                fcmTokenRepository
-                        .findByMemberEmail(email)
-                        .orElseThrow(FCMTokenNotFoundException::new);
+        List<FCMToken> fcmTokens = fcmTokenRepository.findByMemberEmail(email);
+        log.debug("fcmTokens length: {}", fcmTokens.size());
+        for (FCMToken fcmToken : fcmTokens) {
+            log.debug("FCM token element : {}", fcmToken.getToken());
+        }
 
-        Message message =
-                Message.builder()
-                        .setToken(token.getToken())
-                        .putData("messageType", "register")
-                        .putData("result", "success")
-                        .build();
-
-        try {
-            String response = FirebaseMessaging.getInstance().send(message);
-            log.debug(response);
-        } catch (FirebaseMessagingException e) {
-            throw new RuntimeException(e);
+        for (FCMToken fcmToken : fcmTokens) {
+            log.debug("FCM Token in for loop : {}", fcmToken.getToken());
+            Message message =
+                    Message.builder()
+                            .setToken(fcmToken.getToken())
+                            .putData("messageType", "register")
+                            .putData("result", "success")
+                            .build();
+            try {
+                String response = FirebaseMessaging.getInstance().send(message);
+                log.debug(response);
+            } catch (FirebaseMessagingException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
