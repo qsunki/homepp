@@ -31,6 +31,7 @@ import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
 import ssafy.age.backend.mqtt.MqttService;
+import ssafy.age.backend.notification.service.FCMService;
 
 @Service
 @Slf4j
@@ -41,6 +42,7 @@ public class CamService {
     private final CamMapper camMapper = CamMapper.INSTANCE;
     private final MemberRepository memberRepository;
     private final MqttService mqttService;
+    private final FCMService fcmService;
 
     @Value("${openAPI.secret}")
     private String key;
@@ -125,6 +127,7 @@ public class CamService {
         String region = getRegion(ip);
         Cam cam = camRepository.save(Cam.builder().ip(ip).member(member).region(region).build());
         member.getCamList().add(cam);
+        fcmService.sendSuccessMessage();
         return camMapper.toCamResponseDto(cam);
     }
 
