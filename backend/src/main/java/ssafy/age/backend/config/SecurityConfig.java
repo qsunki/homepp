@@ -42,6 +42,7 @@ public class SecurityConfig {
                         (authorize) ->
                                 authorize
                                         .requestMatchers(
+                                                "/api/v1/cams",
                                                 "/api/v1/members",
                                                 "/api/v1/members/login",
                                                 "/api/*/members/phone-numbers/*",
