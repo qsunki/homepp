@@ -136,17 +136,7 @@ public class VideoService {
             threatRepository.save(threat);
         }
 
-        for (Event event : video.getEvents()) {
-            fcmService.sendMessageToAll(
-                    event.getType().toString() + " 알림",
-                    event.getOccurredAt()
-                            + " "
-                            + event.getCam().getRegion()
-                            + "지역 "
-                            + event.getType()
-                            + " 발생\n"
-                            + "인근 지역 주민들은 주의 바랍니다.");
-        }
+        fcmService.sendMessageToAll(video);
     }
 
     public ResourceRegion getVideoResourceRegion(Long videoId, List<HttpRange> ranges) {

@@ -46,7 +46,6 @@ public class CamService {
     private final FCMService fcmService;
     private final AuthService authService;
 
-
     @Value("${openAPI.secret}")
     private String key;
 
@@ -134,9 +133,10 @@ public class CamService {
     public CamResponseDto createCam(String email, String ip) {
         Member member =
                 memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
-                String region = getRegion(ip);
+        String region = getRegion(ip);
         Cam cam = camRepository.save(Cam.builder().ip(ip).region(region).member(member).build());
         member.getCamList().add(cam);
+        fcmService.sendSuccessMessage();
         return camMapper.toCamResponseDto(cam);
     }
 
