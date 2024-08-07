@@ -146,24 +146,27 @@ const VideoList: React.FC = () => {
 
         const response = await fetchVideos(params);
         console.log('Fetched videos:', response.data);
-        const apiVideos = Array.isArray(response.data)
-          ? response.data.map((video: ApiVideo) => ({
-              id: video.videoId,
-              thumbnail:
-                video.thumbnailUrl || 'https://via.placeholder.com/150',
-              startTime: new Date(video.recordStartAt).toLocaleTimeString(),
-              length: `${Math.floor(video.length / 60)}:${(video.length % 60)
-                .toString()
-                .padStart(2, '0')}`,
-              type: video.eventDetails.map((event) => event.type),
-              date: new Date(video.recordStartAt),
-              camera: video.camName,
-              title:
-                video.camName +
-                ' - ' +
-                video.eventDetails.map((event) => event.type).join(', '),
-            }))
-          : [];
+
+        if (!response.data || !Array.isArray(response.data)) {
+          throw new Error('Unexpected response format');
+        }
+
+        const apiVideos = response.data.map((video: ApiVideo) => ({
+          id: video.videoId,
+          thumbnail: video.thumbnailUrl || 'https://via.placeholder.com/150',
+          startTime: new Date(video.recordStartedAt).toLocaleTimeString(),
+          length: `${Math.floor(video.length / 60)}:${(video.length % 60)
+            .toString()
+            .padStart(2, '0')}`,
+          type: video.events.map((event) => event.type),
+          date: new Date(video.recordStartedAt),
+          camera: video.camName,
+          title:
+            video.camName +
+            ' - ' +
+            video.events.map((event) => event.type).join(', '),
+        }));
+
         setVideos(apiVideos);
       } catch (error) {
         console.error('Failed to fetch videos', error);
