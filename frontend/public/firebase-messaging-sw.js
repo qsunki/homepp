@@ -6,13 +6,15 @@ importScripts(
 );
 
 firebase.initializeApp({
-  apiKey: 'YOUR_API_KEY',
-  authDomain: 'YOUR_AUTH_DOMAIN',
-  projectId: 'YOUR_PROJECT_ID',
-  storageBucket: 'YOUR_STORAGE_BUCKET',
-  messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-  appId: 'YOUR_APP_ID',
-  measurementId: 'YOUR_MEASUREMENT_ID',
+  // Your web app's Firebase configuration here
+  // See https://firebase.google.com/docs/web/setup#add-sdks-initialize
+  apiKey: 'AIzaSyAPmerBQN_IWn3EQP8k2onJRJqcxQikHWs',
+  authDomain: 'homepp-ab3e3.firebaseapp.com',
+  projectId: 'homepp-ab3e3',
+  storageBucket: 'homepp-ab3e3.appspot.com',
+  messagingSenderId: '833529439916',
+  appId: '1:833529439916:web:69d2daf5b67c558808e109',
+  measurementId: 'G-JKGWEXGBDX',
 });
 
 const messaging = firebase.messaging();

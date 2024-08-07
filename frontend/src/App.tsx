@@ -104,6 +104,9 @@ const App: React.FC = () => {
           timestamp: new Date(),
         },
       ]);
+      alert(
+        `Message received: ${payload.notification?.title}\n${payload.notification?.body}`
+      );
     });
   };
 
