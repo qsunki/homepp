@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useVideoStore, Video } from '../../stores/useVideoStore'; // 인터페이스 가져오기
+import { useVideoStore, Video } from '../../stores/useVideoStore';
 import fireIcon from '../../assets/filter/fire.png';
 import soundIcon from '../../assets/filter/sound.png';
 import thiefIcon from '../../assets/filter/thief.png';
 import Filter from '../../utils/filter/Filter';
+import { fetchLiveThumbnail } from '../../api';
 
 interface DetailListProps {
   showLiveThumbnail?: boolean;
@@ -24,7 +25,22 @@ const DetailList: React.FC<DetailListProps> = ({
   listHeight = '400px', // 기본 목록 높이 설정
 }) => {
   const navigate = useNavigate();
-  const { liveThumbnailUrl, setSelectedVideoId } = useVideoStore();
+  const { liveThumbnailUrl, setLiveThumbnailUrl, setSelectedVideoId } =
+    useVideoStore();
+
+  useEffect(() => {
+    if (showLiveThumbnail) {
+      const fetchThumbnail = async () => {
+        try {
+          const thumbnailUrl = await fetchLiveThumbnail(1); // 캠 ID를 1로 가정
+          setLiveThumbnailUrl(thumbnailUrl);
+        } catch (error) {
+          console.error('Failed to fetch live thumbnail:', error);
+        }
+      };
+      fetchThumbnail();
+    }
+  }, [showLiveThumbnail, setLiveThumbnailUrl]);
 
   const handleVideoClick = (videoId: number) => {
     setSelectedVideoId(videoId);
