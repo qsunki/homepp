@@ -22,6 +22,23 @@ export const setAuthToken = (token: string | null) => {
   }
 };
 
+// 로컬 스토리지에서 토큰을 가져와 설정
+const token = localStorage.getItem('token');
+if (token) {
+  setAuthToken(token); // 저장된 토큰이 있으면 설정
+}
+
+// 인터셉터 추가하여 요청 설정을 확인
+api.interceptors.request.use(
+  (config) => {
+    console.log('Request config:', config); // 요청 설정을 콘솔에 출력
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 // 사용자 데이터 타입 정의
 export interface UserData {
   email: string;
@@ -64,6 +81,32 @@ export interface SharedMember {
   nickname: string;
   email: string;
 }
+
+// 로그인 API 호출 함수
+export const loginUser = async (
+  loginData: LoginData
+): Promise<AxiosResponse<{ accessToken: string; userId: number }>> => {
+  try {
+    const response = await api.post<{ accessToken: string; userId: number }>(
+      '/members/login',
+      loginData
+    );
+    const { accessToken } = response.data;
+    setAuthToken(response.data.accessToken); // 로그인 성공 시 토큰 설정
+    localStorage.setItem('token', accessToken); // 로컬 스토리지에 토큰 저장
+    return response;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        '로그인 오류:',
+        error.response ? error.response.data : error.message
+      );
+    } else {
+      console.error('로그인 오류:', error);
+    }
+    throw error;
+  }
+};
 
 // 회원가입 API 호출 함수
 export const registerUser = async (
@@ -123,30 +166,6 @@ export const checkDuplicatePhoneNumber = async (
       );
     } else {
       console.error('중복 전화번호 체크 오류:', error);
-    }
-    throw error;
-  }
-};
-
-// 로그인 API 호출 함수
-export const loginUser = async (
-  loginData: LoginData
-): Promise<AxiosResponse<{ accessToken: string; userId: number }>> => {
-  try {
-    const response = await api.post<{ accessToken: string; userId: number }>(
-      '/members/login',
-      loginData
-    );
-    setAuthToken(response.data.accessToken); // 로그인 성공 시 토큰 설정
-    return response;
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error(
-        '로그인 오류:',
-        error.response ? error.response.data : error.message
-      );
-    } else {
-      console.error('로그인 오류:', error);
     }
     throw error;
   }
@@ -370,6 +389,24 @@ export const sendFcmTokenToServer = async (email: string, token: string) => {
     return response.data;
   } catch (error) {
     console.error('Failed to send FCM token to server:', error);
+    throw error;
+  }
+};
+
+// 실시간 썸네일 가져오기 API 호출 함수
+export const fetchLiveThumbnail = async (camId: number): Promise<string> => {
+  try {
+    const response = await api.post<string>(`/cams/${camId}/thumbnail`);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        '실시간 썸네일 가져오기 오류:',
+        error.response ? error.response.data : error.message
+      );
+    } else {
+      console.error('실시간 썸네일 가져오기 오류:', error);
+    }
     throw error;
   }
 };

@@ -8,18 +8,31 @@ import alert from '../assets/homepage/alert.png';
 import temperature from '../assets/homepage/temperature.png';
 import humidity from '../assets/homepage/humidity.png';
 import character from '../assets/icon/character.png';
-import { FiVideo } from 'react-icons/fi'; // react-icons에서 아이콘 가져오기
+import { FiVideo } from 'react-icons/fi';
+import { useVideoStore } from '../stores/useVideoStore';
+import { fetchLiveThumbnail } from '../api';
 
 const HomePage: React.FC = () => {
   const [showChatBot, setShowChatBot] = useState(false);
   const navigate = useNavigate();
   const { isLoggedIn } = useUserStore();
+  const { liveThumbnailUrl, setLiveThumbnailUrl } = useVideoStore();
 
   useEffect(() => {
     if (!isLoggedIn) {
       navigate('/');
+    } else {
+      const fetchThumbnail = async () => {
+        try {
+          const thumbnailUrl = await fetchLiveThumbnail(1); // 캠 ID를 1로 가정
+          setLiveThumbnailUrl(thumbnailUrl);
+        } catch (error) {
+          console.error('Failed to fetch live thumbnail:', error);
+        }
+      };
+      fetchThumbnail();
     }
-  }, [isLoggedIn, navigate]);
+  }, [isLoggedIn, navigate, setLiveThumbnailUrl]);
 
   const handleChatBotToggle = () => {
     setShowChatBot(!showChatBot);
@@ -42,11 +55,19 @@ const HomePage: React.FC = () => {
       <main className="flex flex-col lg:flex-row justify-between w-full max-w-6xl mx-auto gap-6">
         <div className="flex-1 relative mb-4 lg:mb-0">
           <div className="w-full h-[300px] lg:h-[400px] relative">
-            <img
-              src={livevideo_default}
-              alt="Living Room"
-              className="w-full h-full object-cover rounded-lg shadow-md"
-            />
+            {liveThumbnailUrl ? (
+              <img
+                src={liveThumbnailUrl}
+                alt="Live Thumbnail"
+                className="w-full h-full object-cover rounded-lg shadow-md"
+              />
+            ) : (
+              <img
+                src={livevideo_default}
+                alt="Living Room"
+                className="w-full h-full object-cover rounded-lg shadow-md"
+              />
+            )}
             <button
               className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-4 bg-black bg-opacity-70 text-white border-none cursor-pointer flex items-center rounded-lg"
               onClick={handleWatchLiveClick}
