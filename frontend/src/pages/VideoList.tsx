@@ -47,7 +47,7 @@ const VideoList: React.FC = () => {
   const [showCameraOptions, setShowCameraOptions] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [videos, setVideos] = useState<Video[]>([]);
-  const [cameras, setCameras] = useState<string[]>([]);
+  const [cameras, setCameras] = useState<string[]>(['All Cameras']);
   const [isReported, setIsReported] = useState<boolean | null>(null);
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -105,7 +105,7 @@ const VideoList: React.FC = () => {
       try {
         const response = await fetchCams();
         const cameraNames = response.data.map((cam) => cam.name);
-        setCameras([...cameraNames, 'All Cameras']);
+        setCameras(['All Cameras', ...cameraNames]);
       } catch (error) {
         console.error('Failed to fetch cameras', error);
       }
