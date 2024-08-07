@@ -145,6 +145,7 @@ const VideoList: React.FC = () => {
         console.log('Fetching videos with params:', params);
 
         const response = await fetchVideos(params);
+        console.log('Fetched videos:', response.data);
         const apiVideos = Array.isArray(response.data)
           ? response.data.map((video: ApiVideo) => ({
               id: video.videoId,
