@@ -227,6 +227,25 @@ export const updateCam = async (
   }
 };
 
+// 기기 삭제 API 호출 함수
+export const deleteCam = async (
+  camId: number
+): Promise<AxiosResponse<void>> => {
+  try {
+    return await api.delete<void>(`/cams/${camId}`);
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        '캠 삭제 오류:',
+        error.response ? error.response.data : error.message
+      );
+    } else {
+      console.error('캠 삭제 오류:', error);
+    }
+    throw error;
+  }
+};
+
 // 비디오 목록 조회 API 호출 함수
 export const fetchVideos = async (params?: {
   types?: string[];
