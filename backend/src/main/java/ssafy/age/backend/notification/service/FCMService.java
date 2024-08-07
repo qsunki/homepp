@@ -3,9 +3,8 @@ package ssafy.age.backend.notification.service;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
-import java.util.List;
-
 import jakarta.transaction.Transactional;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,7 +13,6 @@ import ssafy.age.backend.event.persistence.Event;
 import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
-import ssafy.age.backend.notification.exception.FCMTokenNotFoundException;
 import ssafy.age.backend.notification.persistence.FCMToken;
 import ssafy.age.backend.notification.persistence.FCMTokenRepository;
 import ssafy.age.backend.notification.web.FCMTokenDto;
@@ -58,7 +56,7 @@ public class FCMService {
         List<FCMToken> fcmTokens = fcmTokenRepository.findByMemberEmail(email);
 
         for (FCMToken fcmToken : fcmTokens) {
-            log.debug("FCM Token in for loop : {}",fcmToken.getToken());
+            log.debug("FCM Token in for loop : {}", fcmToken.getToken());
             Message message =
                     Message.builder()
                             .setToken(fcmToken.getToken())
