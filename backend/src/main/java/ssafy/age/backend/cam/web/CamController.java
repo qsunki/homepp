@@ -22,9 +22,14 @@ public class CamController {
     private final CamService camService;
 
     @GetMapping
-    @Operation(summary = "캠 목록 조회", description = "모든 캠 목록 조회")
-    public List<CamResponseDto> getAllCams() {
-        return camService.getAllCams();
+    @Operation(summary = "캠 목록 조회", description = "로그인 된 멤버의 모든 캠 목록 조회")
+    public List<CamResponseDto> getCams() {
+        return camService.getCams();
+    }
+
+    @GetMapping("/shared")
+    public List<CamResponseDto> getCamsShared() {
+        return camService.getCamsBySharedEmail();
     }
 
     @PostMapping
