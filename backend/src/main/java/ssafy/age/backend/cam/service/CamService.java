@@ -127,7 +127,7 @@ public class CamService {
         //        String region = getRegion(ip);
         Cam cam = camRepository.save(Cam.builder().ip(ip).member(member).build());
         member.getCamList().add(cam);
-        fcmService.sendSuccessMessage();
+        fcmService.sendRegisterMessage();
         return camMapper.toCamResponseDto(cam);
     }
 
