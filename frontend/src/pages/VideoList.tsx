@@ -158,13 +158,13 @@ const VideoList: React.FC = () => {
           length: `${Math.floor(video.length / 60)}:${(video.length % 60)
             .toString()
             .padStart(2, '0')}`,
-          type: video.eventDetails.map((event) => event.type),
+          type: video.events.map((event) => event.type),
           date: new Date(video.recordStartAt),
           camera: video.camName,
           title:
             video.camName +
             ' - ' +
-            video.eventDetails.map((event) => event.type).join(', '),
+            video.events.map((event) => event.type).join(', '),
         }));
 
         setVideos(apiVideos);

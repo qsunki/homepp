@@ -68,7 +68,7 @@ export interface Video {
   camName: string;
   recordStartAt: string;
   length: number;
-  eventDetails: {
+  events: {
     occurredAt: string;
     type: string;
   }[];
