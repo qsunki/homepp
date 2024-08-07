@@ -213,13 +213,13 @@ const VideoList: React.FC = () => {
         </div>
         <div className="mb-4 relative">
           <label>Reported Videos</label>
-          <label className={`${customStyles.switch} ml-2`}>
+          <label className={`${customStyles.reportedSwitch} ml-2`}>
             <input
               type="checkbox"
               checked={isReported || false}
               onChange={() => setIsReported((prev) => !prev)}
             />
-            <span className={customStyles.slider}></span>
+            <span className={customStyles.reportedSlider}></span>
           </label>
         </div>
         <div className="mb-4 relative">
@@ -234,25 +234,23 @@ const VideoList: React.FC = () => {
               ref={dropdownRef}
               className={`${styles.cameraForm} absolute bg-white border mt-1 rounded z-10`}
             >
-              {cameras.map((camera) => (
-                <React.Fragment key={camera.id}>
-                  <input
-                    type="radio"
-                    id={camera.name}
-                    name="camera"
-                    value={camera.name}
-                    className={styles.cameraRadioInput}
-                    checked={selectedCamera === camera.name}
-                    onChange={handleCameraChange}
-                  />
-                  <label
-                    htmlFor={camera.name}
-                    className={styles.cameraRadioLabel}
-                  >
-                    {camera.name}
-                  </label>
-                </React.Fragment>
-              ))}
+              <div className="camera-container">
+                <form>
+                  {cameras.map((camera) => (
+                    <label key={camera.id}>
+                      <input
+                        type="radio"
+                        id={camera.name}
+                        name="camera"
+                        value={camera.name}
+                        checked={selectedCamera === camera.name}
+                        onChange={handleCameraChange}
+                      />
+                      <span>{camera.name}</span>
+                    </label>
+                  ))}
+                </form>
+              </div>
             </div>
           )}
         </div>
@@ -299,14 +297,13 @@ const VideoList: React.FC = () => {
               />
             </div>
             <div className="mb-4 relative">
-              <label>Reported Videos</label>
-              <label className={`${customStyles.switch} ml-2`}>
+              <label className={`${customStyles.reportedSwitch} ml-2`}>
                 <input
                   type="checkbox"
                   checked={isReported || false}
                   onChange={() => setIsReported((prev) => !prev)}
                 />
-                <span className={customStyles.slider}></span>
+                <span className={customStyles.reportedSlider}></span>
               </label>
             </div>
             <div className="mb-4 relative">
@@ -321,25 +318,23 @@ const VideoList: React.FC = () => {
                   ref={dropdownRef}
                   className={`${styles.cameraForm} absolute bg-white border mt-1 rounded z-10`}
                 >
-                  {cameras.map((camera) => (
-                    <React.Fragment key={camera.id}>
-                      <input
-                        type="radio"
-                        id={camera.name}
-                        name="camera"
-                        value={camera.name}
-                        className={styles.cameraRadioInput}
-                        checked={selectedCamera === camera.name}
-                        onChange={handleCameraChange}
-                      />
-                      <label
-                        htmlFor={camera.name}
-                        className={styles.cameraRadioLabel}
-                      >
-                        {camera.name}
-                      </label>
-                    </React.Fragment>
-                  ))}
+                  <div className="camera-container">
+                    <form>
+                      {cameras.map((camera) => (
+                        <label key={camera.id}>
+                          <input
+                            type="radio"
+                            id={camera.name}
+                            name="camera"
+                            value={camera.name}
+                            checked={selectedCamera === camera.name}
+                            onChange={handleCameraChange}
+                          />
+                          <span>{camera.name}</span>
+                        </label>
+                      ))}
+                    </form>
+                  </div>
                 </div>
               )}
             </div>
