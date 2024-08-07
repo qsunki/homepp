@@ -9,6 +9,7 @@ import LiveVideo from './pages/LiveVideo';
 import VideoList from './pages/VideoList';
 import VideoDetail from './pages/VideoDetail';
 import ScrollToTop from './utils/ScrollToTop';
+import AboutUs from './pages/AboutUs';
 import { useUserStore } from './stores/useUserStore';
 import { setAuthToken, getUserInfo, sendFcmTokenToServer } from './api';
 import SignIn from './components/SignIn';
@@ -135,6 +136,7 @@ const App: React.FC = () => {
               path="/"
               element={<LandingPage onSignInOpen={handleSignInOpen} />}
             />
+            <Route path="/about-us" element={<AboutUs />} />
             <Route
               path="/home"
               element={<ProtectedRoute element={HomePage} />}
