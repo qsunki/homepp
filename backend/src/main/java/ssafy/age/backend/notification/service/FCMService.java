@@ -54,6 +54,9 @@ public class FCMService {
     public void sendSuccessMessage() {
         String email = authService.getMemberEmail();
         List<FCMToken> fcmTokens = fcmTokenRepository.findByMemberEmail(email);
+        for (FCMToken fcmToken : fcmTokens) {
+            log.debug("FCM token element : {}", fcmToken.getToken());
+        }
 
         for (FCMToken fcmToken : fcmTokens) {
             log.debug("FCM Token in for loop : {}", fcmToken.getToken());
