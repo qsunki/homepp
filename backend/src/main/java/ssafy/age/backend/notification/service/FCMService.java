@@ -3,12 +3,10 @@ package ssafy.age.backend.notification.service;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
-
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ssafy.age.backend.auth.exception.TokenNotFoundException;
 import ssafy.age.backend.auth.service.AuthService;
 import ssafy.age.backend.event.persistence.Event;
 import ssafy.age.backend.member.exception.MemberNotFoundException;
@@ -51,14 +49,17 @@ public class FCMService {
 
     public void sendSuccessMessage() {
         String email = authService.getMemberEmail();
-        FCMToken token = fcmTokenRepository.findByMemberEmail(email)
-                .orElseThrow(FCMTokenNotFoundException::new);
+        FCMToken token =
+                fcmTokenRepository
+                        .findByMemberEmail(email)
+                        .orElseThrow(FCMTokenNotFoundException::new);
 
-        Message message = Message.builder()
-                .setToken(token.getToken())
-                .putData("messageType", "register")
-                .putData("result", "success")
-                .build();
+        Message message =
+                Message.builder()
+                        .setToken(token.getToken())
+                        .putData("messageType", "register")
+                        .putData("result", "success")
+                        .build();
 
         try {
             String response = FirebaseMessaging.getInstance().send(message);
@@ -88,14 +89,18 @@ public class FCMService {
             }
         }
 
-        String messageTitle = video.getCam().getRegion()
-                + types + " 발생";
+        String messageTitle = video.getCam().getRegion() + types + " 발생";
 
-        String messageBody = "금일 " +
-                video.getRecordStartedAt().getHour() + "시 " +
-                video.getRecordStartedAt().getMinute() + "분 경 " +
-                video.getCam().getRegion() + " 인근 " +
-                types + " 발생, 인근 지역 주민들은 주의 바랍니다.";
+        String messageBody =
+                "금일 "
+                        + video.getRecordStartedAt().getHour()
+                        + "시 "
+                        + video.getRecordStartedAt().getMinute()
+                        + "분 경 "
+                        + video.getCam().getRegion()
+                        + " 인근 "
+                        + types
+                        + " 발생, 인근 지역 주민들은 주의 바랍니다.";
         return Message.builder()
                 .setToken(targetToken)
                 .putData("messageTitle", messageTitle)
