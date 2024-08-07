@@ -154,17 +154,17 @@ const VideoList: React.FC = () => {
         const apiVideos = response.data.map((video: ApiVideo) => ({
           id: video.videoId,
           thumbnail: video.thumbnailUrl || 'https://via.placeholder.com/150',
-          startTime: new Date(video.recordStartedAt).toLocaleTimeString(),
+          startTime: new Date(video.recordStartAt).toLocaleTimeString(),
           length: `${Math.floor(video.length / 60)}:${(video.length % 60)
             .toString()
             .padStart(2, '0')}`,
-          type: video.events.map((event) => event.type),
-          date: new Date(video.recordStartedAt),
+          type: video.eventDetails.map((event) => event.type),
+          date: new Date(video.recordStartAt),
           camera: video.camName,
           title:
             video.camName +
             ' - ' +
-            video.events.map((event) => event.type).join(', '),
+            video.eventDetails.map((event) => event.type).join(', '),
         }));
 
         setVideos(apiVideos);
