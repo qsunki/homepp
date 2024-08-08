@@ -21,12 +21,12 @@ values (1, 'ROLE_USER'),
        (5, 'ROLE_USER'),
        (6, 'ROLE_USER');
 
-INSERT INTO `cam` (`cam_id`, `name`, `ip`, `status`, `region`, `member_id`)
-VALUES (1, 'Cam1', '192.168.1.1', 'REGISTERED', 'Region1', 1),
-       (2, 'Cam2', '192.168.1.2', 'REGISTERED', 'Region2', 2),
-       (3, 'Cam3', '192.168.1.3', 'UNREGISTERED', 'Region3', 3),
-       (4, 'Cam4', '192.168.1.4', 'UNREGISTERED', 'Region1', 4),
-       (5, 'Cam5', '192.168.1.5', 'UNREGISTERED', 'Region2', 5);
+INSERT INTO `cam` (`cam_id`, `name`, `ip`, `status`, `region`, `member_id`, `thumbnail_url`)
+VALUES (1, 'Cam1', '192.168.1.1', 'REGISTERED', 'Region1', 1, '/api/v1/cams/1/thumbnail'),
+       (2, 'Cam2', '192.168.1.2', 'REGISTERED', 'Region2', 2, '/api/v1/cams/2/thumbnail'),
+       (3, 'Cam3', '192.168.1.3', 'UNREGISTERED', 'Region3', 3, '/api/v1/cams/3/thumbnail'),
+       (4, 'Cam4', '192.168.1.4', 'UNREGISTERED', 'Region1', 4, '/api/v1/cams/4/thumbnail'),
+       (5, 'Cam5', '192.168.1.5', 'UNREGISTERED', 'Region2', 5, '/api/v1/cams/5/thumbnail');
 
 INSERT INTO `video` (`video_id`, `record_started_at`, `stream_url`, `download_url`, `length`, `thumbnail_url`, `cam_id`,
                      `is_threat`)

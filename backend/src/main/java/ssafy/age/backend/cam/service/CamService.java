@@ -34,6 +34,9 @@ import ssafy.age.backend.notification.service.FCMService;
 @RequiredArgsConstructor
 public class CamService {
 
+    private static final String URL_PREFIX = "/api/v1/cams/";
+    private static final String THUMBNAIL_SUFFIX = "/thumbnail";
+
     private final CamRepository camRepository;
     private final CamMapper camMapper = CamMapper.INSTANCE;
     private final MemberRepository memberRepository;
@@ -153,7 +156,10 @@ public class CamService {
         return new StreamResponseDto(key);
     }
 
+    @Transactional
     public void saveCamThumbnail(Long camId, MultipartFile file) {
+        Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
+        cam.setThumbnailUrl(URL_PREFIX + camId + THUMBNAIL_SUFFIX);
         fileStorage.saveCamThumbnail(camId, file);
     }
 
