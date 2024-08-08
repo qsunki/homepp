@@ -47,12 +47,14 @@ public class SecurityConfig {
                                                 "/api/v1/members/login",
                                                 "/api/*/members/phone-numbers/*",
                                                 "/api/*/members/emails/*",
+                                                "/api/v1/cams/*/videos",
                                                 "/api/v1/cams/videos/*/stream",
                                                 "/api/v1/cams/videos/*/thumbnail",
                                                 "/api/v1/cams/*/thumbnail",
                                                 "/swagger-ui/**",
                                                 "/v3/api-docs/**",
                                                 "/h2-console/**",
+                                                "/error",
                                                 "/ws/**")
                                         .permitAll()
                                         .anyRequest()
