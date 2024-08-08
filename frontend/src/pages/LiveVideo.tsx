@@ -27,7 +27,7 @@ const LiveVideo: React.FC = () => {
   };
 
   return (
-    <div className="flex justify-center bg-white px-16 py-8">
+    <div className="flex justify-center bg-white px-16 py-20">
       <div className="w-full max-w-6xl flex space-x-4">
         <DetailPlayer isLive={true} showDetails={false} />
         <DetailList

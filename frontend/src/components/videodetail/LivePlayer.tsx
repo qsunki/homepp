@@ -3,6 +3,8 @@ import SockJS from 'sockjs-client';
 import { Client, IMessage } from '@stomp/stompjs';
 import Loader from './Loader';
 import { fetchCams, CamData, fetchWebSocketKey } from '../../api';
+import record from '../../assets/livevideo/record.png';
+import stop from '../../assets/livevideo/stop.png';
 
 interface Signal {
   type: 'answer' | 'candidate' | 'offer';
@@ -22,6 +24,9 @@ const LivePlayer: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const clientRef = useRef<Client | null>(null);
   const [webSocketKey, setWebSocketKey] = useState<string>('');
+  const [isRecording, setIsRecording] = useState<boolean>(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const recordedChunksRef = useRef<Blob[]>([]);
 
   useEffect(() => {
     const getCams = async () => {
@@ -52,6 +57,8 @@ const LivePlayer: React.FC = () => {
         setWebSocketKey(key);
       } catch (error) {
         console.error('Failed to fetch WebSocket key:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -150,6 +157,17 @@ const LivePlayer: React.FC = () => {
           remoteVideoRef.current.srcObject = remoteStream;
           console.log('Remote stream set to video element');
           setIsLoading(false);
+
+          // Initialize MediaRecorder when track event occurs
+          if (mediaRecorderRef.current == null) {
+            const mediaRecorder = new MediaRecorder(remoteStream);
+            mediaRecorder.ondataavailable = (e) => {
+              if (e.data.size > 0) {
+                recordedChunksRef.current.push(e.data);
+              }
+            };
+            mediaRecorderRef.current = mediaRecorder;
+          }
         }
       };
     }
@@ -298,11 +316,36 @@ const LivePlayer: React.FC = () => {
       });
   };
 
+  const handleRecord = () => {
+    if (isRecording) {
+      // Stop recording
+      mediaRecorderRef.current?.stop();
+      setIsRecording(false);
+
+      // Save the recorded video
+      const blob = new Blob(recordedChunksRef.current, { type: 'video/webm' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = 'recording.webm';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      recordedChunksRef.current = [];
+    } else {
+      // Start recording
+      recordedChunksRef.current = [];
+      mediaRecorderRef.current?.start();
+      setIsRecording(true);
+    }
+  };
+
   return (
-    <div>
+    <div className="relative">
       {isLoading && <Loader />}
-      <h1>Cam List</h1>
       <select
+        className="absolute top-4 left-4 bg-white border border-gray-400 rounded px-2 py-1 z-10"
         onChange={(e) => setSelectedCamId(e.target.value)}
         value={selectedCamId || ''}
       >
@@ -315,13 +358,24 @@ const LivePlayer: React.FC = () => {
           </option>
         ))}
       </select>
-      <video
-        ref={remoteVideoRef}
-        autoPlay
-        playsInline
-        controls
-        className="w-full h-auto"
-      />
+      <div className="relative">
+        <video
+          ref={remoteVideoRef}
+          autoPlay
+          playsInline
+          controls
+          className="w-full h-auto"
+        />
+      </div>
+      <div className="flex justify-between items-center mt-4">
+        <div className="text-3xl font-bold">LIVE VIDEO</div>
+        <img
+          src={isRecording ? stop : record}
+          alt={isRecording ? 'Stop Recording' : 'Start Recording'}
+          className="w-auto h-8"
+          onClick={handleRecord}
+        />
+      </div>
     </div>
   );
 };
