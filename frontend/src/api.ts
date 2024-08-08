@@ -445,10 +445,10 @@ export const sendFcmTokenToServer = async (email: string, token: string) => {
 export const fetchLiveThumbnail = async (camId: number): Promise<string> => {
   try {
     console.log('Fetching live thumbnail for camId:', camId);
-    const response = await api.get<{ thumbnail: string }>(
-      `/cams/${camId}/thumbnail`
-    );
-    const imageUrl = response.data.thumbnail;
+    const response = await api.get(`/cams/${camId}/thumbnail`, {
+      responseType: 'blob',
+    });
+    const imageUrl = URL.createObjectURL(response.data);
     console.log('Live thumbnail URL:', imageUrl);
     return imageUrl;
   } catch (error: unknown) {
