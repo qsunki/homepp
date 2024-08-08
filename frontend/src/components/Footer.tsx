@@ -236,11 +236,10 @@ const Footer: React.FC = () => {
           </ul>
         </div>
         <div className="mt-2 text-center text-sm">
-          &copy; {new Date().getFullYear()} Your Company. All rights reserved.
+          &copy; {new Date().getFullYear()} Home++. All rights reserved.
         </div>
       </div>
 
-      {/* Modals */}
       <Modal isOpen={isModalOpen} onClose={closeModal}>
         {modalContent}
       </Modal>
