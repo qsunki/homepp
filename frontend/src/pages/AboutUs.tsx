@@ -54,9 +54,9 @@ const AboutUs: React.FC = () => {
               src={member.imageUrl}
               alt={member.name}
             />
-            <h2 className="text-xl font-semibold mb-2">{member.name}</h2>
-            <p className="text-gray-600 mb-2">{member.role}</p>
-            <p className="text-gray-700">{member.description}</p>
+            <h2 className="text-xl font-semibold mb-1">{member.name}</h2>
+            <p className="text-gray-600">{member.role}</p>
+            {/* <p className="text-gray-700">{member.description}</p> */}
           </div>
         ))}
       </div>
