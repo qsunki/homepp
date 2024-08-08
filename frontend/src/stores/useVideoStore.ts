@@ -1,4 +1,5 @@
 import create from 'zustand';
+import { fetchVideos, fetchThumbnail, ApiVideo } from '../api';
 
 export interface Alert {
   type: 'fire' | 'intrusion' | 'loud';
@@ -13,6 +14,11 @@ export interface Video {
   alerts: Alert[];
   isReported?: boolean;
   url: string;
+  startTime: string;
+  length: string;
+  type: string[];
+  date: Date;
+  camera: string;
 }
 
 interface Filter {
@@ -41,29 +47,10 @@ interface VideoState {
   reportVideo: (id: number) => void;
   selectedTypes: string[];
   setSelectedTypes: (types: string[]) => void;
+  fetchAndSetVideos: () => void;
+  setVideos: (videos: Video[]) => void;
+  setFilteredVideos: (videos: Video[]) => void;
 }
-
-const initialVideos: Video[] = [
-  {
-    id: 1,
-    title: 'Camera 1 - Warehouse Fire',
-    timestamp: '08:55:22AM',
-    thumbnail: 'video-thumbnail-1.png',
-    duration: '02:15',
-    alerts: [{ type: 'fire' }],
-    url: 'https://www.w3schools.com/html/mov_bbb.mp4',
-  },
-  {
-    id: 2,
-    title: 'Camera 2 - Unauthorized Entry',
-    timestamp: '07:28:31AM',
-    thumbnail: 'video-thumbnail-2.png',
-    duration: '01:30',
-    alerts: [{ type: 'intrusion' }],
-    url: 'https://www.w3schools.com/html/movie.mp4',
-  },
-  // 다른 비디오 데이터 추가
-];
 
 const initialFilter: Filter = {
   dateRange: [null, null],
@@ -74,9 +61,9 @@ const initialFilter: Filter = {
 };
 
 export const useVideoStore = create<VideoState>((set, get) => ({
-  videos: initialVideos,
-  filteredVideos: initialVideos,
-  selectedVideoId: initialVideos[0].id,
+  videos: [],
+  filteredVideos: [],
+  selectedVideoId: 0,
   setSelectedVideoId: (id) => set({ selectedVideoId: id }),
   filter: initialFilter,
   setFilter: (type) => {
@@ -120,4 +107,46 @@ export const useVideoStore = create<VideoState>((set, get) => ({
   },
   selectedTypes: [],
   setSelectedTypes: (types: string[]) => set({ selectedTypes: types }),
+  fetchAndSetVideos: async () => {
+    try {
+      const response = await fetchVideos();
+      const apiVideos = await Promise.all(
+        response.data.map(async (video: ApiVideo) => {
+          const thumbnail = await fetchThumbnail(video.videoId);
+          const alerts = video.events.map((event: { type: string }) => ({
+            type: event.type as 'fire' | 'intrusion' | 'loud',
+          }));
+          return {
+            id: video.videoId,
+            title: `${video.camName} - ${alerts
+              .map((alert) => alert.type)
+              .join(', ')}`,
+            timestamp: new Date(video.recordStartAt).toLocaleTimeString(),
+            thumbnail: thumbnail || 'https://via.placeholder.com/150',
+            duration: `${Math.floor(video.length / 60)}:${(video.length % 60)
+              .toString()
+              .padStart(2, '0')}`,
+            alerts,
+            url: 'https://example.com/video-url', // Replace with the actual video URL if available
+            startTime: new Date(video.recordStartAt).toLocaleTimeString(),
+            length: `${Math.floor(video.length / 60)}:${(video.length % 60)
+              .toString()
+              .padStart(2, '0')}`,
+            type: video.events.map((event: { type: string }) => event.type),
+            date: new Date(video.recordStartAt),
+            camera: video.camName,
+          };
+        })
+      );
+      set({
+        videos: apiVideos,
+        filteredVideos: apiVideos,
+        selectedVideoId: apiVideos[0]?.id || 0,
+      });
+    } catch (error) {
+      console.error('Failed to fetch videos:', error);
+    }
+  },
+  setVideos: (videos: Video[]) => set({ videos }),
+  setFilteredVideos: (videos: Video[]) => set({ filteredVideos: videos }),
 }));

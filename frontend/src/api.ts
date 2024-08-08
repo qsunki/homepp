@@ -17,23 +17,23 @@ const api = axios.create({
 export const setAuthToken = (token: string | null) => {
   if (token) {
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    console.log('Authorization token set:', token);
+    console.log('Authorization token set:', token); // 디버깅용 콘솔 출력
   } else {
     delete api.defaults.headers.common['Authorization'];
-    console.log('Authorization token removed');
+    console.log('Authorization token removed'); // 디버깅용 콘솔 출력
   }
 };
 
 // 로컬 스토리지에서 토큰을 가져와 설정
 const token = localStorage.getItem('token');
 if (token) {
-  setAuthToken(token);
+  setAuthToken(token); // 저장된 토큰이 있으면 설정
 }
 
 // 인터셉터 추가하여 요청 설정을 확인
 api.interceptors.request.use(
   (config) => {
-    console.log('Request config:', config);
+    console.log('Request config:', config); // 요청 설정을 콘솔에 출력
     return config;
   },
   (error) => {
@@ -61,7 +61,7 @@ interface LoginData {
 export interface CamData {
   camId: number;
   name: string;
-  status?: string;
+  status?: string; // status 속성 추가
 }
 
 // 비디오 데이터 타입 정의
@@ -74,9 +74,11 @@ export interface Video {
     occurredAt: string;
     type: string;
   }[];
-  thumbnailUrl?: string;
+  thumbnailUrl: string;
   threat: boolean;
 }
+
+export type ApiVideo = Video;
 
 // 공유 사용자 데이터 타입 정의
 export interface SharedMember {
@@ -94,8 +96,8 @@ export const loginUser = async (
       loginData
     );
     const { accessToken } = response.data;
-    setAuthToken(accessToken);
-    localStorage.setItem('token', accessToken);
+    setAuthToken(accessToken); // 로그인 성공 시 토큰 설정
+    localStorage.setItem('token', accessToken); // 로컬 스토리지에 토큰 저장
     return response;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -120,9 +122,9 @@ export const reissueToken = async (
       refreshToken: string;
     }>('/members/reissue', { refreshToken });
     const { accessToken, refreshToken: newRefreshToken } = response.data;
-    setAuthToken(accessToken);
-    localStorage.setItem('token', accessToken);
-    localStorage.setItem('refreshToken', newRefreshToken);
+    setAuthToken(accessToken); // 새로운 accessToken 설정
+    localStorage.setItem('token', accessToken); // 새로운 accessToken 저장
+    localStorage.setItem('refreshToken', newRefreshToken); // 새로운 refreshToken 저장
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -204,7 +206,7 @@ export const checkDuplicatePhoneNumber = async (
 export const getUserInfo = async (): Promise<AxiosResponse<string>> => {
   try {
     const response = await api.get<string>('/members');
-    console.log('getUserInfo API response:', response.data);
+    console.log('getUserInfo API response:', response.data); // API 응답 확인
     return response;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -315,8 +317,26 @@ export const fetchVideos = async (params?: {
   }
 };
 
+// 썸네일 URL 가져오기 함수
+export const fetchThumbnail = async (videoId: number): Promise<string> => {
+  try {
+    const response = await api.get<string>(`/cams/videos/${videoId}/thumbnail`);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        '썸네일 URL 가져오기 오류:',
+        error.response ? error.response.data : error.message
+      );
+    } else {
+      console.error('썸네일 URL 가져오기 오류:', error);
+    }
+    throw error;
+  }
+};
+
 // 캠의 WebSocket 키 조회 API 호출 함수 추가
-export const fetchWebSocketKey = async (camId: number): Promise<string> => {
+export const fetchWebSocketKey = async (camId: string): Promise<string> => {
   try {
     const response = await api.get<{ key: string }>(`/cams/${camId}/stream`);
     return response.data.key;
@@ -510,21 +530,6 @@ export const fetchLatestEnvInfo = async (
     }
     throw error;
   }
-};
-
-// 비디오 리스트를 가져오는 함수
-export const getVideoList = async (): Promise<Video[]> => {
-  const response = await api.get<Video[]>('/cams/videos');
-  return response.data;
-};
-
-// 비디오 썸네일을 가져오는 함수
-export const getVideoThumbnail = async (videoId: number): Promise<string> => {
-  const response = await api.get(`/cams/videos/${videoId}/thumbnail`, {
-    responseType: 'blob',
-  });
-  const url = URL.createObjectURL(response.data);
-  return url;
 };
 
 export default api;
