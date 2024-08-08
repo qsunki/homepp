@@ -13,6 +13,7 @@ import ssafy.age.backend.event.persistence.Event;
 import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
+import ssafy.age.backend.member.service.MemberService;
 import ssafy.age.backend.notification.persistence.FCMToken;
 import ssafy.age.backend.notification.persistence.FCMTokenRepository;
 import ssafy.age.backend.notification.web.FCMTokenDto;
@@ -26,6 +27,7 @@ public class FCMService {
     private final FCMTokenRepository fcmTokenRepository;
     private final AuthService authService;
     private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
     public List<FCMToken> getAllFCMTokens() {
         return fcmTokenRepository.findAll();
@@ -70,6 +72,27 @@ public class FCMService {
             try {
                 String response = FirebaseMessaging.getInstance().send(message);
                 log.debug(response);
+            } catch (FirebaseMessagingException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public void sendOnOffMessage(String status, Long camId) {
+        Member member =
+                memberRepository.findByCamId(camId).orElseThrow(MemberNotFoundException::new);
+        List<FCMToken> fcmTokens = fcmTokenRepository.findByMemberEmail(member.getEmail());
+
+        for (FCMToken fcmToken : fcmTokens) {
+            Message message =
+                    Message.builder()
+                            .setToken(fcmToken.getToken())
+                            .putData("messageType", "status")
+                            .putData("result", status)
+                            .build();
+            try {
+                String response = FirebaseMessaging.getInstance().send(message);
+                log.error(response);
             } catch (FirebaseMessagingException e) {
                 throw new RuntimeException(e);
             }

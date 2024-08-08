@@ -22,6 +22,7 @@ public class EnvInfo {
     private Double humidity;
 
     @Enumerated(value = EnumType.STRING)
+    @Setter
     private RecordStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
