@@ -100,13 +100,19 @@ const DetailList: React.FC<DetailListProps> = ({
             onClick={() => handleVideoClick(video.id)}
           >
             <div
-              className="w-24 bg-gray-300"
+              className="relative w-24 h-16 bg-gray-300"
               style={{ aspectRatio: '11 / 7' }}
-            />
+            >
+              <img
+                src={video.thumbnail}
+                alt="Thumbnail"
+                className="absolute top-0 left-0 w-full h-full object-cover"
+              />
+            </div>
             <div className="ml-4 flex flex-col flex-grow">
-              <div className="text-sm">{video.title}</div>
-              <div className="text-sm">{video.timestamp}</div>
-              <div className="text-sm">{video.duration}</div>{' '}
+              <div className="text-sm font-bold">{video.title}</div>
+              <div className="text-xs text-gray-600">{video.startTime}</div>
+              <div className="text-xs text-gray-600">{video.duration}</div>
             </div>
             <div className="flex justify-end space-x-1">
               {video.alerts.map((alert, index) => (
