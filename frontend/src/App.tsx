@@ -134,7 +134,7 @@ const App: React.FC = () => {
           notifications={notifications}
           onDeleteNotification={handleDeleteNotification}
         />
-        <div className="flex-grow">
+        <div className="flex-grow min-h-full">
           <Routes>
             <Route
               path="/"

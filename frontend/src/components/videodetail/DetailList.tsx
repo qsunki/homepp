@@ -6,6 +6,7 @@ import soundIcon from '../../assets/filter/sound.png';
 import thiefIcon from '../../assets/filter/thief.png';
 import Filter from '../../utils/filter/Filter';
 import { fetchLiveThumbnail } from '../../api';
+import styles from './DetailList.module.css'; // CSS 파일을 임포트합니다.
 
 interface DetailListProps {
   showLiveThumbnail?: boolean;
@@ -65,11 +66,20 @@ const DetailList: React.FC<DetailListProps> = ({
     }
   };
 
+  // 선택된 타입에 따라 비디오 필터링
+  const filteredVideos = videos.filter((video) =>
+    selectedTypes.length > 0
+      ? video.alerts.some((alert) =>
+          selectedTypes.includes(alert.type.toUpperCase())
+        )
+      : true
+  );
+
   return (
-    <div className="w-full lg:w-1/3 pl-4 pr-8">
+    <div className={`w-full lg:w-1/3 pl-4 pr-8 ${styles['video-list']}`}>
       {showLiveThumbnail && (
         <div
-          className="border-4 border-red-500 mb-4 cursor-pointer mt-12"
+          className={`border-4 border-red-500 mb-4 cursor-pointer ${styles['live-thumbnail']}`}
           onClick={handleLiveThumbnailClick}
           style={{ height: thumbnailHeight }} // 썸네일 높이 설정
         >
@@ -90,10 +100,10 @@ const DetailList: React.FC<DetailListProps> = ({
       )}
       <Filter selectedTypes={selectedTypes} onTypeToggle={onTypeToggle} />
       <div
-        className="overflow-y-auto scrollbar-hide"
+        className={`overflow-y-auto scrollbar-hide ${styles['video-list-container']}`}
         style={{ height: listHeight }}
       >
-        {videos.map((video) => (
+        {filteredVideos.map((video) => (
           <div
             key={video.id}
             className="flex items-center mb-2 cursor-pointer"
@@ -115,14 +125,16 @@ const DetailList: React.FC<DetailListProps> = ({
               <div className="text-xs text-gray-600">{video.duration}</div>
             </div>
             <div className="flex justify-end space-x-1">
-              {video.alerts.map((alert, index) => (
-                <img
-                  key={index}
-                  className="w-5 h-5 ml-1"
-                  src={getTypeIcon(alert.type)}
-                  alt={alert.type}
-                />
-              ))}
+              {[...new Set(video.alerts.map((alert) => alert.type))].map(
+                (type, index) => (
+                  <img
+                    key={index}
+                    className="w-5 h-5 ml-1"
+                    src={getTypeIcon(type)}
+                    alt={type}
+                  />
+                )
+              )}
             </div>
           </div>
         ))}

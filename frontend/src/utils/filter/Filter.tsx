@@ -11,9 +11,9 @@ interface FilterProps {
 
 const Filter: React.FC<FilterProps> = ({ selectedTypes, onTypeToggle }) => {
   const icons = {
-    fire: fireIcon,
-    intrusion: thiefIcon,
-    loud: soundIcon,
+    FIRE: fireIcon,
+    INVASION: thiefIcon,
+    SOUND: soundIcon,
   };
 
   return (
