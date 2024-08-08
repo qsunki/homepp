@@ -8,6 +8,7 @@ import ssafy.age.backend.auth.service.AuthService;
 import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
+import ssafy.age.backend.notification.service.FCMService;
 import ssafy.age.backend.share.exception.AccessDeniedException;
 import ssafy.age.backend.share.persistence.Share;
 import ssafy.age.backend.share.persistence.ShareRepository;
@@ -21,6 +22,7 @@ public class ShareService {
     private final AuthService authService;
     private final ShareRepository shareRepository;
     private final ShareMapper shareMapper = ShareMapper.INSTANCE;
+    private final FCMService fcmService;
 
     @Transactional
     public List<ShareDto> getAllShares(String email) {
@@ -47,6 +49,7 @@ public class ShareService {
                         .build();
 
         shareRepository.save(share);
+        fcmService.sendSharedMessage(email, sharedMemberEmail);
 
         return shareMapper.toShareDto(share);
     }
