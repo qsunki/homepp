@@ -113,7 +113,8 @@ public class CamService {
                                     + "&answer=json");
             BufferedReader br =
                     new BufferedReader(
-                            new InputStreamReader(uri.toURL().openStream(), StandardCharsets.UTF_8));
+                            new InputStreamReader(
+                                    uri.toURL().openStream(), StandardCharsets.UTF_8));
             return br.readLine() + "}";
         } catch (Exception e) {
             throw new JsonParsingException(e);
