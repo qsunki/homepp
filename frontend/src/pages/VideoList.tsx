@@ -13,7 +13,6 @@ import {
   fetchCams,
   CamData,
 } from '../api'; // API 함수 불러오기
-import './VideoList.css'; // 추가적인 CSS 파일을 불러옵니다.
 
 interface Video {
   videoId: number; // videoId를 number 타입으로 정의합니다.
