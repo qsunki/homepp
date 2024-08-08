@@ -12,16 +12,14 @@ const VideoDetail: React.FC = () => {
     filteredVideos,
     selectedTypes,
     setSelectedTypes,
-    fetchVideoById, // 새로운 메서드 호출
-    selectedVideo, // 선택된 비디오
+    selectedVideo, // selectedVideo 추가
   } = useVideoStore();
 
   useEffect(() => {
     if (id) {
       setSelectedVideoId(Number(id));
-      fetchVideoById(Number(id)); // 비디오를 가져옴
     }
-  }, [id, setSelectedVideoId, fetchVideoById]);
+  }, [id, setSelectedVideoId]);
 
   useEffect(() => {
     const fetchLiveThumbnail = async () => {
@@ -55,6 +53,14 @@ const VideoDetail: React.FC = () => {
           onTypeToggle={handleTypeToggle}
           listHeight="300px" // 목록 부분 높이 조정
         />
+        {/* selectedVideo 정보를 추가로 표시 */}
+        {selectedVideo && (
+          <div className="selected-video-info">
+            <h2>{selectedVideo.title}</h2>
+            <p>{selectedVideo.timestamp}</p>
+            {/* 필요에 따라 추가 정보를 표시 */}
+          </div>
+        )}
       </div>
     </div>
   );
