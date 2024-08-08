@@ -112,6 +112,7 @@ public class CamService {
     }
 
     private String getJsonData(String ip) {
+        log.debug("key: {}", key);
         try {
             URI uri =
                     new URI(
@@ -120,6 +121,7 @@ public class CamService {
                                     + "&query="
                                     + ip
                                     + "&answer=json");
+            log.debug("uri: {}", uri);
             BufferedReader br =
                     new BufferedReader(
                             new InputStreamReader(
