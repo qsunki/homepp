@@ -130,7 +130,9 @@ export const useVideoStore = create<VideoState>((set, get) => ({
             length: `${Math.floor(video.length / 60)}:${(video.length % 60)
               .toString()
               .padStart(2, '0')}`,
-            type: video.events.map((event: { type: string }) => event.type),
+            type: Array.from(
+              new Set(video.events.map((event: { type: string }) => event.type))
+            ), // Remove duplicates
             date: new Date(video.recordStartAt),
             camera: video.camName,
           };

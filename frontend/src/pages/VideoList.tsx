@@ -8,6 +8,22 @@ import { format } from 'date-fns';
 import styles from '../utils/filter/Filter1.module.css';
 import { fetchVideos, fetchCams, fetchThumbnail, ApiVideo } from '../api';
 import { useVideoStore, Video } from '../stores/useVideoStore';
+import fireIcon from '../assets/filter/fire.png';
+import intrusionIcon from '../assets/filter/thief.png';
+import soundIcon from '../assets/filter/sound.png';
+
+const getIconForType = (type: string) => {
+  switch (type) {
+    case 'fire':
+      return fireIcon;
+    case 'intrusion':
+      return intrusionIcon;
+    case 'loud':
+      return soundIcon;
+    default:
+      return '';
+  }
+};
 
 const VideoList: React.FC = () => {
   const [filterDateRange, setFilterDateRange] = useState<
@@ -166,11 +182,10 @@ const VideoList: React.FC = () => {
         const apiVideos = await Promise.all(
           response.data.map(async (video: ApiVideo) => {
             const thumbnail = await fetchThumbnail(video.videoId);
+            console.log('Fetched thumbnail URL:', thumbnail); // Log thumbnail URL to console
             return {
               id: video.videoId,
-              title: `${video.camName} - ${video.events
-                .map((event) => event.type)
-                .join(', ')}`,
+              title: `${video.camName}`,
               timestamp: new Date(video.recordStartAt).toLocaleTimeString(),
               thumbnail: thumbnail || 'https://via.placeholder.com/150',
               duration: `${Math.floor(video.length / 60)}:${(video.length % 60)
@@ -184,7 +199,9 @@ const VideoList: React.FC = () => {
               length: `${Math.floor(video.length / 60)}:${(video.length % 60)
                 .toString()
                 .padStart(2, '0')}`,
-              type: video.events.map((event) => event.type),
+              type: Array.from(
+                new Set(video.events.map((event) => event.type))
+              ), // Remove duplicates
               date: new Date(video.recordStartAt),
               camera: video.camName,
             };
@@ -499,12 +516,23 @@ const VideoList: React.FC = () => {
                         {video.duration}
                       </span>
                     </div>
-                    <div className="p-2">
-                      <h3 className="text-sm font-bold">{video.title}</h3>
-                      <p className="text-xs text-gray-600">{video.startTime}</p>
-                      <p className="text-xs text-gray-600">
-                        {video.type.join(', ')}
-                      </p>
+                    <div className="p-2 flex justify-between items-center">
+                      <div>
+                        <h3 className="text-sm font-bold">{video.title}</h3>
+                        <p className="text-xs text-gray-600">
+                          {video.startTime}
+                        </p>
+                      </div>
+                      <div className="flex space-x-2">
+                        {video.type.map((type) => (
+                          <img
+                            key={type}
+                            src={getIconForType(type)}
+                            alt={type}
+                            className="w-6 h-6 rounded-full"
+                          />
+                        ))}
+                      </div>
                     </div>
                   </div>
                 ))}
