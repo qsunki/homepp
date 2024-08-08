@@ -367,7 +367,7 @@ const LivePlayer: React.FC = () => {
           className="w-full h-auto"
         />
       </div>
-      <div className="flex justify-between items-center mt-4">
+      <div className="flex justify-between items-center mt-4 px-2">
         <div className="text-3xl font-bold">LIVE VIDEO</div>
         <img
           src={isRecording ? stop : record}
