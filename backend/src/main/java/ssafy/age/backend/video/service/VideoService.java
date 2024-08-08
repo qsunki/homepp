@@ -39,7 +39,7 @@ public class VideoService {
     private static final String THUMBNAIL = "thumbnail";
     private static final String STREAM = "stream";
     private static final String DOWNLOAD = "download";
-    private static final String URL_PREFIX = "/api/v1/cams/vidoes";
+    private static final String URL_PREFIX = "/api/v1/cams/videos";
 
     private final VideoRepository videoRepository;
     private final VideoMapper videoMapper = VideoMapper.INSTANCE;
