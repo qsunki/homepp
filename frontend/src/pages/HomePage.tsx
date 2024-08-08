@@ -30,9 +30,12 @@ const HomePage: React.FC = () => {
   useEffect(() => {
     const handleFetchThumbnail = async () => {
       try {
+        console.log('Attempting to fetch live thumbnail...');
         const thumbnailUrl = await fetchLiveThumbnail(1); // 캠 ID를 1로 가정
+        console.log('Fetched live thumbnail URL:', thumbnailUrl);
         setLiveThumbnailUrl(thumbnailUrl);
       } catch (error: unknown) {
+        console.error('Error fetching live thumbnail:', error);
         if (axios.isAxiosError(error) && error.response?.status === 401) {
           // accessToken 만료된 경우
           try {
@@ -43,6 +46,10 @@ const HomePage: React.FC = () => {
               localStorage.setItem('token', accessToken);
               localStorage.setItem('refreshToken', newRefreshToken);
               const thumbnailUrl = await fetchLiveThumbnail(1); // 캠 ID를 1로 가정
+              console.log(
+                'Fetched live thumbnail URL after reissue:',
+                thumbnailUrl
+              );
               setLiveThumbnailUrl(thumbnailUrl);
             } else {
               navigate('/login');
@@ -60,6 +67,7 @@ const HomePage: React.FC = () => {
     const handleFetchAlerts = async () => {
       try {
         const count = await fetchEventCount();
+        console.log('Fetched alert count:', count);
         setAlertCount(count);
       } catch (error) {
         console.error('Failed to fetch alert count:', error);
@@ -69,6 +77,7 @@ const HomePage: React.FC = () => {
     const handleFetchEnvInfo = async () => {
       try {
         const envInfo = await fetchLatestEnvInfo(1); // 캠 ID를 1로 가정
+        console.log('Fetched environment info:', envInfo);
         setTemperatureValue(envInfo.temperature);
         setHumidityValue(envInfo.humidity);
       } catch (error) {
@@ -107,7 +116,7 @@ const HomePage: React.FC = () => {
         <div className="flex-1 relative mb-4 lg:mb-0">
           <div className="w-full h-[300px] lg:h-[400px] relative">
             <img
-              src={liveThumbnailUrl}
+              src={liveThumbnailUrl || 'https://via.placeholder.com/150'}
               alt="Live Thumbnail"
               className="w-full h-full object-cover rounded-lg shadow-md cursor-pointer"
               onClick={handleWatchLiveClick}
