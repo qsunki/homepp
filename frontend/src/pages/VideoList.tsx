@@ -6,17 +6,22 @@ import 'tw-elements/dist/css/tw-elements.min.css';
 import { FaCaretUp, FaFilter } from 'react-icons/fa';
 import { format } from 'date-fns';
 import styles from '../utils/filter/Filter1.module.css';
-import { fetchVideos, fetchCams, Video as ApiVideo } from '../api';
+import {
+  getVideoList,
+  getVideoThumbnail,
+  Video as ApiVideo,
+  fetchCams,
+  CamData,
+} from '../api'; // API 함수 불러오기
+import './VideoList.css'; // 추가적인 CSS 파일을 불러옵니다.
 
 interface Video {
-  id: number;
+  videoId: number; // videoId를 number 타입으로 정의합니다.
   thumbnail: string;
-  startTime: string;
-  length: string;
-  type: string[];
-  date: Date;
-  camera: string;
-  title: string;
+  recordStartAt: string;
+  length: number;
+  events: { type: string }[];
+  camName: string;
 }
 
 const VideoList: React.FC = () => {
@@ -37,7 +42,7 @@ const VideoList: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const cameraFormRef = useRef<HTMLDivElement>(null);
   const filterSectionRef = useRef<HTMLDivElement>(null);
-  const dropdownButtonRef = useRef<HTMLButtonElement>(null); // 드롭다운 버튼의 참조
+  const dropdownButtonRef = useRef<HTMLButtonElement>(null);
 
   const handleDateFilterChange = (filter: string) => {
     setDateFilter(filter);
@@ -58,12 +63,12 @@ const VideoList: React.FC = () => {
   };
 
   useEffect(() => {
-    handleDateFilterChange('1 Week'); // Default to '1 Week' on component mount
+    handleDateFilterChange('1 Week');
   }, []);
 
   const handleDateChange = (dates: [Date | null, Date | null]) => {
     setFilterDateRange(dates);
-    setDummyState(!dummyState); // Force update to re-render
+    setDummyState(!dummyState);
   };
 
   const handleTypeToggle = (type: string) => {
@@ -121,7 +126,7 @@ const VideoList: React.FC = () => {
     const fetchCameras = async () => {
       try {
         const response = await fetchCams();
-        const cameraData = response.data.map((cam) => ({
+        const cameraData = response.data.map((cam: CamData) => ({
           name: cam.name,
           id: cam.camId,
         }));
@@ -162,31 +167,18 @@ const VideoList: React.FC = () => {
         if (camId) params.camId = camId;
         if (isReported !== null) params.isThreat = isReported;
 
-        const response = await fetchVideos(params);
+        const videoList = await getVideoList();
+        const videosWithThumbnails = await Promise.all(
+          videoList.map(async (video: ApiVideo) => {
+            const thumbnail = await getVideoThumbnail(video.videoId);
+            return { ...video, thumbnail };
+          })
+        );
 
-        if (!response.data || !Array.isArray(response.data)) {
-          throw new Error('Unexpected response format');
-        }
-
-        const apiVideos = response.data.map((video: ApiVideo) => ({
-          id: video.videoId,
-          thumbnail: video.thumbnailUrl || 'https://via.placeholder.com/150',
-          startTime: new Date(video.recordStartAt).toLocaleTimeString(),
-          length: `${Math.floor(video.length / 60)}:${(video.length % 60)
-            .toString()
-            .padStart(2, '0')}`,
-          type: video.events.map((event) => event.type),
-          date: new Date(video.recordStartAt),
-          camera: video.camName,
-          title: `${video.camName} - ${video.events
-            .map((event) => event.type)
-            .join(', ')}`,
-        }));
-
-        setVideos(apiVideos);
+        setVideos(videosWithThumbnails);
       } catch (error) {
         console.error('Failed to fetch videos', error);
-        setVideos([]); // Ensure videos is set to an empty array on error
+        setVideos([]);
       }
     };
 
@@ -201,7 +193,7 @@ const VideoList: React.FC = () => {
   }, [showCameraOptions]);
 
   const groupedVideos = videos.reduce((acc, video) => {
-    const dateKey = video.date.toDateString();
+    const dateKey = new Date(video.recordStartAt).toDateString();
     if (!acc[dateKey]) acc[dateKey] = [];
     acc[dateKey].push(video);
     return acc;
@@ -211,7 +203,7 @@ const VideoList: React.FC = () => {
     <div className="flex flex-col md:flex-row">
       <div className="md:hidden p-4 w-full">
         <button
-          ref={dropdownButtonRef} // 드롭다운 버튼의 참조 추가
+          ref={dropdownButtonRef}
           onClick={toggleFilters}
           className="fixed bottom-16 right-4 w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center shadow-lg z-50"
         >
@@ -475,9 +467,9 @@ const VideoList: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4">
                 {videos.map((video) => (
                   <div
-                    key={video.id}
+                    key={video.videoId}
                     className="border rounded overflow-hidden cursor-pointer"
-                    onClick={() => handleVideoClick(video.id)}
+                    onClick={() => handleVideoClick(video.videoId)}
                   >
                     <div className="relative w-full h-0 pb-[63.64%]">
                       <img
@@ -486,19 +478,18 @@ const VideoList: React.FC = () => {
                         className="absolute top-0 left-0 w-full h-full object-cover"
                       />
                       <span className="absolute bottom-0 right-0 m-1 p-1 bg-black text-white text-xs rounded">
-                        {video.length}
+                        {Math.floor(video.length / 60)}:
+                        {(video.length % 60).toString().padStart(2, '0')}
                       </span>
                     </div>
                     <div className="p-2">
-                      <h3 className="text-sm font-bold">{video.title}</h3>
-                      <p className="text-xs text-gray-600">{video.startTime}</p>
+                      <h3 className="text-sm font-bold">{video.camName}</h3>
                       <p className="text-xs text-gray-600">
-                        {video.type.join(', ')}
+                        {new Date(video.recordStartAt).toLocaleString()}
                       </p>
                       <p className="text-xs text-gray-600">
-                        {video.date.toDateString()}
+                        {video.events.map((event) => event.type).join(', ')}
                       </p>
-                      <p className="text-xs text-gray-600">{video.camera}</p>
                     </div>
                   </div>
                 ))}

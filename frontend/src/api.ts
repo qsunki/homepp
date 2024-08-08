@@ -17,23 +17,23 @@ const api = axios.create({
 export const setAuthToken = (token: string | null) => {
   if (token) {
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    console.log('Authorization token set:', token); // 디버깅용 콘솔 출력
+    console.log('Authorization token set:', token);
   } else {
     delete api.defaults.headers.common['Authorization'];
-    console.log('Authorization token removed'); // 디버깅용 콘솔 출력
+    console.log('Authorization token removed');
   }
 };
 
 // 로컬 스토리지에서 토큰을 가져와 설정
 const token = localStorage.getItem('token');
 if (token) {
-  setAuthToken(token); // 저장된 토큰이 있으면 설정
+  setAuthToken(token);
 }
 
 // 인터셉터 추가하여 요청 설정을 확인
 api.interceptors.request.use(
   (config) => {
-    console.log('Request config:', config); // 요청 설정을 콘솔에 출력
+    console.log('Request config:', config);
     return config;
   },
   (error) => {
@@ -61,7 +61,7 @@ interface LoginData {
 export interface CamData {
   camId: number;
   name: string;
-  status?: string; // status 속성 추가
+  status?: string;
 }
 
 // 비디오 데이터 타입 정의
@@ -74,7 +74,7 @@ export interface Video {
     occurredAt: string;
     type: string;
   }[];
-  thumbnailUrl: string;
+  thumbnailUrl?: string;
   threat: boolean;
 }
 
@@ -94,8 +94,8 @@ export const loginUser = async (
       loginData
     );
     const { accessToken } = response.data;
-    setAuthToken(accessToken); // 로그인 성공 시 토큰 설정
-    localStorage.setItem('token', accessToken); // 로컬 스토리지에 토큰 저장
+    setAuthToken(accessToken);
+    localStorage.setItem('token', accessToken);
     return response;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -120,9 +120,9 @@ export const reissueToken = async (
       refreshToken: string;
     }>('/members/reissue', { refreshToken });
     const { accessToken, refreshToken: newRefreshToken } = response.data;
-    setAuthToken(accessToken); // 새로운 accessToken 설정
-    localStorage.setItem('token', accessToken); // 새로운 accessToken 저장
-    localStorage.setItem('refreshToken', newRefreshToken); // 새로운 refreshToken 저장
+    setAuthToken(accessToken);
+    localStorage.setItem('token', accessToken);
+    localStorage.setItem('refreshToken', newRefreshToken);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -204,7 +204,7 @@ export const checkDuplicatePhoneNumber = async (
 export const getUserInfo = async (): Promise<AxiosResponse<string>> => {
   try {
     const response = await api.get<string>('/members');
-    console.log('getUserInfo API response:', response.data); // API 응답 확인
+    console.log('getUserInfo API response:', response.data);
     return response;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -316,7 +316,7 @@ export const fetchVideos = async (params?: {
 };
 
 // 캠의 WebSocket 키 조회 API 호출 함수 추가
-export const fetchWebSocketKey = async (camId: string): Promise<string> => {
+export const fetchWebSocketKey = async (camId: number): Promise<string> => {
   try {
     const response = await api.get<{ key: string }>(`/cams/${camId}/stream`);
     return response.data.key;
@@ -510,6 +510,21 @@ export const fetchLatestEnvInfo = async (
     }
     throw error;
   }
+};
+
+// 비디오 리스트를 가져오는 함수
+export const getVideoList = async (): Promise<Video[]> => {
+  const response = await api.get<Video[]>('/cams/videos');
+  return response.data;
+};
+
+// 비디오 썸네일을 가져오는 함수
+export const getVideoThumbnail = async (videoId: number): Promise<string> => {
+  const response = await api.get(`/cams/videos/${videoId}/thumbnail`, {
+    responseType: 'blob',
+  });
+  const url = URL.createObjectURL(response.data);
+  return url;
 };
 
 export default api;
