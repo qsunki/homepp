@@ -4,20 +4,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,6 +22,7 @@ import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.cam.persistence.CamRepository;
 import ssafy.age.backend.cam.web.CamResponseDto;
 import ssafy.age.backend.cam.web.StreamResponseDto;
+import ssafy.age.backend.file.FileStorage;
 import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
@@ -45,6 +40,7 @@ public class CamService {
     private final MqttService mqttService;
     private final FCMService fcmService;
     private final AuthService authService;
+    private final FileStorage fileStorage;
 
     @Value("${openAPI.secret}")
     private String key;
@@ -154,41 +150,12 @@ public class CamService {
         return new StreamResponseDto(key);
     }
 
-    public void thumbnailOnServer(Long camId, MultipartFile file) {
-        try {
-            Path path = Paths.get(fileDir + camId + ".png");
-            File dir = new File(fileDir);
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-
-            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-            Resource resource = new FileSystemResource(path.toFile());
-
-            Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
-
-            cam.setThumbnailUrl(resource.getFile().getPath());
-            camRepository.save(cam);
-        } catch (Exception e) {
-            log.error("썸네일 서버에 안올라감: {}", e.getMessage());
-            throw new CamNotFoundException();
-        }
+    public void saveCamThumbnail(Long camId, MultipartFile file) {
+        fileStorage.saveCamThumbnail(camId, file);
     }
 
     public Resource getCamThumbnail(Long camId) {
-        try {
-            Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
-            Path path = Paths.get(cam.getThumbnailUrl());
-
-            if (Files.exists(path)) {
-                return new FileSystemResource(path.toFile());
-            } else {
-                throw new RuntimeException("썸네일 파일이 존재하지 않습니다.");
-            }
-        } catch (Exception e) {
-            log.error("썸네일 파일을 불러오는 중 오류 발생: {}", e.getMessage());
-            throw new RuntimeException("썸네일 파일 불러오기 실패", e);
-        }
+        return fileStorage.loadCamThumbnailResource(camId);
     }
 
     public void controlDetection(Long camId, String command) {
