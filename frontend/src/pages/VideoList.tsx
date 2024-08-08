@@ -37,6 +37,7 @@ const VideoList: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const cameraFormRef = useRef<HTMLDivElement>(null);
   const filterSectionRef = useRef<HTMLDivElement>(null);
+  const dropdownButtonRef = useRef<HTMLButtonElement>(null); // 드롭다운 버튼의 참조
 
   const handleDateFilterChange = (filter: string) => {
     setDateFilter(filter);
@@ -193,15 +194,11 @@ const VideoList: React.FC = () => {
   }, [filterDateRange, selectedTypes, selectedCamera, isReported, cameras]);
 
   useEffect(() => {
-    if (cameraFormRef.current) {
-      const maxWidth = Math.max(
-        ...Array.from(cameraFormRef.current.querySelectorAll('span')).map(
-          (el) => (el as HTMLElement).offsetWidth
-        )
-      );
-      cameraFormRef.current.style.minWidth = `${maxWidth + 40}px`; // Add some padding
+    if (dropdownButtonRef.current && cameraFormRef.current) {
+      const buttonWidth = dropdownButtonRef.current.offsetWidth;
+      cameraFormRef.current.style.width = `${buttonWidth}px`;
     }
-  }, [showCameraOptions, cameras]);
+  }, [showCameraOptions]);
 
   const groupedVideos = videos.reduce((acc, video) => {
     const dateKey = video.date.toDateString();
@@ -214,6 +211,7 @@ const VideoList: React.FC = () => {
     <div className="flex flex-col md:flex-row">
       <div className="md:hidden p-4 w-full">
         <button
+          ref={dropdownButtonRef} // 드롭다운 버튼의 참조 추가
           onClick={toggleFilters}
           className="fixed bottom-16 right-4 w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center shadow-lg z-50"
         >
@@ -278,7 +276,10 @@ const VideoList: React.FC = () => {
             </div>
             <div className={styles['filter-group']}>
               <div className={styles['filter-title']}>Camera</div>
-              <div className={styles['button-group-horizontal']}>
+              <div
+                className={`${styles['cameraContainer']}`}
+                ref={cameraFormRef}
+              >
                 <select
                   value={selectedCamera}
                   onChange={handleCameraChange}
@@ -402,7 +403,7 @@ const VideoList: React.FC = () => {
         </div>
         <div className={styles['filter-group']}>
           <div className={styles['filter-title']}>Camera</div>
-          <div className={styles['button-group-horizontal']}>
+          <div className={`${styles['cameraContainer']}`}>
             <select
               value={selectedCamera}
               onChange={handleCameraChange}
