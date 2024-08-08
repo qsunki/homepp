@@ -6,7 +6,7 @@ import jakarta.transaction.Transactional;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
-import java.net.URL;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -113,8 +113,8 @@ public class CamService {
 
     private String getJsonData(String ip) {
         try {
-            URL url =
-                    new URL(
+            URI uri =
+                    new URI(
                             "https://apis.data.go.kr/B551505/whois/ip_address?serviceKey="
                                     + key
                                     + "&query="
@@ -122,10 +122,10 @@ public class CamService {
                                     + "&answer=json");
             BufferedReader br =
                     new BufferedReader(
-                            new InputStreamReader(url.openStream(), StandardCharsets.UTF_8));
+                            new InputStreamReader(uri.toURL().openStream(), StandardCharsets.UTF_8));
             return br.readLine() + "}";
         } catch (Exception e) {
-            throw new JsonParsingException();
+            throw new JsonParsingException(e);
         }
     }
 
