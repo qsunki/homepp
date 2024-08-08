@@ -36,7 +36,7 @@ jwt:
 mqtt:
   broker:
     url: "tcp://localhost:1883"
-    topics: server/envInfo, server/event
+    topics: server/envInfo, server/event, server/status
 
 openAPI:
   secret: ${OPEN_API_KEY}

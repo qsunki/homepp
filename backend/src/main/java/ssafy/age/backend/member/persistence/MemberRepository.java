@@ -2,6 +2,8 @@ package ssafy.age.backend.member.persistence;
 
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByEmail(String email);
@@ -9,4 +11,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByPhoneNumber(String phoneNumber);
 
     boolean existsByEmail(String email);
+
+    @Query("SELECT m FROM Member m JOIN m.camList c WHERE c.id = :camId")
+    Optional<Member> findByCamId(@Param("camId") Long camId);
 }
