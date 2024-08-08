@@ -12,13 +12,16 @@ const VideoDetail: React.FC = () => {
     filteredVideos,
     selectedTypes,
     setSelectedTypes,
+    fetchVideoById, // 새로운 메서드 호출
+    selectedVideo, // 선택된 비디오
   } = useVideoStore();
 
   useEffect(() => {
     if (id) {
       setSelectedVideoId(Number(id));
+      fetchVideoById(Number(id)); // 비디오를 가져옴
     }
-  }, [id, setSelectedVideoId]);
+  }, [id, setSelectedVideoId, fetchVideoById]);
 
   useEffect(() => {
     const fetchLiveThumbnail = async () => {

@@ -1,5 +1,10 @@
 import create from 'zustand';
-import { fetchVideos, fetchThumbnail, ApiVideo } from '../api';
+import {
+  fetchVideos,
+  fetchThumbnail,
+  fetchVideoById as fetchVideoByIdAPI,
+  ApiVideo,
+} from '../api';
 
 export interface Alert {
   type: 'fire' | 'intrusion' | 'loud';
@@ -34,6 +39,8 @@ interface VideoState {
   filteredVideos: Video[];
   selectedVideoId: number;
   setSelectedVideoId: (id: number) => void;
+  selectedVideo: Video | null;
+  fetchVideoById: (id: number) => void;
   filter: Filter;
   setFilter: (type: string) => void;
   setSelectedCamera: (camera: string) => void;
@@ -64,7 +71,51 @@ export const useVideoStore = create<VideoState>((set, get) => ({
   videos: [],
   filteredVideos: [],
   selectedVideoId: 0,
+  selectedVideo: null,
   setSelectedVideoId: (id) => set({ selectedVideoId: id }),
+  fetchVideoById: async (id) => {
+    const { videos } = get();
+    const video = videos.find((v) => v.id === id);
+    if (video) {
+      set({ selectedVideo: video });
+    } else {
+      try {
+        const response = await fetchVideoByIdAPI(id);
+        const apiVideo = response.data;
+        const thumbnail = await fetchThumbnail(apiVideo.videoId);
+        const alerts = apiVideo.events.map((event: { type: string }) => ({
+          type: event.type as 'fire' | 'intrusion' | 'loud',
+        }));
+        const fetchedVideo = {
+          id: apiVideo.videoId,
+          title: `${apiVideo.camName}`,
+          timestamp: new Date(apiVideo.recordStartAt).toLocaleTimeString(),
+          thumbnail: thumbnail || 'https://via.placeholder.com/150',
+          duration: `${Math.floor(apiVideo.length / 60)}:${(
+            apiVideo.length % 60
+          )
+            .toString()
+            .padStart(2, '0')}`,
+          alerts,
+          url: 'https://example.com/video-url',
+          startTime: new Date(apiVideo.recordStartAt).toLocaleTimeString(),
+          length: `${Math.floor(apiVideo.length / 60)}:${(apiVideo.length % 60)
+            .toString()
+            .padStart(2, '0')}`,
+          type: Array.from(
+            new Set(
+              apiVideo.events.map((event: { type: string }) => event.type)
+            )
+          ),
+          date: new Date(apiVideo.recordStartAt),
+          camera: apiVideo.camName,
+        };
+        set({ selectedVideo: fetchedVideo });
+      } catch (error) {
+        console.error('Failed to fetch video:', error);
+      }
+    }
+  },
   filter: initialFilter,
   setFilter: (type) => {
     set((state) => ({ filter: { ...state.filter, type } }));
@@ -125,14 +176,14 @@ export const useVideoStore = create<VideoState>((set, get) => ({
               .toString()
               .padStart(2, '0')}`,
             alerts,
-            url: 'https://example.com/video-url', // Replace with the actual video URL if available
+            url: 'https://example.com/video-url',
             startTime: new Date(video.recordStartAt).toLocaleTimeString(),
             length: `${Math.floor(video.length / 60)}:${(video.length % 60)
               .toString()
               .padStart(2, '0')}`,
             type: Array.from(
               new Set(video.events.map((event: { type: string }) => event.type))
-            ), // Remove duplicates
+            ),
             date: new Date(video.recordStartAt),
             camera: video.camName,
           };

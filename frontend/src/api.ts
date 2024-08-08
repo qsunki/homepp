@@ -337,6 +337,26 @@ export const fetchVideos = async (params?: {
   }
 };
 
+// 특정 비디오 조회 API 호출 함수 추가
+export const fetchVideoById = async (
+  videoId: number
+): Promise<AxiosResponse<Video>> => {
+  try {
+    const response = await api.get<Video>(`/cams/videos/${videoId}`);
+    return response;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        '비디오 조회 오류:',
+        error.response ? error.response.data : error.message
+      );
+    } else {
+      console.error('비디오 조회 오류:', error);
+    }
+    throw error;
+  }
+};
+
 // 비디오 스트림 가져오기 함수 추가
 export const fetchVideoStream = async (videoId: number): Promise<string> => {
   try {
