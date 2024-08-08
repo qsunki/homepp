@@ -66,7 +66,7 @@ const MyPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-gray-50">
+    <div className="flex flex-col items-center bg-gray-50">
       <div className="mt-20">
         <h1 className="text-xl font-bold flex items-center">
           안녕하세요, {username}님{' '}
@@ -76,66 +76,66 @@ const MyPage: React.FC = () => {
           />
         </h1>
       </div>
-      <div className="grid grid-cols-3 gap-4 mt-10">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-10 mb-16">
         <div
-          className="relative flex items-center justify-center w-40 h-40 overflow-hidden bg-white shadow-lg rounded-xl transition-all duration-500 ease-[cubic-bezier(0.23,1,0.320,1)] group cursor-pointer"
+          className="relative flex items-center justify-center w-32 h-32 sm:w-40 sm:h-40 overflow-hidden bg-white shadow-lg rounded-xl transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] group cursor-pointer"
           onClick={() => openModal(<Announcement />)}
         >
-          <div className="flex flex-col items-center gap-2 text-gray-900 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.320,1)] group-hover:z-10 group-hover:text-white">
+          <div className="flex flex-col items-center gap-2 text-gray-900 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:z-10 group-hover:text-white">
             <MdAnnouncement className="text-3xl" />
             <p className="mt-2">공지사항</p>
           </div>
-          <div className="absolute left-0 bottom-0 w-1 h-full bg-gradient-to-r from-[#373b44] to-[#4286f4] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.320,1)] group-hover:w-full"></div>
+          <div className="absolute left-0 bottom-0 w-1 h-full bg-gradient-to-r from-[#373b44] to-[#4286f4] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:w-full"></div>
         </div>
         <div
-          className="relative flex items-center justify-center w-40 h-40 overflow-hidden bg-white shadow-lg rounded-xl transition-all duration-500 ease-[cubic-bezier(0.23,1,0.320,1)] group cursor-pointer"
+          className="relative flex items-center justify-center w-32 h-32 sm:w-40 sm:h-40 overflow-hidden bg-white shadow-lg rounded-xl transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] group cursor-pointer"
           onClick={() => openModal(<FAQ />)}
         >
-          <div className="flex flex-col items-center gap-2 text-gray-900 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.320,1)] group-hover:z-10 group-hover:text-white">
+          <div className="flex flex-col items-center gap-2 text-gray-900 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:z-10 group-hover:text-white">
             <MdQuestionAnswer className="text-3xl" />
             <p className="mt-2">자주 묻는 질문</p>
           </div>
-          <div className="absolute left-0 bottom-0 w-1 h-full bg-gradient-to-r from-[#4286f4] to-[#373b44] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.320,1)] group-hover:w-full"></div>
+          <div className="absolute left-0 bottom-0 w-1 h-full bg-gradient-to-r from-[#4286f4] to-[#373b44] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:w-full"></div>
         </div>
         <div
-          className="relative flex items-center justify-center w-40 h-40 overflow-hidden bg-white shadow-lg rounded-xl transition-all duration-500 ease-[cubic-bezier(0.23,1,0.320,1)] group cursor-pointer"
+          className="relative flex items-center justify-center w-32 h-32 sm:w-40 sm:h-40 overflow-hidden bg-white shadow-lg rounded-xl transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] group cursor-pointer"
           onClick={() => openModal(<Support />)}
         >
-          <div className="flex flex-col items-center gap-2 text-gray-900 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.320,1)] group-hover:z-10 group-hover:text-white">
+          <div className="flex flex-col items-center gap-2 text-gray-900 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:z-10 group-hover:text-white">
             <MdSupportAgent className="text-3xl" />
             <p className="mt-2">고객 지원</p>
           </div>
-          <div className="absolute left-0 bottom-0 w-1 h-full bg-gradient-to-r from-[#373b44] to-[#4286f4] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.320,1)] group-hover:w-full"></div>
+          <div className="absolute left-0 bottom-0 w-1 h-full bg-gradient-to-r from-[#373b44] to-[#4286f4] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:w-full"></div>
         </div>
         <div
-          className="relative flex items-center justify-center w-40 h-40 overflow-hidden bg-white shadow-lg rounded-xl transition-all duration-500 ease-[cubic-bezier(0.23,1,0.320,1)] group cursor-pointer"
+          className="relative flex items-center justify-center w-32 h-32 sm:w-40 sm:h-40 overflow-hidden bg-white shadow-lg rounded-xl transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] group cursor-pointer"
           onClick={() => openModal(<DeviceManagement />)}
         >
-          <div className="flex flex-col items-center gap-2 text-gray-900 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.320,1)] group-hover:z-10 group-hover:text-white">
+          <div className="flex flex-col items-center gap-2 text-gray-900 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:z-10 group-hover:text-white">
             <MdDevices className="text-3xl" />
             <p className="mt-2">기기 관리</p>
           </div>
-          <div className="absolute left-0 bottom-0 w-1 h-full bg-gradient-to-r from-[#4286f4] to-[#373b44] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.320,1)] group-hover:w-full"></div>
+          <div className="absolute left-0 bottom-0 w-1 h-full bg-gradient-to-r from-[#4286f4] to-[#373b44] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:w-full"></div>
         </div>
         <div
-          className="relative flex items-center justify-center w-40 h-40 overflow-hidden bg-white shadow-lg rounded-xl transition-all duration-500 ease-[cubic-bezier(0.23,1,0.320,1)] group cursor-pointer"
+          className="relative flex items-center justify-center w-32 h-32 sm:w-40 sm:h-40 overflow-hidden bg-white shadow-lg rounded-xl transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] group cursor-pointer"
           onClick={() => openModal(<CamSharingManagement />)}
         >
-          <div className="flex flex-col items-center gap-2 text-gray-900 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.320,1)] group-hover:z-10 group-hover:text-white">
+          <div className="flex flex-col items-center gap-2 text-gray-900 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:z-10 group-hover:text-white">
             <MdVideocam className="text-3xl" />
             <p className="mt-2">캠 공유하기</p>
           </div>
-          <div className="absolute left-0 bottom-0 w-1 h-full bg-gradient-to-r from-[#373b44] to-[#4286f4] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.320,1)] group-hover:w-full"></div>
+          <div className="absolute left-0 bottom-0 w-1 h-full bg-gradient-to-r from-[#373b44] to-[#4286f4] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:w-full"></div>
         </div>
         <div
-          className="relative flex items-center justify-center w-40 h-40 overflow-hidden bg-white shadow-lg rounded-xl transition-all duration-500 ease-[cubic-bezier(0.23,1,0.320,1)] group cursor-pointer"
+          className="relative flex items-center justify-center w-32 h-32 sm:w-40 sm:h-40 overflow-hidden bg-white shadow-lg rounded-xl transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] group cursor-pointer"
           onClick={() => openModal(<Settings />)}
         >
-          <div className="flex flex-col items-center gap-2 text-gray-900 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.320,1)] group-hover:z-10 group-hover:text-white">
+          <div className="flex flex-col items-center gap-2 text-gray-900 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:z-10 group-hover:text-white">
             <MdSettings className="text-3xl" />
-            <p className="mt-2">설정</p>
+            <p className="mt-2">알림 설정</p>
           </div>
-          <div className="absolute left-0 bottom-0 w-1 h-full bg-gradient-to-r from-[#4286f4] to-[#373b44] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.320,1)] group-hover:w-full"></div>
+          <div className="absolute left-0 bottom-0 w-1 h-full bg-gradient-to-r from-[#4286f4] to-[#373b44] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:w-full"></div>
         </div>
       </div>
       <Modal isOpen={isModalOpen} onClose={closeModal}>

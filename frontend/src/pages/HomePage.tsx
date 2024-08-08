@@ -7,14 +7,23 @@ import arrow_right_circle from '../assets/homepage/arrowrightcircle.svg';
 import alert from '../assets/homepage/alert.png';
 import temperature from '../assets/homepage/temperature.png';
 import humidity from '../assets/homepage/humidity.png';
-import character from '../assets/icon/character.png';
-import { FiVideo } from 'react-icons/fi';
+import incidentLog from '../assets/homepage/incidentlog.gif';
+import chatBot from '../assets/homepage/chatbot.gif';
 import { useVideoStore } from '../stores/useVideoStore';
-import { fetchLiveThumbnail, reissueToken } from '../api';
+import {
+  fetchLiveThumbnail,
+  reissueToken,
+  fetchEventCount,
+  fetchLatestEnvInfo,
+} from '../api';
 import axios from 'axios';
+import styles from './HomePage.module.css';
 
 const HomePage: React.FC = () => {
   const [showChatBot, setShowChatBot] = useState(false);
+  const [alertCount, setAlertCount] = useState<number>(0);
+  const [temperatureValue, setTemperatureValue] = useState<number>(0);
+  const [humidityValue, setHumidityValue] = useState<number>(0);
   const navigate = useNavigate();
   const { isLoggedIn } = useUserStore();
   const { liveThumbnailUrl, setLiveThumbnailUrl } = useVideoStore();
@@ -49,8 +58,29 @@ const HomePage: React.FC = () => {
       }
     };
 
+    const handleFetchAlerts = async () => {
+      try {
+        const count = await fetchEventCount();
+        setAlertCount(count);
+      } catch (error) {
+        console.error('Failed to fetch alert count:', error);
+      }
+    };
+
+    const handleFetchEnvInfo = async () => {
+      try {
+        const envInfo = await fetchLatestEnvInfo(1); // 캠 ID를 1로 가정
+        setTemperatureValue(envInfo.temperature);
+        setHumidityValue(envInfo.humidity);
+      } catch (error) {
+        console.error('Failed to fetch environment info:', error);
+      }
+    };
+
     if (isLoggedIn) {
       handleFetchThumbnail();
+      handleFetchAlerts();
+      handleFetchEnvInfo();
     } else {
       navigate('/');
     }
@@ -73,21 +103,23 @@ const HomePage: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen p-4 bg-white">
-      <main className="flex flex-col lg:flex-row justify-between w-full max-w-6xl mx-auto gap-6">
+    <div className="flex flex-col mt-12 p-4 bg-white">
+      <main className="flex flex-col lg:flex-row justify-between w-full max-w-7xl mx-auto gap-6">
         <div className="flex-1 relative mb-4 lg:mb-0">
           <div className="w-full h-[300px] lg:h-[400px] relative">
             {liveThumbnailUrl ? (
               <img
                 src={liveThumbnailUrl}
                 alt="Live Thumbnail"
-                className="w-full h-full object-cover rounded-lg shadow-md"
+                className="w-full h-full object-cover rounded-lg shadow-md cursor-pointer"
+                onClick={handleWatchLiveClick}
               />
             ) : (
               <img
                 src={livevideo_default}
                 alt="Living Room"
-                className="w-full h-full object-cover rounded-lg shadow-md"
+                className="w-full h-full object-cover rounded-lg shadow-md cursor-pointer"
+                onClick={handleWatchLiveClick}
               />
             )}
             <button
@@ -105,55 +137,86 @@ const HomePage: React.FC = () => {
         </div>
         <div className="flex-1 flex flex-col gap-4">
           <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg shadow-md flex flex-col h-full">
-            <div
-              className="flex justify-between items-center cursor-pointer mb-4 p-4 bg-gray-200 text-gray-800 rounded-lg border border-gray-400 hover:bg-gray-400 transition-colors h-[100px]"
-              onClick={handleIncidentLogClick}
-            >
-              <div className="flex items-center">
-                <FiVideo className="w-8 h-8 mr-2" />
-                <h2 className="text-xl font-bold">Incident Log</h2>
+            <div className="flex justify-between gap-4 mt-4 mb-8">
+              <div
+                className={`relative p-4 border-2 border-gray-300 rounded-2xl bg-gray-100 transition-transform transform hover:shadow-lg hover:border-blue-500 ${styles.card} w-1/2 flex flex-col justify-between items-center cursor-pointer`}
+                onClick={handleIncidentLogClick}
+              >
+                <div className="card-details flex flex-col items-center text-center">
+                  <img
+                    src={incidentLog}
+                    alt="incidentLog"
+                    className="w-16 h-16 mb-1"
+                  />
+                  <p className="text-title text-lg font-bold text-gray-800">
+                    Incident Log
+                  </p>
+                  <p className="text-body text-gray-600">
+                    Review all incidents
+                  </p>
+                </div>
+                <button
+                  className={`absolute left-1/2 bottom-0 transform translate-x-[-50%] translate-y-[50%] w-3/5 py-2 bg-blue-500 text-white rounded-lg opacity-0 transition-opacity ${styles.cardButton}`}
+                >
+                  More info
+                </button>
               </div>
-              <span className="text-gray-800 flex items-center">
-                more
-                <img
-                  src={arrow_right_circle}
-                  alt="More Icon"
-                  className="ml-2 w-5 h-5"
-                />
-              </span>
+              <div
+                className={`relative p-4 border-2 border-gray-300 rounded-2xl bg-gray-100 transition-transform transform hover:shadow-lg hover:border-blue-500 ${styles.card} w-1/2 flex flex-col justify-between items-center cursor-pointer`}
+                onClick={handleChatBotToggle}
+              >
+                <div className="card-details flex flex-col items-center text-center">
+                  <img src={chatBot} alt="ChatBot" className="w-16 h-16 mb-1" />
+                  <p className="text-title text-lg font-bold text-gray-800">
+                    ChatBot
+                  </p>
+                  <p className="text-body text-gray-600">Have any questions?</p>
+                </div>
+                <button
+                  className={`absolute left-1/2 bottom-0 transform translate-x-[-50%] translate-y-[50%] w-3/5 py-2 bg-blue-500 text-white rounded-lg opacity-0 transition-opacity ${styles.cardButton}`}
+                >
+                  More info
+                </button>
+              </div>
             </div>
-            <div
-              className="flex items-center bg-gray-100 p-4 rounded-lg cursor-pointer mb-4 border border-gray-300"
-              onClick={handleChatBotToggle}
-            >
-              <h3 className="flex-1 text-lg font-semibold">
-                Have any questions? <br /> Click here!
-              </h3>
-              <img src={character} alt="ChatBot" className="w-12 h-12" />
-            </div>
+
             <div className="flex justify-between gap-4">
-              <div className="flex flex-col items-center border border-gray-300 p-4 rounded-lg bg-white w-full h-32">
-                <img src={alert} alt="Alert Icon" className="w-10 h-10 mb-2" />
-                <span className="font-bold text-gray-700">12</span>
-                <p className="m-0 text-gray-700">Alerts</p>
+              <div className="relative p-4 border-2 border-gray-300 rounded-2xl bg-gray-100 w-1/3 flex flex-col items-center">
+                <div className="flex flex-col items-center text-center">
+                  <img
+                    src={alert}
+                    alt="Alert Icon"
+                    className="w-10 h-10 mb-2"
+                  />
+                  <span className="font-bold text-gray-800">{alertCount}</span>
+                  <p className="text-gray-600">Alerts</p>
+                </div>
               </div>
-              <div className="flex flex-col items-center border border-gray-300 p-4 rounded-lg bg-white w-full h-32">
-                <img
-                  src={temperature}
-                  alt="Temperature Icon"
-                  className="w-10 h-10 mb-2"
-                />
-                <span className="font-bold text-gray-700">25°C</span>
-                <p className="m-0 text-gray-700">Temperature</p>
+              <div className="relative p-4 border-2 border-gray-300 rounded-2xl bg-gray-100 w-1/3 flex flex-col items-center">
+                <div className="flex flex-col items-center text-center">
+                  <img
+                    src={temperature}
+                    alt="Temperature Icon"
+                    className="w-10 h-10 mb-2"
+                  />
+                  <span className="font-bold text-gray-800">
+                    {temperatureValue}°C
+                  </span>
+                  <p className="text-gray-600">Temperature</p>
+                </div>
               </div>
-              <div className="flex flex-col items-center border border-gray-300 p-4 rounded-lg bg-white w-full h-32">
-                <img
-                  src={humidity}
-                  alt="Humidity Icon"
-                  className="w-10 h-10 mb-2"
-                />
-                <span className="font-bold text-gray-700">60%</span>
-                <p className="m-0 text-gray-700">Humidity</p>
+              <div className="relative p-4 border-2 border-gray-300 rounded-2xl bg-gray-100 w-1/3 flex flex-col items-center">
+                <div className="flex flex-col items-center text-center">
+                  <img
+                    src={humidity}
+                    alt="Humidity Icon"
+                    className="w-10 h-10 mb-2"
+                  />
+                  <span className="font-bold text-gray-800">
+                    {humidityValue}%
+                  </span>
+                  <p className="text-gray-600">Humidity</p>
+                </div>
               </div>
             </div>
           </div>

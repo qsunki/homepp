@@ -66,7 +66,7 @@ const DetailList: React.FC<DetailListProps> = ({
   };
 
   return (
-    <div className="w-1/3 pl-4">
+    <div className="w-full lg:w-1/3 pl-4 pr-8">
       {showLiveThumbnail && (
         <div
           className="border-4 border-red-500 mb-4 cursor-pointer mt-12"

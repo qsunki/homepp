@@ -2,7 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import SockJS from 'sockjs-client';
 import { Client, IMessage } from '@stomp/stompjs';
 import Loader from './Loader';
-import { fetchCams, CamData } from '../../api';
+import { fetchCams, CamData, fetchWebSocketKey } from '../../api';
+import record from '../../assets/livevideo/record.png';
+import stop from '../../assets/livevideo/stop.png';
 
 interface Signal {
   type: 'answer' | 'candidate' | 'offer';
@@ -21,6 +23,10 @@ const LivePlayer: React.FC = () => {
   const [selectedCamId, setSelectedCamId] = useState<string>('1');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const clientRef = useRef<Client | null>(null);
+  const [webSocketKey, setWebSocketKey] = useState<string>('');
+  const [isRecording, setIsRecording] = useState<boolean>(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const recordedChunksRef = useRef<Blob[]>([]);
 
   useEffect(() => {
     const getCams = async () => {
@@ -43,15 +49,31 @@ const LivePlayer: React.FC = () => {
   useEffect(() => {
     if (!selectedCamId) return;
 
-    setIsLoading(false);
+    const getWebSocketKey = async () => {
+      setIsLoading(true);
+      try {
+        const key = await fetchWebSocketKey(selectedCamId);
+        console.log('Fetched WebSocket key:', key);
+        setWebSocketKey(key);
+      } catch (error) {
+        console.error('Failed to fetch WebSocket key:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    getWebSocketKey();
   }, [selectedCamId]);
 
   useEffect(() => {
-    if (isLoading) return;
+    if (!webSocketKey) return;
 
-    console.log('Initializing WebSocket and STOMP client with key:', '123');
+    console.log(
+      'Initializing WebSocket and STOMP client with key:',
+      webSocketKey
+    );
 
-    const socketUrl = `http://i11a605.p.ssafy.io:8081/ws`;
+    const socketUrl = `https://i11a605.p.ssafy.io/ws`;
     const socket = new SockJS(socketUrl);
 
     const client = new Client({
@@ -61,7 +83,7 @@ const LivePlayer: React.FC = () => {
       },
       onConnect: (frame) => {
         console.log('STOMP client connected, frame:', frame);
-        client.subscribe(`/sub/client/123`, (message: IMessage) => {
+        client.subscribe(`/sub/client/${webSocketKey}`, (message: IMessage) => {
           console.log('Received message:', message);
           const signal: Signal = JSON.parse(message.body);
           console.log('Received signal:', signal);
@@ -89,71 +111,135 @@ const LivePlayer: React.FC = () => {
         peerConnectionRef.current.close();
       }
     };
-  }, [isLoading]);
+  }, [webSocketKey]);
 
   const handleSignal = (signal: Signal) => {
     console.log('Handling signal:', signal);
-    const peerConnection = peerConnectionRef.current;
 
+    const iceConfiguration = {
+      iceServers: [
+        {
+          urls: 'stun:i11a605.p.ssafy.io',
+          username: 'username',
+          credential: 'password',
+        },
+        {
+          urls: 'turn:i11a605.p.ssafy.io',
+          username: 'username',
+          credential: 'password',
+        },
+      ],
+    };
+
+    let peerConnection = peerConnectionRef.current;
     if (!peerConnection) {
-      console.error('No RTCPeerConnection available to handle signal');
-      return;
+      peerConnection = new RTCPeerConnection(iceConfiguration);
+      peerConnectionRef.current = peerConnection;
+
+      peerConnection.onicecandidate = (event) => {
+        console.log('icecandidate event occurred', event);
+        if (event.candidate && clientRef.current?.connected) {
+          console.log('Publishing ICE candidate:', event.candidate);
+          clientRef.current.publish({
+            destination: `/pub/client/${webSocketKey}`,
+            body: JSON.stringify({
+              type: 'candidate',
+              data: event.candidate,
+            }),
+          });
+        }
+      };
+
+      peerConnection.ontrack = (event) => {
+        console.log('Track event occurred:', event);
+        const [remoteStream] = event.streams;
+        if (remoteVideoRef.current) {
+          remoteVideoRef.current.srcObject = remoteStream;
+          console.log('Remote stream set to video element');
+          setIsLoading(false);
+
+          // Initialize MediaRecorder when track event occurs
+          if (mediaRecorderRef.current == null) {
+            const mediaRecorder = new MediaRecorder(remoteStream);
+            mediaRecorder.ondataavailable = (e) => {
+              if (e.data.size > 0) {
+                recordedChunksRef.current.push(e.data);
+              }
+            };
+            mediaRecorderRef.current = mediaRecorder;
+          }
+        }
+      };
     }
 
     switch (signal.type) {
       case 'offer':
         console.log('Handling offer signal:', signal.data);
-        peerConnection
-          .setRemoteDescription(
-            new RTCSessionDescription(signal.data as RTCSessionDescriptionInit)
-          )
-          .then(() => {
-            console.log('Remote description set successfully.');
-            return peerConnection.createAnswer();
-          })
-          .then((answer) => {
-            return peerConnection
-              .setLocalDescription(answer)
-              .then(() => answer);
-          })
-          .then((answer) => {
-            if (clientRef.current?.connected) {
-              clientRef.current.publish({
-                destination: `/pub/client/123`,
-                body: JSON.stringify({ type: 'answer', data: answer }),
-              });
-              console.log('Published answer:', answer);
-            }
-          })
-          .catch((error) => {
-            console.error('Failed to handle offer:', error);
-          });
+        if (peerConnection) {
+          peerConnection
+            .setRemoteDescription(
+              new RTCSessionDescription(
+                signal.data as RTCSessionDescriptionInit
+              )
+            )
+            .then(() => {
+              console.log('Remote description set successfully.');
+              if (peerConnection) {
+                return peerConnection.createAnswer();
+              }
+            })
+            .then((answer) => {
+              if (peerConnection && answer) {
+                return peerConnection
+                  .setLocalDescription(answer)
+                  .then(() => answer);
+              }
+            })
+            .then((answer) => {
+              if (clientRef.current?.connected && answer) {
+                clientRef.current.publish({
+                  destination: `/pub/client/${webSocketKey}`,
+                  body: JSON.stringify({ type: 'answer', data: answer }),
+                });
+                console.log('Published answer:', answer);
+              }
+            })
+            .catch((error) => {
+              console.error('Failed to handle offer:', error);
+            });
+        }
         break;
       case 'answer':
         console.log('Handling answer signal:', signal.data);
-        peerConnection
-          .setRemoteDescription(
-            new RTCSessionDescription(signal.data as RTCSessionDescriptionInit)
-          )
-          .then(() => {
-            console.log('Remote description set successfully.');
-          })
-          .catch((error) => {
-            console.error('Failed to set remote description:', error);
-          });
+        if (peerConnection) {
+          peerConnection
+            .setRemoteDescription(
+              new RTCSessionDescription(
+                signal.data as RTCSessionDescriptionInit
+              )
+            )
+            .then(() => {
+              console.log('Remote description set successfully.');
+            })
+            .catch((error) => {
+              console.error('Failed to set remote description:', error);
+            });
+        }
         break;
       case 'candidate':
         console.log('Handling candidate signal:', signal.data);
-        peerConnection
-          .addIceCandidate(
-            new RTCIceCandidate(signal.data as RTCIceCandidateInit)
-          )
-          .then(() => {
-            console.log('ICE candidate added successfully.');
-          })
-          .catch((error) => {
-            console.error('Failed to add ICE candidate:', error);
-          });
+        if (peerConnection) {
+          peerConnection
+            .addIceCandidate(
+              new RTCIceCandidate(signal.data as RTCIceCandidateInit)
+            )
+            .then(() => {
+              console.log('ICE candidate added successfully.');
+            })
+            .catch((error) => {
+              console.error('Failed to add ICE candidate:', error);
+            });
+        }
         break;
       default:
         console.warn('Unknown signal type:', signal.type);
@@ -167,7 +253,20 @@ const LivePlayer: React.FC = () => {
       return;
     }
 
-    const pc = new RTCPeerConnection();
+    const pc = new RTCPeerConnection({
+      iceServers: [
+        {
+          urls: 'stun:i11a605.p.ssafy.io',
+          username: 'username',
+          credential: 'password',
+        },
+        {
+          urls: 'turn:i11a605.p.ssafy.io',
+          username: 'username',
+          credential: 'password',
+        },
+      ],
+    });
     peerConnectionRef.current = pc;
     console.log('RTCPeerConnection created:', pc);
 
@@ -176,7 +275,7 @@ const LivePlayer: React.FC = () => {
       if (event.candidate && clientRef.current?.connected) {
         console.log('Publishing ICE candidate:', event.candidate);
         clientRef.current.publish({
-          destination: `/pub/client/123`,
+          destination: `/pub/client/${webSocketKey}`,
           body: JSON.stringify({
             type: 'candidate',
             data: event.candidate,
@@ -191,6 +290,7 @@ const LivePlayer: React.FC = () => {
       if (remoteVideoRef.current) {
         remoteVideoRef.current.srcObject = remoteStream;
         console.log('Remote stream set to video element');
+        setIsLoading(false);
       }
     };
 
@@ -206,7 +306,7 @@ const LivePlayer: React.FC = () => {
         console.log('Publishing offer:', offer);
         if (clientRef.current?.connected) {
           clientRef.current.publish({
-            destination: `/pub/client/123`,
+            destination: `/pub/client/${webSocketKey}`,
             body: JSON.stringify({ type: 'offer', data: offer }),
           });
         }
@@ -216,11 +316,36 @@ const LivePlayer: React.FC = () => {
       });
   };
 
+  const handleRecord = () => {
+    if (isRecording) {
+      // Stop recording
+      mediaRecorderRef.current?.stop();
+      setIsRecording(false);
+
+      // Save the recorded video
+      const blob = new Blob(recordedChunksRef.current, { type: 'video/webm' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = 'recording.webm';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      recordedChunksRef.current = [];
+    } else {
+      // Start recording
+      recordedChunksRef.current = [];
+      mediaRecorderRef.current?.start();
+      setIsRecording(true);
+    }
+  };
+
   return (
-    <div>
+    <div className="relative">
       {isLoading && <Loader />}
-      <h1>Cam List</h1>
       <select
+        className="absolute top-4 left-4 bg-white border border-gray-400 rounded px-2 py-1 z-10"
         onChange={(e) => setSelectedCamId(e.target.value)}
         value={selectedCamId || ''}
       >
@@ -233,13 +358,24 @@ const LivePlayer: React.FC = () => {
           </option>
         ))}
       </select>
-      <video
-        ref={remoteVideoRef}
-        autoPlay
-        playsInline
-        controls
-        className="w-full h-auto"
-      />
+      <div className="relative">
+        <video
+          ref={remoteVideoRef}
+          autoPlay
+          playsInline
+          controls
+          className="w-full h-auto"
+        />
+      </div>
+      <div className="flex justify-between items-center mt-4 px-2">
+        <div className="text-3xl font-bold">LIVE VIDEO</div>
+        <img
+          src={isRecording ? stop : record}
+          alt={isRecording ? 'Stop Recording' : 'Start Recording'}
+          className="w-auto h-8"
+          onClick={handleRecord}
+        />
+      </div>
     </div>
   );
 };

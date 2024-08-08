@@ -64,6 +64,10 @@ input:checked + .slider:after {
 
 .cameraContainer form {
   display: flex;
+<<<<<<< HEAD
+=======
+  /* flex-wrap: wrap; */
+>>>>>>> 69e3856b15c3ec4ff6c8943e07084dc0bfe10f20
   flex-direction: column;
 }
 
@@ -73,10 +77,20 @@ input:checked + .slider:after {
   font-weight: 500;
   position: relative;
   overflow: hidden;
+<<<<<<< HEAD
   margin-bottom: 0.1em;
   align-items: center;
   justify-content: flex-start;
   padding: 0em;
+=======
+  margin-bottom: 0.1em; /* 위아래 간격 조정 */
+  margin-left: 0em; /* 위아래 간격 조정 */
+  margin-right: 0em; /* 위아래 간격 조정 */
+
+  align-items: center;
+  justify-content: flex-start; /* 왼쪽 정렬 */
+  padding: 0em; /* 좌우 공백 줄이기 */
+>>>>>>> 69e3856b15c3ec4ff6c8943e07084dc0bfe10f20
 }
 
 .cameraContainer label input {
@@ -96,11 +110,19 @@ input:checked + .slider:after {
 .cameraContainer label span {
   display: flex;
   align-items: center;
+<<<<<<< HEAD
   padding: 0.375em 1em 0.375em 0.375em;
   border-radius: 99em;
   transition: 0.25s ease;
   color: #414181;
   justify-content: flex-start;
+=======
+  padding: 0.375em 1em 0.375em 0.375em; /* 좌우 공백 줄이기 */
+  border-radius: 99em;
+  transition: 0.25s ease;
+  color: #414181;
+  justify-content: flex-start; /* 왼쪽 정렬 */
+>>>>>>> 69e3856b15c3ec4ff6c8943e07084dc0bfe10f20
 }
 
 .cameraContainer label span:hover {
@@ -115,7 +137,11 @@ input:checked + .slider:after {
   width: 1.5em;
   height: 1.5em;
   border-radius: 50%;
+<<<<<<< HEAD
   margin-right: 0.5em;
+=======
+  margin-right: 0.5em; /* 원과 텍스트 사이 거리 */
+>>>>>>> 69e3856b15c3ec4ff6c8943e07084dc0bfe10f20
   transition: 0.25s ease;
   box-shadow: inset 0 0 0 0.125em #00005c;
 }
@@ -123,6 +149,7 @@ input:checked + .slider:after {
 .cameraContainer label input:checked + span:before {
   box-shadow: inset 0 0 0 0.4375em #00005c;
 }
+<<<<<<< HEAD
 
 /* 통일된 필터 스타일 */
 .filterIcon {
@@ -193,3 +220,5 @@ input:checked + .slider:after {
   width: 100%;
   margin-bottom: 0.25em;
 }
+=======
+>>>>>>> 69e3856b15c3ec4ff6c8943e07084dc0bfe10f20
