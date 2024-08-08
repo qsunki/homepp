@@ -118,9 +118,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
           }));
           return {
             id: video.videoId,
-            title: `${video.camName} - ${alerts
-              .map((alert) => alert.type)
-              .join(', ')}`,
+            title: `${video.camName}`,
             timestamp: new Date(video.recordStartAt).toLocaleTimeString(),
             thumbnail: thumbnail || 'https://via.placeholder.com/150',
             duration: `${Math.floor(video.length / 60)}:${(video.length % 60)

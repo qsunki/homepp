@@ -501,14 +501,10 @@ const VideoList: React.FC = () => {
                     </div>
                     <div className="p-2">
                       <h3 className="text-sm font-bold">{video.title}</h3>
-                      <p className="text-xs text-gray-600">{video.timestamp}</p>
+                      <p className="text-xs text-gray-600">{video.startTime}</p>
                       <p className="text-xs text-gray-600">
                         {video.type.join(', ')}
                       </p>
-                      <p className="text-xs text-gray-600">
-                        {video.date.toDateString()}
-                      </p>
-                      <p className="text-xs text-gray-600">{video.camera}</p>
                     </div>
                   </div>
                 ))}
