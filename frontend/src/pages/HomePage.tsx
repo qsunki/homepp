@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '../stores/useUserStore';
 import ChatBot from '../components/ChatBot';
-import livevideo_default from '../assets/homepage/livevideodefault.png';
+// import livevideo_default from '../assets/homepage/livevideodefault.png';
 import arrow_right_circle from '../assets/homepage/arrowrightcircle.svg';
 import alert from '../assets/homepage/alert.png';
 import temperature from '../assets/homepage/temperature.png';
@@ -107,21 +107,21 @@ const HomePage: React.FC = () => {
       <main className="flex flex-col lg:flex-row justify-between w-full max-w-7xl mx-auto gap-6">
         <div className="flex-1 relative mb-4 lg:mb-0">
           <div className="w-full h-[300px] lg:h-[400px] relative">
-            {liveThumbnailUrl ? (
-              <img
-                src={liveThumbnailUrl}
-                alt="Live Thumbnail"
-                className="w-full h-full object-cover rounded-lg shadow-md cursor-pointer"
-                onClick={handleWatchLiveClick}
-              />
-            ) : (
+            {/* {liveThumbnailUrl ? ( */}
+            <img
+              src={liveThumbnailUrl}
+              alt="Live Thumbnail"
+              className="w-full h-full object-cover rounded-lg shadow-md cursor-pointer"
+              onClick={handleWatchLiveClick}
+            />
+            {/* ) : (
               <img
                 src={livevideo_default}
                 alt="Living Room"
                 className="w-full h-full object-cover rounded-lg shadow-md cursor-pointer"
                 onClick={handleWatchLiveClick}
               />
-            )}
+            )} */}
             <button
               className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-4 bg-black bg-opacity-70 text-white border-none cursor-pointer flex items-center rounded-lg"
               onClick={handleWatchLiveClick}

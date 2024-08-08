@@ -445,11 +445,12 @@ export const sendFcmTokenToServer = async (email: string, token: string) => {
 export const fetchLiveThumbnail = async (camId: number): Promise<string> => {
   try {
     console.log('Fetching live thumbnail for camId:', camId);
-    const response: AxiosResponse<string> = await api.get<string>(
+    const response = await api.get<{ thumbnail: string }>(
       `/cams/${camId}/thumbnail`
     );
-    console.log('Live thumbnail response:', response.data);
-    return response.data;
+    const imageUrl = response.data.thumbnail;
+    console.log('Live thumbnail URL:', imageUrl);
+    return imageUrl;
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
       console.error(
