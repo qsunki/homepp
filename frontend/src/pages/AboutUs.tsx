@@ -1,47 +1,47 @@
 import React from 'react';
+import hj from '../assets/aboutus/hj.png';
+import dw from '../assets/aboutus/dw.png';
+import sk from '../assets/aboutus/sk.png';
+import hl from '../assets/aboutus/hl.png';
+import sh from '../assets/aboutus/sh.png';
+import yh from '../assets/aboutus/yh.png';
 
 const teamMembers = [
   {
-    name: 'John Doe',
-    role: 'CEO',
-    imageUrl: 'https://via.placeholder.com/150',
-    description: 'John is the CEO of the company.',
+    name: 'Hosea Kim',
+    role: 'A605 Team Leader, Raspberry Pi',
+    image: hj,
   },
   {
-    name: 'Jane Smith',
-    role: 'CTO',
-    imageUrl: 'https://via.placeholder.com/150',
-    description: 'Jane is the CTO of the company.',
+    name: 'Seonki Hong',
+    role: 'Backend Team Leader',
+    image: sk,
   },
   {
-    name: 'Michael Johnson',
-    role: 'CFO',
-    imageUrl: 'https://via.placeholder.com/150',
-    description: 'Michael is the CFO of the company.',
+    name: 'Dongwook Lee',
+    role: 'Frontend Team Leader',
+    image: dw,
   },
   {
-    name: 'Emily Davis',
-    role: 'COO',
-    imageUrl: 'https://via.placeholder.com/150',
-    description: 'Emily is the COO of the company.',
+    name: 'Hyolim Lee',
+    role: 'Backend Team Member',
+    image: hl,
   },
   {
-    name: 'David Wilson',
-    role: 'CMO',
-    imageUrl: 'https://via.placeholder.com/150',
-    description: 'David is the CMO of the company.',
+    name: 'Seunghyun Yoo',
+    role: 'Backend Team Member',
+    image: sh,
   },
   {
-    name: 'Sophia Brown',
-    role: 'CIO',
-    imageUrl: 'https://via.placeholder.com/150',
-    description: 'Sophia is the CIO of the company.',
+    name: 'Yoonha Lee',
+    role: 'Frontend Team Member',
+    image: yh,
   },
 ];
 
 const AboutUs: React.FC = () => {
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold mb-8 text-center">About Us</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {teamMembers.map((member, index) => (
@@ -51,12 +51,11 @@ const AboutUs: React.FC = () => {
           >
             <img
               className="w-24 h-24 rounded-full mx-auto mb-4"
-              src={member.imageUrl}
+              src={member.image}
               alt={member.name}
             />
             <h2 className="text-xl font-semibold mb-1">{member.name}</h2>
             <p className="text-gray-600">{member.role}</p>
-            {/* <p className="text-gray-700">{member.description}</p> */}
           </div>
         ))}
       </div>
