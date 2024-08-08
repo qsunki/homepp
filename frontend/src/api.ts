@@ -446,7 +446,7 @@ export const fetchLiveThumbnail = async (camId: number): Promise<string> => {
   try {
     console.log('Fetching live thumbnail for camId:', camId);
     const response: AxiosResponse<string> = await api.get<string>(
-      `/api/v1/cams/${camId}/thumbnail`
+      `/cams/${camId}/thumbnail`
     );
     console.log('Live thumbnail response:', response.data);
     return response.data;
