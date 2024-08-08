@@ -3,13 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import 'tw-elements/dist/css/tw-elements.min.css';
-import { FaCaretUp, FaCaretDown } from 'react-icons/fa'; // Import caret down icon
+import { FaCaretUp, FaFilter } from 'react-icons/fa';
 import { format } from 'date-fns';
 import styles from '../utils/filter/Filter1.module.css';
-import customStyles from './VideoList.module.css'; // Importing the custom CSS module
-import thiefIcon from 'assets/filter/thief.png';
-import fireIcon from 'assets/filter/fire.png';
-import soundIcon from 'assets/filter/sound.png';
 import { fetchVideos, fetchCams, Video as ApiVideo } from '../api';
 
 interface Video {
@@ -23,21 +19,6 @@ interface Video {
   title: string;
 }
 
-const FilterIcon: React.FC<{
-  icon: string;
-  label: string;
-  isSelected: boolean;
-  onClick: () => void;
-}> = ({ icon, label, isSelected, onClick }) => (
-  <div
-    className={`${styles.icon} ${isSelected ? styles.selected : ''}`}
-    onClick={onClick}
-  >
-    <span className={styles.tooltip}>{label}</span>
-    <img src={icon} alt={label} />
-  </div>
-);
-
 const VideoList: React.FC = () => {
   const [filterDateRange, setFilterDateRange] = useState<
     [Date | null, Date | null]
@@ -50,12 +31,39 @@ const VideoList: React.FC = () => {
   const [videos, setVideos] = useState<Video[]>([]);
   const [cameras, setCameras] = useState<{ name: string; id: number }[]>([]);
   const [isReported, setIsReported] = useState<boolean | null>(null);
+  const [dateFilter, setDateFilter] = useState<string>('1 Week');
+  const [dummyState, setDummyState] = useState(false);
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const cameraFormRef = useRef<HTMLDivElement>(null);
+  const filterSectionRef = useRef<HTMLDivElement>(null);
 
-  const handleDateChange = (dates: [Date | null, Date | null]) =>
+  const handleDateFilterChange = (filter: string) => {
+    setDateFilter(filter);
+    const today = new Date();
+    if (filter === 'Today') {
+      setFilterDateRange([today, today]);
+    } else if (filter === '1 Week') {
+      const lastWeek = new Date(today);
+      lastWeek.setDate(today.getDate() - 7);
+      setFilterDateRange([lastWeek, today]);
+    } else if (filter === '1 Month') {
+      const lastMonth = new Date(today);
+      lastMonth.setMonth(today.getMonth() - 1);
+      setFilterDateRange([lastMonth, today]);
+    } else {
+      setFilterDateRange([null, null]);
+    }
+  };
+
+  useEffect(() => {
+    handleDateFilterChange('1 Week'); // Default to '1 Week' on component mount
+  }, []);
+
+  const handleDateChange = (dates: [Date | null, Date | null]) => {
     setFilterDateRange(dates);
+    setDummyState(!dummyState); // Force update to re-render
+  };
 
   const handleTypeToggle = (type: string) => {
     setSelectedTypes((prev) =>
@@ -63,7 +71,7 @@ const VideoList: React.FC = () => {
     );
   };
 
-  const handleCameraChange = (event: React.ChangeEvent<HTMLInputElement>) =>
+  const handleCameraChange = (event: React.ChangeEvent<HTMLSelectElement>) =>
     setSelectedCamera(event.target.value);
 
   const handleVideoClick = (id: number) => navigate(`/video/${id}`);
@@ -85,11 +93,17 @@ const VideoList: React.FC = () => {
   };
 
   const handleClickOutside = (event: MouseEvent) => {
-    if (
-      dropdownRef.current &&
-      !dropdownRef.current.contains(event.target as Node)
-    ) {
+    const target = event.target as HTMLElement;
+    if (dropdownRef.current && !dropdownRef.current.contains(target)) {
       closeDropdown();
+    }
+    if (
+      showFilters &&
+      filterSectionRef.current &&
+      !filterSectionRef.current.contains(target) &&
+      !target.closest('.fa-filter')
+    ) {
+      setShowFilters(false);
     }
   };
 
@@ -147,10 +161,7 @@ const VideoList: React.FC = () => {
         if (camId) params.camId = camId;
         if (isReported !== null) params.isThreat = isReported;
 
-        console.log('Fetching videos with params:', params);
-
         const response = await fetchVideos(params);
-        console.log('Fetched videos:', response.data);
 
         if (!response.data || !Array.isArray(response.data)) {
           throw new Error('Unexpected response format');
@@ -166,10 +177,9 @@ const VideoList: React.FC = () => {
           type: video.events.map((event) => event.type),
           date: new Date(video.recordStartAt),
           camera: video.camName,
-          title:
-            video.camName +
-            ' - ' +
-            video.events.map((event) => event.type).join(', '),
+          title: `${video.camName} - ${video.events
+            .map((event) => event.type)
+            .join(', ')}`,
         }));
 
         setVideos(apiVideos);
@@ -201,158 +211,241 @@ const VideoList: React.FC = () => {
   }, {} as Record<string, Video[]>);
 
   return (
-    <div className="flex">
-      <div className="hidden md:block md:w-1/4 p-4">
-        <div className="mb-4 flex flex-wrap">
-          <FilterIcon
-            icon={fireIcon}
-            label="Fire"
-            isSelected={selectedTypes.includes('Fire')}
-            onClick={() => handleTypeToggle('Fire')}
-          />
-          <FilterIcon
-            icon={thiefIcon}
-            label="Invasion"
-            isSelected={selectedTypes.includes('Invasion')}
-            onClick={() => handleTypeToggle('Invasion')}
-          />
-          <FilterIcon
-            icon={soundIcon}
-            label="Sound"
-            isSelected={selectedTypes.includes('Sound')}
-            onClick={() => handleTypeToggle('Sound')}
-          />
-        </div>
-        <div className="mb-4 relative">
-          <label className={`${customStyles.switch} ml-2`}>
-            <input
-              type="checkbox"
-              checked={isReported || false}
-              onChange={() => setIsReported((prev) => !prev)}
-            />
-            <span className={customStyles.slider}></span>
-          </label>
-        </div>
-        <div className="mb-4 relative">
-          <button
-            className="p-2 rounded bg-gray-200 flex items-center justify-between w-[200px]" // Set fixed width
-            onClick={() => setShowCameraOptions(!showCameraOptions)}
-          >
-            {selectedCamera}
-            <FaCaretDown /> {/* Add caret down icon */}
-          </button>
-          {showCameraOptions && (
-            <div
-              ref={dropdownRef}
-              className={`${styles.cameraForm} absolute bg-white border mt-1 rounded z-10`}
-            >
-              <div className={customStyles.cameraContainer} ref={cameraFormRef}>
-                <form>
-                  {cameras.map((camera) => (
-                    <label key={camera.id}>
-                      <input
-                        type="radio"
-                        name="camera"
-                        value={camera.name}
-                        checked={selectedCamera === camera.name}
-                        onChange={handleCameraChange}
-                      />
-                      <span>{camera.name}</span>
-                    </label>
-                  ))}
-                </form>
-              </div>
-            </div>
-          )}
-        </div>
-        <div className="mt-4">
-          <DatePicker
-            selected={filterDateRange[0]}
-            onChange={handleDateChange}
-            startDate={filterDateRange[0] || undefined}
-            endDate={filterDateRange[1] || undefined}
-            selectsRange
-            inline
-            dateFormat="MM/dd/yyyy"
-          />
-        </div>
-      </div>
-      <div className="md:hidden p-4">
+    <div className="flex flex-col md:flex-row">
+      <div className="md:hidden p-4 w-full">
         <button
           onClick={toggleFilters}
-          className="border p-2 rounded flex items-center space-x-2 w-full"
+          className="fixed bottom-16 right-4 w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center shadow-lg z-50"
         >
-          <span>Filter Videos</span>
-          <i className="fas fa-filter"></i>
+          <FaFilter size={24} />
         </button>
         {showFilters && (
-          <div className="mt-2">
-            <div className="mb-4 flex flex-wrap">
-              <FilterIcon
-                icon={fireIcon}
-                label="Fire"
-                isSelected={selectedTypes.includes('Fire')}
-                onClick={() => handleTypeToggle('Fire')}
-              />
-              <FilterIcon
-                icon={thiefIcon}
-                label="Invasion"
-                isSelected={selectedTypes.includes('Invasion')}
-                onClick={() => handleTypeToggle('Invasion')}
-              />
-              <FilterIcon
-                icon={soundIcon}
-                label="Sound"
-                isSelected={selectedTypes.includes('Sound')}
-                onClick={() => handleTypeToggle('Sound')}
-              />
-            </div>
-            <div className="mb-4 relative">
-              <label className={`${customStyles.switch} ml-2`}>
-                <input
-                  type="checkbox"
-                  checked={isReported || false}
-                  onChange={() => setIsReported((prev) => !prev)}
-                />
-                <span className={customStyles.slider}></span>
-              </label>
-            </div>
-            <div className="mb-4 relative">
-              <button
-                className="p-2 rounded bg-gray-200 flex items-center justify-between w-[200px]" // Set fixed width
-                onClick={() => setShowCameraOptions(!showCameraOptions)}
-              >
-                {selectedCamera}
-                <FaCaretDown /> {/* Add caret down icon */}
-              </button>
-              {showCameraOptions && (
-                <div
-                  ref={dropdownRef}
-                  className={`${styles.cameraForm} absolute bg-white border mt-1 rounded z-10`}
+          <div
+            className={`mt-2 filter-section ${styles['mobile-filter']}`}
+            ref={filterSectionRef}
+          >
+            <div className={styles['filter-group']}>
+              <div className={styles['filter-title']}>Event Type</div>
+              <div className={styles['button-group-horizontal']}>
+                <button
+                  className={
+                    selectedTypes.includes('Fire') ? styles.selected : ''
+                  }
+                  onClick={() => handleTypeToggle('Fire')}
                 >
-                  <div
-                    className={customStyles.cameraContainer}
-                    ref={cameraFormRef}
-                  >
-                    <form>
-                      {cameras.map((camera) => (
-                        <label key={camera.id}>
-                          <input
-                            type="radio"
-                            name="camera"
-                            value={camera.name}
-                            checked={selectedCamera === camera.name}
-                            onChange={handleCameraChange}
-                          />
-                          <span>{camera.name}</span>
-                        </label>
-                      ))}
-                    </form>
-                  </div>
+                  Fire
+                </button>
+                <button
+                  className={
+                    selectedTypes.includes('Invasion') ? styles.selected : ''
+                  }
+                  onClick={() => handleTypeToggle('Invasion')}
+                >
+                  Invasion
+                </button>
+                <button
+                  className={
+                    selectedTypes.includes('Sound') ? styles.selected : ''
+                  }
+                  onClick={() => handleTypeToggle('Sound')}
+                >
+                  Sound
+                </button>
+              </div>
+            </div>
+            <div className={styles['filter-group']}>
+              <div className={styles['filter-title']}>Report Status</div>
+              <div className={styles['button-group-horizontal']}>
+                <button
+                  className={isReported === null ? styles.selected : ''}
+                  onClick={() => setIsReported(null)}
+                >
+                  All
+                </button>
+                <button
+                  className={isReported ? styles.selected : ''}
+                  onClick={() => setIsReported(true)}
+                >
+                  Reported
+                </button>
+                <button
+                  className={isReported === false ? styles.selected : ''}
+                  onClick={() => setIsReported(false)}
+                >
+                  Unreported
+                </button>
+              </div>
+            </div>
+            <div className={styles['filter-group']}>
+              <div className={styles['filter-title']}>Camera</div>
+              <div className={styles['button-group-horizontal']}>
+                <select
+                  value={selectedCamera}
+                  onChange={handleCameraChange}
+                  className={styles.fullWidth}
+                >
+                  {cameras.map((camera) => (
+                    <option key={camera.id} value={camera.name}>
+                      {camera.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className={styles['filter-group']}>
+              <div className={styles['filter-title']}>Date</div>
+              <div className={styles['button-group-horizontal']}>
+                <button
+                  className={dateFilter === 'Custom' ? styles.selected : ''}
+                  onClick={() => handleDateFilterChange('Custom')}
+                >
+                  Custom
+                </button>
+                <button
+                  className={dateFilter === 'Today' ? styles.selected : ''}
+                  onClick={() => handleDateFilterChange('Today')}
+                >
+                  Today
+                </button>
+                <button
+                  className={dateFilter === '1 Week' ? styles.selected : ''}
+                  onClick={() => handleDateFilterChange('1 Week')}
+                >
+                  1 Week
+                </button>
+                <button
+                  className={dateFilter === '1 Month' ? styles.selected : ''}
+                  onClick={() => handleDateFilterChange('1 Month')}
+                >
+                  1 Month
+                </button>
+              </div>
+              {dateFilter === 'Custom' && (
+                <div className="datepicker-container w-full custom-datepicker">
+                  <DatePicker
+                    selected={filterDateRange[0]}
+                    onChange={handleDateChange}
+                    startDate={filterDateRange[0] || undefined}
+                    endDate={filterDateRange[1] || undefined}
+                    selectsRange
+                    inline
+                    dateFormat="MM/dd/yyyy"
+                    showMonthDropdown
+                    showYearDropdown
+                    dropdownMode="select"
+                    className={`${styles.fullWidth} custom-datepicker`}
+                  />
                 </div>
               )}
             </div>
-            <div className="mt-4">
+            <div className={styles['button-group-horizontal']}>
+              <button
+                className={styles['apply-button']}
+                onClick={toggleFilters}
+              >
+                Close
+              </button>
+              <button className={styles['apply-button']}>Apply</button>
+            </div>
+          </div>
+        )}
+      </div>
+      <div className="hidden md:block md:w-1/4 p-4 filter-section">
+        <div className={styles['filter-header']}>Filter Videos</div>
+        <div className={styles['filter-group']}>
+          <div className={styles['filter-title']}>Event Type</div>
+          <div className={styles['button-group-horizontal']}>
+            <button
+              className={selectedTypes.includes('Fire') ? styles.selected : ''}
+              onClick={() => handleTypeToggle('Fire')}
+            >
+              Fire
+            </button>
+            <button
+              className={
+                selectedTypes.includes('Invasion') ? styles.selected : ''
+              }
+              onClick={() => handleTypeToggle('Invasion')}
+            >
+              Invasion
+            </button>
+            <button
+              className={selectedTypes.includes('Sound') ? styles.selected : ''}
+              onClick={() => handleTypeToggle('Sound')}
+            >
+              Sound
+            </button>
+          </div>
+        </div>
+        <div className={styles['filter-group']}>
+          <div className={styles['filter-title']}>Report Status</div>
+          <div className={styles['button-group-horizontal']}>
+            <button
+              className={isReported === null ? styles.selected : ''}
+              onClick={() => setIsReported(null)}
+            >
+              All
+            </button>
+            <button
+              className={isReported ? styles.selected : ''}
+              onClick={() => setIsReported(true)}
+            >
+              Reported
+            </button>
+            <button
+              className={isReported === false ? styles.selected : ''}
+              onClick={() => setIsReported(false)}
+            >
+              Unreported
+            </button>
+          </div>
+        </div>
+        <div className={styles['filter-group']}>
+          <div className={styles['filter-title']}>Camera</div>
+          <div className={styles['button-group-horizontal']}>
+            <select
+              value={selectedCamera}
+              onChange={handleCameraChange}
+              className={styles.fullWidth}
+            >
+              {cameras.map((camera) => (
+                <option key={camera.id} value={camera.name}>
+                  {camera.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div className={styles['filter-group']}>
+          <div className={styles['filter-title']}>Date</div>
+          <div className={styles['button-group-horizontal']}>
+            <button
+              className={dateFilter === 'Custom' ? styles.selected : ''}
+              onClick={() => handleDateFilterChange('Custom')}
+            >
+              Custom
+            </button>
+            <button
+              className={dateFilter === 'Today' ? styles.selected : ''}
+              onClick={() => handleDateFilterChange('Today')}
+            >
+              Today
+            </button>
+            <button
+              className={dateFilter === '1 Week' ? styles.selected : ''}
+              onClick={() => handleDateFilterChange('1 Week')}
+            >
+              1 Week
+            </button>
+            <button
+              className={dateFilter === '1 Month' ? styles.selected : ''}
+              onClick={() => handleDateFilterChange('1 Month')}
+            >
+              1 Month
+            </button>
+          </div>
+          {dateFilter === 'Custom' && (
+            <div className="datepicker-container w-full custom-datepicker">
               <DatePicker
                 selected={filterDateRange[0]}
                 onChange={handleDateChange}
@@ -361,10 +454,17 @@ const VideoList: React.FC = () => {
                 selectsRange
                 inline
                 dateFormat="MM/dd/yyyy"
+                showMonthDropdown
+                showYearDropdown
+                dropdownMode="select"
+                className={`${styles.fullWidth} w-full`}
               />
             </div>
-          </div>
-        )}
+          )}
+        </div>
+        <button className={`${styles['apply-button']} ${styles.fullWidth}`}>
+          Apply
+        </button>
       </div>
       <div className="md:w-3/4 p-4">
         {videos.length > 0 ? (
@@ -410,7 +510,7 @@ const VideoList: React.FC = () => {
       </div>
       {showScrollButton && (
         <button
-          className="fixed bottom-4 right-4 w-12 h-12 bg-black text-white rounded-full flex items-center justify-center shadow-lg"
+          className="fixed bottom-16 right-4 w-12 h-12 bg-black text-white rounded-full flex items-center justify-center shadow-lg"
           onClick={scrollToTop}
         >
           <FaCaretUp size={24} />

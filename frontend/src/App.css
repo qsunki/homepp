@@ -36,3 +36,21 @@ div {
 .contentWrap {
   flex: 1;
 }
+
+
+.footer {
+  height: 100px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  padding: 20px;
+  position: relative;
+  z-index: 10;
+}
+
+.fixed-button {
+  position: fixed;
+  bottom: 100px; /* Adjusted to account for footer height */
+  right: 20px;
+  z-index: 20;
+}
