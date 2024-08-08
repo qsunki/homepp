@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useUserStore } from '../stores/useUserStore';
+import {
+  fetchEventList,
+  fetchThreatList,
+  updateReadStatus,
+  deleteNotification,
+} from '../api';
 import SignIn from './SignIn';
 import logo from '../assets/icon/logo.png';
 import {
@@ -10,28 +16,30 @@ import {
   FaSignOutAlt,
   FaTrashAlt,
   FaArrowRight,
+  FaCheck,
 } from 'react-icons/fa';
 
-interface Notification {
+interface NavbarNotification {
   id: number;
   message: string;
   timestamp: Date;
+  type: 'event' | 'threat';
+  videoId?: number;
+  isRead: boolean;
 }
 
 interface NavbarProps {
-  notifications: Notification[];
-  onDeleteNotification: (id: number) => void;
+  notifications: NavbarNotification[];
+  setNotifications: React.Dispatch<React.SetStateAction<NavbarNotification[]>>;
 }
 
-const Navbar: React.FC<NavbarProps> = ({
-  notifications,
-  onDeleteNotification,
-}) => {
+const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
   const [toggleMenu, setToggleMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string>('/');
   const { isLoggedIn, logout } = useUserStore();
-  const [showSignIn, setShowSignIn] = useState(false); // showSignIn 상태 추가
+  const [showSignIn, setShowSignIn] = useState(false);
+  const [activeTab, setActiveTab] = useState<'event' | 'threat'>('event');
   const navigate = useNavigate();
   const location = useLocation();
   const navRef = useRef<HTMLDivElement>(null);
@@ -60,7 +68,7 @@ const Navbar: React.FC<NavbarProps> = ({
   const handleNavigate = (url: string) => {
     if (!isLoggedIn) {
       alert('로그인이 필요합니다.');
-      setShowSignIn(true); // showSignIn 상태 업데이트
+      setShowSignIn(true);
     } else {
       navigate(url);
     }
@@ -82,6 +90,90 @@ const Navbar: React.FC<NavbarProps> = ({
     setToggleMenu((prev) => !prev);
     if (!toggleMenu) {
       setShowNotifications(false);
+    }
+  };
+
+  const fetchNotifications = async () => {
+    if (isLoggedIn) {
+      try {
+        const events = await fetchEventList();
+        const threats = await fetchThreatList('user@example.com'); // 이메일 수정 필요
+        const combinedNotifications: NavbarNotification[] = [
+          ...events.map((event) => ({
+            id: event.eventId,
+            message: `${event.camName} - ${event.eventType}`,
+            timestamp: new Date(event.occuredAt),
+            type: 'event' as const,
+            videoId: event.videoId,
+            isRead: event.isRead,
+          })),
+          ...threats.map((threat) => ({
+            id: threat.threatId,
+            message: `${threat.region} 근방에 ${threat.eventTypes.join(
+              ', '
+            )} 발생`,
+            timestamp: new Date(threat.recordStartedAt),
+            type: 'threat' as const,
+            isRead: threat.isRead,
+          })),
+        ];
+        setNotifications(combinedNotifications);
+        console.log('Fetched notifications:', combinedNotifications);
+      } catch (error) {
+        console.error('Failed to fetch notifications:', error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [isLoggedIn]);
+
+  const handleReadNotification = async (
+    id: number,
+    type: 'event' | 'threat'
+  ) => {
+    console.log('Updating read status for:', { id, type });
+    if (id === undefined || id === null) {
+      console.error('Invalid ID:', id);
+      return;
+    }
+    try {
+      await updateReadStatus(type, id);
+      setNotifications(
+        notifications.map((notification) =>
+          notification.id === id && notification.type === type
+            ? { ...notification, isRead: true }
+            : notification
+        )
+      );
+    } catch (error) {
+      console.error('Failed to update read status:', error);
+    }
+  };
+
+  const handleDeleteNotification = async (
+    id: number,
+    type: 'event' | 'threat'
+  ) => {
+    try {
+      await deleteNotification(type, id);
+      setNotifications(
+        notifications.filter(
+          (notification) =>
+            !(notification.id === id && notification.type === type)
+        )
+      );
+    } catch (error) {
+      console.error('Failed to delete notification:', error);
+    }
+  };
+
+  const handleNotificationClick = (notification: NavbarNotification) => {
+    console.log('Notification clicked:', notification);
+    if (notification.type === 'event' && notification.videoId !== undefined) {
+      handleNavigate(`/video/${notification.videoId}`);
+      handleReadNotification(notification.id, notification.type);
     }
   };
 
@@ -179,38 +271,76 @@ const Navbar: React.FC<NavbarProps> = ({
               {showNotifications && (
                 <div className="absolute right-0 mt-2 w-80 bg-white border border-gray-200 shadow-lg rounded-lg overflow-hidden z-50">
                   <div className="p-2 bg-gray-100 font-bold">Notifications</div>
+                  <div className="flex justify-around">
+                    <button
+                      className={`px-4 py-2 ${
+                        activeTab === 'event' ? 'font-bold' : 'font-normal'
+                      }`}
+                      onClick={() => setActiveTab('event')}
+                    >
+                      Detection Events
+                    </button>
+                    <button
+                      className={`px-4 py-2 ${
+                        activeTab === 'threat' ? 'font-bold' : 'font-normal'
+                      }`}
+                      onClick={() => setActiveTab('threat')}
+                    >
+                      Threats
+                    </button>
+                  </div>
                   <ul className="max-h-60 overflow-y-auto scrollbar-hide">
-                    {notifications.length === 0 ? (
-                      <li className="p-2 border-b border-gray-200 text-center text-gray-500">
-                        No Notifications
-                      </li>
-                    ) : (
-                      notifications.map((notification) => (
+                    {notifications
+                      .filter((notification) => notification.type === activeTab)
+                      .map((notification) => (
                         <li
-                          key={notification.id}
-                          className="p-2 border-b border-gray-200 flex justify-between items-center"
+                          key={`${notification.type}-${notification.id}`} // 키 값을 고유하게 설정
+                          className={`p-2 border-b border-gray-200 flex justify-between items-center ${
+                            notification.isRead ? 'bg-gray-100' : 'bg-white'
+                          }`}
                         >
                           <div>
                             <div
                               className="cursor-pointer"
-                              onClick={() => handleNavigate('/videodetail')}
+                              onClick={() =>
+                                handleNotificationClick(notification)
+                              }
                             >
                               {notification.message}
                             </div>
                             <small className="text-gray-500">
-                              {notification.timestamp.toLocaleTimeString()}
+                              {notification.timestamp.toLocaleString()}
                             </small>
                           </div>
                           <div className="flex space-x-2">
-                            <button
-                              onClick={() => handleNavigate('/videodetail')} // 이 부분 확인
-                              className="text-blue-500 hover:text-blue-700 transition-colors"
-                            >
-                              <FaArrowRight />
-                            </button>
+                            {notification.type === 'event' ? (
+                              <button
+                                onClick={() =>
+                                  handleNotificationClick(notification)
+                                }
+                                className="text-blue-500 hover:text-blue-700 transition-colors"
+                              >
+                                <FaArrowRight />
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() =>
+                                  handleReadNotification(
+                                    notification.id,
+                                    notification.type
+                                  )
+                                }
+                                className="text-green-500 hover:text-green-700 transition-colors"
+                              >
+                                <FaCheck />
+                              </button>
+                            )}
                             <button
                               onClick={() =>
-                                onDeleteNotification(notification.id)
+                                handleDeleteNotification(
+                                  notification.id,
+                                  notification.type
+                                )
                               }
                               className="text-red-500 hover:text-red-700 transition-colors"
                             >
@@ -218,7 +348,13 @@ const Navbar: React.FC<NavbarProps> = ({
                             </button>
                           </div>
                         </li>
-                      ))
+                      ))}
+                    {notifications.filter(
+                      (notification) => notification.type === activeTab
+                    ).length === 0 && (
+                      <li className="p-2 text-center text-gray-500">
+                        No notifications
+                      </li>
                     )}
                   </ul>
                 </div>
@@ -235,7 +371,7 @@ const Navbar: React.FC<NavbarProps> = ({
           </>
         ) : (
           <button
-            onClick={() => setShowSignIn(true)} // 로그인 버튼 클릭 시 showSignIn 상태 업데이트
+            onClick={() => setShowSignIn(true)}
             className="px-3 py-1 border border-gray-800 rounded text-gray-800"
           >
             Login

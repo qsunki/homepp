@@ -24,16 +24,18 @@ import './App.css';
 import 'tw-elements';
 import 'tw-elements/dist/css/tw-elements.min.css';
 
-interface Notification {
+interface AppNotification {
   id: number;
   message: string;
   timestamp: Date;
+  type: 'event' | 'threat'; // 명확하게 타입 지정
+  isRead: boolean;
 }
 
 const App: React.FC = () => {
   const { setUser, logout } = useUserStore();
   const [showSignIn, setShowSignIn] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
 
   useEffect(() => {
     const token = localStorage.getItem('token'); // 로컬 스토리지에서 토큰 가져오기
@@ -104,18 +106,14 @@ const App: React.FC = () => {
           id: new Date().getTime(), // 예시로 알림 id 생성
           message: payload.notification?.body || '',
           timestamp: new Date(),
+          type: 'event', // 기본 값으로 'event'를 넣음, 실제 payload에 따라 수정 필요
+          isRead: false, // 기본 값으로 '읽지 않음' 상태 설정
         },
       ]);
       alert(
         `Message received: ${payload.notification?.title}\n${payload.notification?.body}`
       );
     });
-  };
-
-  const handleDeleteNotification = (id: number) => {
-    setNotifications((prev) =>
-      prev.filter((notification) => notification.id !== id)
-    );
   };
 
   const handleSignInClose = () => {
@@ -132,7 +130,7 @@ const App: React.FC = () => {
       <div className="flex flex-col min-h-screen">
         <Navbar
           notifications={notifications}
-          onDeleteNotification={handleDeleteNotification}
+          setNotifications={setNotifications} // setNotifications prop 추가
         />
         <div className="flex-grow min-h-full">
           <Routes>

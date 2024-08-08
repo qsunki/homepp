@@ -86,6 +86,26 @@ export interface SharedMember {
   email: string;
 }
 
+// 감지 이벤트 데이터 타입 정의
+export interface Event {
+  eventId: number;
+  isRead: boolean;
+  camId: number;
+  camName: string;
+  eventType: string;
+  videoId: number;
+  occuredAt: string;
+}
+
+// 위협 알림 데이터 타입 정의
+export interface Threat {
+  isRead: boolean;
+  recordStartedAt: string;
+  region: string;
+  eventTypes: string[];
+  threatId: number;
+}
+
 // 로그인 API 호출 함수
 export const loginUser = async (
   loginData: LoginData
@@ -551,6 +571,86 @@ export const fetchLatestEnvInfo = async (
       );
     } else {
       console.error('최신 온도 및 습도 가져오기 오류:', error);
+    }
+    throw error;
+  }
+};
+
+// 감지 이벤트 목록 조회 API 호출 함수
+export const fetchEventList = async (): Promise<Event[]> => {
+  try {
+    const response = await api.get<Event[]>('/events');
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        '이벤트 목록 조회 오류:',
+        error.response ? error.response.data : error.message
+      );
+    } else {
+      console.error('이벤트 목록 조회 오류:', error);
+    }
+    throw error;
+  }
+};
+
+// 위협 알림 목록 조회 API 호출 함수
+export const fetchThreatList = async (email: string): Promise<Threat[]> => {
+  try {
+    const response = await api.get<Threat[]>(`/members/${email}/threats`);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        '위협 알림 목록 조회 오류:',
+        error.response ? error.response.data : error.message
+      );
+    } else {
+      console.error('위협 알림 목록 조회 오류:', error);
+    }
+    throw error;
+  }
+};
+
+// 읽음 상태 업데이트 API 호출 함수
+export const updateReadStatus = async (
+  type: 'event' | 'threat',
+  id: number
+): Promise<void> => {
+  try {
+    const endpoint =
+      type === 'event' ? `/events/${id}` : `/members/threats/${id}`;
+    await api.patch(endpoint, { isRead: true });
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        '읽음 상태 업데이트 오류:',
+        error.response ? error.response.data : error.message
+      );
+    } else {
+      console.error('읽음 상태 업데이트 오류:', error);
+    }
+    throw error;
+  }
+};
+
+// 알림 삭제 API 호출 함수
+export const deleteNotification = async (
+  type: 'event' | 'threat',
+  id: number
+): Promise<void> => {
+  try {
+    const endpoint =
+      type === 'event' ? `/events/${id}` : `/members/threats/${id}`;
+    await api.delete(endpoint);
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        '알림 삭제 오류:',
+        error.response ? error.response.data : error.message
+      );
+    } else {
+      console.error('알림 삭제 오류:', error);
     }
     throw error;
   }
