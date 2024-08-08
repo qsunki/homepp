@@ -119,6 +119,7 @@ public class CamService {
                                     uri.toURL().openStream(), StandardCharsets.UTF_8));
             return br.readLine() + "}";
         } catch (Exception e) {
+            e.printStackTrace();
             throw new JsonParsingException(e);
         }
     }
