@@ -12,7 +12,7 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({
   showDetails = false,
 }) => {
   return (
-    <div className="w-2/3 pr-4 relative">
+    <div className="w-full lg:w-2/3 lg:pr-4 relative">
       {isLive ? <LivePlayer /> : <RecordedPlayer showDetails={showDetails} />}
     </div>
   );
