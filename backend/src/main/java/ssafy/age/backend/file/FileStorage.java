@@ -99,4 +99,31 @@ public class FileStorage {
             throw new RuntimeException("비디오 썸네일 경로가 잘못되었습니다.", e);
         }
     }
+
+    public Resource loadCamThumbnailResource(Long camId) {
+        String path = getCamThumbnailPath(camId);
+        Path file = Path.of(path);
+        try {
+            Resource resource = new UrlResource(file.toUri());
+            if (resource.exists() || resource.isReadable()) {
+                return resource;
+            }
+            throw new RuntimeException("실시간 썸네일이 존재하지 않습니다.");
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("실시간 썸네일 경로가 잘못되었습니다.", e);
+        }
+    }
+
+    private String getCamThumbnailPath(Long camId) {
+        return camThumbnailDir + File.separator + camId + DOT_PNG;
+    }
+
+    public void saveCamThumbnail(Long camId, MultipartFile file) {
+        String path = getCamThumbnailPath(camId);
+        try {
+            save(path, file);
+        } catch (IOException e) {
+            throw new RuntimeException("실시간 썸네일 저장에 실패했습니다.", e);
+        }
+    }
 }

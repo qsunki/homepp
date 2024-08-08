@@ -70,13 +70,12 @@ public class CamController {
     @Operation(summary = "캠 실시간 썸네일 조회", description = "캠 id를 통해서 썸네일 조회")
     public ResponseEntity<Resource> getCamThumbnail(@PathVariable Long camId) {
         Resource thumbnail = camService.getCamThumbnail(camId);
-
         return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(thumbnail);
     }
 
     @PostMapping("/{camId}/thumbnail")
     public void thumbnailOnServer(@PathVariable Long camId, @RequestPart MultipartFile file) {
-        camService.thumbnailOnServer(camId, file);
+        camService.saveCamThumbnail(camId, file);
     }
 
     @PostMapping("/{camId}/control")

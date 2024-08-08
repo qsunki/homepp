@@ -69,12 +69,7 @@ public class VideoController {
     @GetMapping("/videos/{videoId}/thumbnail")
     public ResponseEntity<Resource> getVideoThumbnail(@PathVariable Long videoId) {
         Resource resource = videoService.getVideoThumbnailResource(videoId);
-        return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_PNG)
-                .header(
-                        HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + resource.getFilename() + "\"")
-                .body(resource);
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(resource);
     }
 
     @PostMapping("/{camId}/videos/record")
