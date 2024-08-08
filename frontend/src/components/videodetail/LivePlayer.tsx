@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import SockJS from 'sockjs-client';
 import { Client, IMessage } from '@stomp/stompjs';
 import Loader from './Loader';
-import { fetchCams, CamData } from '../../api';
+import { fetchCams, CamData, fetchWebSocketKey } from '../../api';
 
 interface Signal {
   type: 'answer' | 'candidate' | 'offer';
@@ -21,6 +21,7 @@ const LivePlayer: React.FC = () => {
   const [selectedCamId, setSelectedCamId] = useState<string>('1');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const clientRef = useRef<Client | null>(null);
+  const [webSocketKey, setWebSocketKey] = useState<string>('');
 
   useEffect(() => {
     const getCams = async () => {
@@ -43,13 +44,27 @@ const LivePlayer: React.FC = () => {
   useEffect(() => {
     if (!selectedCamId) return;
 
-    setIsLoading(false);
+    const getWebSocketKey = async () => {
+      setIsLoading(true);
+      try {
+        const key = await fetchWebSocketKey(selectedCamId);
+        console.log('Fetched WebSocket key:', key);
+        setWebSocketKey(key);
+      } catch (error) {
+        console.error('Failed to fetch WebSocket key:', error);
+      }
+    };
+
+    getWebSocketKey();
   }, [selectedCamId]);
 
   useEffect(() => {
-    if (isLoading) return;
+    if (!webSocketKey) return;
 
-    console.log('Initializing WebSocket and STOMP client with key:', '124');
+    console.log(
+      'Initializing WebSocket and STOMP client with key:',
+      webSocketKey
+    );
 
     const socketUrl = `https://i11a605.p.ssafy.io/ws`;
     const socket = new SockJS(socketUrl);
@@ -61,7 +76,7 @@ const LivePlayer: React.FC = () => {
       },
       onConnect: (frame) => {
         console.log('STOMP client connected, frame:', frame);
-        client.subscribe(`/sub/client/124`, (message: IMessage) => {
+        client.subscribe(`/sub/client/${webSocketKey}`, (message: IMessage) => {
           console.log('Received message:', message);
           const signal: Signal = JSON.parse(message.body);
           console.log('Received signal:', signal);
@@ -89,7 +104,7 @@ const LivePlayer: React.FC = () => {
         peerConnectionRef.current.close();
       }
     };
-  }, [isLoading]);
+  }, [webSocketKey]);
 
   const handleSignal = (signal: Signal) => {
     console.log('Handling signal:', signal);
@@ -109,7 +124,6 @@ const LivePlayer: React.FC = () => {
       ],
     };
 
-    // Create a new RTCPeerConnection if it doesn't exist
     let peerConnection = peerConnectionRef.current;
     if (!peerConnection) {
       peerConnection = new RTCPeerConnection(iceConfiguration);
@@ -120,7 +134,7 @@ const LivePlayer: React.FC = () => {
         if (event.candidate && clientRef.current?.connected) {
           console.log('Publishing ICE candidate:', event.candidate);
           clientRef.current.publish({
-            destination: `/pub/client/124`,
+            destination: `/pub/client/${webSocketKey}`,
             body: JSON.stringify({
               type: 'candidate',
               data: event.candidate,
@@ -135,6 +149,7 @@ const LivePlayer: React.FC = () => {
         if (remoteVideoRef.current) {
           remoteVideoRef.current.srcObject = remoteStream;
           console.log('Remote stream set to video element');
+          setIsLoading(false);
         }
       };
     }
@@ -165,7 +180,7 @@ const LivePlayer: React.FC = () => {
             .then((answer) => {
               if (clientRef.current?.connected && answer) {
                 clientRef.current.publish({
-                  destination: `/pub/client/124`,
+                  destination: `/pub/client/${webSocketKey}`,
                   body: JSON.stringify({ type: 'answer', data: answer }),
                 });
                 console.log('Published answer:', answer);
@@ -242,7 +257,7 @@ const LivePlayer: React.FC = () => {
       if (event.candidate && clientRef.current?.connected) {
         console.log('Publishing ICE candidate:', event.candidate);
         clientRef.current.publish({
-          destination: `/pub/client/124`,
+          destination: `/pub/client/${webSocketKey}`,
           body: JSON.stringify({
             type: 'candidate',
             data: event.candidate,
@@ -257,6 +272,7 @@ const LivePlayer: React.FC = () => {
       if (remoteVideoRef.current) {
         remoteVideoRef.current.srcObject = remoteStream;
         console.log('Remote stream set to video element');
+        setIsLoading(false);
       }
     };
 
@@ -272,7 +288,7 @@ const LivePlayer: React.FC = () => {
         console.log('Publishing offer:', offer);
         if (clientRef.current?.connected) {
           clientRef.current.publish({
-            destination: `/pub/client/124`,
+            destination: `/pub/client/${webSocketKey}`,
             body: JSON.stringify({ type: 'offer', data: offer }),
           });
         }
