@@ -49,9 +49,9 @@ const LivePlayer: React.FC = () => {
   useEffect(() => {
     if (isLoading) return;
 
-    console.log('Initializing WebSocket and STOMP client with key:', '123');
+    console.log('Initializing WebSocket and STOMP client with key:', '124');
 
-    const socketUrl = `http://i11a605.p.ssafy.io:8081/ws`;
+    const socketUrl = `https://i11a605.p.ssafy.io/ws`;
     const socket = new SockJS(socketUrl);
 
     const client = new Client({
@@ -61,7 +61,7 @@ const LivePlayer: React.FC = () => {
       },
       onConnect: (frame) => {
         console.log('STOMP client connected, frame:', frame);
-        client.subscribe(`/sub/client/123`, (message: IMessage) => {
+        client.subscribe(`/sub/client/124`, (message: IMessage) => {
           console.log('Received message:', message);
           const signal: Signal = JSON.parse(message.body);
           console.log('Received signal:', signal);
@@ -93,67 +93,120 @@ const LivePlayer: React.FC = () => {
 
   const handleSignal = (signal: Signal) => {
     console.log('Handling signal:', signal);
-    const peerConnection = peerConnectionRef.current;
 
+    const iceConfiguration = {
+      iceServers: [
+        {
+          urls: 'stun:i11a605.p.ssafy.io',
+          username: 'username',
+          credential: 'password',
+        },
+        {
+          urls: 'turn:i11a605.p.ssafy.io',
+          username: 'username',
+          credential: 'password',
+        },
+      ],
+    };
+
+    // Create a new RTCPeerConnection if it doesn't exist
+    let peerConnection = peerConnectionRef.current;
     if (!peerConnection) {
-      console.error('No RTCPeerConnection available to handle signal');
-      return;
+      peerConnection = new RTCPeerConnection(iceConfiguration);
+      peerConnectionRef.current = peerConnection;
+
+      peerConnection.onicecandidate = (event) => {
+        console.log('icecandidate event occurred', event);
+        if (event.candidate && clientRef.current?.connected) {
+          console.log('Publishing ICE candidate:', event.candidate);
+          clientRef.current.publish({
+            destination: `/pub/client/124`,
+            body: JSON.stringify({
+              type: 'candidate',
+              data: event.candidate,
+            }),
+          });
+        }
+      };
+
+      peerConnection.ontrack = (event) => {
+        console.log('Track event occurred:', event);
+        const [remoteStream] = event.streams;
+        if (remoteVideoRef.current) {
+          remoteVideoRef.current.srcObject = remoteStream;
+          console.log('Remote stream set to video element');
+        }
+      };
     }
 
     switch (signal.type) {
       case 'offer':
         console.log('Handling offer signal:', signal.data);
-        peerConnection
-          .setRemoteDescription(
-            new RTCSessionDescription(signal.data as RTCSessionDescriptionInit)
-          )
-          .then(() => {
-            console.log('Remote description set successfully.');
-            return peerConnection.createAnswer();
-          })
-          .then((answer) => {
-            return peerConnection
-              .setLocalDescription(answer)
-              .then(() => answer);
-          })
-          .then((answer) => {
-            if (clientRef.current?.connected) {
-              clientRef.current.publish({
-                destination: `/pub/client/123`,
-                body: JSON.stringify({ type: 'answer', data: answer }),
-              });
-              console.log('Published answer:', answer);
-            }
-          })
-          .catch((error) => {
-            console.error('Failed to handle offer:', error);
-          });
+        if (peerConnection) {
+          peerConnection
+            .setRemoteDescription(
+              new RTCSessionDescription(
+                signal.data as RTCSessionDescriptionInit
+              )
+            )
+            .then(() => {
+              console.log('Remote description set successfully.');
+              if (peerConnection) {
+                return peerConnection.createAnswer();
+              }
+            })
+            .then((answer) => {
+              if (peerConnection && answer) {
+                return peerConnection
+                  .setLocalDescription(answer)
+                  .then(() => answer);
+              }
+            })
+            .then((answer) => {
+              if (clientRef.current?.connected && answer) {
+                clientRef.current.publish({
+                  destination: `/pub/client/124`,
+                  body: JSON.stringify({ type: 'answer', data: answer }),
+                });
+                console.log('Published answer:', answer);
+              }
+            })
+            .catch((error) => {
+              console.error('Failed to handle offer:', error);
+            });
+        }
         break;
       case 'answer':
         console.log('Handling answer signal:', signal.data);
-        peerConnection
-          .setRemoteDescription(
-            new RTCSessionDescription(signal.data as RTCSessionDescriptionInit)
-          )
-          .then(() => {
-            console.log('Remote description set successfully.');
-          })
-          .catch((error) => {
-            console.error('Failed to set remote description:', error);
-          });
+        if (peerConnection) {
+          peerConnection
+            .setRemoteDescription(
+              new RTCSessionDescription(
+                signal.data as RTCSessionDescriptionInit
+              )
+            )
+            .then(() => {
+              console.log('Remote description set successfully.');
+            })
+            .catch((error) => {
+              console.error('Failed to set remote description:', error);
+            });
+        }
         break;
       case 'candidate':
         console.log('Handling candidate signal:', signal.data);
-        peerConnection
-          .addIceCandidate(
-            new RTCIceCandidate(signal.data as RTCIceCandidateInit)
-          )
-          .then(() => {
-            console.log('ICE candidate added successfully.');
-          })
-          .catch((error) => {
-            console.error('Failed to add ICE candidate:', error);
-          });
+        if (peerConnection) {
+          peerConnection
+            .addIceCandidate(
+              new RTCIceCandidate(signal.data as RTCIceCandidateInit)
+            )
+            .then(() => {
+              console.log('ICE candidate added successfully.');
+            })
+            .catch((error) => {
+              console.error('Failed to add ICE candidate:', error);
+            });
+        }
         break;
       default:
         console.warn('Unknown signal type:', signal.type);
@@ -167,7 +220,20 @@ const LivePlayer: React.FC = () => {
       return;
     }
 
-    const pc = new RTCPeerConnection();
+    const pc = new RTCPeerConnection({
+      iceServers: [
+        {
+          urls: 'stun:i11a605.p.ssafy.io',
+          username: 'username',
+          credential: 'password',
+        },
+        {
+          urls: 'turn:i11a605.p.ssafy.io',
+          username: 'username',
+          credential: 'password',
+        },
+      ],
+    });
     peerConnectionRef.current = pc;
     console.log('RTCPeerConnection created:', pc);
 
@@ -176,7 +242,7 @@ const LivePlayer: React.FC = () => {
       if (event.candidate && clientRef.current?.connected) {
         console.log('Publishing ICE candidate:', event.candidate);
         clientRef.current.publish({
-          destination: `/pub/client/123`,
+          destination: `/pub/client/124`,
           body: JSON.stringify({
             type: 'candidate',
             data: event.candidate,
@@ -206,7 +272,7 @@ const LivePlayer: React.FC = () => {
         console.log('Publishing offer:', offer);
         if (clientRef.current?.connected) {
           clientRef.current.publish({
-            destination: `/pub/client/123`,
+            destination: `/pub/client/124`,
             body: JSON.stringify({ type: 'offer', data: offer }),
           });
         }

@@ -103,7 +103,7 @@ const HomePage: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col mt-24 p-4 bg-white">
+    <div className="flex flex-col mt-12 p-4 bg-white">
       <main className="flex flex-col lg:flex-row justify-between w-full max-w-7xl mx-auto gap-6">
         <div className="flex-1 relative mb-4 lg:mb-0">
           <div className="w-full h-[300px] lg:h-[400px] relative">
