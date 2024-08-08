@@ -7,10 +7,12 @@ import thiefIcon from '../../assets/filter/thief.png';
 
 interface RecordedPlayerProps {
   showDetails?: boolean;
+  videoSrc: string | null; // 추가
 }
 
 const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
   showDetails = false,
+  videoSrc, // 추가
 }) => {
   const { selectedVideoId, videos, isPlaying, volume, reportVideo } =
     useVideoStore();
@@ -88,7 +90,7 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
         </div>
       )}
       <ReactPlayer
-        url={selectedVideo.url || 'https://www.youtube.com/watch?v=uTuuz__8gUM'}
+        url={videoSrc || 'https://www.youtube.com/watch?v=uTuuz__8gUM'}
         playing={isPlaying}
         controls={true}
         volume={volume / 100}
