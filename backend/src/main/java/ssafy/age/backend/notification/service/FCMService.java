@@ -76,6 +76,20 @@ public class FCMService {
         Member member =
                 memberRepository.findByCamId(camId).orElseThrow(MemberNotFoundException::new);
         List<FCMToken> fcmTokens = fcmTokenRepository.findByMemberEmail(member.getEmail());
+        for (FCMToken fcmToken : fcmTokens) {
+            Message message =
+                    Message.builder()
+                            .setToken(fcmToken.getToken())
+                            .putData("messageType", "onOff")
+                            .putData("status", status)
+                            .build();
+            try {
+                String response = FirebaseMessaging.getInstance().send(message);
+                log.debug(response);
+            } catch (FirebaseMessagingException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public void sendSharedMessage(String email, String sharedMemberEmail) {
