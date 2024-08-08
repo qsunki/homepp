@@ -42,7 +42,6 @@ public class FCMService {
 
     @Transactional
     public FCMTokenDto save(String token) {
-        log.debug("FCM token: {}", token);
         String memberEmail = authService.getMemberEmail();
         Member member =
                 memberRepository.findByEmail(memberEmail).orElseThrow(MemberNotFoundException::new);
@@ -53,16 +52,11 @@ public class FCMService {
         return new FCMTokenDto(saved.getToken());
     }
 
-    public void sendSuccessMessage() {
+    public void sendRegisterMessage() {
         String email = authService.getMemberEmail();
         List<FCMToken> fcmTokens = fcmTokenRepository.findByMemberEmail(email);
-        log.debug("fcmTokens length: {}", fcmTokens.size());
-        for (FCMToken fcmToken : fcmTokens) {
-            log.debug("FCM token element : {}", fcmToken.getToken());
-        }
 
         for (FCMToken fcmToken : fcmTokens) {
-            log.debug("FCM Token in for loop : {}", fcmToken.getToken());
             Message message =
                     Message.builder()
                             .setToken(fcmToken.getToken())
@@ -83,6 +77,8 @@ public class FCMService {
                 memberRepository.findByCamId(camId).orElseThrow(MemberNotFoundException::new);
         List<FCMToken> fcmTokens = fcmTokenRepository.findByMemberEmail(member.getEmail());
 
+    public void sendSharedMessage(String email, String sharedMemberEmail) {
+        List<FCMToken> fcmTokens = fcmTokenRepository.findByMemberEmail(sharedMemberEmail);
         for (FCMToken fcmToken : fcmTokens) {
             Message message =
                     Message.builder()
@@ -92,7 +88,7 @@ public class FCMService {
                             .build();
             try {
                 String response = FirebaseMessaging.getInstance().send(message);
-                log.error(response);
+                log.debug(response);
             } catch (FirebaseMessagingException e) {
                 throw new RuntimeException(e);
             }

@@ -6,7 +6,7 @@ import jakarta.transaction.Transactional;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
-import java.net.URL;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,6 +21,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import ssafy.age.backend.auth.service.AuthService;
 import ssafy.age.backend.cam.exception.CamNotFoundException;
 import ssafy.age.backend.cam.exception.JsonParsingException;
 import ssafy.age.backend.cam.persistence.Cam;
@@ -43,6 +44,7 @@ public class CamService {
     private final MemberRepository memberRepository;
     private final MqttService mqttService;
     private final FCMService fcmService;
+    private final AuthService authService;
 
     @Value("${openAPI.secret}")
     private String key;
@@ -50,9 +52,16 @@ public class CamService {
     @Value("${file.dir}")
     private String fileDir;
 
-    public List<CamResponseDto> getAllCams() {
-        List<Cam> camList = camRepository.findAll();
-        return camList.stream().map(camMapper::toCamResponseDto).toList();
+    public List<CamResponseDto> getCams() {
+        String email = authService.getMemberEmail();
+        List<Cam> cams = camRepository.findCamsByMemberEmail(email);
+        return cams.stream().map(camMapper::toCamResponseDto).toList();
+    }
+
+    public List<CamResponseDto> getCamsBySharedEmail() {
+        String sharedEmail = authService.getMemberEmail();
+        List<Cam> cams = camRepository.findCamsBySharedMemberEmail(sharedEmail);
+        return cams.stream().map(camMapper::toCamResponseDto).toList();
     }
 
     public CamResponseDto updateCamName(Long camId, String name) {
@@ -103,20 +112,23 @@ public class CamService {
     }
 
     private String getJsonData(String ip) {
+        log.debug("key: {}", key);
         try {
-            URL url =
-                    new URL(
+            URI uri =
+                    new URI(
                             "https://apis.data.go.kr/B551505/whois/ip_address?serviceKey="
                                     + key
                                     + "&query="
                                     + ip
                                     + "&answer=json");
+            log.debug("uri: {}", uri);
             BufferedReader br =
                     new BufferedReader(
-                            new InputStreamReader(url.openStream(), StandardCharsets.UTF_8));
+                            new InputStreamReader(
+                                    uri.toURL().openStream(), StandardCharsets.UTF_8));
             return br.readLine() + "}";
         } catch (Exception e) {
-            throw new JsonParsingException();
+            throw new JsonParsingException(e);
         }
     }
 
@@ -124,10 +136,10 @@ public class CamService {
     public CamResponseDto createCam(String email, String ip) {
         Member member =
                 memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
-        //        String region = getRegion(ip);
-        Cam cam = camRepository.save(Cam.builder().ip(ip).member(member).build());
+        String region = getRegion(ip);
+        Cam cam = camRepository.save(Cam.builder().ip(ip).region(region).member(member).build());
         member.getCamList().add(cam);
-        fcmService.sendSuccessMessage();
+        fcmService.sendRegisterMessage();
         return camMapper.toCamResponseDto(cam);
     }
 
