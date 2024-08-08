@@ -580,6 +580,7 @@ export const fetchLatestEnvInfo = async (
 export const fetchEventList = async (): Promise<Event[]> => {
   try {
     const response = await api.get<Event[]>('/events');
+    console.log('Fetched events:', response.data); // 로그 추가
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -598,6 +599,7 @@ export const fetchEventList = async (): Promise<Event[]> => {
 export const fetchThreatList = async (email: string): Promise<Threat[]> => {
   try {
     const response = await api.get<Threat[]>(`/members/${email}/threats`);
+    console.log('Fetched threats:', response.data); // 로그 추가
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -621,6 +623,7 @@ export const updateReadStatus = async (
     const endpoint =
       type === 'event' ? `/events/${id}` : `/members/threats/${id}`;
     await api.patch(endpoint, { isRead: true });
+    console.log(`Updated read status for ${type} with ID ${id}`); // 로그 추가
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error(
