@@ -97,15 +97,15 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
     if (isLoggedIn) {
       try {
         const events = await fetchEventList();
-        console.log('Fetched events:', events); // 로그 추가
+        console.log('Fetched events:', events);
         const threats = await fetchThreatList('user@example.com'); // 이메일 수정 필요
-        console.log('Fetched threats:', threats); // 로그 추가
+        console.log('Fetched threats:', threats);
 
         const combinedNotifications: NavbarNotification[] = [
           ...events.map((event) => {
-            console.log('Event data:', event); // 로그 추가
+            console.log('Event data:', event);
             return {
-              id: event.eventId,
+              id: event.eventId, // eventId를 사용
               message: `${event.camName} - ${event.eventType}`,
               timestamp: new Date(event.occuredAt),
               type: 'event' as const,
@@ -114,9 +114,9 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
             };
           }),
           ...threats.map((threat) => {
-            console.log('Threat data:', threat); // 로그 추가
+            console.log('Threat data:', threat);
             return {
-              id: threat.threatId,
+              id: threat.threatId, // threatId를 사용
               message: `${threat.region} 근방에 ${threat.eventTypes.join(
                 ', '
               )} 발생`,
@@ -127,7 +127,7 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
           }),
         ];
         setNotifications(combinedNotifications);
-        console.log('Combined notifications:', combinedNotifications); // 로그 추가
+        console.log('Combined notifications:', combinedNotifications);
       } catch (error) {
         console.error('Failed to fetch notifications:', error);
       }

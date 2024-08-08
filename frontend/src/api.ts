@@ -623,7 +623,7 @@ export const updateReadStatus = async (
     const endpoint =
       type === 'event' ? `/events/${id}` : `/members/threats/${id}`;
     await api.patch(endpoint, { isRead: true });
-    console.log(`Updated read status for ${type} with ID ${id}`); // 로그 추가
+    console.log(`Updated read status for ${type} with ID ${id}`);
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error(
