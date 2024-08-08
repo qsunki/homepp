@@ -1,5 +1,6 @@
 package ssafy.age.backend.video.web;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -83,7 +84,9 @@ public class VideoController {
     public void saveVideoOnServer(
             @PathVariable Long camId,
             @RequestPart MultipartFile file,
-            @RequestPart VideoTimeInfo timeInfo) {
+            @RequestPart VideoTimeInfo timeInfo,
+            HttpServletRequest request) {
+        log.debug("what content-type: {}", request.getHeader("Content-Type"));
         videoService.saveVideo(camId, file, timeInfo.getStartTime(), timeInfo.getEndTime());
     }
 
