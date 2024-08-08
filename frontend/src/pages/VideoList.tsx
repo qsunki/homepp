@@ -182,7 +182,7 @@ const VideoList: React.FC = () => {
         const apiVideos = await Promise.all(
           response.data.map(async (video: ApiVideo) => {
             const thumbnail = await fetchThumbnail(video.videoId);
-            console.log('Fetched thumbnail URL:', thumbnail); // Log thumbnail URL to console
+            console.log('Fetched thumbnail Blob URL:', thumbnail); // Log thumbnail URL to console
             return {
               id: video.videoId,
               title: `${video.camName}`,

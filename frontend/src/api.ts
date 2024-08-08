@@ -317,19 +317,23 @@ export const fetchVideos = async (params?: {
   }
 };
 
-// 썸네일 URL 가져오기 함수
+// 썸네일 가져오기 함수
 export const fetchThumbnail = async (videoId: number): Promise<string> => {
   try {
-    const response = await api.get<string>(`/cams/videos/${videoId}/thumbnail`);
-    return response.data;
+    const response = await api.get(`/cams/videos/${videoId}/thumbnail`, {
+      responseType: 'blob',
+    });
+    const imageUrl = URL.createObjectURL(response.data);
+    console.log('Fetched thumbnail Blob URL:', imageUrl); // Blob URL 콘솔 출력
+    return imageUrl;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error(
-        '썸네일 URL 가져오기 오류:',
+        '썸네일 가져오기 오류:',
         error.response ? error.response.data : error.message
       );
     } else {
-      console.error('썸네일 URL 가져오기 오류:', error);
+      console.error('썸네일 가져오기 오류:', error);
     }
     throw error;
   }
