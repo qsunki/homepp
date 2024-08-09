@@ -120,6 +120,7 @@ public class FCMService {
 
     public void sendEventMessage(Event event) {
         Member member = event.getCam().getMember();
+        log.debug("sendEventMessage email : {}", member.getEmail());
         List<FCMToken> fcmTokens = fcmTokenRepository.findByMemberEmail(member.getEmail());
 
         for (FCMToken fcmToken : fcmTokens) {
@@ -201,7 +202,13 @@ public class FCMService {
     public Message buildThreatMessage(String targetToken, Video video) {
         StringBuilder types = new StringBuilder();
         for (Event event : video.getEvents()) {
-            types.append(event.getType());
+            if (event.getType() == EventType.INVASION) {
+                types.append("침입");
+            } else if (event.getType() == EventType.FIRE) {
+                types.append("화재");
+            } else if (event.getType() == EventType.SOUND) {
+                types.append("소음");
+            }
             if (!event.equals(video.getEvents().getLast())) {
                 types.append('/');
             }
