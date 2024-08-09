@@ -18,6 +18,7 @@ import {
   FaArrowRight,
   FaCheck,
 } from 'react-icons/fa';
+import CameraToggle from './CameraToggle'; // CameraToggle 임포트
 
 interface NavbarNotification {
   id: number;
@@ -32,33 +33,6 @@ interface NavbarProps {
   notifications: NavbarNotification[];
   setNotifications: React.Dispatch<React.SetStateAction<NavbarNotification[]>>;
 }
-
-const CameraToggle: React.FC = () => {
-  const [isCameraOn, setIsCameraOn] = useState(false);
-
-  const handleToggle = () => {
-    setIsCameraOn((prev) => !prev);
-    // 여기에서 카메라 ON/OFF 기능을 구현할 수 있습니다.
-  };
-
-  return (
-    <div className="switch-holder">
-      <div className="switch-label">
-        <i className="fa fa-camera"></i>
-        <span>Camera</span>
-      </div>
-      <div className="switch-toggle">
-        <input
-          type="checkbox"
-          id="cameraToggle"
-          checked={isCameraOn}
-          onChange={handleToggle}
-        />
-        <label htmlFor="cameraToggle"></label>
-      </div>
-    </div>
-  );
-};
 
 const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
   const [toggleMenu, setToggleMenu] = useState(false);
@@ -282,7 +256,6 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
       <div className="flex items-center space-x-4">
         {isLoggedIn ? (
           <>
-            {/* Camera Toggle Button 추가 */}
             <CameraToggle />
             <div className="relative">
               <FaBell

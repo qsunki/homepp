@@ -1,66 +1,38 @@
-.switch-holder {
+/* To hide the checkbox */
+#cameraToggleInput {
+  display: none;
+}
+
+.cameraToggleSwitch {
   display: flex;
-  padding: 10px 20px;
-  border-radius: 10px;
-  box-shadow: -8px -8px 15px rgba(255, 255, 255, 0.7),
-    10px 10px 10px rgba(0, 0, 0, 0.2),
-    inset 8px 8px 15px rgba(255, 255, 255, 0.7),
-    inset 10px 10px 10px rgba(0, 0, 0, 0.2);
-  justify-content: space-between;
   align-items: center;
-}
-
-.switch-label {
-  padding: 0 20px 0 10px;
-}
-
-.switch-label i {
-  margin-right: 5px;
-}
-
-.switch-toggle {
-  height: 40px;
-}
-
-.switch-toggle input[type='checkbox'] {
-  position: absolute;
-  opacity: 0;
-  z-index: -2;
-}
-
-.switch-toggle input[type='checkbox'] + label {
+  justify-content: center;
   position: relative;
-  display: inline-block;
-  width: 100px;
-  height: 40px;
+  width: 50px;
+  height: 30px;
+  background-color: rgb(112, 112, 112);
   border-radius: 20px;
-  margin: 0;
   cursor: pointer;
-  box-shadow: inset -8px -8px 15px rgba(255, 255, 255, 0.6),
-    inset 10px 10px 10px rgba(0, 0, 0, 0.25);
+  transition-duration: 0.2s;
 }
 
-.switch-toggle input[type='checkbox'] + label::before {
+.slider {
+  height: 20px;
   position: absolute;
-  content: 'OFF';
-  font-size: 13px;
-  text-align: center;
-  line-height: 25px;
-  top: 8px;
-  left: 8px;
-  width: 45px;
-  height: 25px;
-  border-radius: 20px;
-  background-color: #eeeeee;
-  box-shadow: -3px -3px 5px rgba(255, 255, 255, 0.5),
-    3px 3px 5px rgba(0, 0, 0, 0.25);
-  transition: 0.3s ease-in-out;
+  left: 5px;
+  border-radius: 50%;
+  transition-duration: 0.2s;
+  border: 3px solid rgb(71, 71, 71);
+  background-color: rgb(71, 71, 71);
+  fill: rgb(255, 129, 129);
 }
 
-.switch-toggle input[type='checkbox']:checked + label::before {
-  left: 50%;
-  content: 'ON';
-  color: #fff;
-  background-color: #00b33c;
-  box-shadow: -3px -3px 5px rgba(255, 255, 255, 0.5), 3px 3px 5px #00b33c;
+#cameraToggleInput:checked + .cameraToggleSwitch .slider {
+  transform: translateX(100%);
+  transition-duration: 0.2s;
+  fill: rgb(94, 255, 1);
+}
+
+#cameraToggleInput:checked + .cameraToggleSwitch {
+  transition-duration: 0.2s;
 }
