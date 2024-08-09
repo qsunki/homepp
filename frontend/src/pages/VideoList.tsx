@@ -231,12 +231,15 @@ const VideoList: React.FC = () => {
     setShowFilters(false);
   };
 
-  const groupedVideos = videos.reduce((acc, video) => {
-    const dateKey = video.date.toDateString();
-    if (!acc[dateKey]) acc[dateKey] = [];
-    acc[dateKey].push(video);
-    return acc;
-  }, {} as Record<string, Video[]>);
+  const groupedVideos = videos.reduce(
+    (acc, video) => {
+      const dateKey = video.date.toDateString();
+      if (!acc[dateKey]) acc[dateKey] = [];
+      acc[dateKey].push(video);
+      return acc;
+    },
+    {} as Record<string, Video[]>
+  );
 
   return (
     <div className="flex flex-col md:flex-row">

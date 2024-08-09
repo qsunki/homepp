@@ -556,9 +556,8 @@ export const fetchLiveThumbnail = async (camId: number): Promise<string> => {
 // 오늘 발생한 총 감지 이벤트 수 API 호출 함수
 export const fetchEventCount = async (): Promise<number> => {
   try {
-    const response: AxiosResponse<number> = await api.get<number>(
-      '/events/count'
-    );
+    const response: AxiosResponse<number> =
+      await api.get<number>('/events/count');
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
