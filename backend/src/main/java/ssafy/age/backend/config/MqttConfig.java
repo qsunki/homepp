@@ -29,6 +29,8 @@ public class MqttConfig {
     public MqttPahoClientFactory mqttClientFactory() {
         DefaultMqttPahoClientFactory factory = new DefaultMqttPahoClientFactory();
         MqttConnectOptions options = new MqttConnectOptions();
+        options.setCleanSession(true);
+        options.setAutomaticReconnect(true);
         options.setServerURIs(new String[] {brokerUrl});
         factory.setConnectionOptions(options);
         return factory;
