@@ -10,15 +10,14 @@ spring:
       max-request-size: 5GB
   sql:
     init:
-      mode: always
+      mode: never
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
-    defer-datasource-initialization: true
 
   data:
     redis:

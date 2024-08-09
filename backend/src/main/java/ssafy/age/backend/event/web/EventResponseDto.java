@@ -6,6 +6,7 @@ import ssafy.age.backend.event.persistence.EventType;
 
 @Data
 public class EventResponseDto {
+    private Long eventId;
     private LocalDateTime occurredAt;
     private EventType type;
     private Long camId;
