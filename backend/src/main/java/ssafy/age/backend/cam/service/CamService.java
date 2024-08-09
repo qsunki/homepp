@@ -137,7 +137,7 @@ public class CamService {
                 memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
         String region = getRegion(ip);
         Cam cam = camRepository.save(Cam.builder().ip(ip).region(region).member(member).build());
-        member.getCamList().add(cam);
+        cam.updateCamName("Cam" + cam.getId());
         fcmService.sendRegisterMessage();
         return camMapper.toCamResponseDto(cam);
     }
