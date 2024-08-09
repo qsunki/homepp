@@ -64,7 +64,7 @@ public class CamController {
 
     @GetMapping("/{camId}/stream")
     public StreamResponseDto streamCam(@PathVariable Long camId, @RequestParam Command command) {
-        return camService.streamStart(camId, command);
+        return camService.streamControl(camId, command);
     }
 
     @GetMapping("/{camId}/thumbnail")
