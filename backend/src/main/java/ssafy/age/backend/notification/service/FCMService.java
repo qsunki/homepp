@@ -47,6 +47,13 @@ public class FCMService {
         String memberEmail = authService.getMemberEmail();
         Member member =
                 memberRepository.findByEmail(memberEmail).orElseThrow(MemberNotFoundException::new);
+
+        Boolean exist = fcmTokenRepository.existsByTokenAndMember(token, member);
+
+        if (exist) {
+            return new FCMTokenDto(token);
+        }
+
         FCMToken fcmToken = new FCMToken(token, member);
         FCMToken saved = fcmTokenRepository.save(fcmToken);
         member.getFcmTokenList().add(saved);
