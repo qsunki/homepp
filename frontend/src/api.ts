@@ -576,21 +576,26 @@ export const fetchEventCount = async (): Promise<number> => {
 // 최신 온도 및 습도 API 호출 함수
 export const fetchLatestEnvInfo = async (
   camId: number
-): Promise<{ temperature: number; humidity: number }> => {
+): Promise<{ temperature: number; humidity: number; status: string }> => {
   try {
-    const response: AxiosResponse<{ temperature: number; humidity: number }> =
-      await api.get<{ temperature: number; humidity: number }>(
-        `/cams/${camId}/envInfo`
-      );
+    const response: AxiosResponse<{
+      temperature: number;
+      humidity: number;
+      status: string;
+    }> = await api.get<{
+      temperature: number;
+      humidity: number;
+      status: string;
+    }>(`/cams/${camId}/envInfo`);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error(
-        '최신 온도 및 습도 가져오기 오류:',
+        '최신 환경정보 가져오기 오류:',
         error.response ? error.response.data : error.message
       );
     } else {
-      console.error('최신 온도 및 습도 가져오기 오류:', error);
+      console.error('최신 환경정보 가져오기 오류:', error);
     }
     throw error;
   }
@@ -679,40 +684,39 @@ export const deleteNotification = async (
   }
 };
 
-// 감시모드 시작/종료 API 호출 함수
-export const toggleSurveillanceMode = async (
+// 캠 실시간 스트리밍 제어 API 호출 함수
+export const controlCameraStream = async (
   camId: number,
-  action: 'start' | 'stop'
+  command: 'START' | 'END'
 ): Promise<void> => {
   try {
-    await api.post(`/cams/${camId}/control`, { action });
-    console.log(`Surveillance mode ${action}ed for camera ${camId}`);
+    await api.get(`/cams/${camId}/stream`, {
+      params: { command },
+    });
+    console.log(
+      `Camera stream ${command} command sent successfully for camId ${camId}`
+    );
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error(
-        `Surveillance mode ${action} 오류:`,
-        error.response ? error.response.data : error.message
-      );
-    } else {
-      console.error(`Surveillance mode ${action} 오류:`, error);
-    }
+    console.error(
+      `Failed to send ${command} command for camId ${camId}:`,
+      error
+    );
     throw error;
   }
 };
 
-// 모든 카메라의 감시 모드를 동시에 제어하는 함수
-export const toggleAllCameras = async (
+// 모든 카메라의 실시간 스트리밍 모드를 동시에 제어하는 함수
+export const controlAllCamerasStream = async (
   camIds: number[],
-  action: 'start' | 'stop'
+  command: 'START' | 'END'
 ): Promise<void> => {
   try {
-    const promises = camIds.map((camId) =>
-      toggleSurveillanceMode(camId, action)
-    );
+    const promises = camIds.map((camId) => controlCameraStream(camId, command));
     await Promise.all(promises); // 모든 요청이 완료될 때까지 기다림
-    console.log(`All cameras ${action}ed successfully`);
+    console.log(`All cameras stream ${command} command sent successfully`);
   } catch (error) {
-    console.error(`Failed to ${action} all cameras:`, error);
+    console.error(`Failed to send ${command} command to all cameras:`, error);
+    throw error;
   }
 };
 

@@ -1,36 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { fetchCams, toggleAllCameras } from '../api';
+import React, { useEffect } from 'react';
+import { useCameraStore } from '../stores/useCameraStore';
+import { controlAllCamerasStream } from '../api';
 
 const CameraToggle: React.FC = () => {
-  const [isCamerasOn, setIsCamerasOn] = useState(false);
-  const [camIds, setCamIds] = useState<number[]>([]);
+  const { camIds, isCamerasOn, fetchCamIds, setCamerasOn } = useCameraStore();
 
   useEffect(() => {
-    const fetchAllCams = async () => {
-      try {
-        const response = await fetchCams();
-        const ids = response.data.map((cam) => cam.camId);
-        setCamIds(ids);
-      } catch (error) {
-        console.error('Failed to fetch camera IDs:', error);
-      }
-    };
-
-    fetchAllCams();
+    fetchCamIds(); // 컴포넌트가 로드될 때 camIds를 불러옴
   }, []);
 
   const handleToggle = async () => {
-    const action = isCamerasOn ? 'stop' : 'start';
+    const command = isCamerasOn ? 'END' : 'START';
     const confirmationMessage = isCamerasOn
-      ? 'Are you sure you want to turn off the detection mode?'
-      : 'Are you sure you want to turn on the detection mode?';
+      ? 'Are you sure you want to turn off the detection mode for all cameras?'
+      : 'Are you sure you want to turn on the detection mode for all cameras?';
 
     const confirmed = window.confirm(confirmationMessage);
 
     if (confirmed) {
       try {
-        await toggleAllCameras(camIds, action);
-        setIsCamerasOn(!isCamerasOn);
+        await controlAllCamerasStream(camIds, command);
+        console.log(
+          `All cameras stream ${command} command executed successfully.`
+        );
+        setCamerasOn(!isCamerasOn);
       } catch (error) {
         console.error('Failed to toggle all cameras:', error);
       }
