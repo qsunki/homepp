@@ -148,7 +148,7 @@ public class CamService {
         return camMapper.toCamResponseDto(cam);
     }
 
-    public StreamResponseDto streamStart(Long camId, Command command) {
+    public StreamResponseDto streamControl(Long camId, Command command) {
         if (!camRepository.existsById(camId)) {
             throw new CamNotFoundException();
         }
