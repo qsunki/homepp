@@ -13,14 +13,14 @@ public class SignalController {
 
     @MessageMapping("/cam/{key}")
     @SendTo("/sub/client/{key}")
-    public String camToClient(@DestinationVariable("key") Long key, @Payload String message) {
+    public String camToClient(@DestinationVariable("key") String key, @Payload String message) {
         log.info("cam to client... key: {}, message: {}", key, message);
         return message;
     }
 
     @MessageMapping("/client/{key}")
     @SendTo("/sub/cam/{key}")
-    public String clientToCam(@DestinationVariable("key") Long key, @Payload String message) {
+    public String clientToCam(@DestinationVariable("key") String key, @Payload String message) {
         log.info("client to cam... key: {}, message: {}", key, message);
         return message;
     }
