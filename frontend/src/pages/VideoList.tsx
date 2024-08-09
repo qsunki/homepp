@@ -14,11 +14,11 @@ import soundIcon from '../assets/filter/sound.png';
 
 const getIconForType = (type: string) => {
   switch (type) {
-    case 'fire':
+    case 'FIRE':
       return fireIcon;
-    case 'intrusion':
+    case 'INVASION':
       return intrusionIcon;
-    case 'loud':
+    case 'SOUND':
       return soundIcon;
     default:
       return '';
@@ -227,6 +227,10 @@ const VideoList: React.FC = () => {
     }
   }, [showCameraOptions]);
 
+  const handleApplyFilters = () => {
+    setShowFilters(false);
+  };
+
   const groupedVideos = videos.reduce((acc, video) => {
     const dateKey = video.date.toDateString();
     if (!acc[dateKey]) acc[dateKey] = [];
@@ -373,7 +377,12 @@ const VideoList: React.FC = () => {
               >
                 Close
               </button>
-              <button className={styles['apply-button']}>Apply</button>
+              <button
+                className={styles['apply-button']}
+                onClick={handleApplyFilters}
+              >
+                Apply
+              </button>
             </div>
           </div>
         )}

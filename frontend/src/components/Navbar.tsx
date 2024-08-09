@@ -33,6 +33,33 @@ interface NavbarProps {
   setNotifications: React.Dispatch<React.SetStateAction<NavbarNotification[]>>;
 }
 
+const CameraToggle: React.FC = () => {
+  const [isCameraOn, setIsCameraOn] = useState(false);
+
+  const handleToggle = () => {
+    setIsCameraOn((prev) => !prev);
+    // 여기에서 카메라 ON/OFF 기능을 구현할 수 있습니다.
+  };
+
+  return (
+    <div className="switch-holder">
+      <div className="switch-label">
+        <i className="fa fa-camera"></i>
+        <span>Camera</span>
+      </div>
+      <div className="switch-toggle">
+        <input
+          type="checkbox"
+          id="cameraToggle"
+          checked={isCameraOn}
+          onChange={handleToggle}
+        />
+        <label htmlFor="cameraToggle"></label>
+      </div>
+    </div>
+  );
+};
+
 const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
   const [toggleMenu, setToggleMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -97,37 +124,28 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
     if (isLoggedIn) {
       try {
         const events = await fetchEventList();
-        console.log('Fetched events:', events);
-        const threats = await fetchThreatList('user@example.com'); // 이메일 수정 필요
-        console.log('Fetched threats:', threats);
+        const threats = await fetchThreatList('user@example.com');
 
         const combinedNotifications: NavbarNotification[] = [
-          ...events.map((event) => {
-            console.log('Event data:', event);
-            return {
-              id: event.eventId, // eventId를 사용
-              message: `${event.camName} - ${event.eventType}`,
-              timestamp: new Date(event.occuredAt),
-              type: 'event' as const,
-              videoId: event.videoId,
-              isRead: event.isRead,
-            };
-          }),
-          ...threats.map((threat) => {
-            console.log('Threat data:', threat);
-            return {
-              id: threat.threatId, // threatId를 사용
-              message: `${threat.region} 근방에 ${threat.eventTypes.join(
-                ', '
-              )} 발생`,
-              timestamp: new Date(threat.recordStartedAt),
-              type: 'threat' as const,
-              isRead: threat.isRead,
-            };
-          }),
+          ...events.map((event) => ({
+            id: event.eventId,
+            message: `${event.camName} - ${event.eventType}`,
+            timestamp: new Date(event.occuredAt),
+            type: 'event' as const,
+            videoId: event.videoId,
+            isRead: event.isRead,
+          })),
+          ...threats.map((threat) => ({
+            id: threat.threatId,
+            message: `${threat.region} 근방에 ${threat.eventTypes.join(
+              ', '
+            )} 발생`,
+            timestamp: new Date(threat.recordStartedAt),
+            type: 'threat' as const,
+            isRead: threat.isRead,
+          })),
         ];
         setNotifications(combinedNotifications);
-        console.log('Combined notifications:', combinedNotifications);
       } catch (error) {
         console.error('Failed to fetch notifications:', error);
       }
@@ -142,7 +160,6 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
     id: number,
     type: 'event' | 'threat'
   ) => {
-    console.log('Updating read status for:', { id, type });
     if (id === undefined || id === null) {
       console.error('Invalid ID:', id);
       return;
@@ -179,7 +196,6 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
   };
 
   const handleNotificationClick = (notification: NavbarNotification) => {
-    console.log('Notification clicked:', notification);
     if (notification.type === 'event' && notification.videoId !== undefined) {
       handleNavigate(`/video/${notification.videoId}`);
       handleReadNotification(notification.id, notification.type);
@@ -266,6 +282,8 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
       <div className="flex items-center space-x-4">
         {isLoggedIn ? (
           <>
+            {/* Camera Toggle Button 추가 */}
+            <CameraToggle />
             <div className="relative">
               <FaBell
                 className="text-gray-800 text-xl cursor-pointer"
@@ -305,7 +323,7 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
                       .filter((notification) => notification.type === activeTab)
                       .map((notification) => (
                         <li
-                          key={`${notification.type}-${notification.id}`} // 키 값을 고유하게 설정
+                          key={`${notification.type}-${notification.id}`}
                           className={`p-2 border-b border-gray-200 flex justify-between items-center ${
                             notification.isRead ? 'bg-gray-100' : 'bg-white'
                           }`}

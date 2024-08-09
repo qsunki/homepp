@@ -55,11 +55,11 @@ const DetailList: React.FC<DetailListProps> = ({
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'fire':
+      case 'FIRE':
         return fireIcon;
-      case 'intrusion':
+      case 'INVASION':
         return thiefIcon;
-      case 'loud':
+      case 'SOUND':
         return soundIcon;
       default:
         return '';

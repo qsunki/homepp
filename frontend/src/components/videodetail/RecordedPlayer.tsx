@@ -4,6 +4,7 @@ import { useVideoStore, Video } from '../../stores/useVideoStore';
 import fireIcon from '../../assets/filter/fire.png';
 import soundIcon from '../../assets/filter/sound.png';
 import thiefIcon from '../../assets/filter/thief.png';
+import api from '../../api'; // api 모듈 불러오기
 
 interface RecordedPlayerProps {
   showDetails?: boolean;
@@ -33,13 +34,46 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
     setShowReportConfirm(false);
   };
 
+  const handleDownloadClick = async () => {
+    if (!selectedVideo) return;
+
+    try {
+      const response = await api.get(
+        `/cams/videos/${selectedVideo.id}/download`,
+        {
+          responseType: 'blob', // 이 옵션은 axios가 바이너리 데이터를 기대하도록 설정합니다.
+        }
+      );
+
+      // 링크 요소 생성
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+
+      // 다운로드 파일 이름 지정
+      link.setAttribute(
+        'download',
+        `${selectedVideo.title}-${selectedVideo.id}.mp4`
+      );
+
+      // 문서에 추가하고 다운로드 트리거
+      document.body.appendChild(link);
+      link.click();
+
+      // 링크 정리 및 제거
+      link.parentNode?.removeChild(link);
+    } catch (error) {
+      console.error('비디오 다운로드 중 오류 발생:', error);
+    }
+  };
+
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'fire':
+      case 'FIRE':
         return fireIcon;
-      case 'intrusion':
+      case 'INVASION':
         return thiefIcon;
-      case 'loud':
+      case 'SOUND':
         return soundIcon;
       default:
         return '';
@@ -92,7 +126,14 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
           [{new Date(selectedVideo.date).getMonth() + 1}/
           {new Date(selectedVideo.date).getDate()}] {selectedVideo.title}
         </div>
-        <div className="flex-shrink-0 ml-4">
+        <div className="flex-shrink-0 ml-4 flex space-x-2">
+          {/* 다운로드 버튼 */}
+          <button
+            onClick={handleDownloadClick}
+            className="px-4 py-2 rounded border-2 border-blue-500 text-blue-500 bg-transparent hover:bg-blue-500 hover:text-white transition"
+          >
+            Download
+          </button>
           <button
             className={`px-4 py-2 rounded border-2 ${
               selectedVideo.isReported
