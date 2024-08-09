@@ -1,0 +1,96 @@
+<!-- cam.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <title>Video Provider</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+</head>
+<body>
+<video id="localVideo" autoplay playsinline></video>
+<script>
+    const localVideo = document.getElementById('localVideo');
+    let localStream;
+    let peerConnections = {};
+
+    const socket = new SockJS('http://i11a605.p.ssafy.io:8081/ws');
+    const stompClient = new StompJs.Client({
+        webSocketFactory: () => socket
+    });
+
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
+        localVideo.srcObject = stream;
+        localStream = stream;
+    }).catch(error => {
+        console.error('Error accessing media devices.', error);
+    });
+
+    stompClient.onConnect = (frame) => {
+        console.log('onConnect')
+        stompClient.subscribe('/sub/cam/124', (message) => {
+            console.log('message is ', message)
+            const signal = JSON.parse(message.body);
+            handleSignal(signal);
+        });
+    };
+
+    stompClient.activate();
+
+    function handleSignal(signal) {
+        console.log('signal is ', signal)
+        const signalData = signal.data;
+
+        switch (signal.type) {
+            case 'offer':
+                createAnswer(signalData);
+                break;
+            case 'candidate':
+                addCandidate(signalData);
+                console.log('addCandidated')
+                break;
+        }
+    }
+
+    function createAnswer(offer) {
+        console.log('offer is ', offer)
+        const peerConnection = new RTCPeerConnection({
+            iceServers: [
+                {
+                    "urls": "stun:i11a605.p.ssafy.io",
+                    "username": "username",
+                    "credential": "password"
+                },
+                {
+                    "urls": "turn:i11a605.p.ssafy.io",
+                    "username": "username",
+                    "credential": "password"
+                }
+            ]
+        });
+        peerConnection.onicecandidate = event => {
+            console.log('icecandidate event occurred ', event)
+            if (event.candidate) {
+                stompClient.publish({
+                    destination: '/pub/cam/124',
+                    body: JSON.stringify({ type: 'candidate', data: event.candidate })
+                });
+            }
+        };
+        localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+        peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+        peerConnection.createAnswer({offerToReceiveVideo: true}).then(answer => {
+            peerConnection.setLocalDescription(answer);
+            stompClient.publish({
+                destination: '/pub/cam/124',
+                body: JSON.stringify({ type: 'answer', data: answer })
+            });
+        });
+        peerConnections[offer.sender] = peerConnection;
+    }
+
+    function addCandidate(candidate) {
+        peerConnections[candidate.sender].addIceCandidate(new RTCIceCandidate(candidate));
+    }
+</script>
+</body>
+</html>

@@ -6,7 +6,7 @@ import json
 # 브로커 정보
 BROKER = '70.12.114.97'  # 브로커 주소 (PC에서 실행 중인 경우 localhost)
 
-PORT = 1883  # MQTT 기본 포트
+PORT = 3000  # MQTT 기본 포트
 
 # 메시지 수신 콜백 함수
 def on_message(client, userdata, message):
