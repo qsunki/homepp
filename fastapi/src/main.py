@@ -1,15 +1,13 @@
-# fastapi/src/main.py
-
 from fastapi import FastAPI, Request
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
 
 app = FastAPI()
 
-# 모델과 토크나이저 로드
+# 모델과 토크나이저 로드 (로컬 경로 지정)
 model_name_or_path = "models/koelectra2_quantized"
-tokenizer = AutoTokenizer.from_pretrained(model_name_or_path)
-model = AutoModelForSequenceClassification.from_pretrained(model_name_or_path)
+tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, local_files_only=True)
+model = AutoModelForSequenceClassification.from_pretrained(model_name_or_path, local_files_only=True)
 
 @app.post("/chatbot/")
 async def chatbot(request: Request):
