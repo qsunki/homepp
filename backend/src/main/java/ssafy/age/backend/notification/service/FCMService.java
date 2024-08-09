@@ -187,6 +187,7 @@ public class FCMService {
 
         return Message.builder()
                 .setToken(targetToken)
+                .putData("messageType", "event")
                 .putData("messageTitle", messageTitle)
                 .putData("messageBody", messageBody)
                 .build();

@@ -135,8 +135,8 @@ public class VideoService {
             Threat threat = Threat.builder().member(member).video(video).isRead(false).build();
             threatRepository.save(threat);
         }
-
-        fcmService.sendMessageToAll(video);
+        Video savedVideo = videoRepository.save(video);
+        fcmService.sendMessageToAll(savedVideo);
     }
 
     public ResourceRegion getVideoResourceRegion(Long videoId, List<HttpRange> ranges) {
