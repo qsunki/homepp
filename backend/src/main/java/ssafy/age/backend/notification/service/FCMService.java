@@ -54,8 +54,7 @@ public class FCMService {
         return new FCMTokenDto(saved.getToken());
     }
 
-    public void sendRegisterMessage() {
-        String email = authService.getMemberEmail();
+    public void sendRegisterMessage(String email) {
         List<FCMToken> fcmTokens = fcmTokenRepository.findByMemberEmail(email);
 
         for (FCMToken fcmToken : fcmTokens) {
