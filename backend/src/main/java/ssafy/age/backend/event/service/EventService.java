@@ -39,8 +39,8 @@ public class EventService {
                         .cam(Cam.builder().id(eventDto.getCamId()).build())
                         .isRead(false)
                         .build();
-        fcmService.sendEventMessage(event);
-        eventRepository.save(event);
+        Event savedEvent = eventRepository.save(event);
+        fcmService.sendEventMessage(savedEvent);
     }
 
     public void deleteEvent(Long eventId) {
