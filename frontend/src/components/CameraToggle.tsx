@@ -1,32 +1,83 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { fetchCams, toggleAllCameras } from '../api';
 
 const CameraToggle: React.FC = () => {
-  const [isCameraOn, setIsCameraOn] = useState(false);
+  const [isCamerasOn, setIsCamerasOn] = useState(false);
+  const [camIds, setCamIds] = useState<number[]>([]);
 
-  const handleToggle = () => {
-    setIsCameraOn((prev) => !prev);
-    // 여기에서 카메라 ON/OFF 기능을 구현할 수 있습니다.
+  useEffect(() => {
+    const fetchAllCams = async () => {
+      try {
+        const response = await fetchCams();
+        const ids = response.data.map((cam) => cam.camId);
+        setCamIds(ids);
+      } catch (error) {
+        console.error('Failed to fetch camera IDs:', error);
+      }
+    };
+
+    fetchAllCams();
+  }, []);
+
+  const handleToggle = async () => {
+    const action = isCamerasOn ? 'stop' : 'start';
+    const confirmationMessage = isCamerasOn
+      ? 'Are you sure you want to turn off the detection mode?'
+      : 'Are you sure you want to turn on the detection mode?';
+
+    const confirmed = window.confirm(confirmationMessage);
+
+    if (confirmed) {
+      try {
+        await toggleAllCameras(camIds, action);
+        setIsCamerasOn(!isCamerasOn);
+      } catch (error) {
+        console.error('Failed to toggle all cameras:', error);
+      }
+    }
   };
 
   return (
-    <>
+    <div className="relative flex items-center justify-center group">
       <input
-        id="cameraToggleInput"
+        id="checkbox"
         type="checkbox"
-        checked={isCameraOn}
+        checked={isCamerasOn}
         onChange={handleToggle}
+        className="hidden"
       />
-      <label className="cameraToggleSwitch" htmlFor="cameraToggleInput">
+      <label htmlFor="checkbox" className="cursor-pointer">
         <svg
-          className="slider"
-          viewBox="0 0 512 512"
-          height="1em"
+          height="22px"
+          width="22px"
+          version="1.1"
           xmlns="http://www.w3.org/2000/svg"
+          xmlnsXlink="http://www.w3.org/1999/xlink"
+          viewBox="0 0 30.143 30.143"
+          xmlSpace="preserve"
+          fill={isCamerasOn ? '#007bff' : 'black'}
+          className="cursor-pointer"
         >
-          <path d="M288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32V256c0 17.7 14.3 32 32 32s32-14.3 32-32V32zM143.5 120.6c13.6-11.3 15.4-31.5 4.1-45.1s-31.5-15.4-45.1-4.1C49.7 115.4 16 181.8 16 256c0 132.5 107.5 240 240 240s240-107.5 240-240c0-74.2-33.8-140.6-86.6-184.6c-13.6-11.3-33.8-9.4-45.1 4.1s-9.4 33.8 4.1 45.1c38.9 32.3 63.5 81 63.5 135.4c0 97.2-78.8 176-176 176s-176-78.8-176-176c0-54.4 24.7-103.1 63.5-135.4z"></path>
+          <circle
+            cx="15"
+            cy="15"
+            r="14"
+            fill={isCamerasOn ? '#f0f0f0' : 'none'}
+            className={isCamerasOn ? 'drop-shadow-md' : ''}
+          />
+          <g>
+            <path d="M20.034,2.357v3.824c3.482,1.798,5.869,5.427,5.869,9.619c0,5.98-4.848,10.83-10.828,10.83 c-5.982,0-10.832-4.85-10.832-10.83c0-3.844,2.012-7.215,5.029-9.136V2.689C4.245,4.918,0.731,9.945,0.731,15.801 c0,7.921,6.42,14.342,14.34,14.342c7.924,0,14.342-6.421,14.342-14.342C29.412,9.624,25.501,4.379,20.034,2.357z"></path>
+            <path d="M14.795,17.652c1.576,0,1.736-0.931,1.736-2.076V2.08c0-1.148-0.16-2.08-1.736-2.08 c-1.57,0-1.732,0.932-1.732,2.08v13.496C13.062,16.722,13.225,17.652,14.795,17.652z"></path>
+          </g>
         </svg>
       </label>
-    </>
+      <span
+        className={`absolute -bottom-12 left-1/2 transform -translate-x-1/2 mt-2 px-3 py-2 text-sm font-medium text-white bg-gray-700 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap`}
+      >
+        {isCamerasOn ? 'Detection OFF' : 'Detection ON'}
+      </span>
+    </div>
   );
 };
+
 export default CameraToggle;
