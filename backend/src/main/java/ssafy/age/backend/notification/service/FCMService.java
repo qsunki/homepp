@@ -112,7 +112,7 @@ public class FCMService {
     }
 
     public void sendEventMessage(Event event) {
-        String email = authService.getMemberEmail();
+        String email = event.getCam().getMember().getEmail();
         Member member =
                 memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
         List<FCMToken> fcmTokens = fcmTokenRepository.findByMemberEmail(email);
