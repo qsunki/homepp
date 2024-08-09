@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import 'tw-elements/dist/css/tw-elements.min.css';
 import { FaCaretUp, FaFilter } from 'react-icons/fa';
 import { format } from 'date-fns';
 import styles from '../utils/filter/Filter1.module.css';
@@ -32,19 +31,14 @@ const VideoList: React.FC = () => {
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedCamera, setSelectedCamera] = useState<string>('All Cameras');
   const [showFilters, setShowFilters] = useState(false);
-  const [showCameraOptions, setShowCameraOptions] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const { videos, setVideos, setFilteredVideos, fetchAndSetVideos } =
     useVideoStore();
   const [cameras, setCameras] = useState<{ name: string; id: number }[]>([]);
   const [isReported, setIsReported] = useState<boolean | null>(null);
   const [dateFilter, setDateFilter] = useState<string>('1 Week');
-  const [dummyState, setDummyState] = useState(false);
   const navigate = useNavigate();
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const cameraFormRef = useRef<HTMLDivElement>(null);
   const filterSectionRef = useRef<HTMLDivElement>(null);
-  const dropdownButtonRef = useRef<HTMLButtonElement>(null); // 드롭다운 버튼의 참조
 
   const handleDateFilterChange = (filter: string) => {
     setDateFilter(filter);
@@ -74,7 +68,6 @@ const VideoList: React.FC = () => {
 
   const handleDateChange = (dates: [Date | null, Date | null]) => {
     setFilterDateRange(dates);
-    setDummyState(!dummyState); // Force update to re-render
   };
 
   const handleTypeToggle = (type: string) => {
@@ -90,8 +83,6 @@ const VideoList: React.FC = () => {
 
   const toggleFilters = () => setShowFilters(!showFilters);
 
-  const closeDropdown = () => setShowCameraOptions(false);
-
   const handleScroll = () => {
     if (window.scrollY > 300) {
       setShowScrollButton(true);
@@ -105,15 +96,9 @@ const VideoList: React.FC = () => {
   };
 
   const handleClickOutside = (event: MouseEvent) => {
-    const target = event.target as HTMLElement;
-    if (dropdownRef.current && !dropdownRef.current.contains(target)) {
-      closeDropdown();
-    }
     if (
-      showFilters &&
       filterSectionRef.current &&
-      !filterSectionRef.current.contains(target) &&
-      !target.closest('.fa-filter')
+      !filterSectionRef.current.contains(event.target as Node)
     ) {
       setShowFilters(false);
     }
@@ -182,7 +167,6 @@ const VideoList: React.FC = () => {
         const apiVideos = await Promise.all(
           response.data.map(async (video: ApiVideo) => {
             const thumbnail = await fetchThumbnail(video.videoId);
-            console.log('Fetched thumbnail Blob URL:', thumbnail); // Log thumbnail URL to console
             return {
               id: video.videoId,
               title: `${video.camName}`,
@@ -220,15 +204,8 @@ const VideoList: React.FC = () => {
     fetchData();
   }, [filterDateRange, selectedTypes, selectedCamera, isReported, cameras]);
 
-  useEffect(() => {
-    if (dropdownButtonRef.current && cameraFormRef.current) {
-      const buttonWidth = dropdownButtonRef.current.offsetWidth;
-      cameraFormRef.current.style.width = `${buttonWidth}px`;
-    }
-  }, [showCameraOptions]);
-
   const handleApplyFilters = () => {
-    setShowFilters(false);
+    setShowFilters(false); // 모바일인 경우 필터 창을 닫음
   };
 
   const groupedVideos = videos.reduce((acc, video) => {
@@ -242,9 +219,9 @@ const VideoList: React.FC = () => {
     <div className="flex flex-col md:flex-row">
       <div className="md:hidden p-4 w-full">
         <button
-          ref={dropdownButtonRef} // 드롭다운 버튼의 참조 추가
           onClick={toggleFilters}
-          className="fixed bottom-16 right-4 w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center shadow-lg z-50"
+          className="fixed bottom-16 right-4 w-14 h-14 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg z-50 hover:bg-indigo-700 transition-all duration-300"
+          style={{ boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.15)' }}
         >
           <FaFilter size={24} />
         </button>
@@ -307,10 +284,7 @@ const VideoList: React.FC = () => {
             </div>
             <div className={styles['filter-group']}>
               <div className={styles['filter-title']}>Camera</div>
-              <div
-                className={`${styles['cameraContainer']}`}
-                ref={cameraFormRef}
-              >
+              <div className={`${styles['cameraContainer']}`}>
                 <select
                   value={selectedCamera}
                   onChange={handleCameraChange}
@@ -499,7 +473,10 @@ const VideoList: React.FC = () => {
             </div>
           )}
         </div>
-        <button className={`${styles['apply-button']} ${styles.fullWidth}`}>
+        <button
+          className={`${styles['apply-button']} ${styles.fullWidth}`}
+          onClick={handleApplyFilters}
+        >
           Apply
         </button>
       </div>
