@@ -37,12 +37,12 @@ VALUES (1, '2023-07-29 10:00:00', '/api/v1/cams/videos/1/stream', '/api/v1/cams/
        (3, '2023-07-29 13:00:00', '/api/v1/cams/videos/3/stream', '/api/v1/cams/videos/3/download', 180,
         '/api/v1/cams/videos/3/thumbnail', 1, 0);
 
-INSERT INTO `event` (`event_id`, `occurred_at`, `type`, `cam_id`, `video_id`)
-VALUES (1, '2023-07-29 10:00:00', 'INVASION', 1, 1),
-       (2, '2023-07-29 11:00:00', 'SOUND', 2, 2),
-       (3, '2023-07-29 12:00:00', 'FIRE', 1, 2),
-       (4, '2023-07-29 13:00:00', 'SOUND', 1, 3),
-       (5, '2023-07-29 14:00:00', 'INVASION', 1, 1);
+INSERT INTO `event` (`event_id`, `occurred_at`, `type`, `cam_id`, `video_id`, `is_read`)
+VALUES (1, '2023-07-29 10:00:00', 'INVASION', 1, 1, 0),
+       (2, '2023-07-29 11:00:00', 'SOUND', 2, 2, 0),
+       (3, '2023-07-29 12:00:00', 'FIRE', 1, 2, 1),
+       (4, '2023-07-29 13:00:00', 'SOUND', 1, 3, 0),
+       (5, '2023-07-29 14:00:00', 'INVASION', 1, 1, 1);
 
 
 

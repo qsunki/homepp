@@ -12,11 +12,13 @@ import ssafy.age.backend.video.web.EventDetailDto;
 public interface EventMapper {
     EventMapper INSTANCE = Mappers.getMapper(EventMapper.class);
 
-    @Mapping(source = "cam.id", target = "camId")
-    @Mapping(source = "cam.name", target = "camName")
-    @Mapping(source = "video.id", target = "videoId")
+    @Mapping(target = "eventId", source = "id")
+    @Mapping(target = "camId", source = "cam.id")
+    @Mapping(target = "camName", source = "cam.name")
+    @Mapping(target = "videoId", source = "video.id")
     EventResponseDto toEventResponseDto(Event event);
 
+    @Mapping(target = "cam", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "isRead", ignore = true)
     @Mapping(target = "video", ignore = true)
