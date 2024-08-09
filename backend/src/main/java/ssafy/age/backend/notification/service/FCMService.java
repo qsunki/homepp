@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ssafy.age.backend.auth.service.AuthService;
 import ssafy.age.backend.event.persistence.Event;
+import ssafy.age.backend.event.persistence.EventType;
 import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
@@ -17,6 +18,7 @@ import ssafy.age.backend.member.service.MemberService;
 import ssafy.age.backend.notification.persistence.FCMToken;
 import ssafy.age.backend.notification.persistence.FCMTokenRepository;
 import ssafy.age.backend.notification.web.FCMTokenDto;
+import ssafy.age.backend.share.persistence.Share;
 import ssafy.age.backend.video.persistence.Video;
 
 @Service
@@ -52,8 +54,7 @@ public class FCMService {
         return new FCMTokenDto(saved.getToken());
     }
 
-    public void sendRegisterMessage() {
-        String email = authService.getMemberEmail();
+    public void sendRegisterMessage(String email) {
         List<FCMToken> fcmTokens = fcmTokenRepository.findByMemberEmail(email);
 
         for (FCMToken fcmToken : fcmTokens) {
@@ -108,6 +109,77 @@ public class FCMService {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    public void sendEventMessage(Event event) {
+        String email = authService.getMemberEmail();
+        Member member =
+                memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
+        List<FCMToken> fcmTokens = fcmTokenRepository.findByMemberEmail(email);
+
+        for (FCMToken fcmToken : fcmTokens) {
+            Message message = buildEventMessage(fcmToken.getToken(), event, "home");
+            try {
+                String response = FirebaseMessaging.getInstance().send(message);
+                log.debug(response);
+            } catch (FirebaseMessagingException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        for (Share share : member.getShareList()) {
+            Member sharedMember = share.getSharedMember();
+            List<FCMToken> sharedMemberTokens =
+                    fcmTokenRepository.findByMemberEmail(sharedMember.getEmail());
+            for (FCMToken fcmToken : sharedMemberTokens) {
+                Message message = buildEventMessage(fcmToken.getToken(), event, "shared");
+                try {
+                    String response = FirebaseMessaging.getInstance().send(message);
+                    log.debug(response);
+                } catch (FirebaseMessagingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
+    public Message buildEventMessage(String targetToken, Event event, String flag) {
+        String messageTitle = "";
+        String messageBody = "";
+        String eventType;
+
+        if (flag.equals("home")) {
+            messageTitle += "자택 ";
+        } else {
+            messageTitle += "공유받은 캠 ";
+        }
+
+        if (event.getType() == EventType.INVASION) {
+            eventType = "침입 ";
+        } else if (event.getType() == EventType.FIRE) {
+            eventType = "화재 ";
+        } else if (event.getType() == EventType.SOUND) {
+            eventType = "소음 ";
+        } else {
+            eventType = "미분류 ";
+        }
+        messageTitle += eventType + "감지";
+
+        messageBody +=
+                event.getOccurredAt().getHour() + "시 " + event.getOccurredAt().getMinute() + "분 경";
+        if (flag.equals("home")) {
+            messageBody += " 자택 ";
+        } else {
+            messageBody += authService.getMemberEmail() + "에게 공유받은 캠 ";
+        }
+        messageBody +=
+                event.getCam().getName() + " 에서 " + eventType + "감지되었습니다. " + "영상 확인 후 신고 바랍니다.";
+
+        return Message.builder()
+                .setToken(targetToken)
+                .putData("messageTitle", messageTitle)
+                .putData("messageBody", messageBody)
+                .build();
     }
 
     public void sendThreatMessage(String targetToken, Video video) {

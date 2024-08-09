@@ -9,18 +9,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ssafy.age.backend.auth.service.AuthService;
 import ssafy.age.backend.cam.persistence.Cam;
-import ssafy.age.backend.cam.persistence.CamRepository;
 import ssafy.age.backend.event.exception.EventNotFoundException;
 import ssafy.age.backend.event.persistence.Event;
 import ssafy.age.backend.event.persistence.EventRepository;
 import ssafy.age.backend.event.web.EventResponseDto;
+import ssafy.age.backend.notification.service.FCMService;
 
 @Service
 @RequiredArgsConstructor
 public class EventService {
 
     private final EventRepository eventRepository;
-    private final CamRepository camRepository;
+    private final FCMService fcmService;
     private final AuthService authService;
     private final EventMapper eventMapper = EventMapper.INSTANCE;
 
@@ -39,6 +39,7 @@ public class EventService {
                         .cam(Cam.builder().id(eventDto.getCamId()).build())
                         .isRead(false)
                         .build();
+        fcmService.sendEventMessage(event);
         eventRepository.save(event);
     }
 

@@ -139,7 +139,7 @@ public class CamService {
         String region = getRegion(ip);
         Cam cam = camRepository.save(Cam.builder().ip(ip).region(region).member(member).build());
         cam.updateCamName("Cam" + cam.getId());
-        fcmService.sendRegisterMessage();
+        fcmService.sendRegisterMessage(email);
         return camMapper.toCamResponseDto(cam);
     }
 
