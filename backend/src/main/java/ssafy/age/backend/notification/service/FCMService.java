@@ -118,8 +118,12 @@ public class FCMService {
         }
     }
 
+    @Transactional
     public void sendEventMessage(Event event) {
-        Member member = event.getCam().getMember();
+        Member member =
+                memberRepository
+                        .findByCamId(event.getCam().getId())
+                        .orElseThrow(MemberNotFoundException::new);
         log.debug("sendEventMessage email : {}", member.getEmail());
         List<FCMToken> fcmTokens = fcmTokenRepository.findByMemberEmail(member.getEmail());
 
@@ -183,6 +187,7 @@ public class FCMService {
 
         return Message.builder()
                 .setToken(targetToken)
+                .putData("messageType", "event")
                 .putData("messageTitle", messageTitle)
                 .putData("messageBody", messageBody)
                 .build();
