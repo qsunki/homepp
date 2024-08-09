@@ -294,9 +294,11 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
                   <ul className="max-h-60 overflow-y-auto scrollbar-hide">
                     {notifications
                       .filter((notification) => notification.type === activeTab)
-                      .map((notification) => (
+                      .map((notification, index) => (
                         <li
-                          key={`${notification.type}-${notification.id}`}
+                          key={`${notification.type}-${
+                            notification.id || index
+                          }`}
                           className={`p-2 border-b border-gray-200 flex justify-between items-center ${
                             notification.isRead ? 'bg-gray-100' : 'bg-white'
                           }`}

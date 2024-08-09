@@ -679,4 +679,41 @@ export const deleteNotification = async (
   }
 };
 
+// 감시모드 시작/종료 API 호출 함수
+export const toggleSurveillanceMode = async (
+  camId: number,
+  action: 'start' | 'stop'
+): Promise<void> => {
+  try {
+    await api.post(`/cams/${camId}/control`, { action });
+    console.log(`Surveillance mode ${action}ed for camera ${camId}`);
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        `Surveillance mode ${action} 오류:`,
+        error.response ? error.response.data : error.message
+      );
+    } else {
+      console.error(`Surveillance mode ${action} 오류:`, error);
+    }
+    throw error;
+  }
+};
+
+// 모든 카메라의 감시 모드를 동시에 제어하는 함수
+export const toggleAllCameras = async (
+  camIds: number[],
+  action: 'start' | 'stop'
+): Promise<void> => {
+  try {
+    const promises = camIds.map((camId) =>
+      toggleSurveillanceMode(camId, action)
+    );
+    await Promise.all(promises); // 모든 요청이 완료될 때까지 기다림
+    console.log(`All cameras ${action}ed successfully`);
+  } catch (error) {
+    console.error(`Failed to ${action} all cameras:`, error);
+  }
+};
+
 export default api;
