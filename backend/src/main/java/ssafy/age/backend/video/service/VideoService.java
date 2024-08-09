@@ -21,8 +21,8 @@ import ssafy.age.backend.event.persistence.EventType;
 import ssafy.age.backend.file.FileStorage;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
+import ssafy.age.backend.mqtt.Command;
 import ssafy.age.backend.mqtt.MqttService;
-import ssafy.age.backend.mqtt.RecordCommand;
 import ssafy.age.backend.notification.service.FCMService;
 import ssafy.age.backend.threat.persistence.Threat;
 import ssafy.age.backend.threat.persistence.ThreatRepository;
@@ -118,11 +118,11 @@ public class VideoService {
     public VideoRecordResponseDto recordVideo(Long camId, String key, VideoCommand command) {
         if (command == VideoCommand.START) {
             key = UUID.randomUUID().toString();
-            mqttService.requestRecord(camId, key, RecordCommand.START);
+            mqttService.requestRecord(camId, key, Command.START);
             return new VideoRecordResponseDto(key);
         }
         // when command == VideoCommand.END
-        mqttService.requestRecord(camId, key, RecordCommand.END);
+        mqttService.requestRecord(camId, key, Command.END);
         return new VideoRecordResponseDto(key);
     }
 

@@ -7,4 +7,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class MqttStreamRequestDto {
     String key;
+    Command command;
 }

@@ -5,9 +5,9 @@ import lombok.Data;
 @Data
 public class MqttRecordRequestDto {
     String key;
-    RecordCommand command;
+    Command command;
 
-    public MqttRecordRequestDto(String key, RecordCommand command) {
+    public MqttRecordRequestDto(String key, Command command) {
         this.key = key;
         this.command = command;
     }

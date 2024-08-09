@@ -2,13 +2,13 @@ package ssafy.age.backend.mqtt;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum RecordCommand {
+public enum Command {
     START("start"),
     END("end");
 
     private final String command;
 
-    RecordCommand(String command) {
+    Command(String command) {
         this.command = command;
     }
 

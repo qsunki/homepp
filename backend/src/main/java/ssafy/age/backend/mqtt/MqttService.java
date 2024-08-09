@@ -13,7 +13,7 @@ public class MqttService {
     private final MqttGateway mqttGateway;
     private final ObjectMapper objectMapper;
 
-    public void requestRecord(long camId, String key, RecordCommand command) {
+    public void requestRecord(long camId, String key, Command command) {
         MqttRecordRequestDto requestDto = new MqttRecordRequestDto(key, command);
         try {
             String message = objectMapper.writeValueAsString(requestDto);
@@ -24,8 +24,8 @@ public class MqttService {
         }
     }
 
-    public void requestStreaming(long camId, String key) {
-        MqttStreamRequestDto requestDto = new MqttStreamRequestDto(key);
+    public void requestStreaming(long camId, String key, Command command) {
+        MqttStreamRequestDto requestDto = new MqttStreamRequestDto(key, command);
         try {
             String message = objectMapper.writeValueAsString(requestDto);
             mqttGateway.sendToMqtt(message, getStreamingRequestTopic(camId));

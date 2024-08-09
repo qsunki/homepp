@@ -26,6 +26,7 @@ import ssafy.age.backend.file.FileStorage;
 import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
+import ssafy.age.backend.mqtt.Command;
 import ssafy.age.backend.mqtt.MqttService;
 import ssafy.age.backend.notification.service.FCMService;
 
@@ -147,13 +148,13 @@ public class CamService {
         return camMapper.toCamResponseDto(cam);
     }
 
-    public StreamResponseDto streamStart(Long camId) {
+    public StreamResponseDto streamStart(Long camId, Command command) {
         if (!camRepository.existsById(camId)) {
             throw new CamNotFoundException();
         }
         String key = UUID.randomUUID().toString();
-        mqttService.requestStreaming(camId, key);
-        return new StreamResponseDto(key);
+        mqttService.requestStreaming(camId, key, command);
+        return new StreamResponseDto(key, command);
     }
 
     @Transactional
