@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { useVideoStore } from '../../stores/useVideoStore';
 import LivePlayer from './LivePlayer';
 import RecordedPlayer from './RecordedPlayer';
 import { fetchVideoStream } from '../../api';
-import { useVideoStore } from '../../stores/useVideoStore';
 
 interface DetailPlayerProps {
   isLive?: boolean;
@@ -14,22 +14,26 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({
   showDetails = false,
 }) => {
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
-  const { selectedVideoId } = useVideoStore();
+  const { selectedVideoId, reportVideo } = useVideoStore();
 
   useEffect(() => {
     const getVideoStream = async () => {
-      if (selectedVideoId) {
-        try {
-          const streamUrl = await fetchVideoStream(selectedVideoId);
-          setVideoSrc(streamUrl);
-        } catch (error) {
-          console.error('Failed to fetch video stream:', error);
-        }
+      if (!selectedVideoId || videoSrc) return; // 이미 videoSrc가 존재하면 중복 요청 방지
+      try {
+        const streamUrl = await fetchVideoStream(selectedVideoId);
+        setVideoSrc(streamUrl);
+      } catch (error) {
+        console.error('Failed to fetch video stream:', error);
       }
     };
 
     getVideoStream();
-  }, [selectedVideoId]);
+  }, [selectedVideoId, videoSrc]);
+
+  const handleReport = () => {
+    reportVideo(selectedVideoId);
+    alert('The video has been reported.');
+  };
 
   return (
     <div className="w-full lg:w-2/3 lg:pr-4 relative">
@@ -38,6 +42,7 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({
       ) : (
         <RecordedPlayer showDetails={showDetails} videoSrc={videoSrc} />
       )}
+      <button onClick={handleReport}>Report Video</button>
     </div>
   );
 };

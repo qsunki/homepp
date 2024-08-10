@@ -37,6 +37,7 @@ interface Filter {
 interface VideoState {
   videos: Video[];
   filteredVideos: Video[];
+  currentVideoId: number;
   selectedVideoId: number;
   setSelectedVideoId: (id: number) => void;
   selectedVideo: Video | null;
@@ -70,9 +71,17 @@ const initialFilter: Filter = {
 export const useVideoStore = create<VideoState>((set, get) => ({
   videos: [],
   filteredVideos: [],
+  currentVideoId: 0,
   selectedVideoId: 0,
   selectedVideo: null,
-  setSelectedVideoId: (id) => set({ selectedVideoId: id }),
+  setSelectedVideoId: (id) => {
+    const { videos } = get();
+    const isReported = localStorage.getItem(`reported_${id}`) === 'true';
+    const updatedVideos = videos.map((video) =>
+      video.id === id ? { ...video, isReported } : video
+    );
+    set({ selectedVideoId: id, currentVideoId: id, videos: updatedVideos });
+  },
   fetchVideoById: async (id) => {
     const { videos } = get();
     const video = videos.find((v) => v.id === id);
@@ -155,6 +164,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
       video.id === id ? { ...video, isReported: true } : video
     );
     set({ videos: updatedVideos });
+    localStorage.setItem(`reported_${id}`, 'true'); // localStorage에 신고 상태 저장
   },
   selectedTypes: [],
   setSelectedTypes: (types: string[]) => set({ selectedTypes: types }),
@@ -193,6 +203,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
         videos: apiVideos,
         filteredVideos: apiVideos,
         selectedVideoId: apiVideos[0]?.id || 0,
+        currentVideoId: apiVideos[0]?.id || 0,
       });
     } catch (error) {
       console.error('Failed to fetch videos:', error);

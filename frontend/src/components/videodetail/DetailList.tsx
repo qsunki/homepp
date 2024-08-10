@@ -1,20 +1,20 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useVideoStore, Video } from '../../stores/useVideoStore';
+import { useVideoStore, Video, Alert } from '../../stores/useVideoStore';
 import fireIcon from '../../assets/filter/fire.png';
 import soundIcon from '../../assets/filter/sound.png';
 import thiefIcon from '../../assets/filter/thief.png';
 import Filter from '../../utils/filter/Filter';
 import { fetchLiveThumbnail } from '../../api';
-import styles from './DetailList.module.css'; // CSS 파일을 임포트합니다.
+import styles from './DetailList.module.css';
 
 interface DetailListProps {
   showLiveThumbnail?: boolean;
   videos: Video[];
   selectedTypes: string[];
-  onTypeToggle: (type: string) => void;
-  thumbnailHeight?: string; // 썸네일 높이 조정
-  listHeight?: string; // 목록 높이 조정
+  onTypeToggle: (types: string[]) => void;
+  thumbnailHeight?: string;
+  listHeight?: string;
 }
 
 const DetailList: React.FC<DetailListProps> = ({
@@ -22,19 +22,22 @@ const DetailList: React.FC<DetailListProps> = ({
   videos,
   selectedTypes,
   onTypeToggle,
-  thumbnailHeight = 'auto', // 기본 썸네일 높이 설정
-  listHeight = '400px', // 기본 목록 높이 설정
+  thumbnailHeight = 'auto',
+  listHeight = '400px',
 }) => {
   const navigate = useNavigate();
-  const { liveThumbnailUrl, setLiveThumbnailUrl, setSelectedVideoId } =
-    useVideoStore();
+  const {
+    liveThumbnailUrl,
+    setLiveThumbnailUrl,
+    currentVideoId,
+    setSelectedVideoId,
+  } = useVideoStore();
 
   useEffect(() => {
     if (showLiveThumbnail) {
       const fetchThumbnail = async () => {
         try {
-          console.log('Fetching live thumbnail...');
-          const thumbnailUrl = await fetchLiveThumbnail(1); // 캠 ID를 1로 가정
+          const thumbnailUrl = await fetchLiveThumbnail(1);
           setLiveThumbnailUrl(thumbnailUrl);
         } catch (error) {
           console.error('Failed to fetch live thumbnail:', error);
@@ -55,55 +58,57 @@ const DetailList: React.FC<DetailListProps> = ({
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'FIRE':
+      case 'fire':
         return fireIcon;
-      case 'INVASION':
+      case 'intrusion':
         return thiefIcon;
-      case 'SOUND':
+      case 'loud':
         return soundIcon;
       default:
         return '';
     }
   };
 
-  // 선택된 타입에 따라 비디오 필터링
-  const filteredVideos = videos.filter((video) =>
-    selectedTypes.length > 0
-      ? video.alerts.some((alert) =>
-          selectedTypes.includes(alert.type.toUpperCase())
-        )
-      : true
-  );
+  const handleTypeToggle = (type: string) => {
+    if (selectedTypes.includes(type)) {
+      onTypeToggle(selectedTypes.filter((t) => t !== type));
+    } else {
+      onTypeToggle([...selectedTypes, type]);
+    }
+  };
+
+  const filteredVideos = videos
+    .filter((video: Video) =>
+      selectedTypes.length > 0
+        ? video.alerts.some((alert: Alert) =>
+            selectedTypes.includes(alert.type.toUpperCase())
+          )
+        : true
+    )
+    .filter((video: Video) => video.id !== currentVideoId); // 현재 영상 제외
 
   return (
     <div className={`w-full lg:w-1/3 pl-4 pr-8 ${styles['video-list']}`}>
       {showLiveThumbnail && (
         <div
-          className={`border-4 border-red-500 mb-4 cursor-pointer ${styles['live-thumbnail']}`}
+          className="border-4 border-red-500 relative mb-4 cursor-pointer"
           onClick={handleLiveThumbnailClick}
-          style={{ height: thumbnailHeight }} // 썸네일 높이 설정
+          style={{ height: thumbnailHeight }}
         >
-          {liveThumbnailUrl ? (
-            <img
-              className="w-full h-full object-cover"
-              src={liveThumbnailUrl}
-              alt="Live Thumbnail"
-              style={{ aspectRatio: '11 / 7' }}
-            />
-          ) : (
-            <div
-              className="w-full h-full bg-gray-300"
-              style={{ aspectRatio: '11 / 7' }}
-            />
-          )}
+          <img
+            className="w-full h-full object-cover"
+            src={liveThumbnailUrl || 'https://via.placeholder.com/150'}
+            alt="Live Thumbnail"
+            style={{ aspectRatio: '11 / 7' }}
+          />
         </div>
       )}
-      <Filter selectedTypes={selectedTypes} onTypeToggle={onTypeToggle} />
+      <Filter selectedTypes={selectedTypes} onTypeToggle={handleTypeToggle} />
       <div
         className={`overflow-y-auto scrollbar-hide ${styles['video-list-container']}`}
         style={{ height: listHeight }}
       >
-        {filteredVideos.map((video) => (
+        {filteredVideos.map((video: Video) => (
           <div
             key={video.id}
             className="flex items-center mb-2 cursor-pointer"
@@ -125,13 +130,13 @@ const DetailList: React.FC<DetailListProps> = ({
               <div className="text-xs text-gray-600">{video.duration}</div>
             </div>
             <div className="flex justify-end space-x-1">
-              {[...new Set(video.alerts.map((alert) => alert.type))].map(
+              {[...new Set(video.alerts.map((alert: Alert) => alert.type))].map(
                 (type, index) => (
                   <img
                     key={index}
                     className="w-5 h-5 ml-1"
-                    src={getTypeIcon(type)}
-                    alt={type}
+                    src={getTypeIcon(type as string)}
+                    alt={type as string}
                   />
                 )
               )}
