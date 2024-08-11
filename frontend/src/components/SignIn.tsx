@@ -120,7 +120,7 @@ export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
 
   return (
     <div
-      className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-50 overlay"
+      className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-100 overlay"
       onClick={handleClose}
     >
       <div

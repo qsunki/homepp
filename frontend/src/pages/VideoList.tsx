@@ -192,8 +192,8 @@ const VideoList: React.FC = () => {
           })
         );
 
-        setVideos(apiVideos);
-        setFilteredVideos(apiVideos);
+        setVideos(apiVideos as Video[]);
+        setFilteredVideos(apiVideos as Video[]);
       } catch (error) {
         console.error('Failed to fetch videos', error);
         setVideos([]); // Ensure videos is set to an empty array on error
@@ -203,10 +203,6 @@ const VideoList: React.FC = () => {
 
     fetchData();
   }, [filterDateRange, selectedTypes, selectedCamera, isReported, cameras]);
-
-  const handleApplyFilters = () => {
-    setShowFilters(false); // 모바일인 경우 필터 창을 닫음
-  };
 
   const groupedVideos = videos.reduce((acc, video) => {
     const dateKey = video.date.toDateString();
@@ -230,6 +226,7 @@ const VideoList: React.FC = () => {
             className={`mt-2 filter-section ${styles['mobile-filter']}`}
             ref={filterSectionRef}
           >
+            {/* Event Type Filter */}
             <div className={styles['filter-group']}>
               <div className={styles['filter-title']}>Event Type</div>
               <div className={styles['button-group-horizontal']}>
@@ -259,6 +256,8 @@ const VideoList: React.FC = () => {
                 </button>
               </div>
             </div>
+
+            {/* Report Status Filter */}
             <div className={styles['filter-group']}>
               <div className={styles['filter-title']}>Report Status</div>
               <div className={styles['button-group-horizontal']}>
@@ -282,6 +281,8 @@ const VideoList: React.FC = () => {
                 </button>
               </div>
             </div>
+
+            {/* Camera Filter */}
             <div className={styles['filter-group']}>
               <div className={styles['filter-title']}>Camera</div>
               <div className={`${styles['cameraContainer']}`}>
@@ -298,6 +299,8 @@ const VideoList: React.FC = () => {
                 </select>
               </div>
             </div>
+
+            {/* Date Filter */}
             <div className={styles['filter-group']}>
               <div className={styles['filter-title']}>Date</div>
               <div className={styles['button-group-horizontal']}>
@@ -319,12 +322,6 @@ const VideoList: React.FC = () => {
                 >
                   1 Week
                 </button>
-                <button
-                  className={dateFilter === '1 Month' ? styles.selected : ''}
-                  onClick={() => handleDateFilterChange('1 Month')}
-                >
-                  1 Month
-                </button>
               </div>
               {dateFilter === 'Custom' && (
                 <div className="datepicker-container w-full custom-datepicker">
@@ -344,6 +341,7 @@ const VideoList: React.FC = () => {
                 </div>
               )}
             </div>
+
             <div className={styles['button-group-horizontal']}>
               <button
                 className={styles['apply-button']}
@@ -351,18 +349,14 @@ const VideoList: React.FC = () => {
               >
                 Close
               </button>
-              <button
-                className={styles['apply-button']}
-                onClick={handleApplyFilters}
-              >
-                Apply
-              </button>
             </div>
           </div>
         )}
       </div>
+
       <div className="hidden md:block md:w-1/4 p-4 filter-section">
         <div className={styles['filter-header']}>Filter Videos</div>
+        {/* Event Type Filter */}
         <div className={styles['filter-group']}>
           <div className={styles['filter-title']}>Event Type</div>
           <div className={styles['button-group-horizontal']}>
@@ -388,6 +382,8 @@ const VideoList: React.FC = () => {
             </button>
           </div>
         </div>
+
+        {/* Report Status Filter */}
         <div className={styles['filter-group']}>
           <div className={styles['filter-title']}>Report Status</div>
           <div className={styles['button-group-horizontal']}>
@@ -411,6 +407,8 @@ const VideoList: React.FC = () => {
             </button>
           </div>
         </div>
+
+        {/* Camera Filter */}
         <div className={styles['filter-group']}>
           <div className={styles['filter-title']}>Camera</div>
           <div className={`${styles['cameraContainer']}`}>
@@ -427,6 +425,8 @@ const VideoList: React.FC = () => {
             </select>
           </div>
         </div>
+
+        {/* Date Filter */}
         <div className={styles['filter-group']}>
           <div className={styles['filter-title']}>Date</div>
           <div className={styles['button-group-horizontal']}>
@@ -448,12 +448,6 @@ const VideoList: React.FC = () => {
             >
               1 Week
             </button>
-            <button
-              className={dateFilter === '1 Month' ? styles.selected : ''}
-              onClick={() => handleDateFilterChange('1 Month')}
-            >
-              1 Month
-            </button>
           </div>
           {dateFilter === 'Custom' && (
             <div className="datepicker-container w-full custom-datepicker">
@@ -473,13 +467,8 @@ const VideoList: React.FC = () => {
             </div>
           )}
         </div>
-        <button
-          className={`${styles['apply-button']} ${styles.fullWidth}`}
-          onClick={handleApplyFilters}
-        >
-          Apply
-        </button>
       </div>
+
       <div className="md:w-3/4 p-4">
         {videos.length > 0 ? (
           Object.entries(groupedVideos).map(([date, videos]) => (
@@ -529,6 +518,7 @@ const VideoList: React.FC = () => {
           <p className="text-center text-gray-500">No videos found.</p>
         )}
       </div>
+
       {showScrollButton && (
         <button
           className="fixed bottom-16 right-4 w-12 h-12 bg-black text-white rounded-full flex items-center justify-center shadow-lg"

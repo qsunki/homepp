@@ -11,7 +11,12 @@ import VideoDetail from './pages/VideoDetail';
 import ScrollToTop from './utils/ScrollToTop';
 import AboutUs from './pages/AboutUs';
 import { useUserStore } from './stores/useUserStore';
-import { setAuthToken, getUserInfo, sendFcmTokenToServer } from './api';
+import {
+  setAuthToken,
+  getUserInfo,
+  sendFcmTokenToServer,
+  reissueToken,
+} from './api';
 import SignIn from './components/SignIn';
 import ProtectedRoute from './components/ProtectedRoute';
 import {
@@ -23,72 +28,92 @@ import { onMessage, MessagePayload } from 'firebase/messaging';
 import './App.css';
 import 'tw-elements';
 import 'tw-elements/dist/css/tw-elements.min.css';
+import Loader from './components/videodetail/Loader';
 
 interface AppNotification {
   id: number;
   message: string;
   timestamp: Date;
-  type: 'event' | 'threat'; // 명확하게 타입 지정
+  type: 'event' | 'threat';
   isRead: boolean;
 }
 
 const App: React.FC = () => {
   const { setUser, logout } = useUserStore();
   const [showSignIn, setShowSignIn] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
 
   useEffect(() => {
-    const token = localStorage.getItem('token'); // 로컬 스토리지에서 토큰 가져오기
-    const savedPassword = localStorage.getItem('password'); // 로컬 스토리지에서 비밀번호 가져오기
-    console.log('useEffect token:', token); // 로컬 스토리지에 저장된 토큰 확인
-    if (token) {
-      setAuthToken(token); // JWT 토큰 설정
-      getUserInfo()
-        .then((response) => {
+    const handleTokenValidation = async () => {
+      const token = localStorage.getItem('token');
+      const savedPassword = localStorage.getItem('password');
+
+      if (token) {
+        setAuthToken(token);
+        try {
+          const response = await getUserInfo();
           const email = response.data;
-          console.log('getUserInfo response:', email); // API 응답 확인
           if (email) {
-            // email이 응답으로 오는 경우, 임의의 userId를 설정
             setUser(1, email, savedPassword || '', token);
-            registerFcmToken(email); // FCM 토큰 등록 함수 호출
+            registerFcmToken(email);
             handleForegroundNotification();
           } else {
-            console.log('User info not valid, logging out');
             logout();
           }
-        })
-        .catch((error) => {
-          console.error('Token validation failed:', error);
-          logout();
-        });
-    } else {
-      logout();
-    }
+        } catch (error) {
+          if (
+            error instanceof Error &&
+            (error as { response?: { status: number } }).response?.status ===
+              401
+          ) {
+            try {
+              const refreshToken = localStorage.getItem('refreshToken');
+              if (refreshToken) {
+                const newTokens = await reissueToken(refreshToken);
+                setAuthToken(newTokens.accessToken);
+                await handleTokenValidation();
+              } else {
+                logout();
+              }
+            } catch (reissueError) {
+              logout();
+            }
+          } else {
+            logout();
+          }
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        logout();
+        setLoading(false);
+      }
 
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker
-        .register('/firebase-messaging-sw.js')
-        .then((registration) => {
-          console.log(
-            'Service Worker registration successful with scope: ',
-            registration.scope
-          );
-        })
-        .catch((error) => {
-          console.log('Service Worker registration failed: ', error);
-        });
-    }
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker
+          .register('/firebase-messaging-sw.js')
+          .then((registration) => {
+            console.log(
+              'Service Worker registration successful with scope: ',
+              registration.scope
+            );
+          })
+          .catch((error) => {
+            console.log('Service Worker registration failed: ', error);
+          });
+      }
+    };
+
+    handleTokenValidation();
   }, [setUser, logout]);
 
   const registerFcmToken = async (email: string) => {
     try {
       console.log('Requesting FCM token...');
       const fcmToken = await requestPermissionAndGetToken(VAPID_KEY);
-      console.log('FCM token received:', fcmToken); // FCM 토큰 콘솔 출력
       if (fcmToken) {
-        console.log('FCM 토큰 등록 성공:', fcmToken);
-        await sendFcmTokenToServer(email, fcmToken); // 서버에 FCM 토큰 전송
-        console.log('서버에 FCM 토큰 전송 성공:', fcmToken);
+        await sendFcmTokenToServer(email, fcmToken);
       } else {
         console.log('FCM 토큰을 가져올 수 없습니다.');
       }
@@ -99,15 +124,14 @@ const App: React.FC = () => {
 
   const handleForegroundNotification = () => {
     onMessage(messaging, (payload: MessagePayload) => {
-      console.log('포그라운드에서 알림 수신:', payload);
       setNotifications((prev) => [
         ...prev,
         {
-          id: new Date().getTime(), // 예시로 알림 id 생성
+          id: new Date().getTime(),
           message: payload.notification?.body || '',
           timestamp: new Date(),
-          type: 'event', // 기본 값으로 'event'를 넣음, 실제 payload에 따라 수정 필요
-          isRead: false, // 기본 값으로 '읽지 않음' 상태 설정
+          type: 'event',
+          isRead: false,
         },
       ]);
       alert(
@@ -124,13 +148,17 @@ const App: React.FC = () => {
     setShowSignIn(true);
   };
 
+  if (loading) {
+    return <Loader />;
+  }
+
   return (
     <Router>
       <ScrollToTop />
       <div className="flex flex-col min-h-screen">
         <Navbar
           notifications={notifications}
-          setNotifications={setNotifications} // setNotifications prop 추가
+          setNotifications={setNotifications}
         />
         <div className="flex-grow min-h-full">
           <Routes>
