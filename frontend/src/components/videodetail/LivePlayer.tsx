@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import SockJS from 'sockjs-client';
 import { Client, IMessage } from '@stomp/stompjs';
-import Loader from './Loader';
-import { fetchCams, CamData, fetchWebSocketKey } from '../../api';
+import { v4 as uuidv4 } from 'uuid'; // UUID를 사용해 랜덤 키 생성
+// import Loader from './Loader'; // 로딩 컴포넌트 임포트 주석 처리
+import { fetchCams, CamData } from '../../api';
 import record from '../../assets/livevideo/record.png';
 import stop from '../../assets/livevideo/stop.png';
+import { controlCameraStream } from '../../api';
 
 interface Signal {
   type: 'answer' | 'candidate' | 'offer';
@@ -21,7 +23,7 @@ const LivePlayer: React.FC = () => {
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
   const [cams, setCams] = useState<Cam[]>([]);
   const [selectedCamId, setSelectedCamId] = useState<string>('1');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  // const [isLoading, setIsLoading] = useState<boolean>(true);
   const clientRef = useRef<Client | null>(null);
   const [webSocketKey, setWebSocketKey] = useState<string>('');
   const [isRecording, setIsRecording] = useState<boolean>(false);
@@ -49,20 +51,14 @@ const LivePlayer: React.FC = () => {
   useEffect(() => {
     if (!selectedCamId) return;
 
-    const getWebSocketKey = async () => {
-      setIsLoading(true);
-      try {
-        const key = await fetchWebSocketKey(selectedCamId);
-        console.log('Fetched WebSocket key:', key);
-        setWebSocketKey(key);
-      } catch (error) {
-        console.error('Failed to fetch WebSocket key:', error);
-      } finally {
-        setIsLoading(false);
-      }
+    // WebSocket 키를 프론트에서 직접 생성
+    const generateWebSocketKey = () => {
+      const key = uuidv4(); // UUID를 사용해 랜덤 키 생성
+      console.log('Generated WebSocket key:', key);
+      setWebSocketKey(key);
     };
 
-    getWebSocketKey();
+    generateWebSocketKey();
   }, [selectedCamId]);
 
   useEffect(() => {
@@ -110,8 +106,15 @@ const LivePlayer: React.FC = () => {
       if (peerConnectionRef.current) {
         peerConnectionRef.current.close();
       }
+      // 페이지를 떠날 때 스트리밍 종료 요청
+      controlCameraStream(parseInt(selectedCamId), 'END').catch((error) => {
+        console.error(
+          `Failed to stop stream for camId ${selectedCamId}:`,
+          error
+        );
+      });
     };
-  }, [webSocketKey]);
+  }, [webSocketKey, selectedCamId]);
 
   const handleSignal = (signal: Signal) => {
     console.log('Handling signal:', signal);
@@ -156,7 +159,7 @@ const LivePlayer: React.FC = () => {
         if (remoteVideoRef.current) {
           remoteVideoRef.current.srcObject = remoteStream;
           console.log('Remote stream set to video element');
-          setIsLoading(false);
+          // setIsLoading(false);
 
           // Initialize MediaRecorder when track event occurs
           if (mediaRecorderRef.current == null) {
@@ -290,7 +293,7 @@ const LivePlayer: React.FC = () => {
       if (remoteVideoRef.current) {
         remoteVideoRef.current.srcObject = remoteStream;
         console.log('Remote stream set to video element');
-        setIsLoading(false);
+        // setIsLoading(false);
       }
     };
 
@@ -343,7 +346,8 @@ const LivePlayer: React.FC = () => {
 
   return (
     <div className="relative">
-      {isLoading && <Loader />}
+      {/* 로딩 컴포넌트 주석 처리 */}
+      {/* {isLoading && <Loader />} */}
       <select
         className="absolute top-4 left-4 bg-white border border-gray-400 rounded px-2 py-1 z-10"
         onChange={(e) => setSelectedCamId(e.target.value)}
