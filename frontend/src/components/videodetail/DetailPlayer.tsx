@@ -14,7 +14,7 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({
   showDetails = false,
 }) => {
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
-  const { selectedVideoId, reportVideo } = useVideoStore();
+  const { selectedVideoId } = useVideoStore();
 
   useEffect(() => {
     const getVideoStream = async () => {
@@ -30,11 +30,6 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({
     getVideoStream();
   }, [selectedVideoId, videoSrc]);
 
-  const handleReport = () => {
-    reportVideo(selectedVideoId);
-    alert('The video has been reported.');
-  };
-
   return (
     <div className="w-full lg:w-2/3 lg:pr-4 relative">
       {isLive ? (
@@ -42,7 +37,6 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({
       ) : (
         <RecordedPlayer showDetails={showDetails} videoSrc={videoSrc} />
       )}
-      <button onClick={handleReport}>Report Video</button>
     </div>
   );
 };

@@ -74,19 +74,23 @@ export const useVideoStore = create<VideoState>((set, get) => ({
   currentVideoId: 0,
   selectedVideoId: 0,
   selectedVideo: null,
+
   setSelectedVideoId: (id) => {
     const { videos } = get();
     const isReported = localStorage.getItem(`reported_${id}`) === 'true';
+    console.log(`Loading reported status for video ${id}:`, isReported);
     const updatedVideos = videos.map((video) =>
       video.id === id ? { ...video, isReported } : video
     );
     set({ selectedVideoId: id, currentVideoId: id, videos: updatedVideos });
   },
+
   fetchVideoById: async (id) => {
     const { videos } = get();
     const video = videos.find((v) => v.id === id);
     if (video) {
-      set({ selectedVideo: video });
+      const isReported = localStorage.getItem(`reported_${id}`) === 'true';
+      set({ selectedVideo: { ...video, isReported } });
     } else {
       try {
         const response = await fetchVideoByIdAPI(id);
@@ -118,6 +122,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
           ),
           date: new Date(apiVideo.recordStartAt),
           camera: apiVideo.camName,
+          isReported: localStorage.getItem(`reported_${id}`) === 'true',
         };
         set({ selectedVideo: fetchedVideo });
       } catch (error) {
@@ -125,6 +130,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
       }
     }
   },
+
   filter: initialFilter,
   setFilter: (type) => {
     set((state) => ({ filter: { ...state.filter, type } }));
@@ -140,6 +146,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
   setVolume: (volume) => set({ volume }),
   liveThumbnailUrl: '',
   setLiveThumbnailUrl: (url) => set({ liveThumbnailUrl: url }),
+
   updateFilteredVideos: () => {
     const { videos, filter } = get();
     let filtered = videos;
@@ -158,16 +165,28 @@ export const useVideoStore = create<VideoState>((set, get) => ({
 
     set({ filteredVideos: filtered });
   },
+
   reportVideo: (id: number) => {
-    const { videos } = get();
+    const { videos, selectedVideo } = get();
     const updatedVideos = videos.map((video) =>
       video.id === id ? { ...video, isReported: true } : video
     );
-    set({ videos: updatedVideos });
-    localStorage.setItem(`reported_${id}`, 'true'); // localStorage에 신고 상태 저장
+    set({
+      videos: updatedVideos,
+      selectedVideo: selectedVideo
+        ? { ...selectedVideo, isReported: true }
+        : null,
+    });
+    localStorage.setItem(`reported_${id}`, 'true');
+    console.log(
+      `Video ${id} reported:`,
+      localStorage.getItem(`reported_${id}`)
+    );
   },
+
   selectedTypes: [],
   setSelectedTypes: (types: string[]) => set({ selectedTypes: types }),
+
   fetchAndSetVideos: async () => {
     try {
       const response = await fetchVideos();
@@ -196,6 +215,8 @@ export const useVideoStore = create<VideoState>((set, get) => ({
             ),
             date: new Date(video.recordStartAt),
             camera: video.camName,
+            isReported:
+              localStorage.getItem(`reported_${video.videoId}`) === 'true',
           };
         })
       );
@@ -209,6 +230,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
       console.error('Failed to fetch videos:', error);
     }
   },
+
   setVideos: (videos: Video[]) => set({ videos }),
   setFilteredVideos: (videos: Video[]) => set({ filteredVideos: videos }),
 }));

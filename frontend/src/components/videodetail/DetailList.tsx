@@ -91,7 +91,7 @@ const DetailList: React.FC<DetailListProps> = ({
     <div className={`w-full lg:w-1/3 pl-4 pr-8 ${styles['video-list']}`}>
       {showLiveThumbnail && (
         <div
-          className="border-4 border-red-500 relative mb-4 cursor-pointer"
+          className="border-4 border-red-500 relative mb-4 cursor-pointer lg:block hidden"
           onClick={handleLiveThumbnailClick}
           style={{ height: thumbnailHeight }}
         >

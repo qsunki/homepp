@@ -690,7 +690,7 @@ export const controlCameraStream = async (
   command: 'START' | 'END'
 ): Promise<void> => {
   try {
-    await api.get(`/cams/${camId}/stream`, {
+    await api.post(`/cams/${camId}/stream`, null, {
       params: { command },
     });
     console.log(
