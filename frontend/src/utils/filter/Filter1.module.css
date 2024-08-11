@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   margin-bottom: 10px;
+  white-space: nowrap;
 }
 
 .button-group-horizontal {
@@ -14,14 +15,15 @@
   flex: 1;
   margin: 0 5px;
   padding: 10px;
-  border: 1px;
-  border-color: #007bff;
+  border: 1px solid #007bff;
   border-radius: 5px;
   background-color: #e0e0e0;
   color: #000;
   font-size: 14px;
   cursor: pointer;
   transition: background-color 0.3s;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .button-group-horizontal button.selected {
@@ -36,6 +38,7 @@
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 14px;
+  box-sizing: border-box;
 }
 
 .apply-button {
@@ -73,6 +76,13 @@
   padding: 15px;
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.md\:w-1\/4 {
+  width: 25%;
 }
 
 .filter-header {
@@ -96,6 +106,14 @@
 .datepicker-container {
   margin-top: 10px;
   margin-bottom: 10px;
+  width: 100%;
+  z-index: 200;
+  position: relative;
+}
+
+.custom-datepicker {
+  width: 100%;
+  z-index: 200;
 }
 
 .mobile-filter {
