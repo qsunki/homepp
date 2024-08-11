@@ -78,11 +78,20 @@ export const useVideoStore = create<VideoState>((set, get) => ({
   setSelectedVideoId: (id) => {
     const { videos } = get();
     const isReported = localStorage.getItem(`reported_${id}`) === 'true';
-    console.log(`Loading reported status for video ${id}:`, isReported);
+    console.log(
+      `Video selected with ID: ${id}, Reported Status: ${isReported}`
+    );
     const updatedVideos = videos.map((video) =>
       video.id === id ? { ...video, isReported } : video
     );
-    set({ selectedVideoId: id, currentVideoId: id, videos: updatedVideos });
+    const selectedVideo =
+      updatedVideos.find((video) => video.id === id) || null;
+    set({
+      selectedVideoId: id,
+      currentVideoId: id,
+      selectedVideo,
+      videos: updatedVideos,
+    });
   },
 
   fetchVideoById: async (id) => {
@@ -150,19 +159,16 @@ export const useVideoStore = create<VideoState>((set, get) => ({
   updateFilteredVideos: () => {
     const { videos, filter } = get();
     let filtered = videos;
-
     if (filter.type !== 'all') {
       filtered = filtered.filter((video) =>
         video.alerts.some((alert) => alert.type === filter.type)
       );
     }
-
     if (filter.camera !== 'All Cameras') {
       filtered = filtered.filter((video) =>
         video.title.includes(filter.camera)
       );
     }
-
     set({ filteredVideos: filtered });
   },
 

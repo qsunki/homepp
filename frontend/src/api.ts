@@ -337,13 +337,24 @@ export const fetchVideos = async (params?: {
   }
 };
 
-// 특정 비디오 조회 API 호출 함수 추가
+// 특정 비디오 조회 API 호출 함수 수정
 export const fetchVideoById = async (
   videoId: number
 ): Promise<AxiosResponse<Video>> => {
   try {
     const response = await api.get<Video>(`/cams/videos/${videoId}`);
-    return response;
+    const videoData = response.data;
+
+    // isThreat 필드를 이용해 isReported 상태를 설정
+    const video = {
+      ...videoData,
+      isReported: videoData.threat, // isThreat 값을 isReported에 매핑
+    };
+
+    return {
+      ...response,
+      data: video,
+    };
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error(
