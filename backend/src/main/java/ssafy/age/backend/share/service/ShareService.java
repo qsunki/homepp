@@ -4,7 +4,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ssafy.age.backend.auth.service.AuthService;
+import ssafy.age.backend.security.service.AuthService;
 import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;

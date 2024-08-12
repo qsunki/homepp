@@ -5,7 +5,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ssafy.age.backend.auth.service.AuthService;
+import ssafy.age.backend.security.service.AuthService;
 import ssafy.age.backend.member.service.MemberService;
 
 @Slf4j

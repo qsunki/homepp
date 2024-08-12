@@ -1,4 +1,4 @@
-package ssafy.age.backend.auth.persistence;
+package ssafy.age.backend.security.persistence;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

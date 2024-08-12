@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import ssafy.age.backend.auth.service.AuthService;
+import ssafy.age.backend.security.service.AuthService;
 import ssafy.age.backend.cam.exception.CamNotFoundException;
 import ssafy.age.backend.cam.exception.JsonParsingException;
 import ssafy.age.backend.cam.persistence.Cam;

@@ -13,7 +13,7 @@ import org.springframework.core.io.support.ResourceRegion;
 import org.springframework.http.HttpRange;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import ssafy.age.backend.auth.service.AuthService;
+import ssafy.age.backend.security.service.AuthService;
 import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.event.persistence.Event;
 import ssafy.age.backend.event.persistence.EventRepository;

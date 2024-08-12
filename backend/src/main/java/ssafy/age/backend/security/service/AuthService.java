@@ -1,18 +1,23 @@
-package ssafy.age.backend.auth.service;
+package ssafy.age.backend.security.service;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ssafy.age.backend.auth.exception.TokenNotFoundException;
-import ssafy.age.backend.auth.persistence.RefreshToken;
-import ssafy.age.backend.auth.persistence.RefreshTokenRepository;
+import ssafy.age.backend.member.service.MemberService;
+import ssafy.age.backend.security.exception.TokenNotFoundException;
+import ssafy.age.backend.security.persistence.RefreshToken;
+import ssafy.age.backend.security.persistence.RefreshTokenRepository;
 import ssafy.age.backend.member.exception.MemberDuplicateEntityException;
 import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.*;
@@ -22,7 +27,7 @@ import ssafy.age.backend.member.web.TokenDto;
 
 @Service
 @RequiredArgsConstructor
-public class AuthService {
+public class AuthService implements UserDetailsService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
@@ -42,7 +47,6 @@ public class AuthService {
                         .email(email)
                         .password(passwordEncoder.encode(password))
                         .phoneNumber(phoneNumber)
-                        .roles(Collections.singletonList("ROLE_USER"))
                         .build();
 
         return mapper.toMemberResponseDto(memberRepository.save(member));
@@ -61,9 +65,10 @@ public class AuthService {
 
         Member member =
                 memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
+        JwtPayloadDto jwtPayloadDto = new JwtPayloadDto(member.getId(), member.getEmail());
 
         // 3. 인증 정보를 기반으로 JWT 토큰 생성
-        TokenDto token = tokenProvider.generateTokenDto(authentication);
+        TokenDto token = tokenProvider.generateTokenDto(jwtPayloadDto);
 
         // 4. Redis에  RefreshToken 저장
         refreshTokenRepository.save(new RefreshToken(token.getRefreshToken(), member.getId()));
@@ -87,9 +92,10 @@ public class AuthService {
 
         // 2. Refresh Token으로 부터 인증 정보를 꺼냄
         Authentication authentication = tokenProvider.getAuthentication(refreshToken);
+        JwtPayloadDto jwtPayloadDto = (JwtPayloadDto) authentication.getPrincipal();
 
         // 3. 새로운 Access Token 생성
-        TokenDto accessToken = tokenProvider.generateTokenDto(authentication);
+        TokenDto accessToken = tokenProvider.generateTokenDto(jwtPayloadDto);
 
         // Token 재발급
         return TokenDto.builder()
@@ -117,5 +123,16 @@ public class AuthService {
     public String getMemberEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication.getPrincipal().toString();
+    }
+
+    @Override
+    @Transactional
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        try {
+            Member member = memberRepository.findByEmail(username).orElseThrow(MemberNotFoundException::new);
+            return new User(member.getEmail(), member.getPassword(), List.of());
+        } catch (Exception e) {
+            throw new MemberNotFoundException();
+        }
     }
 }

@@ -1,4 +1,4 @@
-package ssafy.age.backend.security;
+package ssafy.age.backend.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
@@ -12,7 +12,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import ssafy.age.backend.auth.exception.InvalidTokenException;
+import ssafy.age.backend.security.exception.InvalidTokenException;
 
 @Component
 public class ExceptionHandlerFilter extends OncePerRequestFilter {
