@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useCameraStore } from '../stores/useCameraStore';
-import { controlAllCamerasStream } from '../api';
+import { controlAllCamerasStream, fetchLatestEnvInfo } from '../api';
 
 const CameraToggle: React.FC = () => {
   const { camIds, isCamerasOn, fetchCamIds, setCamerasOn, webSocketKey } =
@@ -8,7 +8,27 @@ const CameraToggle: React.FC = () => {
 
   useEffect(() => {
     fetchCamIds(); // 컴포넌트가 로드될 때 camIds를 불러옴
-  }, []);
+
+    // 주기적으로 상태 확인을 위해 인터벌 설정
+    const intervalId = setInterval(async () => {
+      try {
+        // 모든 카메라의 상태를 가져와서 확인
+        const statusPromises = camIds.map((camId) => fetchLatestEnvInfo(camId));
+        const statuses = await Promise.all(statusPromises);
+
+        // 카메라 상태 중 하나라도 ON이면 isCamerasOn을 true로 설정
+        const isAnyCameraOn = statuses.some(
+          (status) => status.status === 'ONLINE'
+        );
+        setCamerasOn(isAnyCameraOn);
+      } catch (error) {
+        console.error('Failed to fetch camera statuses:', error);
+      }
+    }, 5000); // 5초마다 확인
+
+    // 컴포넌트 언마운트 시 인터벌 해제
+    return () => clearInterval(intervalId);
+  }, [camIds, setCamerasOn]);
 
   const handleToggle = async () => {
     const command = isCamerasOn ? 'end' : 'start';
