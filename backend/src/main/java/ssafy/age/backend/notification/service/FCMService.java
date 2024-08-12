@@ -29,7 +29,6 @@ public class FCMService {
     private final FCMTokenRepository fcmTokenRepository;
     private final AuthService authService;
     private final MemberRepository memberRepository;
-    private final MemberService memberService;
 
     public List<FCMToken> getAllFCMTokens() {
         return fcmTokenRepository.findAll();
@@ -75,6 +74,7 @@ public class FCMService {
                 String response = FirebaseMessaging.getInstance().send(message);
                 log.debug(response);
             } catch (FirebaseMessagingException e) {
+                fcmTokenRepository.delete(fcmToken);
                 throw new RuntimeException(e);
             }
         }
