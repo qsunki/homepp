@@ -14,7 +14,6 @@ import ssafy.age.backend.event.persistence.EventType;
 import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
-import ssafy.age.backend.member.service.MemberService;
 import ssafy.age.backend.notification.persistence.FCMToken;
 import ssafy.age.backend.notification.persistence.FCMTokenRepository;
 import ssafy.age.backend.notification.web.FCMTokenDto;
@@ -37,7 +36,7 @@ public class FCMService {
     public void sendMessageToAll(Video video) {
         List<FCMToken> fcmTokens = fcmTokenRepository.findAll();
         for (FCMToken fcmToken : fcmTokens) {
-            sendThreatMessage(fcmToken.getToken(), video);
+            sendThreatMessage(fcmToken, video);
         }
     }
 
@@ -95,6 +94,7 @@ public class FCMService {
                 String response = FirebaseMessaging.getInstance().send(message);
                 log.debug(response);
             } catch (FirebaseMessagingException e) {
+                fcmTokenRepository.delete(fcmToken);
                 throw new RuntimeException(e);
             }
         }
@@ -113,6 +113,7 @@ public class FCMService {
                 String response = FirebaseMessaging.getInstance().send(message);
                 log.debug(response);
             } catch (FirebaseMessagingException e) {
+                fcmTokenRepository.delete(fcmToken);
                 throw new RuntimeException(e);
             }
         }
@@ -135,6 +136,7 @@ public class FCMService {
                 String response = FirebaseMessaging.getInstance().send(message);
                 log.debug(response);
             } catch (FirebaseMessagingException e) {
+                fcmTokenRepository.delete(fcmToken);
                 throw new RuntimeException(e);
             }
         }
@@ -150,6 +152,7 @@ public class FCMService {
                     String response = FirebaseMessaging.getInstance().send(message);
                     log.debug(response);
                 } catch (FirebaseMessagingException e) {
+                    fcmTokenRepository.delete(fcmToken);
                     throw new RuntimeException(e);
                 }
             }
@@ -196,13 +199,14 @@ public class FCMService {
                 .build();
     }
 
-    public void sendThreatMessage(String targetToken, Video video) {
-        Message message = buildThreatMessage(targetToken, video);
+    public void sendThreatMessage(FCMToken targetToken, Video video) {
+        Message message = buildThreatMessage(targetToken.getToken(), video);
 
         try {
             String response = FirebaseMessaging.getInstance().send(message);
             log.debug(response);
         } catch (FirebaseMessagingException e) {
+            fcmTokenRepository.delete(targetToken);
             throw new RuntimeException(e);
         }
     }

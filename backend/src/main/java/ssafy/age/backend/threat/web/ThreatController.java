@@ -4,7 +4,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ssafy.age.backend.auth.service.AuthService;
 import ssafy.age.backend.threat.service.ThreatService;
 
 @Slf4j
