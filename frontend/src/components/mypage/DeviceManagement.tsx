@@ -138,6 +138,7 @@ const DeviceManagement: React.FC = () => {
   const closeQRCodePopup = () => {
     setShowQRCodePopup(false);
     setQrCodeData(null);
+    loadDevices(); // QR 코드 팝업을 닫을 때 기기 목록을 다시 불러옴
   };
 
   return (
@@ -240,10 +241,12 @@ const DeviceManagement: React.FC = () => {
           className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50"
           onClick={closeQRCodePopup}
         >
-          <div className="bg-white p-4 rounded-lg text-center">
+          <div className="bg-white p-6 rounded-lg text-center w-80 max-w-full">
             <h3 className="text-lg font-bold mb-4">QR Code</h3>
             <p className="mb-4">Scan with your security camera</p>
-            <QRCode value={qrCodeData} />
+            <div className="flex justify-center mb-4">
+              <QRCode value={qrCodeData} size={256} />
+            </div>
             <button
               onClick={closeQRCodePopup}
               className="bg-gray-300 text-black p-2 rounded mt-4"

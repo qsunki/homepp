@@ -1,16 +1,21 @@
 import React from 'react';
 import { useUserStore } from '../stores/useUserStore';
 import { useNavigate } from 'react-router-dom';
-import characterImage from '../assets/landingpage/characterbg.png';
+import characterImage from '../assets/icon/character.png';
 import laptop from '../assets/landingpage/laptop.png';
 import notification from '../assets/landingpage/notification.png';
 import clock from '../assets/landingpage/clock.png';
-import shield from '../assets/landingpage/shield.png';
-import webCamera from '../assets/landingpage/webCamera.png';
+// import shield from '../assets/landingpage/shield.png';
+// import webCamera from '../assets/landingpage/webCamera.png';
 import automated from '../assets/landingpage/automated.png';
 import noticetype from '../assets/landingpage/noticetype.png';
 import monitoring from '../assets/landingpage/monitoring.png';
 import characterHead from '../assets/landingpage/characterhead.png';
+import {
+  RiCameraOffLine,
+  RiShieldCheckLine,
+  RiSmartphoneLine,
+} from 'react-icons/ri'; // React Icons 사용
 
 interface LandingPageProps {
   onSignInOpen: () => void;
@@ -51,35 +56,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignInOpen }) => {
         />
       </div>
 
-      {/* Feature Highlights */}
-      <div className="flex flex-wrap justify-evenly w-full my-12 bg-gray-100 py-8">
-        <div className="flex flex-col items-center justify-center bg-white rounded-xl w-[200px] h-[200px] p-4 m-4 shadow-lg text-center">
-          <div className="mb-2 font-bold text-lg">사용자 수</div>
-          <div className="text-2xl font-bold">100만+</div>
-          <img className="w-16 h-16 mt-4" src={laptop} alt="사용자 수 아이콘" />
-        </div>
-        <div className="flex flex-col items-center justify-center bg-white rounded-xl w-[200px] h-[200px] p-4 m-4 shadow-lg text-center">
-          <div className="mb-2 font-bold text-lg">일일 최대 알림 수</div>
-          <div className="text-2xl font-bold">100+</div>
-          <img
-            className="w-16 h-16 mt-4"
-            src={notification}
-            alt="알림 수 아이콘"
-          />
-        </div>
-        <div className="flex flex-col items-center justify-center bg-white rounded-xl w-[200px] h-[200px] p-4 m-4 shadow-lg text-center">
-          <div className="mb-2 font-bold text-lg">동시접속자 수</div>
-          <div className="text-2xl font-bold">1000+</div>
-          <img
-            className="w-16 h-16 mt-4"
-            src={clock}
-            alt="동시접속자 수 아이콘"
-          />
-        </div>
-      </div>
-
       {/* Advertisement Section */}
-      <div className="flex flex-row items-center justify-between w-full max-w-6xl px-4 space-x-8">
+      {/* <div className="flex flex-row items-center justify-between w-full max-w-6xl px-4 space-x-8">
         <div className="flex items-center justify-between w-full p-8 bg-gray-200 rounded-lg">
           <img
             className="w-20 h-20 flex-shrink-0"
@@ -107,6 +85,50 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignInOpen }) => {
             src={webCamera}
             alt="카메라 아이콘"
           />
+        </div>
+      </div> */}
+
+      {/* Why You Need This Section */}
+      <div className="flex flex-col items-center w-full px-4 my-12 bg-white">
+        <h2 className="text-4xl font-semibold text-gray-900 mb-12">
+          Why You will Love Our Solution
+        </h2>
+        <div className="flex flex-col lg:flex-row justify-center items-center gap-8 lg:gap-30">
+          {/* 카드 1: 자동으로 꺼지는 카메라 */}
+          <div className="group relative flex flex-col items-center bg-gray-50 rounded-xl p-8 shadow-lg transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl max-w-xs">
+            <RiCameraOffLine className="text-blue-600 text-6xl mb-6" />
+            <h3 className="text-xl font-bold text-gray-800 mb-4">
+              자동으로 꺼지는 카메라
+            </h3>
+            <p className="text-gray-600 text-center">
+              집에 들어오면 카메라가 자동으로 꺼져, <br />
+              귀찮게 끄는 것을 잊어도 프라이버시가 보호됩니다.
+            </p>
+          </div>
+
+          {/* 카드 2: 침입자, 화재, 큰소리 감지 */}
+          <div className="group relative flex flex-col items-center bg-gray-50 rounded-xl p-8 shadow-lg transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl max-w-xs">
+            <RiShieldCheckLine className="text-blue-600 text-6xl mb-6" />
+            <h3 className="text-xl font-bold text-gray-800 mb-4">
+              침입자, 화재, 큰소리 감지
+            </h3>
+            <p className="text-gray-600 text-center">
+              위험 요소를 빠르게 감지하고, <br />
+              실시간으로 알림을 보내 당신의 집을 안전하게 지켜줍니다.
+            </p>
+          </div>
+
+          {/* 카드 3: 원격 모니터링 */}
+          <div className="group relative flex flex-col items-center bg-gray-50 rounded-xl p-8 shadow-lg transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl max-w-xs">
+            <RiSmartphoneLine className="text-blue-600 text-6xl mb-6" />
+            <h3 className="text-xl font-bold text-gray-800 mb-4">
+              원격 모니터링
+            </h3>
+            <p className="text-gray-600 text-center">
+              스마트폰이나 컴퓨터를 통해 언제 어디서나 집을 지켜보고, <br />
+              이상 상황을 빠르게 파악할 수 있습니다.
+            </p>
+          </div>
         </div>
       </div>
 
@@ -154,6 +176,33 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignInOpen }) => {
               위험을 같은 지역 사람들이나 가족에게 공유하여 보안 강화
             </p>
           </div>
+        </div>
+      </div>
+
+      {/* Feature Highlights */}
+      <div className="flex flex-wrap justify-evenly w-full my-12 bg-gray-100 py-8">
+        <div className="flex flex-col items-center justify-center bg-white rounded-xl w-[200px] h-[200px] p-4 m-4 shadow-lg text-center">
+          <div className="mb-2 font-bold text-lg">사용자 수</div>
+          <div className="text-2xl font-bold">100만+</div>
+          <img className="w-16 h-16 mt-4" src={laptop} alt="사용자 수 아이콘" />
+        </div>
+        <div className="flex flex-col items-center justify-center bg-white rounded-xl w-[200px] h-[200px] p-4 m-4 shadow-lg text-center">
+          <div className="mb-2 font-bold text-lg">일일 최대 알림 수</div>
+          <div className="text-2xl font-bold">100+</div>
+          <img
+            className="w-16 h-16 mt-4"
+            src={notification}
+            alt="알림 수 아이콘"
+          />
+        </div>
+        <div className="flex flex-col items-center justify-center bg-white rounded-xl w-[200px] h-[200px] p-4 m-4 shadow-lg text-center">
+          <div className="mb-2 font-bold text-lg">동시접속자 수</div>
+          <div className="text-2xl font-bold">1000+</div>
+          <img
+            className="w-16 h-16 mt-4"
+            src={clock}
+            alt="동시접속자 수 아이콘"
+          />
         </div>
       </div>
 
