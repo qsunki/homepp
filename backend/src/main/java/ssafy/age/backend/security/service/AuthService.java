@@ -14,16 +14,15 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ssafy.age.backend.member.service.MemberService;
-import ssafy.age.backend.security.exception.TokenNotFoundException;
-import ssafy.age.backend.security.persistence.RefreshToken;
-import ssafy.age.backend.security.persistence.RefreshTokenRepository;
 import ssafy.age.backend.member.exception.MemberDuplicateEntityException;
 import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.*;
 import ssafy.age.backend.member.service.MemberMapper;
 import ssafy.age.backend.member.web.MemberResponseDto;
 import ssafy.age.backend.member.web.TokenDto;
+import ssafy.age.backend.security.exception.TokenNotFoundException;
+import ssafy.age.backend.security.persistence.RefreshToken;
+import ssafy.age.backend.security.persistence.RefreshTokenRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -129,7 +128,10 @@ public class AuthService implements UserDetailsService {
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         try {
-            Member member = memberRepository.findByEmail(username).orElseThrow(MemberNotFoundException::new);
+            Member member =
+                    memberRepository
+                            .findByEmail(username)
+                            .orElseThrow(MemberNotFoundException::new);
             return new User(member.getEmail(), member.getPassword(), List.of());
         } catch (Exception e) {
             throw new MemberNotFoundException();

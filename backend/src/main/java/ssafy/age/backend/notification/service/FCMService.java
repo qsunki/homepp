@@ -8,7 +8,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ssafy.age.backend.security.service.AuthService;
 import ssafy.age.backend.event.persistence.Event;
 import ssafy.age.backend.event.persistence.EventType;
 import ssafy.age.backend.member.exception.MemberNotFoundException;
@@ -17,6 +16,7 @@ import ssafy.age.backend.member.persistence.MemberRepository;
 import ssafy.age.backend.notification.persistence.FCMToken;
 import ssafy.age.backend.notification.persistence.FCMTokenRepository;
 import ssafy.age.backend.notification.web.FCMTokenDto;
+import ssafy.age.backend.security.service.AuthService;
 import ssafy.age.backend.share.persistence.Share;
 import ssafy.age.backend.video.persistence.Video;
 

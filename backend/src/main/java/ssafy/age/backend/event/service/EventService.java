@@ -8,13 +8,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ssafy.age.backend.security.service.AuthService;
 import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.event.exception.EventNotFoundException;
 import ssafy.age.backend.event.persistence.Event;
 import ssafy.age.backend.event.persistence.EventRepository;
 import ssafy.age.backend.event.web.EventResponseDto;
 import ssafy.age.backend.notification.service.FCMService;
+import ssafy.age.backend.security.service.AuthService;
 
 @Slf4j
 @Service

@@ -53,8 +53,7 @@ public class Member {
             String phoneNumber,
             List<FCMToken> fcmTokenList,
             List<Cam> camList,
-            List<Share> shareList
-    ) {
+            List<Share> shareList) {
         this.id = id;
         this.email = email;
         this.password = password;

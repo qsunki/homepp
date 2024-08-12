@@ -3,12 +3,12 @@ package ssafy.age.backend.member.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ssafy.age.backend.security.service.AuthService;
 import ssafy.age.backend.member.exception.MemberInvalidAccessException;
 import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
 import ssafy.age.backend.member.web.MemberResponseDto;
+import ssafy.age.backend.security.service.AuthService;
 
 @Slf4j
 @Service
