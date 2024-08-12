@@ -740,4 +740,31 @@ export const controlAllCamerasStream = async (
   }
 };
 
+// 공유 받은 캠 리스트 조회 API 호출 함수
+export interface SharedCamData {
+  camId: number;
+  name: string;
+  thumbnail: string;
+}
+
+export const fetchSharedCams = async (): Promise<
+  AxiosResponse<SharedCamData[]>
+> => {
+  try {
+    const response = await api.get<SharedCamData[]>('/cams/shared');
+    console.log('Fetched shared cams:', response.data); // 로그 추가
+    return response;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        '공유 받은 캠 리스트 조회 오류:',
+        error.response ? error.response.data : error.message
+      );
+    } else {
+      console.error('공유 받은 캠 리스트 조회 오류:', error);
+    }
+    throw error;
+  }
+};
+
 export default api;

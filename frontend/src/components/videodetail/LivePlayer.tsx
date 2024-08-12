@@ -2,8 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import SockJS from 'sockjs-client';
 import { Client, IMessage } from '@stomp/stompjs';
 import { v4 as uuidv4 } from 'uuid'; // UUID를 사용해 랜덤 키 생성
-// import Loader from './Loader'; // 로딩 컴포넌트 임포트 주석 처리
-import { fetchCams, CamData, controlCameraStream } from '../../api';
+import {
+  fetchCams,
+  CamData,
+  controlCameraStream,
+  fetchSharedCams,
+  SharedCamData,
+} from '../../api';
 import record from '../../assets/livevideo/record.png';
 import stop from '../../assets/livevideo/stop.png';
 
@@ -21,8 +26,8 @@ const LivePlayer: React.FC = () => {
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
   const [cams, setCams] = useState<Cam[]>([]);
+  const [sharedCams, setSharedCams] = useState<Cam[]>([]);
   const [selectedCamId, setSelectedCamId] = useState<string>('1');
-  // const [isLoading, setIsLoading] = useState<boolean>(true);
   const clientRef = useRef<Client | null>(null);
   const [webSocketKey, setWebSocketKey] = useState<string>('');
   const [isRecording, setIsRecording] = useState<boolean>(false);
@@ -44,7 +49,24 @@ const LivePlayer: React.FC = () => {
       }
     };
 
+    const getSharedCams = async () => {
+      try {
+        const response = await fetchSharedCams();
+        console.log('Fetched shared cams:', response.data);
+        const sharedCamsData: Cam[] = response.data.map(
+          (cam: SharedCamData) => ({
+            id: cam.camId.toString(),
+            name: cam.name,
+          })
+        );
+        setSharedCams(sharedCamsData);
+      } catch (error) {
+        console.error('Failed to fetch shared cams:', error);
+      }
+    };
+
     getCams();
+    getSharedCams();
   }, []);
 
   useEffect(() => {
@@ -189,7 +211,6 @@ const LivePlayer: React.FC = () => {
         if (remoteVideoRef.current) {
           remoteVideoRef.current.srcObject = remoteStream;
           console.log('Remote stream set to video element');
-          // setIsLoading(false);
 
           if (!mediaRecorderRef.current) {
             const mediaRecorder = new MediaRecorder(remoteStream);
@@ -260,8 +281,6 @@ const LivePlayer: React.FC = () => {
 
   return (
     <div className="relative">
-      {/* 로딩 컴포넌트 주석 처리 */}
-      {/* {isLoading && <Loader />} */}
       <select
         className="absolute top-4 left-4 bg-white border border-gray-400 rounded px-2 py-1 z-10"
         onChange={(e) => setSelectedCamId(e.target.value)}
@@ -275,7 +294,17 @@ const LivePlayer: React.FC = () => {
             {cam.name}
           </option>
         ))}
+
+        {/* 구분선 역할을 하는 옵션 추가 */}
+        {sharedCams.length > 0 && <option disabled>---</option>}
+
+        {sharedCams.map((cam) => (
+          <option key={cam.id} value={cam.id}>
+            {cam.name} (shared)
+          </option>
+        ))}
       </select>
+
       <div className="relative">
         <video
           ref={remoteVideoRef}
