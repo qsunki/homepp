@@ -29,7 +29,7 @@ public class VideoController {
             @RequestParam(required = false) LocalDateTime startDate,
             @RequestParam(required = false) LocalDateTime endDate,
             @RequestParam(required = false) Long camId,
-            @RequestParam(required = false) boolean isThreat) {
+            @RequestParam(required = false) Boolean isThreat) {
         return videoService.getAllVideos(types, startDate, endDate, camId, isThreat);
     }
 
