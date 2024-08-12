@@ -97,8 +97,15 @@ const DetailList: React.FC<DetailListProps> = ({
         }
       };
       fetchThumbnail();
+
+      return () => {
+        if (liveThumbnailUrl) {
+          URL.revokeObjectURL(liveThumbnailUrl);
+          console.log('Cleaned up Blob URL:', liveThumbnailUrl);
+        }
+      };
     }
-  }, [showLiveThumbnail, setLiveThumbnailUrl]);
+  }, [showLiveThumbnail, setLiveThumbnailUrl, liveThumbnailUrl]);
 
   const handleVideoClick = (videoId: number) => {
     console.log('Video clicked:', videoId);
