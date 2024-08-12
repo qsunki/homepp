@@ -18,7 +18,7 @@ import {
   FaArrowRight,
   FaCheck,
 } from 'react-icons/fa';
-import CameraToggle from './CameraToggle'; // CameraToggle 임포트
+// import CameraToggle from './CameraToggle'; // CameraToggle 임포트
 
 interface NavbarNotification {
   id: number;
@@ -256,7 +256,7 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
       <div className="flex items-center space-x-4">
         {isLoggedIn ? (
           <>
-            <CameraToggle />
+            {/* <CameraToggle /> */}
             <div className="relative">
               <FaBell
                 className="text-gray-800 text-xl cursor-pointer"

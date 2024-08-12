@@ -13,16 +13,19 @@ import {
   reissueToken,
   fetchEventCount,
   fetchLatestEnvInfo,
+  controlAllCamerasStream,
 } from '../api';
 import { useUserStore } from '../stores/useUserStore';
 import { useVideoStore } from '../stores/useVideoStore';
 import ChatBot from '../components/ChatBot';
+import CameraToggle from '../components/CameraToggle';
 
 const HomePage: React.FC = () => {
   const [showChatBot, setShowChatBot] = useState(false);
   const [alertCount, setAlertCount] = useState<number>(0);
   const [temperatureValue, setTemperatureValue] = useState<number>(0);
   const [humidityValue, setHumidityValue] = useState<number>(0);
+  const [isCamerasOn, setIsCamerasOn] = useState(false); // 카메라 상태를 저장하는 상태 추가
   const navigate = useNavigate();
   const { isLoggedIn } = useUserStore();
   const { liveThumbnailUrl, setLiveThumbnailUrl } = useVideoStore();
@@ -106,6 +109,25 @@ const HomePage: React.FC = () => {
     navigate('/videolist');
   };
 
+  const handleDetectionToggle = async () => {
+    const command = isCamerasOn ? 'end' : 'start';
+    const confirmationMessage = isCamerasOn
+      ? 'Are you sure you want to turn off the detection mode for all cameras?'
+      : 'Are you sure you want to turn on the detection mode for all cameras?';
+
+    const confirmed = window.confirm(confirmationMessage);
+
+    if (confirmed) {
+      try {
+        await controlAllCamerasStream([1], command, 'your-websocket-key'); // 캠 ID와 WebSocket 키를 지정
+        const newStatus = !isCamerasOn;
+        setIsCamerasOn(newStatus);
+      } catch (error) {
+        console.error('Failed to toggle all cameras:', error);
+      }
+    }
+  };
+
   if (!isLoggedIn) {
     return null; // 또는 로딩 스피너를 반환하거나 필요한 내용을 추가
   }
@@ -180,6 +202,18 @@ const HomePage: React.FC = () => {
             </div>
 
             <div className="flex justify-between gap-4">
+              <button
+                className="relative p-4 border-2 border-gray-300 rounded-2xl bg-gray-100 w-1/3 flex flex-col items-center"
+                onClick={handleDetectionToggle}
+              >
+                <div className="flex flex-col items-center text-center">
+                  <div className="my-2">
+                    <CameraToggle onToggle={setIsCamerasOn} />
+                  </div>
+                  <span className="font-bold text-gray-800">Detection</span>
+                  <p className="text-gray-600">{isCamerasOn ? 'OFF' : 'ON'}</p>
+                </div>
+              </button>
               <div className="relative p-4 border-2 border-gray-300 rounded-2xl bg-gray-100 w-1/3 flex flex-col items-center">
                 <div className="flex flex-col items-center text-center">
                   <img
@@ -187,8 +221,8 @@ const HomePage: React.FC = () => {
                     alt="Alert Icon"
                     className="w-10 h-10 mb-2"
                   />
-                  <span className="font-bold text-gray-800">{alertCount}</span>
-                  <p className="text-gray-600">Alerts</p>
+                  <span className="font-bold text-gray-800">Alerts</span>
+                  <p className="text-gray-600">{alertCount}</p>
                 </div>
               </div>
               <div className="relative p-4 border-2 border-gray-300 rounded-2xl bg-gray-100 w-1/3 flex flex-col items-center">
@@ -198,10 +232,8 @@ const HomePage: React.FC = () => {
                     alt="Temperature Icon"
                     className="w-10 h-10 mb-2"
                   />
-                  <span className="font-bold text-gray-800">
-                    {temperatureValue}°C
-                  </span>
-                  <p className="text-gray-600">Temperature</p>
+                  <span className="font-bold text-gray-800">Temperature</span>
+                  <p className="text-gray-600">{temperatureValue}°C</p>
                 </div>
               </div>
               <div className="relative p-4 border-2 border-gray-300 rounded-2xl bg-gray-100 w-1/3 flex flex-col items-center">
@@ -211,10 +243,8 @@ const HomePage: React.FC = () => {
                     alt="Humidity Icon"
                     className="w-10 h-10 mb-2"
                   />
-                  <span className="font-bold text-gray-800">
-                    {humidityValue}%
-                  </span>
-                  <p className="text-gray-600">Humidity</p>
+                  <span className="font-bold text-gray-800">Humidity</span>
+                  <p className="text-gray-600">{humidityValue}%</p>
                 </div>
               </div>
             </div>
