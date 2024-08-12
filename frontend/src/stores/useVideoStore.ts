@@ -100,8 +100,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
     const { videos } = get();
     const video = videos.find((v) => v.id === id);
     if (video) {
-      const isReported = localStorage.getItem(`reported_${id}`) === 'true';
-      set({ selectedVideo: { ...video, isReported } });
+      set({ selectedVideo: video });
     } else {
       try {
         const response = await fetchVideoByIdAPI(id);
@@ -183,7 +182,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
     set({
       videos: updatedVideos,
       selectedVideo: selectedVideo
-        ? { ...selectedVideo, isReported: true }
+        ? { ...selectedVideo, isThreat: true }
         : null,
     });
     localStorage.setItem(`reported_${id}`, 'true');
