@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactPlayer from 'react-player';
 import { useVideoStore, Video } from '../../stores/useVideoStore';
 import fireIcon from '../../assets/filter/fire.png';
@@ -9,7 +9,7 @@ import api from '../../api'; // api 모듈 불러오기
 interface RecordedPlayerProps {
   showDetails?: boolean;
   videoSrc: string | null;
-  isReported?: boolean; // isReported prop 추가
+  isReported?: boolean;
 }
 
 const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
@@ -17,21 +17,40 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
   videoSrc,
   isReported,
 }) => {
-  const { selectedVideoId, videos, isPlaying, volume, reportVideo } =
-    useVideoStore();
+  const {
+    selectedVideoId,
+    videos,
+    isPlaying,
+    volume,
+    reportVideo,
+    fetchVideoById,
+  } = useVideoStore();
   const [showReportConfirm, setShowReportConfirm] = useState<boolean>(false);
 
   const selectedVideo: Video | undefined = videos.find(
     (video) => video.id === selectedVideoId
   );
 
+  useEffect(() => {
+    if (selectedVideoId && !selectedVideo) {
+      fetchVideoById(selectedVideoId);
+    }
+  }, [selectedVideoId, selectedVideo, fetchVideoById]);
+
   const handleReportClick = () => {
     setShowReportConfirm(true);
   };
 
-  const confirmReport = () => {
+  const confirmReport = async () => {
     if (selectedVideo) {
-      reportVideo(selectedVideo.id);
+      try {
+        console.log('Reporting video with ID:', selectedVideo.id);
+        await api.post(`/cams/videos/${selectedVideo.id}/threat`);
+        reportVideo(selectedVideo.id);
+        console.log('Video reported successfully:', selectedVideo.id);
+      } catch (error) {
+        console.error('Failed to report video:', error);
+      }
     }
     setShowReportConfirm(false);
   };

@@ -102,6 +102,15 @@ export const useVideoStore = create<VideoState>((set, get) => ({
 
   fetchVideoById: async (id: number) => {
     console.log(`fetchVideoById called with id: ${id}`);
+    const { videos } = get();
+    const existingVideo = videos.find((video) => video.id === id);
+
+    if (existingVideo) {
+      set({ selectedVideo: existingVideo });
+      console.log(`Video already in state:`, existingVideo);
+      return;
+    }
+
     try {
       const response = await fetchVideoByIdAPI(id);
       const apiVideo = response.data;
@@ -130,21 +139,20 @@ export const useVideoStore = create<VideoState>((set, get) => ({
         ),
         date: new Date(apiVideo.recordStartAt),
         camera: apiVideo.camName,
-        isReported: localStorage.getItem(`reported_${id}`) === 'true',
+        isReported: apiVideo.threat, // 서버에서 반환된 신고 여부 반영
       };
       console.log(`Video object created:`, video);
 
-      const { videos } = get();
       set({
         videos: [...videos, video],
-        selectedVideo: video,
+        selectedVideo: video, // 선택된 비디오 업데이트
       });
     } catch (error) {
       console.error('Failed to fetch video:', error);
     }
   },
 
-  // 나머지 코드들은 이전과 동일합니다.
+  // 나머지 상태 및 함수들
   filter: initialFilter,
   setFilter: (type) => {
     set((state) => ({ filter: { ...state.filter, type } }));
@@ -228,8 +236,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
             ),
             date: new Date(video.recordStartAt),
             camera: video.camName,
-            isReported:
-              localStorage.getItem(`reported_${video.videoId}`) === 'true',
+            isReported: video.threat, // 서버에서 반환된 신고 여부 반영
           };
         })
       );
