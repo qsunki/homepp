@@ -3,14 +3,15 @@ import { useCameraStore } from '../stores/useCameraStore';
 import { controlAllCamerasStream } from '../api';
 
 const CameraToggle: React.FC = () => {
-  const { camIds, isCamerasOn, fetchCamIds, setCamerasOn } = useCameraStore();
+  const { camIds, isCamerasOn, fetchCamIds, setCamerasOn, webSocketKey } =
+    useCameraStore();
 
   useEffect(() => {
     fetchCamIds(); // 컴포넌트가 로드될 때 camIds를 불러옴
   }, []);
 
   const handleToggle = async () => {
-    const command = isCamerasOn ? 'END' : 'START';
+    const command = isCamerasOn ? 'end' : 'start';
     const confirmationMessage = isCamerasOn
       ? 'Are you sure you want to turn off the detection mode for all cameras?'
       : 'Are you sure you want to turn on the detection mode for all cameras?';
@@ -19,7 +20,7 @@ const CameraToggle: React.FC = () => {
 
     if (confirmed) {
       try {
-        await controlAllCamerasStream(camIds, command);
+        await controlAllCamerasStream(camIds, command, webSocketKey);
         console.log(
           `All cameras stream ${command} command executed successfully.`
         );

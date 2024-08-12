@@ -701,18 +701,22 @@ export const deleteNotification = async (
 // 캠 실시간 스트리밍 제어 API 호출 함수
 export const controlCameraStream = async (
   camId: number,
-  command: 'START' | 'END'
+  command: 'start' | 'end',
+  webSocketKey: string
 ): Promise<void> => {
   try {
-    await api.post(`/cams/${camId}/stream`, null, {
-      params: { command },
-    });
+    // WebSocket 키와 command를 요청 본문에 담아서 전송
+    const requestBody = {
+      command,
+      key: webSocketKey,
+    };
+    await api.post(`/cams/${camId}/stream`, requestBody);
     console.log(
-      `Camera stream ${command} command sent successfully for camId ${camId}`
+      `Camera stream ${command} command sent successfully for camId ${camId} with key ${webSocketKey}`
     );
   } catch (error) {
     console.error(
-      `Failed to send ${command} command for camId ${camId}:`,
+      `Failed to send ${command} command for camId ${camId} with key ${webSocketKey}:`,
       error
     );
     throw error;
@@ -722,10 +726,13 @@ export const controlCameraStream = async (
 // 모든 카메라의 실시간 스트리밍 모드를 동시에 제어하는 함수
 export const controlAllCamerasStream = async (
   camIds: number[],
-  command: 'START' | 'END'
+  command: 'start' | 'end',
+  webSocketKey: string
 ): Promise<void> => {
   try {
-    const promises = camIds.map((camId) => controlCameraStream(camId, command));
+    const promises = camIds.map((camId) =>
+      controlCameraStream(camId, command, webSocketKey)
+    );
     await Promise.all(promises); // 모든 요청이 완료될 때까지 기다림
     console.log(`All cameras stream ${command} command sent successfully`);
   } catch (error) {

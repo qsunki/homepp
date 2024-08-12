@@ -3,10 +3,9 @@ import SockJS from 'sockjs-client';
 import { Client, IMessage } from '@stomp/stompjs';
 import { v4 as uuidv4 } from 'uuid'; // UUID를 사용해 랜덤 키 생성
 // import Loader from './Loader'; // 로딩 컴포넌트 임포트 주석 처리
-import { fetchCams, CamData } from '../../api';
+import { fetchCams, CamData, controlCameraStream } from '../../api';
 import record from '../../assets/livevideo/record.png';
 import stop from '../../assets/livevideo/stop.png';
-import { controlCameraStream } from '../../api';
 
 interface Signal {
   type: 'answer' | 'candidate' | 'offer';
@@ -64,6 +63,26 @@ const LivePlayer: React.FC = () => {
   useEffect(() => {
     if (!webSocketKey) return;
 
+    // 스트림 요청 API 호출
+    const startStream = async () => {
+      try {
+        console.log('Starting stream for camId:', selectedCamId);
+        await controlCameraStream(
+          parseInt(selectedCamId),
+          'start',
+          webSocketKey
+        );
+        console.log('Stream started successfully for camId:', selectedCamId);
+      } catch (error) {
+        console.error(
+          `Failed to start stream for camId ${selectedCamId}:`,
+          error
+        );
+      }
+    };
+
+    startStream();
+
     console.log(
       'Initializing WebSocket and STOMP client with key:',
       webSocketKey
@@ -111,12 +130,14 @@ const LivePlayer: React.FC = () => {
         peerConnectionRef.current.close();
       }
       // 페이지를 떠날 때 스트리밍 종료 요청
-      controlCameraStream(parseInt(selectedCamId), 'END').catch((error) => {
-        console.error(
-          `Failed to stop stream for camId ${selectedCamId}:`,
-          error
-        );
-      });
+      controlCameraStream(parseInt(selectedCamId), 'end', webSocketKey).catch(
+        (error) => {
+          console.error(
+            `Failed to stop stream for camId ${selectedCamId}:`,
+            error
+          );
+        }
+      );
     };
   }, [webSocketKey, selectedCamId]);
 
@@ -170,7 +191,6 @@ const LivePlayer: React.FC = () => {
           console.log('Remote stream set to video element');
           // setIsLoading(false);
 
-          // Initialize MediaRecorder when track event occurs
           if (!mediaRecorderRef.current) {
             const mediaRecorder = new MediaRecorder(remoteStream);
             mediaRecorder.ondataavailable = (e) => {
@@ -183,101 +203,6 @@ const LivePlayer: React.FC = () => {
         }
       };
     }
-
-    //   switch (signal.type) {
-    //     case 'offer':
-    //       console.log(
-    //         'Handling offer signal:',
-    //         signal.data,
-    //         'with key:',
-    //         webSocketKey
-    //       );
-    //       if (peerConnection) {
-    //         peerConnection
-    //           .setRemoteDescription(
-    //             new RTCSessionDescription(
-    //               signal.data as RTCSessionDescriptionInit
-    //             )
-    //           )
-    //           .then(() => {
-    //             console.log('Remote description set successfully.');
-    //             if (peerConnection) {
-    //               return peerConnection.createAnswer();
-    //             }
-    //           })
-    //           .then((answer) => {
-    //             if (peerConnection && answer) {
-    //               return peerConnection
-    //                 .setLocalDescription(answer)
-    //                 .then(() => answer);
-    //             }
-    //           })
-    //           .then((answer) => {
-    //             if (clientRef.current?.connected && answer) {
-    //               clientRef.current.publish({
-    //                 destination: `/pub/client/${webSocketKey}`,
-    //                 body: JSON.stringify({ type: 'answer', data: answer }),
-    //               });
-    //               console.log(
-    //                 'Published answer:',
-    //                 answer,
-    //                 'with key:',
-    //                 webSocketKey
-    //               );
-    //             }
-    //           })
-    //           .catch((error) => {
-    //             console.error('Failed to handle offer:', error);
-    //           });
-    //       }
-    //       break;
-    //     case 'answer':
-    //       console.log(
-    //         'Handling answer signal:',
-    //         signal.data,
-    //         'with key:',
-    //         webSocketKey
-    //       );
-    //       if (peerConnection) {
-    //         peerConnection
-    //           .setRemoteDescription(
-    //             new RTCSessionDescription(
-    //               signal.data as RTCSessionDescriptionInit
-    //             )
-    //           )
-    //           .then(() => {
-    //             console.log('Remote description set successfully.');
-    //           })
-    //           .catch((error) => {
-    //             console.error('Failed to set remote description:', error);
-    //           });
-    //       }
-    //       break;
-    //     case 'candidate':
-    //       console.log(
-    //         'Handling candidate signal:',
-    //         signal.data,
-    //         'with key:',
-    //         webSocketKey
-    //       );
-    //       if (peerConnection) {
-    //         peerConnection
-    //           .addIceCandidate(
-    //             new RTCIceCandidate(signal.data as RTCIceCandidateInit)
-    //           )
-    //           .then(() => {
-    //             console.log('ICE candidate added successfully.');
-    //           })
-    //           .catch((error) => {
-    //             console.error('Failed to add ICE candidate:', error);
-    //           });
-    //       }
-    //       break;
-    //     default:
-    //       console.warn('Unknown signal type:', signal.type);
-    //       break;
-    //   }
-    // };
 
     if (signal.type === 'offer') {
       await handleOffer(signal.data as RTCSessionDescriptionInit);
@@ -314,11 +239,8 @@ const LivePlayer: React.FC = () => {
 
   const handleRecord = () => {
     if (isRecording) {
-      // Stop recording
       mediaRecorderRef.current?.stop();
       setIsRecording(false);
-
-      // Save the recorded video
       const blob = new Blob(recordedChunksRef.current, { type: 'video/webm' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -330,7 +252,6 @@ const LivePlayer: React.FC = () => {
       window.URL.revokeObjectURL(url);
       recordedChunksRef.current = [];
     } else {
-      // Start recording
       recordedChunksRef.current = [];
       mediaRecorderRef.current?.start();
       setIsRecording(true);
