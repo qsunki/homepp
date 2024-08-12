@@ -35,7 +35,7 @@ const VideoList: React.FC = () => {
   const { videos, setVideos, setFilteredVideos, fetchAndSetVideos } =
     useVideoStore();
   const [cameras, setCameras] = useState<{ name: string; id: number }[]>([]);
-  const [isReported, setIsReported] = useState<boolean | null>(null);
+  const [isThreat, setIsThreat] = useState<boolean | null>(null); // isReported를 isThreat로 변경
   const [dateFilter, setDateFilter] = useState<string>('1 Week');
   const navigate = useNavigate();
   const filterSectionRef = useRef<HTMLDivElement>(null);
@@ -79,7 +79,10 @@ const VideoList: React.FC = () => {
   const handleCameraChange = (event: React.ChangeEvent<HTMLSelectElement>) =>
     setSelectedCamera(event.target.value);
 
-  const handleVideoClick = (id: number) => navigate(`/video/${id}`);
+  const handleVideoClick = (id: number) => {
+    console.log('Video clicked:', id); // 비디오 클릭 시 ID를 출력
+    navigate(`/video/${id}`);
+  };
 
   const toggleFilters = () => setShowFilters(!showFilters);
 
@@ -156,7 +159,7 @@ const VideoList: React.FC = () => {
         if (startDate) params.startDate = startDate;
         if (endDate) params.endDate = endDate;
         if (camId) params.camId = camId;
-        if (isReported !== null) params.isThreat = isReported;
+        if (isThreat !== null) params.isThreat = isThreat; // isReported를 isThreat로 변경
 
         const response = await fetchVideos(params);
 
@@ -188,6 +191,7 @@ const VideoList: React.FC = () => {
               ), // Remove duplicates
               date: new Date(video.recordStartAt),
               camera: video.camName,
+              isThreat: video.threat, // isReported -> isThreat으로 변경
             };
           })
         );
@@ -202,7 +206,7 @@ const VideoList: React.FC = () => {
     };
 
     fetchData();
-  }, [filterDateRange, selectedTypes, selectedCamera, isReported, cameras]);
+  }, [filterDateRange, selectedTypes, selectedCamera, isThreat, cameras]);
 
   const handleApplyFilters = () => {
     setShowFilters(false); // 모바일인 경우 필터 창을 닫음
@@ -263,20 +267,20 @@ const VideoList: React.FC = () => {
               <div className={styles['filter-title']}>Report Status</div>
               <div className={styles['button-group-horizontal']}>
                 <button
-                  className={isReported === null ? styles.selected : ''}
-                  onClick={() => setIsReported(null)}
+                  className={isThreat === null ? styles.selected : ''}
+                  onClick={() => setIsThreat(null)}
                 >
                   All
                 </button>
                 <button
-                  className={isReported ? styles.selected : ''}
-                  onClick={() => setIsReported(true)}
+                  className={isThreat ? styles.selected : ''}
+                  onClick={() => setIsThreat(true)}
                 >
                   Reported
                 </button>
                 <button
-                  className={isReported === false ? styles.selected : ''}
-                  onClick={() => setIsReported(false)}
+                  className={isThreat === false ? styles.selected : ''}
+                  onClick={() => setIsThreat(false)}
                 >
                   Unreported
                 </button>
@@ -392,20 +396,20 @@ const VideoList: React.FC = () => {
           <div className={styles['filter-title']}>Report Status</div>
           <div className={styles['button-group-horizontal']}>
             <button
-              className={isReported === null ? styles.selected : ''}
-              onClick={() => setIsReported(null)}
+              className={isThreat === null ? styles.selected : ''}
+              onClick={() => setIsThreat(null)}
             >
               All
             </button>
             <button
-              className={isReported ? styles.selected : ''}
-              onClick={() => setIsReported(true)}
+              className={isThreat ? styles.selected : ''}
+              onClick={() => setIsThreat(true)}
             >
               Reported
             </button>
             <button
-              className={isReported === false ? styles.selected : ''}
-              onClick={() => setIsReported(false)}
+              className={isThreat === false ? styles.selected : ''}
+              onClick={() => setIsThreat(false)}
             >
               Unreported
             </button>

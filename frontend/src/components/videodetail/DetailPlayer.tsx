@@ -20,7 +20,7 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({
     const getVideoStream = async () => {
       if (selectedVideoId) {
         try {
-          const streamUrl = await fetchVideoStream(selectedVideoId);
+          const streamUrl = await fetchVideoStream(selectedVideoId); // 비디오 스트림을 가져옴
           setVideoSrc(streamUrl);
         } catch (error) {
           console.error('Failed to fetch video stream:', error);

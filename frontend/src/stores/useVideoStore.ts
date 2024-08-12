@@ -17,7 +17,7 @@ export interface Video {
   thumbnail: string;
   duration: string;
   alerts: Alert[];
-  isReported?: boolean;
+  isThreat?: boolean; // isThreat 속성 추가
   url: string;
   startTime: string;
   length: string;
@@ -57,6 +57,8 @@ interface VideoState {
   fetchAndSetVideos: () => void;
   setVideos: (videos: Video[]) => void;
   setFilteredVideos: (videos: Video[]) => void;
+  isThreat: boolean | null; // isThreat 상태 추가
+  setIsThreat: (value: boolean | null) => void; // isThreat 상태 업데이트 함수 추가
 }
 
 const initialFilter: Filter = {
@@ -97,6 +99,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
             .toString()
             .padStart(2, '0')}`,
           alerts,
+          isThreat: apiVideo.threat, // 서버에서 가져온 isThreat 값을 설정
           url: 'https://example.com/video-url',
           startTime: new Date(apiVideo.recordStartAt).toLocaleTimeString(),
           length: `${Math.floor(apiVideo.length / 60)}:${(apiVideo.length % 60)
@@ -152,7 +155,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
   reportVideo: (id: number) => {
     const { videos } = get();
     const updatedVideos = videos.map((video) =>
-      video.id === id ? { ...video, isReported: true } : video
+      video.id === id ? { ...video, isThreat: true } : video
     );
     set({ videos: updatedVideos });
   },
@@ -176,6 +179,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
               .toString()
               .padStart(2, '0')}`,
             alerts,
+            isThreat: video.threat, // 서버에서 가져온 isThreat 값을 설정
             url: 'https://example.com/video-url',
             startTime: new Date(video.recordStartAt).toLocaleTimeString(),
             length: `${Math.floor(video.length / 60)}:${(video.length % 60)
@@ -200,4 +204,6 @@ export const useVideoStore = create<VideoState>((set, get) => ({
   },
   setVideos: (videos: Video[]) => set({ videos }),
   setFilteredVideos: (videos: Video[]) => set({ filteredVideos: videos }),
+  isThreat: null, // 초기 상태로 null 설정 (all, reported, unreported 상태)
+  setIsThreat: (value: boolean | null) => set({ isThreat: value }), // 상태 업데이트 함수
 }));

@@ -6,7 +6,7 @@ import soundIcon from '../../assets/filter/sound.png';
 import thiefIcon from '../../assets/filter/thief.png';
 import Filter from '../../utils/filter/Filter';
 import { fetchLiveThumbnail } from '../../api';
-import styles from './DetailList.module.css'; // CSS 파일을 임포트합니다.
+import styles from './DetailList.module.css';
 
 interface DetailListProps {
   showLiveThumbnail?: boolean;
@@ -26,8 +26,12 @@ const DetailList: React.FC<DetailListProps> = ({
   listHeight = '400px', // 기본 목록 높이 설정
 }) => {
   const navigate = useNavigate();
-  const { liveThumbnailUrl, setLiveThumbnailUrl, setSelectedVideoId } =
-    useVideoStore();
+  const {
+    liveThumbnailUrl,
+    setLiveThumbnailUrl,
+    setSelectedVideoId,
+    isThreat,
+  } = useVideoStore();
 
   useEffect(() => {
     if (showLiveThumbnail) {
@@ -66,14 +70,20 @@ const DetailList: React.FC<DetailListProps> = ({
     }
   };
 
-  // 선택된 타입에 따라 비디오 필터링
-  const filteredVideos = videos.filter((video) =>
-    selectedTypes.length > 0
-      ? video.alerts.some((alert) =>
-          selectedTypes.includes(alert.type.toUpperCase())
-        )
-      : true
-  );
+  // 선택된 타입 및 리포트 여부에 따라 비디오 필터링
+  const filteredVideos = videos.filter((video) => {
+    const matchesType =
+      selectedTypes.length > 0
+        ? video.alerts.some((alert) =>
+            selectedTypes.includes(alert.type.toUpperCase())
+          )
+        : true;
+
+    const matchesReportStatus =
+      isThreat === null ? true : video.isThreat === isThreat;
+
+    return matchesType && matchesReportStatus;
+  });
 
   return (
     <div className={`w-full lg:w-1/3 pl-4 pr-8 ${styles['video-list']}`}>
