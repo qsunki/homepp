@@ -9,7 +9,7 @@ import api from '../../api'; // api 모듈 불러오기
 interface RecordedPlayerProps {
   showDetails?: boolean;
   videoSrc: string | null;
-  isReported?: boolean; // isReported prop 추가
+  isReported?: boolean;
 }
 
 const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
@@ -17,8 +17,14 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
   videoSrc,
   isReported,
 }) => {
-  const { selectedVideoId, videos, isPlaying, volume, reportVideo } =
-    useVideoStore();
+  const {
+    selectedVideoId,
+    videos,
+    isPlaying,
+    volume,
+    reportVideo,
+    fetchVideoById,
+  } = useVideoStore();
   const [showReportConfirm, setShowReportConfirm] = useState<boolean>(false);
 
   // selectedVideo 변수를 이미 선언한 것을 다시 선언하지 않고 그대로 사용
@@ -27,9 +33,10 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
   );
 
   useEffect(() => {
-    console.log('Selected Video ID:', selectedVideoId); // 선택된 비디오 ID를 출력
-    console.log('Selected Video:', selectedVideo); // 선택된 비디오의 상세 정보를 출력
-  }, [selectedVideoId, selectedVideo]);
+    if (selectedVideoId && !selectedVideo) {
+      fetchVideoById(selectedVideoId);
+    }
+  }, [selectedVideoId, selectedVideo, fetchVideoById]);
 
   const handleReportClick = () => {
     setShowReportConfirm(true);
@@ -39,12 +46,11 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
     if (selectedVideo) {
       try {
         console.log('Reporting video with ID:', selectedVideo.id);
-        // API 호출을 통한 비디오 신고
         await api.post(`/cams/videos/${selectedVideo.id}/threat`);
         reportVideo(selectedVideo.id);
         console.log('Video reported successfully:', selectedVideo.id);
       } catch (error) {
-        console.error('비디오 신고 중 오류 발생:', error);
+        console.error('Failed to report video:', error);
       }
     }
     setShowReportConfirm(false);
