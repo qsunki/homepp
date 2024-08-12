@@ -708,9 +708,8 @@ export const controlCameraStream = async (
     // WebSocket 키와 command를 요청 본문에 담아서 전송
     const requestBody = {
       command,
-      key: webSocketKey,
     };
-    await api.post(`/cams/${camId}/stream`, requestBody);
+    await api.post(`/cams/${camId}/control`, requestBody);
     console.log(
       `Camera stream ${command} command sent successfully for camId ${camId} with key ${webSocketKey}`
     );
