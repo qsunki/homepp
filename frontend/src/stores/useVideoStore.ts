@@ -17,7 +17,7 @@ export interface Video {
   thumbnail: string;
   duration: string;
   alerts: Alert[];
-  isThreat?: boolean; // isThreat 속성 추가
+  isThreat?: boolean; // 변경된 부분
   url: string;
   startTime: string;
   length: string;
@@ -82,9 +82,9 @@ export const useVideoStore = create<VideoState>((set, get) => ({
     set({ selectedVideoId: id, currentVideoId: id });
 
     const { videos } = get();
-    const isReported = localStorage.getItem(`reported_${id}`) === 'true';
+    const isThreat = localStorage.getItem(`threat_${id}`) === 'true'; // 변경된 부분
     const updatedVideos = videos.map((video) =>
-      video.id === id ? { ...video, isReported } : video
+      video.id === id ? { ...video, isThreat } : video
     );
     const selectedVideo =
       updatedVideos.find((video) => video.id === id) || null;
@@ -179,7 +179,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
         ),
         date: new Date(apiVideo.recordStartAt),
         camera: apiVideo.camName,
-        isReported: apiVideo.threat, // 서버에서 반환된 신고 여부 반영
+        isThreat: apiVideo.threat, // 변경된 부분
       };
       console.log(`Video object created:`, video);
 
@@ -228,8 +228,8 @@ export const useVideoStore = create<VideoState>((set, get) => ({
   reportVideo: (id: number) => {
     console.log(`reportVideo called with id: ${id}`);
     const { videos, selectedVideo } = get();
-    const updatedVideos = videos.map((video) =>
-      video.id === id ? { ...video, isThreat: true } : video
+    const updatedVideos = videos.map(
+      (video) => (video.id === id ? { ...video, isThreat: true } : video) // 변경된 부분
     );
     console.log(`updatedVideos after report:`, updatedVideos);
 
@@ -240,7 +240,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
         : null,
     });
 
-    localStorage.setItem(`reported_${id}`, 'true');
+    localStorage.setItem(`threat_${id}`, 'true'); // 변경된 부분
     console.log(`Video ${id} reported and stored in localStorage.`);
   },
 
@@ -277,7 +277,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
             ),
             date: new Date(video.recordStartAt),
             camera: video.camName,
-            isReported: video.threat, // 서버에서 반환된 신고 여부 반영
+            isThreat: video.threat, // 변경된 부분
           };
         })
       );

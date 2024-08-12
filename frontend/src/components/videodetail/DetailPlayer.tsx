@@ -25,14 +25,14 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({
           `Restoring selectedVideoId from localStorage: ${storedVideoId}`
         );
         await setSelectedVideoId(Number(storedVideoId));
-        getVideoStream(Number(storedVideoId)); // 로컬 스토리지에서 복원된 ID로 스트림 요청
+        getVideoStream(Number(storedVideoId));
       } else if (selectedVideoId) {
-        getVideoStream(selectedVideoId); // 이미 선택된 비디오 ID가 있을 경우
+        getVideoStream(selectedVideoId);
       }
     };
 
     const getVideoStream = async (videoId: number) => {
-      if (!videoId || videoSrc) return; // 비디오 ID가 없거나 이미 비디오 소스가 설정된 경우 요청을 중단
+      if (!videoId || videoSrc) return;
       console.log(`Fetching video stream for videoId: ${videoId}`);
       try {
         const streamUrl = await fetchVideoStream(videoId);
@@ -58,7 +58,7 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({
         <RecordedPlayer
           showDetails={showDetails}
           videoSrc={videoSrc || ''}
-          isReported={selectedVideo?.isReported}
+          isThreat={selectedVideo?.isThreat} // 변경된 부분
         />
       )}
     </div>
