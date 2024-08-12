@@ -33,7 +33,7 @@ if (token) {
 // 인터셉터 추가하여 요청 설정을 확인
 api.interceptors.request.use(
   (config) => {
-    console.log('Request config:', config); // 요청 설정을 콘솔에 출력
+    // console.log('Request config:', config); // 요청 설정을 콘솔에 출력
     return config;
   },
   (error) => {

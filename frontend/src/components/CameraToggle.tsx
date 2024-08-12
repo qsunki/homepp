@@ -15,19 +15,15 @@ const CameraToggle: React.FC = () => {
           // 첫 번째 카메라의 상태를 가져와서 확인
           const firstCamStatus = await fetchLatestEnvInfo(camIds[0]);
 
-          // 첫 번째 카메라의 상태가 ONLINE이면 isCamerasOn을 true로 설정
-          setCamerasOn(firstCamStatus.status === 'ONLINE');
+          // 첫 번째 카메라의 상태가 RECORDING이면 isCamerasOn을 true로 설정
+          setCamerasOn(firstCamStatus.status === 'RECORDING');
         }
       } catch (error) {
         console.error('Failed to fetch camera statuses:', error);
       }
     };
 
-    // 주기적으로 상태 확인을 위해 인터벌 설정 (5초마다 확인)
-    const intervalId = setInterval(fetchCameraStatus, 5000);
-
-    // 컴포넌트 언마운트 시 인터벌 해제
-    return () => clearInterval(intervalId);
+    fetchCameraStatus(); // 초기 로드 시 카메라 상태 확인
   }, [camIds, setCamerasOn]);
 
   const handleToggle = async () => {
@@ -45,6 +41,11 @@ const CameraToggle: React.FC = () => {
           `All cameras stream ${command} command executed successfully.`
         );
         setCamerasOn(!isCamerasOn);
+
+        if (!isCamerasOn) {
+          // 수동으로 카메라를 켠 경우 상태를 RECORDING으로 설정
+          await fetchLatestEnvInfo(camIds[0]);
+        }
       } catch (error) {
         console.error('Failed to toggle all cameras:', error);
       }
