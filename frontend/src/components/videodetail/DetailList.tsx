@@ -31,14 +31,71 @@ const DetailList: React.FC<DetailListProps> = ({
     setLiveThumbnailUrl,
     currentVideoId,
     setSelectedVideoId,
+    setFilteredVideos,
   } = useVideoStore();
+
+  // 로컬 스토리지에서 상태 복원
+  useEffect(() => {
+    console.log('Restoring state from localStorage...');
+    const savedVideos = localStorage.getItem('filteredVideos');
+    const savedSelectedTypes = localStorage.getItem('selectedTypes');
+
+    console.log('Saved videos:', savedVideos);
+    console.log('Saved selected types:', savedSelectedTypes);
+
+    try {
+      if (savedVideos) {
+        const parsedVideos = JSON.parse(savedVideos);
+
+        // Date 객체를 복원
+        const restoredVideos = parsedVideos.map((video: Video) => ({
+          ...video,
+          date: video.date ? new Date(video.date) : null,
+        }));
+
+        console.log('Parsed and restored videos:', restoredVideos);
+        setFilteredVideos(restoredVideos);
+      } else {
+        console.warn('No saved videos found in localStorage.');
+      }
+
+      if (savedSelectedTypes) {
+        const parsedSelectedTypes = JSON.parse(savedSelectedTypes);
+        console.log('Parsed selected types:', parsedSelectedTypes);
+        onTypeToggle(parsedSelectedTypes);
+      } else {
+        console.warn('No saved selected types found in localStorage.');
+      }
+    } catch (error) {
+      console.error('Error parsing JSON from localStorage:', error);
+    }
+  }, [setFilteredVideos, onTypeToggle]);
+
+  // 상태가 변경될 때 로컬 스토리지에 저장
+  useEffect(() => {
+    console.log('Saving state to localStorage...');
+    console.log('Videos:', videos);
+    console.log('Selected types:', selectedTypes);
+
+    try {
+      const stringifiedVideos = JSON.stringify(videos);
+      const stringifiedSelectedTypes = JSON.stringify(selectedTypes);
+
+      localStorage.setItem('filteredVideos', stringifiedVideos);
+      localStorage.setItem('selectedTypes', stringifiedSelectedTypes);
+    } catch (error) {
+      console.error('Error saving JSON to localStorage:', error);
+    }
+  }, [videos, selectedTypes]);
 
   useEffect(() => {
     if (showLiveThumbnail) {
+      console.log('Fetching live thumbnail...');
       const fetchThumbnail = async () => {
         try {
           const thumbnailUrl = await fetchLiveThumbnail(1);
           setLiveThumbnailUrl(thumbnailUrl);
+          console.log('Live thumbnail fetched:', thumbnailUrl);
         } catch (error) {
           console.error('Failed to fetch live thumbnail:', error);
         }
@@ -48,11 +105,13 @@ const DetailList: React.FC<DetailListProps> = ({
   }, [showLiveThumbnail, setLiveThumbnailUrl]);
 
   const handleVideoClick = (videoId: number) => {
+    console.log('Video clicked:', videoId);
     setSelectedVideoId(videoId);
     navigate(`/video/${videoId}`);
   };
 
   const handleLiveThumbnailClick = () => {
+    console.log('Live thumbnail clicked');
     navigate('/live-video');
   };
 
@@ -70,10 +129,15 @@ const DetailList: React.FC<DetailListProps> = ({
   };
 
   const handleTypeToggle = (type: string) => {
+    console.log('Toggling type:', type);
     if (selectedTypes.includes(type)) {
-      onTypeToggle(selectedTypes.filter((t) => t !== type));
+      const newTypes = selectedTypes.filter((t) => t !== type);
+      console.log('Type removed:', newTypes);
+      onTypeToggle(newTypes);
     } else {
-      onTypeToggle([...selectedTypes, type]);
+      const newTypes = [...selectedTypes, type];
+      console.log('Type added:', newTypes);
+      onTypeToggle(newTypes);
     }
   };
 
@@ -86,6 +150,10 @@ const DetailList: React.FC<DetailListProps> = ({
         : true
     )
     .filter((video: Video) => video.id !== currentVideoId); // 현재 영상 제외
+
+  useEffect(() => {
+    console.log('Rendered filtered videos:', filteredVideos);
+  }, [filteredVideos]);
 
   return (
     <div className={`w-full lg:w-1/3 pl-4 pr-8 ${styles['video-list']}`}>

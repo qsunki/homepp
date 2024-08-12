@@ -8,12 +8,14 @@ import api from '../../api'; // api 모듈 불러오기
 
 interface RecordedPlayerProps {
   showDetails?: boolean;
-  videoSrc: string | null; // 추가
+  videoSrc: string | null;
+  isReported?: boolean; // isReported prop 추가
 }
 
 const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
   showDetails = false,
-  videoSrc, // 추가
+  videoSrc,
+  isReported,
 }) => {
   const { selectedVideoId, videos, isPlaying, volume, reportVideo } =
     useVideoStore();
@@ -136,14 +138,14 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
           </button>
           <button
             className={`px-4 py-2 rounded border-2 ${
-              selectedVideo.isReported
+              isReported
                 ? 'bg-red-500 text-white'
                 : 'border-red-500 text-red-500 bg-transparent'
             }`}
             onClick={handleReportClick}
-            disabled={selectedVideo.isReported}
+            disabled={isReported}
           >
-            {selectedVideo.isReported ? 'Reported' : 'Report'}
+            {isReported ? 'Reported' : 'Report'}
           </button>
         </div>
       </div>
