@@ -8,7 +8,7 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.UUID;
+import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -148,12 +148,11 @@ public class CamService {
         return camMapper.toCamResponseDto(cam);
     }
 
-    public StreamResponseDto streamControl(Long camId, Command command) {
+    public StreamResponseDto streamControl(Long camId, String key, String command) {
         if (!camRepository.existsById(camId)) {
             throw new CamNotFoundException();
         }
-        String key = UUID.randomUUID().toString();
-        mqttService.requestStreaming(camId, key, command);
+        mqttService.requestStreaming(camId, key, Command.valueOf(command.toUpperCase(Locale.ROOT)));
         return new StreamResponseDto(key, command);
     }
 

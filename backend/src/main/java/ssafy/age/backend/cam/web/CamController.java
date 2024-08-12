@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ssafy.age.backend.cam.service.CamService;
-import ssafy.age.backend.mqtt.Command;
 
 @Slf4j
 @RestController
@@ -62,9 +61,10 @@ public class CamController {
         camService.deleteCam(camId);
     }
 
-    @GetMapping("/{camId}/stream")
-    public StreamResponseDto streamCam(@PathVariable Long camId, @RequestParam Command command) {
-        return camService.streamControl(camId, command);
+    @PostMapping("/{camId}/stream")
+    public StreamResponseDto streamCam(
+            @PathVariable Long camId, @RequestBody StreamRequestDto requestDto) {
+        return camService.streamControl(camId, requestDto.getKey(), requestDto.getCommand());
     }
 
     @GetMapping("/{camId}/thumbnail")
