@@ -4,6 +4,7 @@ import { fetchCams } from '../api';
 interface CameraStoreState {
   camIds: number[];
   isCamerasOn: boolean;
+  webSocketKey: string;
   fetchCamIds: () => Promise<void>;
   setCamerasOn: (isOn: boolean) => void;
 }
@@ -11,6 +12,7 @@ interface CameraStoreState {
 export const useCameraStore = create<CameraStoreState>((set) => ({
   camIds: [],
   isCamerasOn: false,
+  webSocketKey: '',
 
   fetchCamIds: async () => {
     try {
@@ -23,4 +25,5 @@ export const useCameraStore = create<CameraStoreState>((set) => ({
   },
 
   setCamerasOn: (isOn: boolean) => set({ isCamerasOn: isOn }),
+  setWebSocketKey: (key: string) => set({ webSocketKey: key }),
 }));
