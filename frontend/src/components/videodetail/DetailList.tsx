@@ -34,7 +34,6 @@ const DetailList: React.FC<DetailListProps> = ({
     setFilteredVideos,
   } = useVideoStore();
 
-  // 로컬 스토리지에서 상태 복원
   useEffect(() => {
     console.log('Restoring state from localStorage...');
     const savedVideos = localStorage.getItem('filteredVideos');
@@ -46,8 +45,6 @@ const DetailList: React.FC<DetailListProps> = ({
     try {
       if (savedVideos) {
         const parsedVideos = JSON.parse(savedVideos);
-
-        // Date 객체를 복원
         const restoredVideos = parsedVideos.map((video: Video) => ({
           ...video,
           date: video.date ? new Date(video.date) : null,
@@ -71,7 +68,6 @@ const DetailList: React.FC<DetailListProps> = ({
     }
   }, [setFilteredVideos, onTypeToggle]);
 
-  // 상태가 변경될 때 로컬 스토리지에 저장
   useEffect(() => {
     console.log('Saving state to localStorage...');
     console.log('Videos:', videos);
@@ -149,7 +145,7 @@ const DetailList: React.FC<DetailListProps> = ({
           )
         : true
     )
-    .filter((video: Video) => video.id !== currentVideoId); // 현재 영상 제외
+    .filter((video: Video) => video.id !== currentVideoId);
 
   useEffect(() => {
     console.log('Rendered filtered videos:', filteredVideos);

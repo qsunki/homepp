@@ -9,13 +9,13 @@ import api from '../../api'; // api 모듈 불러오기
 interface RecordedPlayerProps {
   showDetails?: boolean;
   videoSrc: string | null;
-  isReported?: boolean;
+  isThreat?: boolean; // 여기에 isThreat를 추가합니다.
 }
 
 const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
   showDetails = false,
   videoSrc,
-  isReported,
+  isThreat,
 }) => {
   const {
     selectedVideoId,
@@ -157,14 +157,14 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
           </button>
           <button
             className={`px-4 py-2 rounded border-2 ${
-              isReported
+              isThreat
                 ? 'bg-red-500 text-white'
                 : 'border-red-500 text-red-500 bg-transparent'
             }`}
             onClick={handleReportClick}
-            disabled={isReported}
+            disabled={isThreat}
           >
-            {isReported ? 'Reported' : 'Report'}
+            {isThreat ? 'Reported' : 'Report'}
           </button>
         </div>
       </div>
