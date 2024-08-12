@@ -8,12 +8,14 @@ import api from '../../api'; // api 모듈 불러오기
 
 interface RecordedPlayerProps {
   showDetails?: boolean;
-  videoSrc: string | null; // 추가
+  videoSrc: string | null;
+  isReported?: boolean; // isReported prop 추가
 }
 
 const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
   showDetails = false,
-  videoSrc, // 추가
+  videoSrc,
+  isReported,
 }) => {
   const { selectedVideoId, videos, isPlaying, volume, reportVideo } =
     useVideoStore();

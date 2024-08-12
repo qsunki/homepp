@@ -85,7 +85,6 @@ const LivePlayer: React.FC = () => {
           console.log('Received signal:', signal);
           handleSignal(signal);
         });
-        sendOffer();
       },
       onStompError: (frame) => {
         console.error('Broker reported error:', frame.headers['message']);
@@ -248,75 +247,6 @@ const LivePlayer: React.FC = () => {
         console.warn('Unknown signal type:', signal.type);
         break;
     }
-  };
-
-  const sendOffer = () => {
-    if (!clientRef.current?.connected) {
-      console.error('STOMP client is not connected');
-      return;
-    }
-
-    const pc = new RTCPeerConnection({
-      iceServers: [
-        {
-          urls: 'stun:i11a605.p.ssafy.io',
-          username: 'username',
-          credential: 'password',
-        },
-        {
-          urls: 'turn:i11a605.p.ssafy.io',
-          username: 'username',
-          credential: 'password',
-        },
-      ],
-    });
-    peerConnectionRef.current = pc;
-    console.log('RTCPeerConnection created:', pc);
-
-    pc.onicecandidate = (event) => {
-      console.log('icecandidate event occurred', event);
-      if (event.candidate && clientRef.current?.connected) {
-        console.log('Publishing ICE candidate:', event.candidate);
-        clientRef.current.publish({
-          destination: `/pub/client/${webSocketKey}`,
-          body: JSON.stringify({
-            type: 'candidate',
-            data: event.candidate,
-          }),
-        });
-      }
-    };
-
-    pc.ontrack = (event) => {
-      console.log('Track event occurred:', event);
-      const [remoteStream] = event.streams;
-      if (remoteVideoRef.current) {
-        remoteVideoRef.current.srcObject = remoteStream;
-        console.log('Remote stream set to video element');
-        // setIsLoading(false);
-      }
-    };
-
-    pc.createOffer({
-      offerToReceiveAudio: true,
-      offerToReceiveVideo: true,
-    })
-      .then((offer) => {
-        console.log('Offer created:', offer);
-        return pc.setLocalDescription(offer).then(() => offer);
-      })
-      .then((offer) => {
-        console.log('Publishing offer:', offer);
-        if (clientRef.current?.connected) {
-          clientRef.current.publish({
-            destination: `/pub/client/${webSocketKey}`,
-            body: JSON.stringify({ type: 'offer', data: offer }),
-          });
-        }
-      })
-      .catch((error) => {
-        console.error('Failed to create offer:', error);
-      });
   };
 
   const handleRecord = () => {
