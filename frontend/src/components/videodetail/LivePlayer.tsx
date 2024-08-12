@@ -80,7 +80,12 @@ const LivePlayer: React.FC = () => {
       onConnect: (frame) => {
         console.log('STOMP client connected, frame:', frame);
         client.subscribe(`/sub/client/${webSocketKey}`, (message: IMessage) => {
-          console.log('Received message:', message);
+          console.log(
+            'Received message on key:',
+            webSocketKey,
+            'Message:',
+            message
+          );
           const signal: Signal = JSON.parse(message.body);
           console.log('Received signal:', signal);
           handleSignal(signal);
@@ -97,10 +102,10 @@ const LivePlayer: React.FC = () => {
 
     clientRef.current = client;
     client.activate();
-    console.log('STOMP client activation requested');
+    console.log('STOMP client activation requested with key:', webSocketKey);
 
     return () => {
-      console.log('Deactivating STOMP client');
+      console.log('Deactivating STOMP client with key:', webSocketKey);
       client.deactivate();
       if (peerConnectionRef.current) {
         peerConnectionRef.current.close();
@@ -115,8 +120,8 @@ const LivePlayer: React.FC = () => {
     };
   }, [webSocketKey, selectedCamId]);
 
-  const handleSignal = (signal: Signal) => {
-    console.log('Handling signal:', signal);
+  const handleSignal = async (signal: Signal) => {
+    console.log('Handling signal:', signal, 'with key:', webSocketKey);
 
     const iceConfiguration = {
       iceServers: [
@@ -141,7 +146,12 @@ const LivePlayer: React.FC = () => {
       peerConnection.onicecandidate = (event) => {
         console.log('icecandidate event occurred', event);
         if (event.candidate && clientRef.current?.connected) {
-          console.log('Publishing ICE candidate:', event.candidate);
+          console.log(
+            'Publishing ICE candidate:',
+            event.candidate,
+            'to key:',
+            webSocketKey
+          );
           clientRef.current.publish({
             destination: `/pub/client/${webSocketKey}`,
             body: JSON.stringify({
@@ -161,7 +171,7 @@ const LivePlayer: React.FC = () => {
           // setIsLoading(false);
 
           // Initialize MediaRecorder when track event occurs
-          if (mediaRecorderRef.current == null) {
+          if (!mediaRecorderRef.current) {
             const mediaRecorder = new MediaRecorder(remoteStream);
             mediaRecorder.ondataavailable = (e) => {
               if (e.data.size > 0) {
@@ -174,78 +184,131 @@ const LivePlayer: React.FC = () => {
       };
     }
 
-    switch (signal.type) {
-      case 'offer':
-        console.log('Handling offer signal:', signal.data);
-        if (peerConnection) {
-          peerConnection
-            .setRemoteDescription(
-              new RTCSessionDescription(
-                signal.data as RTCSessionDescriptionInit
-              )
-            )
-            .then(() => {
-              console.log('Remote description set successfully.');
-              if (peerConnection) {
-                return peerConnection.createAnswer();
-              }
-            })
-            .then((answer) => {
-              if (peerConnection && answer) {
-                return peerConnection
-                  .setLocalDescription(answer)
-                  .then(() => answer);
-              }
-            })
-            .then((answer) => {
-              if (clientRef.current?.connected && answer) {
-                clientRef.current.publish({
-                  destination: `/pub/client/${webSocketKey}`,
-                  body: JSON.stringify({ type: 'answer', data: answer }),
-                });
-                console.log('Published answer:', answer);
-              }
-            })
-            .catch((error) => {
-              console.error('Failed to handle offer:', error);
-            });
-        }
-        break;
-      case 'answer':
-        console.log('Handling answer signal:', signal.data);
-        if (peerConnection) {
-          peerConnection
-            .setRemoteDescription(
-              new RTCSessionDescription(
-                signal.data as RTCSessionDescriptionInit
-              )
-            )
-            .then(() => {
-              console.log('Remote description set successfully.');
-            })
-            .catch((error) => {
-              console.error('Failed to set remote description:', error);
-            });
-        }
-        break;
-      case 'candidate':
-        console.log('Handling candidate signal:', signal.data);
-        if (peerConnection) {
-          peerConnection
-            .addIceCandidate(
-              new RTCIceCandidate(signal.data as RTCIceCandidateInit)
-            )
-            .then(() => {
-              console.log('ICE candidate added successfully.');
-            })
-            .catch((error) => {
-              console.error('Failed to add ICE candidate:', error);
-            });
-        }
-        break;
-      default:
-        console.warn('Unknown signal type:', signal.type);
-        break;
+    //   switch (signal.type) {
+    //     case 'offer':
+    //       console.log(
+    //         'Handling offer signal:',
+    //         signal.data,
+    //         'with key:',
+    //         webSocketKey
+    //       );
+    //       if (peerConnection) {
+    //         peerConnection
+    //           .setRemoteDescription(
+    //             new RTCSessionDescription(
+    //               signal.data as RTCSessionDescriptionInit
+    //             )
+    //           )
+    //           .then(() => {
+    //             console.log('Remote description set successfully.');
+    //             if (peerConnection) {
+    //               return peerConnection.createAnswer();
+    //             }
+    //           })
+    //           .then((answer) => {
+    //             if (peerConnection && answer) {
+    //               return peerConnection
+    //                 .setLocalDescription(answer)
+    //                 .then(() => answer);
+    //             }
+    //           })
+    //           .then((answer) => {
+    //             if (clientRef.current?.connected && answer) {
+    //               clientRef.current.publish({
+    //                 destination: `/pub/client/${webSocketKey}`,
+    //                 body: JSON.stringify({ type: 'answer', data: answer }),
+    //               });
+    //               console.log(
+    //                 'Published answer:',
+    //                 answer,
+    //                 'with key:',
+    //                 webSocketKey
+    //               );
+    //             }
+    //           })
+    //           .catch((error) => {
+    //             console.error('Failed to handle offer:', error);
+    //           });
+    //       }
+    //       break;
+    //     case 'answer':
+    //       console.log(
+    //         'Handling answer signal:',
+    //         signal.data,
+    //         'with key:',
+    //         webSocketKey
+    //       );
+    //       if (peerConnection) {
+    //         peerConnection
+    //           .setRemoteDescription(
+    //             new RTCSessionDescription(
+    //               signal.data as RTCSessionDescriptionInit
+    //             )
+    //           )
+    //           .then(() => {
+    //             console.log('Remote description set successfully.');
+    //           })
+    //           .catch((error) => {
+    //             console.error('Failed to set remote description:', error);
+    //           });
+    //       }
+    //       break;
+    //     case 'candidate':
+    //       console.log(
+    //         'Handling candidate signal:',
+    //         signal.data,
+    //         'with key:',
+    //         webSocketKey
+    //       );
+    //       if (peerConnection) {
+    //         peerConnection
+    //           .addIceCandidate(
+    //             new RTCIceCandidate(signal.data as RTCIceCandidateInit)
+    //           )
+    //           .then(() => {
+    //             console.log('ICE candidate added successfully.');
+    //           })
+    //           .catch((error) => {
+    //             console.error('Failed to add ICE candidate:', error);
+    //           });
+    //       }
+    //       break;
+    //     default:
+    //       console.warn('Unknown signal type:', signal.type);
+    //       break;
+    //   }
+    // };
+
+    if (signal.type === 'offer') {
+      await handleOffer(signal.data as RTCSessionDescriptionInit);
+    } else if (signal.type === 'candidate') {
+      await addCandidate(signal.data as RTCIceCandidateInit);
+    }
+  };
+
+  const handleOffer = async (offer: RTCSessionDescriptionInit) => {
+    const peerConnection = peerConnectionRef.current;
+    if (peerConnection) {
+      await peerConnection.setRemoteDescription(
+        new RTCSessionDescription(offer)
+      );
+      const answer = await peerConnection.createAnswer();
+      await peerConnection.setLocalDescription(answer);
+      if (clientRef.current?.connected) {
+        clientRef.current.publish({
+          destination: `/pub/client/${webSocketKey}`,
+          body: JSON.stringify({ type: 'answer', data: answer }),
+        });
+        console.log('Published answer with key:', webSocketKey);
+      }
+    }
+  };
+
+  const addCandidate = async (candidate: RTCIceCandidateInit) => {
+    const peerConnection = peerConnectionRef.current;
+    if (peerConnection) {
+      await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+      console.log('ICE candidate added successfully with key:', webSocketKey);
     }
   };
 
