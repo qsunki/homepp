@@ -13,7 +13,7 @@ const VideoDetail: React.FC = () => {
       </div>
       <div className="w-full lg:w-1/3">
         <DetailList
-          showLiveThumbnail={true}
+          showLiveThumbnail={true} // This is correct and expected by DetailList
           videos={filteredVideos}
           selectedTypes={selectedTypes}
           onTypeToggle={setSelectedTypes}

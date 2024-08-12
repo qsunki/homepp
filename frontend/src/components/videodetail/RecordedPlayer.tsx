@@ -27,6 +27,7 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
   } = useVideoStore();
   const [showReportConfirm, setShowReportConfirm] = useState<boolean>(false);
 
+  // selectedVideo 변수를 이미 선언한 것을 다시 선언하지 않고 그대로 사용
   const selectedVideo: Video | undefined = videos.find(
     (video) => video.id === selectedVideoId
   );
