@@ -8,7 +8,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ssafy.age.backend.auth.service.AuthService;
-import ssafy.age.backend.cam.persistence.CamRepository;
 import ssafy.age.backend.member.exception.MemberInvalidAccessException;
 import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.*;
@@ -22,7 +21,6 @@ public class MemberService implements UserDetailsService {
     private final MemberRepository memberRepository;
     private final AuthService authService;
     private final MemberMapper mapper = MemberMapper.INSTANCE;
-    private final CamRepository camRepository;
 
     public MemberResponseDto findByEmail(String email) {
         return mapper.toMemberResponseDto(

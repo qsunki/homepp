@@ -3,7 +3,6 @@ package ssafy.age.backend.auth.service;
 import java.util.Collections;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -30,7 +29,6 @@ public class AuthService {
     private final TokenProvider tokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
     private final MemberMapper mapper = MemberMapper.INSTANCE;
-    private final RedisTemplate<String, String> redisTemplate;
     private static final String BEARER_TYPE = "Bearer";
 
     @Transactional
