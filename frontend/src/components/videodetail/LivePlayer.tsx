@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import SockJS from 'sockjs-client';
 import { Client, IMessage } from '@stomp/stompjs';
-import { v4 as uuidv4 } from 'uuid'; // UUID를 사용해 랜덤 키 생성
+import { v4 as uuidv4 } from 'uuid';
 import {
   fetchCams,
   CamData,
@@ -31,6 +31,7 @@ const LivePlayer: React.FC = () => {
   const clientRef = useRef<Client | null>(null);
   const [webSocketKey, setWebSocketKey] = useState<string>('');
   const [isRecording, setIsRecording] = useState<boolean>(false);
+  const [isLive, setIsLive] = useState<boolean>(false); // 라이브 상태를 추적
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordedChunksRef = useRef<Blob[]>([]);
 
@@ -72,9 +73,8 @@ const LivePlayer: React.FC = () => {
   useEffect(() => {
     if (!selectedCamId) return;
 
-    // WebSocket 키를 프론트에서 직접 생성
     const generateWebSocketKey = () => {
-      const key = uuidv4(); // UUID를 사용해 랜덤 키 생성
+      const key = uuidv4();
       console.log('Generated WebSocket key:', key);
       setWebSocketKey(key);
     };
@@ -85,7 +85,6 @@ const LivePlayer: React.FC = () => {
   useEffect(() => {
     if (!webSocketKey) return;
 
-    // 스트림 요청 API 호출
     const startStream = async () => {
       try {
         console.log('Starting stream for camId:', selectedCamId);
@@ -151,7 +150,6 @@ const LivePlayer: React.FC = () => {
       if (peerConnectionRef.current) {
         peerConnectionRef.current.close();
       }
-      // 페이지를 떠날 때 스트리밍 종료 요청
       controlCameraStream(parseInt(selectedCamId), 'end', webSocketKey).catch(
         (error) => {
           console.error(
@@ -160,6 +158,7 @@ const LivePlayer: React.FC = () => {
           );
         }
       );
+      setIsLive(false); // 라이브 상태를 false로 설정
     };
   }, [webSocketKey, selectedCamId]);
 
@@ -211,6 +210,7 @@ const LivePlayer: React.FC = () => {
         if (remoteVideoRef.current) {
           remoteVideoRef.current.srcObject = remoteStream;
           console.log('Remote stream set to video element');
+          setIsLive(true); // 라이브 상태를 true로 설정
 
           if (!mediaRecorderRef.current) {
             const mediaRecorder = new MediaRecorder(remoteStream);
@@ -258,19 +258,39 @@ const LivePlayer: React.FC = () => {
     }
   };
 
-  const handleRecord = () => {
+  const handleRecord = async () => {
     if (isRecording) {
       mediaRecorderRef.current?.stop();
       setIsRecording(false);
-      const blob = new Blob(recordedChunksRef.current, { type: 'video/webm' });
-      const url = URL.createObjectURL(blob);
+
+      const webmBlob = new Blob(recordedChunksRef.current, {
+        type: 'video/webm',
+      });
+
+      const { createFFmpeg, fetchFile } = await import('@ffmpeg/ffmpeg');
+      const ffmpeg = createFFmpeg({ log: true });
+
+      await ffmpeg.load();
+      ffmpeg.FS('writeFile', 'input.webm', await fetchFile(webmBlob));
+      await ffmpeg.run('-i', 'input.webm', 'output.mp4');
+
+      const mp4Data = ffmpeg.FS('readFile', 'output.mp4');
+      const mp4Blob = new Blob([mp4Data.buffer], { type: 'video/mp4' });
+      const mp4Url = URL.createObjectURL(mp4Blob);
+
+      const camName =
+        cams.find((cam) => cam.id === selectedCamId)?.name || 'recording';
+      const timeStamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const fileName = `${camName}-${timeStamp}.mp4`;
+
       const a = document.createElement('a');
       a.style.display = 'none';
-      a.href = url;
-      a.download = 'recording.webm';
+      a.href = mp4Url;
+      a.download = fileName;
       document.body.appendChild(a);
       a.click();
-      window.URL.revokeObjectURL(url);
+      window.URL.revokeObjectURL(mp4Url);
+
       recordedChunksRef.current = [];
     } else {
       recordedChunksRef.current = [];
@@ -295,7 +315,6 @@ const LivePlayer: React.FC = () => {
           </option>
         ))}
 
-        {/* 구분선 역할을 하는 옵션 추가 */}
         {sharedCams.length > 0 && <option disabled>---</option>}
 
         {sharedCams.map((cam) => (
@@ -316,12 +335,14 @@ const LivePlayer: React.FC = () => {
       </div>
       <div className="flex justify-between items-center mt-4 px-2">
         <div className="text-3xl font-bold">LIVE VIDEO</div>
-        <img
-          src={isRecording ? stop : record}
-          alt={isRecording ? 'Stop Recording' : 'Start Recording'}
-          className="w-auto h-8"
-          onClick={handleRecord}
-        />
+        {isLive && (
+          <img
+            src={isRecording ? stop : record}
+            alt={isRecording ? 'Stop Recording' : 'Start Recording'}
+            className="w-auto h-8"
+            onClick={handleRecord}
+          />
+        )}
       </div>
     </div>
   );
