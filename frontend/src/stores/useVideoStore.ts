@@ -17,7 +17,7 @@ export interface Video {
   thumbnail: string;
   duration: string;
   alerts: Alert[];
-  isReported?: boolean;
+  isThreat?: boolean; // isThreat 속성 추가
   url: string;
   startTime: string;
   length: string;
@@ -58,6 +58,8 @@ interface VideoState {
   fetchAndSetVideos: () => void;
   setVideos: (videos: Video[]) => void;
   setFilteredVideos: (videos: Video[]) => void;
+  isThreat: boolean | null; // isThreat 상태 추가
+  setIsThreat: (value: boolean | null) => void; // isThreat 상태 업데이트 함수 추가
 }
 
 const initialFilter: Filter = {
@@ -92,11 +94,49 @@ export const useVideoStore = create<VideoState>((set, get) => ({
       videos: updatedVideos,
     });
 
-    if (!selectedVideo) {
-      console.log(`Video not found in state, fetching from API...`);
-      get().fetchVideoById(id);
+  fetchVideoById: async (id) => {
+    const { videos } = get();
+    const video = videos.find((v) => v.id === id);
+    if (video) {
+      set({ selectedVideo: video });
     } else {
-      console.log(`Selected video already in state.`);
+      try {
+        const response = await fetchVideoByIdAPI(id);
+        const apiVideo = response.data;
+        const thumbnail = await fetchThumbnail(apiVideo.videoId);
+        const alerts = apiVideo.events.map((event: { type: string }) => ({
+          type: event.type as 'fire' | 'intrusion' | 'loud',
+        }));
+        const fetchedVideo = {
+          id: apiVideo.videoId,
+          title: `${apiVideo.camName}`,
+          timestamp: new Date(apiVideo.recordStartAt).toLocaleTimeString(),
+          thumbnail: thumbnail || 'https://via.placeholder.com/150',
+          duration: `${Math.floor(apiVideo.length / 60)}:${(
+            apiVideo.length % 60
+          )
+            .toString()
+            .padStart(2, '0')}`,
+          alerts,
+          isThreat: apiVideo.threat, // 서버에서 가져온 isThreat 값을 설정
+          url: 'https://example.com/video-url',
+          startTime: new Date(apiVideo.recordStartAt).toLocaleTimeString(),
+          length: `${Math.floor(apiVideo.length / 60)}:${(apiVideo.length % 60)
+            .toString()
+            .padStart(2, '0')}`,
+          type: Array.from(
+            new Set(
+              apiVideo.events.map((event: { type: string }) => event.type)
+            )
+          ),
+          date: new Date(apiVideo.recordStartAt),
+          camera: apiVideo.camName,
+          isReported: localStorage.getItem(`reported_${id}`) === 'true',
+        };
+        set({ selectedVideo: fetchedVideo });
+      } catch (error) {
+        console.error('Failed to fetch video:', error);
+      }
     }
   },
 
@@ -189,14 +229,14 @@ export const useVideoStore = create<VideoState>((set, get) => ({
     console.log(`reportVideo called with id: ${id}`);
     const { videos, selectedVideo } = get();
     const updatedVideos = videos.map((video) =>
-      video.id === id ? { ...video, isReported: true } : video
+      video.id === id ? { ...video, isThreat: true } : video
     );
     console.log(`updatedVideos after report:`, updatedVideos);
 
     set({
       videos: updatedVideos,
       selectedVideo: selectedVideo
-        ? { ...selectedVideo, isReported: true }
+        ? { ...selectedVideo, isThreat: true }
         : null,
     });
 
@@ -226,6 +266,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
               .toString()
               .padStart(2, '0')}`,
             alerts,
+            isThreat: video.threat, // 서버에서 가져온 isThreat 값을 설정
             url: 'https://example.com/video-url',
             startTime: new Date(video.recordStartAt).toLocaleTimeString(),
             length: `${Math.floor(video.length / 60)}:${(video.length % 60)
@@ -258,4 +299,6 @@ export const useVideoStore = create<VideoState>((set, get) => ({
 
   setVideos: (videos: Video[]) => set({ videos }),
   setFilteredVideos: (videos: Video[]) => set({ filteredVideos: videos }),
+  isThreat: null, // 초기 상태로 null 설정 (all, reported, unreported 상태)
+  setIsThreat: (value: boolean | null) => set({ isThreat: value }), // 상태 업데이트 함수
 }));

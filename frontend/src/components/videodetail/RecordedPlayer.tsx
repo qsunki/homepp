@@ -27,6 +27,7 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
   } = useVideoStore();
   const [showReportConfirm, setShowReportConfirm] = useState<boolean>(false);
 
+  // selectedVideo 변수를 이미 선언한 것을 다시 선언하지 않고 그대로 사용
   const selectedVideo: Video | undefined = videos.find(
     (video) => video.id === selectedVideoId
   );
@@ -157,14 +158,14 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
           </button>
           <button
             className={`px-4 py-2 rounded border-2 ${
-              isReported
+              selectedVideo.isThreat
                 ? 'bg-red-500 text-white'
                 : 'border-red-500 text-red-500 bg-transparent'
             }`}
             onClick={handleReportClick}
-            disabled={isReported}
+            disabled={selectedVideo.isThreat}
           >
-            {isReported ? 'Reported' : 'Report'}
+            {selectedVideo.isThreat ? 'Reported' : 'Report'}
           </button>
         </div>
       </div>
