@@ -69,13 +69,7 @@ public class FCMService {
                             .putData("messageType", "register")
                             .putData("result", "success")
                             .build();
-            try {
-                String response = FirebaseMessaging.getInstance().send(message);
-                log.debug(response);
-            } catch (FirebaseMessagingException e) {
-                fcmTokenRepository.delete(fcmToken);
-                throw new RuntimeException(e);
-            }
+            sendMessage(fcmToken, message);
         }
     }
 
@@ -90,13 +84,7 @@ public class FCMService {
                             .putData("messageType", "onOff")
                             .putData("status", status)
                             .build();
-            try {
-                String response = FirebaseMessaging.getInstance().send(message);
-                log.debug(response);
-            } catch (FirebaseMessagingException e) {
-                fcmTokenRepository.delete(fcmToken);
-                throw new RuntimeException(e);
-            }
+            sendMessage(fcmToken, message);
         }
     }
 
@@ -109,13 +97,7 @@ public class FCMService {
                             .putData("messageType", "share")
                             .putData("email", email)
                             .build();
-            try {
-                String response = FirebaseMessaging.getInstance().send(message);
-                log.debug(response);
-            } catch (FirebaseMessagingException e) {
-                fcmTokenRepository.delete(fcmToken);
-                throw new RuntimeException(e);
-            }
+            sendMessage(fcmToken, message);
         }
     }
 
@@ -132,13 +114,7 @@ public class FCMService {
         for (FCMToken fcmToken : fcmTokens) {
             Message message =
                     buildEventMessage(fcmToken.getToken(), event, member.getEmail(), "home");
-            try {
-                String response = FirebaseMessaging.getInstance().send(message);
-                log.debug(response);
-            } catch (FirebaseMessagingException e) {
-                fcmTokenRepository.delete(fcmToken);
-                throw new RuntimeException(e);
-            }
+            sendMessage(fcmToken, message);
         }
 
         for (Share share : member.getShareList()) {
@@ -148,14 +124,18 @@ public class FCMService {
             for (FCMToken fcmToken : sharedMemberTokens) {
                 Message message =
                         buildEventMessage(fcmToken.getToken(), event, member.getEmail(), "shared");
-                try {
-                    String response = FirebaseMessaging.getInstance().send(message);
-                    log.debug(response);
-                } catch (FirebaseMessagingException e) {
-                    fcmTokenRepository.delete(fcmToken);
-                    throw new RuntimeException(e);
-                }
+                sendMessage(fcmToken, message);
             }
+        }
+    }
+
+    private void sendMessage(FCMToken fcmToken, Message message) {
+        try {
+            String response = FirebaseMessaging.getInstance().send(message);
+            log.debug(response);
+        } catch (FirebaseMessagingException e) {
+            fcmTokenRepository.delete(fcmToken);
+            log.debug("Not Send And Delete FCMToken: {}", fcmToken);
         }
     }
 
@@ -202,13 +182,7 @@ public class FCMService {
     public void sendThreatMessage(FCMToken targetToken, Video video) {
         Message message = buildThreatMessage(targetToken.getToken(), video);
 
-        try {
-            String response = FirebaseMessaging.getInstance().send(message);
-            log.debug(response);
-        } catch (FirebaseMessagingException e) {
-            fcmTokenRepository.delete(targetToken);
-            throw new RuntimeException(e);
-        }
+        sendMessage(targetToken, message);
     }
 
     public Message buildThreatMessage(String targetToken, Video video) {
