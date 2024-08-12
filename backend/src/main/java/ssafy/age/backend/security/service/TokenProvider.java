@@ -34,14 +34,14 @@ public class TokenProvider {
         jwtParser = Jwts.parser().verifyWith(key).build();
     }
 
-    public TokenDto generateTokenDto(JwtPayloadDto jwtPayloadDto) {
+    public TokenDto generateTokenDto(MemberInfoDto memberInfoDto) {
 
         // Access Token 생성
         long now = System.currentTimeMillis();
         Date accessTokenExp = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
         String accessToken =
                 Jwts.builder()
-                        .claim("memberData", jwtPayloadDto)
+                        .claim("memberData", memberInfoDto)
                         .expiration(accessTokenExp)
                         .signWith(key)
                         .compact();
@@ -50,7 +50,7 @@ public class TokenProvider {
         Date refreshTokenExp = new Date(now + REFRESH_TOKEN_EXPIRE_TIME);
         String refreshToken =
                 Jwts.builder()
-                        .claim("memberData", jwtPayloadDto)
+                        .claim("memberData", memberInfoDto)
                         .expiration(refreshTokenExp)
                         .signWith(key)
                         .compact();
@@ -65,9 +65,9 @@ public class TokenProvider {
 
     public Authentication getAuthentication(String accessToken) {
         // 토큰 복호화
-        Object memberDataClaim =
+        Object memberInfoClaim =
                 jwtParser.parseSignedClaims(accessToken).getPayload().get("memberData");
-        JwtPayloadDto memberData = objectMapper.convertValue(memberDataClaim, JwtPayloadDto.class);
+        MemberInfoDto memberData = objectMapper.convertValue(memberInfoClaim, MemberInfoDto.class);
 
         return new UsernamePasswordAuthenticationToken(memberData, "", List.of());
     }

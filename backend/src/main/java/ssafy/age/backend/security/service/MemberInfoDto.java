@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class JwtPayloadDto {
+public class MemberInfoDto {
     private Long memberId;
     private String email;
 }

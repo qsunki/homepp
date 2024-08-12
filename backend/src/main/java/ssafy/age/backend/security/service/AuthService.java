@@ -64,10 +64,10 @@ public class AuthService implements UserDetailsService {
 
         Member member =
                 memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
-        JwtPayloadDto jwtPayloadDto = new JwtPayloadDto(member.getId(), member.getEmail());
+        MemberInfoDto memberInfoDto = new MemberInfoDto(member.getId(), member.getEmail());
 
         // 3. 인증 정보를 기반으로 JWT 토큰 생성
-        TokenDto token = tokenProvider.generateTokenDto(jwtPayloadDto);
+        TokenDto token = tokenProvider.generateTokenDto(memberInfoDto);
 
         // 4. Redis에  RefreshToken 저장
         refreshTokenRepository.save(new RefreshToken(token.getRefreshToken(), member.getId()));
@@ -91,10 +91,10 @@ public class AuthService implements UserDetailsService {
 
         // 2. Refresh Token으로 부터 인증 정보를 꺼냄
         Authentication authentication = tokenProvider.getAuthentication(refreshToken);
-        JwtPayloadDto jwtPayloadDto = (JwtPayloadDto) authentication.getPrincipal();
+        MemberInfoDto memberInfoDto = (MemberInfoDto) authentication.getPrincipal();
 
         // 3. 새로운 Access Token 생성
-        TokenDto accessToken = tokenProvider.generateTokenDto(jwtPayloadDto);
+        TokenDto accessToken = tokenProvider.generateTokenDto(memberInfoDto);
 
         // Token 재발급
         return TokenDto.builder()
