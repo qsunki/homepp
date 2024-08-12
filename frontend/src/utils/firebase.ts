@@ -54,9 +54,16 @@ onMessage(messaging, (payload) => {
   switch (messageType) {
     case 'threat':
       showCustomNotification({
-        title: payload.data.title || '위협 알림',
-        body: payload.data.body || '위협이 감지되었습니다.',
+        title: payload.data.messageTitle || '위협 알림',
+        body: payload.data.messageBody || '위협이 감지되었습니다.',
         type: 'threat',
+      });
+      break;
+    case 'event':
+      showCustomNotification({
+        title: payload.data.messageTitle || '이벤트 알림',
+        body: payload.data.messageBody || '이벤트가 발생했습니다.',
+        type: 'event',
       });
       break;
     case 'register':
@@ -103,31 +110,56 @@ function showCustomNotification({
   notificationElement.style.bottom = '20px';
   notificationElement.style.right = '20px';
   notificationElement.style.zIndex = '1000';
+  notificationElement.style.borderRadius = '12px';
+  notificationElement.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+  notificationElement.style.padding = '16px';
+  notificationElement.style.maxWidth = '300px';
+  notificationElement.style.fontFamily =
+    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+  notificationElement.style.display = 'flex';
+  notificationElement.style.alignItems = 'center';
+  notificationElement.style.gap = '12px';
 
   // 각 타입에 따른 스타일 적용
   switch (type) {
     case 'threat':
-      notificationElement.style.backgroundColor = 'red';
+      notificationElement.style.backgroundColor = '#FF3B30'; // 애플 레드
+      notificationElement.style.color = 'white';
+      break;
+    case 'event':
+      notificationElement.style.backgroundColor = '#FF9500'; // 애플 오렌지
       notificationElement.style.color = 'white';
       break;
     case 'register':
-      notificationElement.style.backgroundColor = 'green';
+      notificationElement.style.backgroundColor = '#34C759'; // 애플 그린
       notificationElement.style.color = 'white';
       break;
     case 'share':
-      notificationElement.style.backgroundColor = 'blue';
+      notificationElement.style.backgroundColor = '#007AFF'; // 애플 블루
       notificationElement.style.color = 'white';
       break;
     case 'onOff':
-      notificationElement.style.backgroundColor = 'gray';
+      notificationElement.style.backgroundColor = '#8E8E93'; // 애플 그레이
       notificationElement.style.color = 'white';
       break;
     default:
-      notificationElement.style.backgroundColor = 'black';
+      notificationElement.style.backgroundColor = '#333333'; // 다크 모드 기본 배경
       notificationElement.style.color = 'white';
   }
 
-  notificationElement.innerHTML = `<strong>${title}</strong><p>${body}</p>`;
+  // 아이콘 추가 (선택 사항)
+  const iconElement = document.createElement('div');
+  iconElement.style.width = '24px';
+  iconElement.style.height = '24px';
+  iconElement.style.borderRadius = '50%';
+  iconElement.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+
+  notificationElement.appendChild(iconElement);
+
+  const textContent = document.createElement('div');
+  textContent.innerHTML = `<strong>${title}</strong><p>${body}</p>`;
+
+  notificationElement.appendChild(textContent);
 
   document.body.appendChild(notificationElement);
 

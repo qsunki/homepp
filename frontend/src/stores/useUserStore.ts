@@ -33,7 +33,7 @@ interface UserState {
   logout: () => void;
 }
 
-const useUserStore = create<UserState>((set) => ({
+export const useUserStore = create<UserState>((set) => ({
   userId: null,
   email: '',
   phoneNumber: '',
@@ -92,4 +92,4 @@ const useUserStore = create<UserState>((set) => ({
   },
 }));
 
-export { useUserStore };
+// 중복된 export 구문 제거

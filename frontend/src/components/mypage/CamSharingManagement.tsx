@@ -27,6 +27,9 @@ const CamSharingManagement: React.FC = () => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [nicknameError, setNicknameError] = useState<string | null>(null);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState<React.ReactNode>(null);
+
   useEffect(() => {
     loadSharedMembers();
   }, []);
@@ -124,9 +127,20 @@ const CamSharingManagement: React.FC = () => {
     try {
       await deleteSharedMember(userEmail, email);
       loadSharedMembers();
+      closeModal(); // 모달 닫기
     } catch (error) {
       console.error('공유 사용자 삭제 오류:', error);
     }
+  };
+
+  const openModal = (content: React.ReactNode) => {
+    setModalContent(content);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setModalContent(null);
   };
 
   return (
@@ -178,7 +192,25 @@ const CamSharingManagement: React.FC = () => {
                     className="text-blue-500 cursor-pointer mr-4 text-xl"
                   />
                   <FaTrash
-                    onClick={() => handleDeleteMember(member.email)}
+                    onClick={() =>
+                      openModal(
+                        <div>
+                          <h3>Are you sure you want to delete this member?</h3>
+                          <button
+                            onClick={() => handleDeleteMember(member.email)}
+                            className="text-red-500 mt-4"
+                          >
+                            Confirm
+                          </button>
+                          <button
+                            onClick={closeModal}
+                            className="text-gray-500 mt-4 ml-4"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      )
+                    }
                     className="text-red-500 cursor-pointer text-xl"
                   />
                 </>
@@ -224,6 +256,15 @@ const CamSharingManagement: React.FC = () => {
       )}
       {successMessage && (
         <div className="text-blue-500 text-xs mb-4">{successMessage}</div>
+      )}
+
+      {/* 모달 구현 */}
+      {isModalOpen && (
+        <div className="custom-overlay" onClick={closeModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            {modalContent}
+          </div>
+        </div>
       )}
     </div>
   );
