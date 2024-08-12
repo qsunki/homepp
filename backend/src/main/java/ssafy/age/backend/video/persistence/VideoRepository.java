@@ -10,7 +10,7 @@ import ssafy.age.backend.event.persistence.EventType;
 public interface VideoRepository extends JpaRepository<Video, Long> {
 
     @Query(
-            "SELECT v FROM Video v LEFT OUTER JOIN v.events e JOIN v.cam c WHERE "
+            "SELECT v FROM Video v LEFT OUTER JOIN v.events e LEFT OUTER JOIN v.cam c WHERE "
                     + ":email = c.member.email AND"
                     + "(:types IS NULL OR e.type IN :types) AND "
                     + "(:startDate IS NULL OR v.recordStartedAt >= :startDate) AND "
