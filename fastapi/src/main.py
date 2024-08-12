@@ -5,7 +5,7 @@ import torch
 app = FastAPI()
 
 # 모델과 토크나이저 로드 (로컬 경로 지정)
-model_name_or_path = "models/koelectra2_quantized"
+model_name_or_path = "models"
 tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, local_files_only=True)
 model = AutoModelForSequenceClassification.from_pretrained(model_name_or_path, local_files_only=True)
 

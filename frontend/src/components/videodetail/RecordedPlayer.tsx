@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactPlayer from 'react-player';
 import { useVideoStore, Video } from '../../stores/useVideoStore';
 import fireIcon from '../../assets/filter/fire.png';
@@ -21,17 +21,31 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
     useVideoStore();
   const [showReportConfirm, setShowReportConfirm] = useState<boolean>(false);
 
+  // selectedVideo 변수를 이미 선언한 것을 다시 선언하지 않고 그대로 사용
   const selectedVideo: Video | undefined = videos.find(
     (video) => video.id === selectedVideoId
   );
+
+  useEffect(() => {
+    console.log('Selected Video ID:', selectedVideoId); // 선택된 비디오 ID를 출력
+    console.log('Selected Video:', selectedVideo); // 선택된 비디오의 상세 정보를 출력
+  }, [selectedVideoId, selectedVideo]);
 
   const handleReportClick = () => {
     setShowReportConfirm(true);
   };
 
-  const confirmReport = () => {
+  const confirmReport = async () => {
     if (selectedVideo) {
-      reportVideo(selectedVideo.id);
+      try {
+        console.log('Reporting video with ID:', selectedVideo.id);
+        // API 호출을 통한 비디오 신고
+        await api.post(`/cams/videos/${selectedVideo.id}/threat`);
+        reportVideo(selectedVideo.id);
+        console.log('Video reported successfully:', selectedVideo.id);
+      } catch (error) {
+        console.error('비디오 신고 중 오류 발생:', error);
+      }
     }
     setShowReportConfirm(false);
   };
@@ -138,14 +152,14 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
           </button>
           <button
             className={`px-4 py-2 rounded border-2 ${
-              isReported
+              selectedVideo.isThreat
                 ? 'bg-red-500 text-white'
                 : 'border-red-500 text-red-500 bg-transparent'
             }`}
             onClick={handleReportClick}
-            disabled={isReported}
+            disabled={selectedVideo.isThreat}
           >
-            {isReported ? 'Reported' : 'Report'}
+            {selectedVideo.isThreat ? 'Reported' : 'Report'}
           </button>
         </div>
       </div>
