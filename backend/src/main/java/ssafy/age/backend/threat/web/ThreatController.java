@@ -14,7 +14,6 @@ import ssafy.age.backend.threat.service.ThreatService;
 public class ThreatController {
 
     private final ThreatService threatService;
-    private final AuthService authService;
 
     @GetMapping("/threats")
     public List<ThreatResponseDto> getThreats() {
