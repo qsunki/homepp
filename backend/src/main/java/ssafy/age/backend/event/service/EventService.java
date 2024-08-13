@@ -23,13 +23,11 @@ public class EventService {
 
     private final EventRepository eventRepository;
     private final FCMService fcmService;
-    private final AuthService authService;
     private final EventMapper eventMapper = EventMapper.INSTANCE;
 
     @Transactional
-    public List<EventResponseDto> getAllEvents() {
-        String email = authService.getMemberEmail();
-        List<Event> eventList = eventRepository.findAllEventsByMemberEmail(email);
+    public List<EventResponseDto> getAllEvents(Long memberId) {
+        List<Event> eventList = eventRepository.findAllEventsByMemberId(memberId);
         return eventList.stream().map(eventMapper::toEventResponseDto).toList();
     }
 
@@ -55,11 +53,10 @@ public class EventService {
         eventRepository.save(event);
     }
 
-    public Integer countEventsOnToday() {
-        String email = authService.getMemberEmail();
+    public Integer countEventsOnToday(Long memberId) {
         LocalDate today = LocalDate.now();
         LocalDateTime startOfDay = today.atStartOfDay();
         LocalDateTime endOfDay = today.atTime(LocalTime.MAX);
-        return eventRepository.countTodayEventsByMemberEmail(email, startOfDay, endOfDay);
+        return eventRepository.countTodayEventsByMemberId(memberId, startOfDay, endOfDay);
     }
 }
