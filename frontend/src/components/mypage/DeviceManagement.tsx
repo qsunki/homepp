@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { FaTrash, FaEdit, FaPlus } from 'react-icons/fa';
 import QRCode from 'qrcode.react';
 import { fetchCams, updateCam, deleteCam } from '../../api';
@@ -34,14 +34,14 @@ const DeviceManagement: React.FC<DeviceManagementProps> = ({
     loadDevices();
   }, []);
 
-  const loadDevices = async () => {
+  const loadDevices = useCallback(async () => {
     try {
       const response = await fetchCams();
       setDevices(response.data);
     } catch (error) {
       // console.error('Error loading device list:', error);
     }
-  };
+  }, []);
 
   const handleEditDevice = (id: number) => {
     setEditingDevice(id);

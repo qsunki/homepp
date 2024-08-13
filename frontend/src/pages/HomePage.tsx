@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import styles from './HomePage.module.css';
@@ -37,21 +37,34 @@ const HomePage: React.FC = () => {
   const { isLoggedIn } = useUserStore();
   const { liveThumbnailUrl, setLiveThumbnailUrl } = useVideoStore();
 
-  useEffect(() => {
-    const fetchCamList = async () => {
-      try {
-        const response = await fetchCams();
-        if (response.data.length > 0) {
-          setCamId(response.data[0].camId);
-        } else {
-          setIsModalOpen(true);
-          // console.error('No cameras found for the user');
-        }
-      } catch (error) {
-        // console.error('Failed to fetch camera list:', error);
+  const fetchCamList = useCallback(async () => {
+    try {
+      const response = await fetchCams();
+      if (response.data.length > 0) {
+        setCamId(response.data[0].camId);
+      } else {
+        setIsModalOpen(true);
+        // console.error('No cameras found for the user');
       }
-    };
+    } catch (error) {
+      // console.error('Failed to fetch camera list:', error);
+    }
+  }, []);
 
+  const handleFetchEnvInfo = useCallback(async () => {
+    if (camId !== null) {
+      try {
+        const envInfo = await fetchLatestEnvInfo(camId);
+        // console.log('Fetched environment info:', envInfo);
+        setTemperatureValue(envInfo.temperature);
+        setHumidityValue(envInfo.humidity);
+      } catch (error) {
+        // console.error('Failed to fetch environment info:', error);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     if (isLoggedIn) {
       fetchCamList();
     } else {
@@ -105,19 +118,6 @@ const HomePage: React.FC = () => {
         setAlertCount(count);
       } catch (error) {
         // console.error('Failed to fetch alert count:', error);
-      }
-    };
-
-    const handleFetchEnvInfo = async () => {
-      if (camId !== null) {
-        try {
-          const envInfo = await fetchLatestEnvInfo(camId);
-          // console.log('Fetched environment info:', envInfo);
-          setTemperatureValue(envInfo.temperature);
-          setHumidityValue(envInfo.humidity);
-        } catch (error) {
-          // console.error('Failed to fetch environment info:', error);
-        }
       }
     };
 

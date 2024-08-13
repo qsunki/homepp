@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useCameraStore } from '../stores/useCameraStore';
 import { fetchLatestEnvInfo } from '../api';
 
@@ -9,22 +9,24 @@ interface CameraToggleProps {
 const CameraToggle: React.FC<CameraToggleProps> = ({ onToggle }) => {
   const { camIds, isCamerasOn, fetchCamIds, setCamerasOn } = useCameraStore();
 
+  const fetchCameraStatus = useCallback(async () => {
+    try {
+      if (camIds.length > 0) {
+        const firstCamStatus = await fetchLatestEnvInfo(camIds[0]);
+        const status = firstCamStatus.status === 'RECORDING';
+        setCamerasOn(status);
+        if (onToggle) onToggle(status);
+      }
+    } catch (error) {
+      // console.error('Failed to fetch camera statuses:', error);
+    }
+  }, []);
+
   useEffect(() => {
     fetchCamIds();
+  }, []);
 
-    const fetchCameraStatus = async () => {
-      try {
-        if (camIds.length > 0) {
-          const firstCamStatus = await fetchLatestEnvInfo(camIds[0]);
-          const status = firstCamStatus.status === 'RECORDING';
-          setCamerasOn(status);
-          if (onToggle) onToggle(status);
-        }
-      } catch (error) {
-        // console.error('Failed to fetch camera statuses:', error);
-      }
-    };
-
+  useEffect(() => {
     fetchCameraStatus();
   }, [camIds, setCamerasOn, onToggle]);
 
