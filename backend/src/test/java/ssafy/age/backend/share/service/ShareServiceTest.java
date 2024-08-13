@@ -1,10 +1,12 @@
 package ssafy.age.backend.share.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,7 +46,7 @@ class ShareServiceTest {
         Member member = mock(Member.class);
         Member differentMember = mock(Member.class);
 
-        given(authService.getMemberEmail()).willReturn(differentEmail);
+        //        given(authService.getMemberEmail()).willReturn(differentEmail);
         given(
                         memberRepository
                                 .findByEmail(differentEmail)
@@ -71,7 +73,7 @@ class ShareServiceTest {
         ShareDto shareDto = new ShareDto();
         List<ShareDto> shareDtos = List.of(shareDto);
 
-        given(authService.getMemberEmail()).willReturn(email);
+        //        given(authService.getMemberEmail()).willReturn(email);
         given(shareRepository.findAllByMemberEmail(email)).willReturn(shares);
         given(shareMapper.toShareDto(share)).willReturn(shareDto);
 
@@ -106,7 +108,7 @@ class ShareServiceTest {
         shareDto.setEmail(sharedMemberEmail);
         shareDto.setNickname(nickname);
 
-        given(authService.getMemberEmail()).willReturn(email);
+        //        given(authService.getMemberEmail()).willReturn(email);
         given(memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new))
                 .willReturn(member);
         given(
@@ -134,7 +136,7 @@ class ShareServiceTest {
         String nickname = "nickname";
         Member member = mock(Member.class);
 
-        given(authService.getMemberEmail()).willReturn(email);
+        //        given(authService.getMemberEmail()).willReturn(email);
         given(memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new))
                 .willReturn(member);
         given(memberRepository.findByEmail(sharedMemberEmail)).willReturn(null);
@@ -169,7 +171,7 @@ class ShareServiceTest {
         ShareDto updatedShareDto = new ShareDto();
         updatedShareDto.setNickname(newNickname);
 
-        given(authService.getMemberEmail()).willReturn(email);
+        //        given(authService.getMemberEmail()).willReturn(email);
         given(memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new))
                 .willReturn(member);
         given(
@@ -198,7 +200,7 @@ class ShareServiceTest {
         String sharedMemberEmail = "shared@example.com";
         Share share = mock(Share.class);
 
-        given(authService.getMemberEmail()).willReturn(email);
+        //        given(authService.getMemberEmail()).willReturn(email);
         given(shareRepository.findByMemberEmailAndSharedMemberEmail(email, sharedMemberEmail))
                 .willReturn(share);
 
