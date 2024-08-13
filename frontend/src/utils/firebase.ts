@@ -1,12 +1,6 @@
 import { initializeApp } from 'firebase/app';
-import {
-  getMessaging,
-  getToken,
-  onMessage,
-  MessagePayload,
-} from 'firebase/messaging';
+import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 
-// Firebase 구성 정보
 const firebaseConfig = {
   apiKey: 'AIzaSyAPmerBQN_IWn3EQP8k2onJRJqcxQikHWs',
   authDomain: 'homepp-ab3e3.firebaseapp.com',
@@ -17,11 +11,9 @@ const firebaseConfig = {
   measurementId: 'G-JKGWEXGBDX',
 };
 
-// Firebase 앱 초기화
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
 
-// FCM 토큰 요청 함수
 const requestPermissionAndGetToken = async (vapidKey: string) => {
   try {
     const permission = await Notification.requestPermission();
@@ -30,42 +22,42 @@ const requestPermissionAndGetToken = async (vapidKey: string) => {
       if (currentToken) {
         return currentToken;
       } else {
-        console.log('No registration token available.');
+        console.log(
+          'No registration token available. Request permission to generate one.'
+        );
       }
     } else {
       console.log('Unable to get permission to notify.');
     }
   } catch (error) {
-    console.error('An error occurred while retrieving token.', error);
+    console.error('An error occurred while retrieving token. ', error);
   }
   return null;
 };
 
-// VAPID 키 설정
-const VAPID_KEY = 'YOUR_VAPID_KEY_HERE';
+const VAPID_KEY =
+  'BM6ml0bVdvvGo9EXGvM9KMtdlsMxUzalN_xxHTc9yvBNmc-t9AD89MOkJZ2xe-J_2gyeXJ7HiyrlpMxhISY9HW8';
 
-// 알림 데이터 타입 정의
-interface FCMNotificationPayload {
-  title: string;
-  body: string;
-  icon?: string;
-  click_action?: string;
-}
+onMessage(messaging, (payload) => {
+  console.log('Message received. ', payload);
 
-// FCM 메시지 수신 처리
-onMessage(messaging, async (payload: MessagePayload) => {
-  console.log('Message received:', payload);
-
-  // 1. 브라우저 알림 표시 (FCM 카드)
   if (payload.notification) {
+    // 만약 notification이 있다면 브라우저 알림 표시
     showBrowserNotification({
       title: payload.notification.title || 'Default Title',
       body: payload.notification.body || 'No content available',
       icon: payload.notification.icon,
     });
+  } else if (payload.data) {
+    // notification이 없다면 data를 사용하여 알림 생성
+    showBrowserNotification({
+      title: payload.data.messageTitle || 'Default Title',
+      body: payload.data.messageBody || 'No content available',
+      icon: undefined, // 필요한 경우 다른 아이콘 설정 가능
+    });
   }
 
-  // 2. 메시지 타입에 따른 추가 처리
+  // 메시지 타입에 따라 UI 업데이트
   if (payload.data) {
     const messageType = payload.data.messageType;
 
@@ -110,20 +102,18 @@ onMessage(messaging, async (payload: MessagePayload) => {
       default:
         console.log('Unknown message type:', messageType);
     }
-
-    // 3. FCM 카드 알림이 표시된 후 Navbar 알림 갱신
-    updateNavbarNotifications(payload.data);
   }
 });
 
 // 브라우저 알림을 표시하는 함수
-function showBrowserNotification(notification: FCMNotificationPayload) {
-  const title = notification.title;
-  const body = notification.body;
-
+function showBrowserNotification(notification: {
+  title: string;
+  body: string;
+  icon?: string;
+}) {
   if (Notification.permission === 'granted') {
-    new Notification(title, {
-      body: body,
+    new Notification(notification.title, {
+      body: notification.body,
       icon: notification.icon,
     });
   }
@@ -158,27 +148,27 @@ function showCustomNotification({
   // 각 타입에 따른 스타일 적용
   switch (type) {
     case 'threat':
-      notificationElement.style.backgroundColor = '#FF3B30';
+      notificationElement.style.backgroundColor = '#FF3B30'; // 애플 레드
       notificationElement.style.color = 'white';
       break;
     case 'event':
-      notificationElement.style.backgroundColor = '#FF9500';
+      notificationElement.style.backgroundColor = '#FF9500'; // 애플 오렌지
       notificationElement.style.color = 'white';
       break;
     case 'register':
-      notificationElement.style.backgroundColor = '#34C759';
+      notificationElement.style.backgroundColor = '#34C759'; // 애플 그린
       notificationElement.style.color = 'white';
       break;
     case 'share':
-      notificationElement.style.backgroundColor = '#007AFF';
+      notificationElement.style.backgroundColor = '#007AFF'; // 애플 블루
       notificationElement.style.color = 'white';
       break;
     case 'onOff':
-      notificationElement.style.backgroundColor = '#8E8E93';
+      notificationElement.style.backgroundColor = '#8E8E93'; // 애플 그레이
       notificationElement.style.color = 'white';
       break;
     default:
-      notificationElement.style.backgroundColor = '#333333';
+      notificationElement.style.backgroundColor = '#333333'; // 다크 모드 기본 배경
       notificationElement.style.color = 'white';
   }
 
@@ -186,16 +176,13 @@ function showCustomNotification({
   textContent.innerHTML = `<strong>${title}</strong><p>${body}</p>`;
 
   notificationElement.appendChild(textContent);
+
   document.body.appendChild(notificationElement);
 
+  // 일정 시간 후 알림 제거
   setTimeout(() => {
     document.body.removeChild(notificationElement);
-  }, 5000);
-}
-
-// Navbar 알림을 갱신하는 함수
-function updateNavbarNotifications(data: Record<string, unknown>) {
-  console.log('Updating Navbar notifications with data:', data);
+  }, 6000);
 }
 
 export {
