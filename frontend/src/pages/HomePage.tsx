@@ -310,7 +310,7 @@ const HomePage: React.FC = () => {
           },
         }}
       >
-        <DeviceManagement />
+        <DeviceManagement disableOutsideClick={true} />
       </Modal>
     </div>
   );
