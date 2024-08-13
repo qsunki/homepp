@@ -2,6 +2,7 @@ package ssafy.age.backend.share.service;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ssafy.age.backend.member.exception.MemberNotFoundException;
@@ -22,12 +23,14 @@ public class ShareService {
     private final FCMService fcmService;
 
     @Transactional
+    @PreAuthorize("#email == authentication.principal.email")
     public List<ShareDto> getAllShares(String email) {
         List<Share> shareList = shareRepository.findAllByMemberEmail(email);
         return shareList.stream().map(shareMapper::toShareDto).toList();
     }
 
     @Transactional
+    @PreAuthorize("#email == authentication.principal.email")
     public ShareDto createShare(String email, String sharedMemberEmail, String nickname) {
         Member member =
                 memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
@@ -50,6 +53,7 @@ public class ShareService {
     }
 
     @Transactional
+    @PreAuthorize("#email == authentication.principal.email")
     public ShareDto updateShare(String email, String sharedMemberEmail, String nickname) {
         Share share =
                 shareRepository.findByMemberEmailAndSharedMemberEmail(email, sharedMemberEmail);
@@ -60,6 +64,7 @@ public class ShareService {
     }
 
     @Transactional
+    @PreAuthorize("#email == authentication.principal.email")
     public void deleteShare(String email, String sharedMemberEmail) {
         Share share =
                 shareRepository.findByMemberEmailAndSharedMemberEmail(email, sharedMemberEmail);
