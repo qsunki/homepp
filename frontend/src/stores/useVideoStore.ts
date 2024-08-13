@@ -25,6 +25,7 @@ export interface Video {
   type: string[];
   date: Date;
   camera: string;
+  streamUrl?: string;
 }
 
 interface Filter {
@@ -80,7 +81,6 @@ export const useVideoStore = create<VideoState>((set, get) => ({
   camList: [], // 초기 camList 상태
 
   setSelectedVideoId: (id: number) => {
-    // console.log(`setSelectedVideoId called with id: ${id}`);
     set({ selectedVideoId: id, currentVideoId: id });
 
     const { videos } = get();
@@ -97,21 +97,16 @@ export const useVideoStore = create<VideoState>((set, get) => ({
     });
 
     if (!selectedVideo) {
-      // console.log(`Video not found in state, fetching from API...`);
       get().fetchVideoById(id);
-    } else {
-      // console.log(`Selected video already in state.`);
     }
   },
 
   fetchVideoById: async (id: number) => {
-    // console.log(`fetchVideoById called with id: ${id}`);
     const { videos } = get();
     const existingVideo = videos.find((video) => video.id === id);
 
     if (existingVideo) {
       set({ selectedVideo: existingVideo });
-      // console.log(`Video already in state:`, existingVideo);
       return;
     }
 
@@ -153,14 +148,13 @@ export const useVideoStore = create<VideoState>((set, get) => ({
         camera: apiVideo.camName,
         isThreat: apiVideo.threat,
       };
-      // console.log(`Video object created:`, video);
 
       set({
         videos: [...videos, video],
         selectedVideo: video,
       });
     } catch (error) {
-      // console.error('Failed to fetch video:', error);
+      console.error('Failed to fetch video:', error);
     }
   },
 
@@ -197,12 +191,10 @@ export const useVideoStore = create<VideoState>((set, get) => ({
   },
 
   reportVideo: (id: number) => {
-    // console.log(`reportVideo called with id: ${id}`);
     const { videos, selectedVideo } = get();
     const updatedVideos = videos.map((video) =>
       video.id === id ? { ...video, isThreat: true } : video
     );
-    // console.log(`updatedVideos after report:`, updatedVideos);
 
     set({
       videos: updatedVideos,
@@ -212,14 +204,12 @@ export const useVideoStore = create<VideoState>((set, get) => ({
     });
 
     localStorage.setItem(`threat_${id}`, 'true');
-    // console.log(`Video ${id} reported and stored in localStorage.`);
   },
 
   selectedTypes: [],
   setSelectedTypes: (types: string[]) => set({ selectedTypes: types }),
 
   fetchAndSetVideos: async () => {
-    // console.log(`fetchAndSetVideos called`);
     try {
       const response = await fetchVideos();
       const apiVideos = await Promise.all(
@@ -258,7 +248,6 @@ export const useVideoStore = create<VideoState>((set, get) => ({
           };
         })
       );
-      // console.log(`Videos fetched and processed:`, apiVideos);
 
       set({
         videos: apiVideos,
@@ -270,7 +259,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
       const updatedState = get();
       console.log('Updated state after fetchAndSetVideos:', updatedState);
     } catch (error) {
-      // console.error('Failed to fetch videos:', error);
+      console.error('Failed to fetch videos:', error);
     }
   },
 

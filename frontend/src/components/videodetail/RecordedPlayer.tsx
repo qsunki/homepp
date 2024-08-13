@@ -1,42 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import ReactPlayer from 'react-player';
 import { useVideoStore, Video } from '../../stores/useVideoStore';
 import fireIcon from '../../assets/filter/fire.png';
 import soundIcon from '../../assets/filter/sound.png';
 import thiefIcon from '../../assets/filter/thief.png';
-import api from '../../api'; // api 모듈 불러오기
+import api from '../../api';
 
 interface RecordedPlayerProps {
   showDetails?: boolean;
-  videoSrc: string | null;
-  isThreat?: boolean; // 여기에 isThreat를 추가합니다.
+  videoSrc: string; // videoSrc를 prop으로 추가
+  isThreat?: boolean;
 }
 
 const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
   showDetails = false,
-  videoSrc,
+  videoSrc, // videoSrc prop 받아오기
   isThreat,
 }) => {
-  const {
-    selectedVideoId,
-    videos,
-    isPlaying,
-    volume,
-    reportVideo,
-    fetchVideoById,
-  } = useVideoStore();
+  const { selectedVideoId, videos, isPlaying, volume, reportVideo } =
+    useVideoStore();
   const [showReportConfirm, setShowReportConfirm] = useState<boolean>(false);
 
-  // selectedVideo 변수를 이미 선언한 것을 다시 선언하지 않고 그대로 사용
   const selectedVideo: Video | undefined = videos.find(
     (video) => video.id === selectedVideoId
   );
-
-  useEffect(() => {
-    if (selectedVideoId && !selectedVideo) {
-      fetchVideoById(selectedVideoId);
-    }
-  }, [selectedVideoId, selectedVideo, fetchVideoById]);
 
   const handleReportClick = () => {
     setShowReportConfirm(true);
@@ -45,12 +32,10 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
   const confirmReport = async () => {
     if (selectedVideo) {
       try {
-        // console.log('Reporting video with ID:', selectedVideo.id);
         await api.post(`/cams/videos/${selectedVideo.id}/threat`);
         reportVideo(selectedVideo.id);
-        // console.log('Video reported successfully:', selectedVideo.id);
       } catch (error) {
-        // console.error('Failed to report video:', error);
+        console.error('Failed to report video:', error);
       }
     }
     setShowReportConfirm(false);
@@ -63,29 +48,22 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
       const response = await api.get(
         `/cams/videos/${selectedVideo.id}/download`,
         {
-          responseType: 'blob', // 이 옵션은 axios가 바이너리 데이터를 기대하도록 설정합니다.
+          responseType: 'blob',
         }
       );
 
-      // 링크 요소 생성
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-
-      // 다운로드 파일 이름 지정
       link.setAttribute(
         'download',
         `${selectedVideo.title}-${selectedVideo.id}.mp4`
       );
-
-      // 문서에 추가하고 다운로드 트리거
       document.body.appendChild(link);
       link.click();
-
-      // 링크 정리 및 제거
       link.parentNode?.removeChild(link);
     } catch (error) {
-      // console.error('비디오 다운로드 중 오류 발생:', error);
+      console.error('Error downloading video:', error);
     }
   };
 
@@ -106,7 +84,6 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
     return null;
   }
 
-  // 알림 타입 중복 제거
   const uniqueAlerts = Array.from(
     new Set(selectedVideo.alerts.map((alert) => alert.type))
   );
@@ -149,7 +126,6 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
           {new Date(selectedVideo.date).getDate()}] {selectedVideo.title}
         </div>
         <div className="flex-shrink-0 ml-4 flex space-x-2">
-          {/* 다운로드 버튼 */}
           <button
             onClick={handleDownloadClick}
             className="px-4 py-2 rounded border-2 border-blue-500 text-blue-500 bg-transparent hover:bg-blue-500 hover:text-white transition"

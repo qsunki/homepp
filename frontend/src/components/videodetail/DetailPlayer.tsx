@@ -3,7 +3,7 @@ import { useVideoStore } from '../../stores/useVideoStore';
 import LivePlayer from './LivePlayer';
 import RecordedPlayer from './RecordedPlayer';
 import { fetchVideoStream } from '../../api';
-import styles from '../../pages/VideoDetail.module.css'; // 모듈 CSS 파일을 import
+import styles from '../../pages/VideoDetail.module.css';
 
 interface DetailPlayerProps {
   isLive?: boolean;
@@ -19,6 +19,17 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({
     useVideoStore();
 
   useEffect(() => {
+    const getVideoStream = async (videoId: number) => {
+      try {
+        const streamUrl = await fetchVideoStream(videoId);
+        if (streamUrl) {
+          setVideoSrc(streamUrl);
+        }
+      } catch (error) {
+        console.error('Failed to fetch video stream:', error);
+      }
+    };
+
     const restoreSelectedVideoId = async () => {
       const storedVideoId = localStorage.getItem('selectedVideoId');
       if (storedVideoId && !selectedVideoId) {
@@ -29,20 +40,8 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({
       }
     };
 
-    const getVideoStream = async (videoId: number) => {
-      if (!videoId || videoSrc) return;
-      try {
-        const streamUrl = await fetchVideoStream(videoId);
-        if (streamUrl) {
-          setVideoSrc(streamUrl);
-        }
-      } catch (error) {
-        // Handle the error appropriately
-      }
-    };
-
     restoreSelectedVideoId();
-  }, [selectedVideoId, setSelectedVideoId, videoSrc]);
+  }, [selectedVideoId, setSelectedVideoId]);
 
   return (
     <div

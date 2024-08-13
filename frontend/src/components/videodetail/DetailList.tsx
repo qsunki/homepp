@@ -5,7 +5,7 @@ import fireIcon from '../../assets/filter/fire.png';
 import soundIcon from '../../assets/filter/sound.png';
 import thiefIcon from '../../assets/filter/thief.png';
 import Filter from '../../utils/filter/Filter';
-import { fetchLiveThumbnail } from '../../api';
+import { fetchLiveThumbnail, fetchVideos, fetchThumbnail } from '../../api';
 import styles from './DetailList.module.css';
 
 interface DetailListProps {
@@ -32,51 +32,105 @@ const DetailList: React.FC<DetailListProps> = ({
     currentVideoId,
     setSelectedVideoId,
     setFilteredVideos,
+    setVideos,
   } = useVideoStore();
 
+  // 첫 페이지 진입 시와 새로 고침 시 데이터를 불러오는 함수
+  const fetchData = async () => {
+    try {
+      const [thumbnailUrl, videoListResponse] = await Promise.all([
+        fetchLiveThumbnail(1),
+        fetchVideos(),
+      ]);
+
+      const videoList: Video[] = await Promise.all(
+        videoListResponse.data.map(async (video) => {
+          const thumbnail = await fetchThumbnail(video.videoId);
+          const alerts = video.events.map((event: { type: string }) => ({
+            type: event.type as 'FIRE' | 'INVASION' | 'SOUND',
+          }));
+
+          const startTime = new Date(video.recordStartAt);
+          const isValidDate = !isNaN(startTime.getTime());
+          const formattedDate = isValidDate
+            ? startTime.toLocaleString()
+            : 'Invalid Date';
+
+          return {
+            id: video.videoId,
+            title: `${video.camName}`,
+            timestamp: formattedDate,
+            thumbnail: thumbnail || 'https://via.placeholder.com/150',
+            duration: `${Math.floor(video.length / 60)}:${(video.length % 60)
+              .toString()
+              .padStart(2, '0')}`,
+            alerts,
+            url: video.streamUrl || 'https://example.com/video-url',
+            startTime: formattedDate,
+            length: `${Math.floor(video.length / 60)}:${(video.length % 60)
+              .toString()
+              .padStart(2, '0')}`,
+            type: Array.from(
+              new Set(video.events.map((event: { type: string }) => event.type))
+            ),
+            date: isValidDate ? startTime : new Date(),
+            camera: video.camName,
+            isThreat: video.threat,
+          } as Video;
+        })
+      );
+
+      if (thumbnailUrl !== liveThumbnailUrl) {
+        setLiveThumbnailUrl(thumbnailUrl);
+      }
+
+      setVideos(videoList); // Update the video list in the store
+      setFilteredVideos(videoList); // 로컬 저장소에 저장된 필터와 일치하도록 업데이트
+    } catch (error) {
+      // console.error('Failed to fetch data:', error);
+    }
+  };
+
   useEffect(() => {
-    // console.log('Restoring state from localStorage...');
     const savedVideos = localStorage.getItem('filteredVideos');
     const savedSelectedTypes = localStorage.getItem('selectedTypes');
 
-    // console.log('Saved videos:', savedVideos);
-    // console.log('Saved selected types:', savedSelectedTypes);
-
-    try {
-      if (savedVideos) {
+    if (savedVideos) {
+      try {
         const parsedVideos = JSON.parse(savedVideos);
-        const restoredVideos = parsedVideos.map((video: Video) => ({
-          ...video,
-          date: video.date
-            ? isNaN(new Date(video.date).getTime())
-              ? null
-              : new Date(video.date)
-            : null,
-        }));
-
-        // console.log('Parsed and restored videos:', restoredVideos);
-        setFilteredVideos(restoredVideos);
-      } else {
-        // console.warn('No saved videos found in localStorage.');
+        if (parsedVideos.length > 0) {
+          const restoredVideos = parsedVideos.map((video: Video) => ({
+            ...video,
+            date: video.date
+              ? isNaN(new Date(video.date).getTime())
+                ? null
+                : new Date(video.date)
+              : null,
+          }));
+          setFilteredVideos(restoredVideos);
+        } else {
+          fetchData(); // 로컬 저장소에 데이터가 없는 경우 서버에서 데이터를 가져옵니다.
+        }
+      } catch (error) {
+        // console.error('Error parsing videos:', error);
+        fetchData(); // 데이터 파싱에 실패하면 데이터를 다시 가져옵니다.
       }
+    } else {
+      fetchData(); // 로컬 저장소에 데이터가 없으면 서버에서 데이터를 가져옵니다.
+    }
 
-      if (savedSelectedTypes) {
+    if (savedSelectedTypes) {
+      try {
         const parsedSelectedTypes = JSON.parse(savedSelectedTypes);
-        // console.log('Parsed selected types:', parsedSelectedTypes);
         onTypeToggle(parsedSelectedTypes);
-      } else {
-        // console.warn('No saved selected types found in localStorage.');
+      } catch (error) {
+        // console.error('Error parsing selected types:', error);
       }
-    } catch (error) {
-      // console.error('Error parsing JSON from localStorage:', error);
     }
   }, [setFilteredVideos, onTypeToggle]);
 
+  // Save current video list and filters to localStorage
   useEffect(() => {
-    // console.log('Saving state to localStorage...');
-    // console.log('Videos:', videos);
-    // console.log('Selected types:', selectedTypes);
-
     try {
       const stringifiedVideos = JSON.stringify(videos);
       const stringifiedSelectedTypes = JSON.stringify(selectedTypes);
@@ -84,41 +138,16 @@ const DetailList: React.FC<DetailListProps> = ({
       localStorage.setItem('filteredVideos', stringifiedVideos);
       localStorage.setItem('selectedTypes', stringifiedSelectedTypes);
     } catch (error) {
-      // console.error('Error saving JSON to localStorage:', error);
+      // console.error('Error saving state:', error);
     }
   }, [videos, selectedTypes]);
 
-  useEffect(() => {
-    if (showLiveThumbnail) {
-      // console.log('Fetching live thumbnail...');
-      const fetchThumbnail = async () => {
-        try {
-          const thumbnailUrl = await fetchLiveThumbnail(1);
-          setLiveThumbnailUrl(thumbnailUrl);
-          // console.log('Live thumbnail fetched:', thumbnailUrl);
-        } catch (error) {
-          // console.error('Failed to fetch live thumbnail:', error);
-        }
-      };
-      fetchThumbnail();
-
-      return () => {
-        if (liveThumbnailUrl) {
-          URL.revokeObjectURL(liveThumbnailUrl);
-          // console.log('Cleaned up Blob URL:', liveThumbnailUrl);
-        }
-      };
-    }
-  }, [showLiveThumbnail, setLiveThumbnailUrl, liveThumbnailUrl]);
-
   const handleVideoClick = (videoId: number) => {
-    // console.log('Video clicked:', videoId);
     setSelectedVideoId(videoId);
     navigate(`/video/${videoId}`);
   };
 
   const handleLiveThumbnailClick = () => {
-    // console.log('Live thumbnail clicked');
     navigate('/live-video');
   };
 
@@ -136,16 +165,10 @@ const DetailList: React.FC<DetailListProps> = ({
   };
 
   const handleTypeToggle = (type: string) => {
-    // console.log('Toggling type:', type);
-    if (selectedTypes.includes(type)) {
-      const newTypes = selectedTypes.filter((t) => t !== type);
-      // console.log('Type removed:', newTypes);
-      onTypeToggle(newTypes);
-    } else {
-      const newTypes = [...selectedTypes, type];
-      // console.log('Type added:', newTypes);
-      onTypeToggle(newTypes);
-    }
+    const newTypes = selectedTypes.includes(type)
+      ? selectedTypes.filter((t) => t !== type)
+      : [...selectedTypes, type];
+    onTypeToggle(newTypes);
   };
 
   const filteredVideos = videos
@@ -157,10 +180,6 @@ const DetailList: React.FC<DetailListProps> = ({
         : true
     )
     .filter((video: Video) => video.id !== currentVideoId);
-
-  useEffect(() => {
-    // console.log('Rendered filtered videos:', filteredVideos);
-  }, [filteredVideos]);
 
   return (
     <div className={`w-full lg:w-1/3 pl-4 pr-8 ${styles['video-list']}`}>

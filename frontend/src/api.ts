@@ -66,6 +66,7 @@ export interface CamData {
 
 // 비디오 데이터 타입 정의
 export interface Video {
+  streamUrl: string;
   videoId: number;
   camName: string;
   recordStartAt: string;
