@@ -25,12 +25,12 @@
           localStream = stream;
         })
         .catch((error) => {
-          console.error('Error accessing media devices.', error);
+          // console.error('Error accessing media devices.', error);
         });
 
       stompClient.onConnect = (frame) => {
         stompClient.subscribe('/sub/cam/124', (message) => {
-          console.log('message is ', message);
+          // console.log('message is ', message);
           const signal = JSON.parse(message.body);
           handleSignal(signal);
         });
@@ -39,10 +39,10 @@
       stompClient.activate();
 
       function handleSignal(signal) {
-        console.log('call handleSignal');
-        console.log('signal is ', signal);
+        // console.log('call handleSignal');
+        // console.log('signal is ', signal);
         const signalData = signal.data;
-        console.log(signal.type);
+        // console.log(signal.type);
 
         switch (signal.type) {
           case 'offer':
@@ -55,11 +55,11 @@
       }
 
       function createAnswer(offer) {
-        console.log('call createAnswer');
-        console.log('offer is ', offer);
+        // console.log('call createAnswer');
+        // console.log('offer is ', offer);
         const peerConnection = new RTCPeerConnection();
         peerConnection.onicecandidate = (event) => {
-          console.log('icecandidate event occurred ', event);
+          // console.log('icecandidate event occurred ', event);
           if (event.candidate) {
             stompClient.publish({
               destination: '/pub/cam/124',
@@ -92,8 +92,8 @@
       }
 
       function addCandidate(candidate) {
-        console.log('call addCandidate');
-        console.log('candidate is ', candidate);
+        // console.log('call addCandidate');
+        // console.log('candidate is ', candidate);
         peerConnections[candidate.sender].addIceCandidate(
           new RTCIceCandidate(candidate)
         );

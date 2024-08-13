@@ -21,7 +21,7 @@ const CameraToggle: React.FC<CameraToggleProps> = ({ onToggle }) => {
           if (onToggle) onToggle(status);
         }
       } catch (error) {
-        console.error('Failed to fetch camera statuses:', error);
+        // console.error('Failed to fetch camera statuses:', error);
       }
     };
 
