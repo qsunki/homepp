@@ -38,12 +38,27 @@ const requestPermissionAndGetToken = async (vapidKey: string) => {
 const VAPID_KEY =
   'BM6ml0bVdvvGo9EXGvM9KMtdlsMxUzalN_xxHTc9yvBNmc-t9AD89MOkJZ2xe-J_2gyeXJ7HiyrlpMxhISY9HW8';
 
-// 메시지 수신 처리 로직 추가
+// 알림 데이터 타입 정의
+interface FCMNotificationPayload {
+  title?: string;
+  body?: string;
+  icon?: string;
+  click_action?: string;
+}
+
 onMessage(messaging, (payload) => {
-  // console.log('Message received. ', payload);
+  console.log('Message received. ', payload);
+
+  if (payload.notification) {
+    showBrowserNotification({
+      title: payload.notification.title || 'Default Title',
+      body: payload.notification.body || 'No content available',
+      icon: payload.notification.icon,
+    });
+  }
 
   if (!payload.data) {
-    // console.log('No data in the payload');
+    console.log('No data in the payload');
     return;
   }
 
@@ -93,7 +108,20 @@ onMessage(messaging, (payload) => {
   }
 });
 
-// 알림을 표시하는 함수
+// 브라우저 알림을 표시하는 함수
+function showBrowserNotification(notification: FCMNotificationPayload) {
+  const title = notification.title || 'Default Title'; // 기본값 설정
+  const body = notification.body || 'No content available'; // 기본값 설정
+
+  if (Notification.permission === 'granted') {
+    new Notification(title, {
+      body: body,
+      icon: notification.icon,
+    });
+  }
+}
+
+// 커스텀 알림을 표시하는 함수
 function showCustomNotification({
   title,
   body,
