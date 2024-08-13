@@ -30,22 +30,19 @@ const requestPermissionAndGetToken = async (vapidKey: string) => {
       if (currentToken) {
         return currentToken;
       } else {
-        console.log(
-          'No registration token available. Request permission to generate one.'
-        );
+        console.log('No registration token available.');
       }
     } else {
       console.log('Unable to get permission to notify.');
     }
   } catch (error) {
-    console.error('An error occurred while retrieving token. ', error);
+    console.error('An error occurred while retrieving token.', error);
   }
   return null;
 };
 
 // VAPID 키 설정
-const VAPID_KEY =
-  'BM6ml0bVdvvGo9EXGvM9KMtdlsMxUzalN_xxHTc9yvBNmc-t9AD89MOkJZ2xe-J_2gyeXJ7HiyrlpMxhISY9HW8';
+const VAPID_KEY = 'YOUR_VAPID_KEY_HERE';
 
 // 알림 데이터 타입 정의
 interface FCMNotificationPayload {
@@ -56,31 +53,19 @@ interface FCMNotificationPayload {
 }
 
 // FCM 메시지 수신 처리
-onMessage(messaging, (payload: MessagePayload) => {
-  console.log('Message received: ', payload);
+onMessage(messaging, async (payload: MessagePayload) => {
+  console.log('Message received:', payload);
 
-  // Navbar 알림 갱신
-  if (payload.data) {
-    updateNavbarNotifications(payload.data);
-  }
-
-  // 브라우저 알림 표시
+  // 1. 브라우저 알림 표시 (FCM 카드)
   if (payload.notification) {
     showBrowserNotification({
       title: payload.notification.title || 'Default Title',
       body: payload.notification.body || 'No content available',
       icon: payload.notification.icon,
     });
-  } else if (payload.data) {
-    // payload.notification이 없을 때 payload.data를 사용하여 브라우저 알림 생성
-    showBrowserNotification({
-      title: payload.data.messageTitle || 'Default Title',
-      body: payload.data.messageBody || 'No content available',
-      icon: undefined, // 필요한 경우 다른 아이콘 설정 가능
-    });
   }
 
-  // 메시지 타입에 따른 추가 처리
+  // 2. 메시지 타입에 따른 추가 처리
   if (payload.data) {
     const messageType = payload.data.messageType;
 
@@ -125,6 +110,9 @@ onMessage(messaging, (payload: MessagePayload) => {
       default:
         console.log('Unknown message type:', messageType);
     }
+
+    // 3. FCM 카드 알림이 표시된 후 Navbar 알림 갱신
+    updateNavbarNotifications(payload.data);
   }
 });
 
@@ -170,47 +158,36 @@ function showCustomNotification({
   // 각 타입에 따른 스타일 적용
   switch (type) {
     case 'threat':
-      notificationElement.style.backgroundColor = '#FF3B30'; // 애플 레드
+      notificationElement.style.backgroundColor = '#FF3B30';
       notificationElement.style.color = 'white';
       break;
     case 'event':
-      notificationElement.style.backgroundColor = '#FF9500'; // 애플 오렌지
+      notificationElement.style.backgroundColor = '#FF9500';
       notificationElement.style.color = 'white';
       break;
     case 'register':
-      notificationElement.style.backgroundColor = '#34C759'; // 애플 그린
+      notificationElement.style.backgroundColor = '#34C759';
       notificationElement.style.color = 'white';
       break;
     case 'share':
-      notificationElement.style.backgroundColor = '#007AFF'; // 애플 블루
+      notificationElement.style.backgroundColor = '#007AFF';
       notificationElement.style.color = 'white';
       break;
     case 'onOff':
-      notificationElement.style.backgroundColor = '#8E8E93'; // 애플 그레이
+      notificationElement.style.backgroundColor = '#8E8E93';
       notificationElement.style.color = 'white';
       break;
     default:
-      notificationElement.style.backgroundColor = '#333333'; // 다크 모드 기본 배경
+      notificationElement.style.backgroundColor = '#333333';
       notificationElement.style.color = 'white';
   }
-
-  // 아이콘 추가 (선택 사항)
-  const iconElement = document.createElement('div');
-  iconElement.style.width = '24px';
-  iconElement.style.height = '24px';
-  iconElement.style.borderRadius = '50%';
-  iconElement.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
-
-  notificationElement.appendChild(iconElement);
 
   const textContent = document.createElement('div');
   textContent.innerHTML = `<strong>${title}</strong><p>${body}</p>`;
 
   notificationElement.appendChild(textContent);
-
   document.body.appendChild(notificationElement);
 
-  // 일정 시간 후 알림 제거
   setTimeout(() => {
     document.body.removeChild(notificationElement);
   }, 5000);
@@ -218,9 +195,7 @@ function showCustomNotification({
 
 // Navbar 알림을 갱신하는 함수
 function updateNavbarNotifications(data: Record<string, unknown>) {
-  // 이 함수는 Navbar의 알림 상태를 업데이트하기 위해 호출됩니다.
-  // 구체적인 구현은 프로젝트의 상태 관리 또는 API 호출 방식에 따라 다릅니다.
-  console.log('Updating Navbar notifications with data: ', data);
+  console.log('Updating Navbar notifications with data:', data);
 }
 
 export {
