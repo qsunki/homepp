@@ -1,4 +1,4 @@
-import create from 'zustand';
+import { create } from 'zustand';
 import { fetchCams } from '../api';
 
 interface CameraStoreState {
@@ -15,6 +15,7 @@ export const useCameraStore = create<CameraStoreState>((set) => ({
   webSocketKey: '',
 
   fetchCamIds: async () => {
+    console.log('useCameraStore');
     try {
       const response = await fetchCams();
       const ids = response.data.map((cam) => cam.camId);

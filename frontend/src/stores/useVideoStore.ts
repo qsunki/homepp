@@ -278,6 +278,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
   setFilteredVideos: (videos: Video[]) => set({ filteredVideos: videos }),
 
   fetchAndSetCamList: async () => {
+    console.log('fetchAndSetCamList');
     try {
       const response = await fetchCams();
       const camList = response.data.map(
