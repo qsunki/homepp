@@ -17,7 +17,8 @@ public class EventController {
     private final EventService eventService;
 
     @GetMapping
-    public List<EventResponseDto> getAllEvents(@AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+    public List<EventResponseDto> getAllEvents(
+            @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
         return eventService.getAllEvents(memberInfoDto.getMemberId());
     }
 

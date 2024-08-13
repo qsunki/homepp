@@ -14,7 +14,6 @@ import ssafy.age.backend.event.persistence.Event;
 import ssafy.age.backend.event.persistence.EventRepository;
 import ssafy.age.backend.event.web.EventResponseDto;
 import ssafy.age.backend.notification.service.FCMService;
-import ssafy.age.backend.security.service.AuthService;
 
 @Slf4j
 @Service

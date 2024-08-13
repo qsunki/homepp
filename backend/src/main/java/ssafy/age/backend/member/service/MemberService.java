@@ -27,9 +27,7 @@ public class MemberService {
     public MemberResponseDto updateMember(String password, String phoneNumber, Long memberId) {
         try {
             Member foundMember =
-                    memberRepository
-                            .findById(memberId)
-                            .orElseThrow(MemberNotFoundException::new);
+                    memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
             ;
             foundMember.updateMember(password, phoneNumber);
             memberRepository.save(foundMember);
@@ -42,9 +40,7 @@ public class MemberService {
     public void deleteMember(Long memberId) {
         try {
             memberRepository.delete(
-                    memberRepository
-                            .findById(memberId)
-                            .orElseThrow(MemberNotFoundException::new));
+                    memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new));
 
         } catch (Exception e) {
             throw new MemberInvalidAccessException(e);

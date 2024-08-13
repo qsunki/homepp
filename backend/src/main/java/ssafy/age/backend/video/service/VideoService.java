@@ -57,11 +57,11 @@ public class VideoService {
             LocalDateTime startDate,
             LocalDateTime endDate,
             Long camId,
-            Boolean isThreat) {
-        String email = authService.getMemberEmail();
+            Boolean isThreat,
+            Long memberId) {
         List<Video> videos =
                 videoRepository.findVideosByParams(
-                        email, types, startDate, endDate, camId, isThreat);
+                        memberId, types, startDate, endDate, camId, isThreat);
         return videos.stream().map(videoMapper::toVideoResponseDto).toList();
     }
 

@@ -36,14 +36,19 @@ public class MemberController {
 
     @PatchMapping("/{email}")
     @Operation(summary = "사용자 정보 수정", description = "현재 로그인 된 사용자 정보 수정")
-    public MemberResponseDto updateMember(@RequestBody MemberRequestDto memberRequestDto, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+    public MemberResponseDto updateMember(
+            @RequestBody MemberRequestDto memberRequestDto,
+            @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
         return memberService.updateMember(
-                memberRequestDto.getPassword(), memberRequestDto.getPhoneNumber(), memberInfoDto.getMemberId());
+                memberRequestDto.getPassword(),
+                memberRequestDto.getPhoneNumber(),
+                memberInfoDto.getMemberId());
     }
 
     @DeleteMapping("/{email}")
     @Operation(summary = "사용자 정보 삭제", description = "현재 로그인 된 사용자 삭제")
-    public void deleteMember(@PathVariable String email, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+    public void deleteMember(
+            @PathVariable String email, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
         memberService.deleteMember(memberInfoDto.getMemberId());
     }
 

@@ -12,7 +12,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findAllByOccurredAtBetween(LocalDateTime start, LocalDateTime end);
 
     @Query("SELECT e FROM Event e WHERE e.cam.member.id = :memberId")
-    List<Event> findAllEventsByMemberId(@Param("email") Long memberId);
+    List<Event> findAllEventsByMemberId(@Param("memberId") Long memberId);
 
     @Query(
             "SELECT COUNT(e) "
@@ -21,7 +21,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
                     + "AND e.occurredAt >= :startOfDay "
                     + "AND e.occurredAt < :endOfDay")
     Integer countTodayEventsByMemberId(
-            @Param("id") Long memberId,
+            @Param("memberId") Long memberId,
             @Param("startOfDay") LocalDateTime startOfDay,
             @Param("endOfDay") LocalDateTime endOfDay);
 }
