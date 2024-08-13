@@ -2,6 +2,7 @@ package ssafy.age.backend.member.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import ssafy.age.backend.member.exception.MemberInvalidAccessException;
 import ssafy.age.backend.member.exception.MemberNotFoundException;
@@ -22,7 +23,9 @@ public class MemberService {
                 memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new));
     }
 
-    public MemberResponseDto updateMember(String password, String phoneNumber, Long memberId) {
+    @PreAuthorize("#email == authentication.principal.email")
+    public MemberResponseDto updateMember(
+            String email, String password, String phoneNumber, Long memberId) {
         try {
             Member foundMember =
                     memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
@@ -35,7 +38,8 @@ public class MemberService {
         }
     }
 
-    public void deleteMember(Long memberId) {
+    @PreAuthorize("#email == authentication.principal.email")
+    public void deleteMember(String email, Long memberId) {
         try {
             memberRepository.delete(
                     memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new));
