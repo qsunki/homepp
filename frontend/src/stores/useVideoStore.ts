@@ -3,6 +3,7 @@ import {
   fetchVideos,
   fetchThumbnail,
   fetchVideoById as fetchVideoByIdAPI,
+  fetchCams,
   ApiVideo,
 } from '../api';
 
@@ -17,7 +18,7 @@ export interface Video {
   thumbnail: string;
   duration: string;
   alerts: Alert[];
-  isThreat?: boolean; // 변경된 부분
+  isThreat?: boolean;
   url: string;
   startTime: string;
   length: string;
@@ -58,6 +59,8 @@ interface VideoState {
   fetchAndSetVideos: () => void;
   setVideos: (videos: Video[]) => void;
   setFilteredVideos: (videos: Video[]) => void;
+  camList: { name: string; id: number }[]; // 추가된 camList 상태
+  fetchAndSetCamList: () => Promise<void>; // camList를 fetch하는 함수
 }
 
 const initialFilter: Filter = {
@@ -74,6 +77,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
   currentVideoId: 0,
   selectedVideoId: null,
   selectedVideo: null,
+  camList: [], // 초기 camList 상태
 
   setSelectedVideoId: (id: number) => {
     // console.log(`setSelectedVideoId called with id: ${id}`);
@@ -207,7 +211,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
         : null,
     });
 
-    localStorage.setItem(`threat_${id}`, 'true'); // 변경된 부분
+    localStorage.setItem(`threat_${id}`, 'true');
     // console.log(`Video ${id} reported and stored in localStorage.`);
   },
 
@@ -272,4 +276,19 @@ export const useVideoStore = create<VideoState>((set, get) => ({
 
   setVideos: (videos: Video[]) => set({ videos }),
   setFilteredVideos: (videos: Video[]) => set({ filteredVideos: videos }),
+
+  fetchAndSetCamList: async () => {
+    try {
+      const response = await fetchCams();
+      const camList = response.data.map(
+        (cam: { name: string; camId: number }) => ({
+          name: cam.name,
+          id: cam.camId,
+        })
+      );
+      set({ camList });
+    } catch (error) {
+      console.error('Failed to fetch cam list:', error);
+    }
+  },
 }));

@@ -5,7 +5,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { FaCaretUp, FaFilter } from 'react-icons/fa';
 import { format } from 'date-fns';
 import styles from '../utils/filter/Filter1.module.css';
-import { fetchVideos, fetchCams, fetchThumbnail, ApiVideo } from '../api';
+import { fetchVideos, fetchThumbnail, ApiVideo } from '../api';
 import { useVideoStore, Video } from '../stores/useVideoStore';
 import fireIcon from '../assets/filter/fire.png';
 import intrusionIcon from '../assets/filter/thief.png';
@@ -32,13 +32,36 @@ const VideoList: React.FC = () => {
   const [selectedCamera, setSelectedCamera] = useState<string>('All Cameras');
   const [showFilters, setShowFilters] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
-  const { videos, setVideos, setFilteredVideos, fetchAndSetVideos } =
-    useVideoStore();
-  const [cameras, setCameras] = useState<{ name: string; id: number }[]>([]);
-  const [isThreat, setIsThreat] = useState<boolean | null>(null); // isReported를 isThreat로 변경
+  const {
+    videos,
+    setVideos,
+    setFilteredVideos,
+    fetchAndSetVideos,
+    camList,
+    fetchAndSetCamList,
+  } = useVideoStore();
+  const [isThreat, setIsThreat] = useState<boolean | null>(null);
   const [dateFilter, setDateFilter] = useState<string>('1 Week');
   const navigate = useNavigate();
   const filterSectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    fetchAndSetCamList(); // camList를 가져오는 API 호출
+  }, [fetchAndSetCamList]);
+
+  useEffect(() => {
+    if (!camList || camList.length === 0) {
+      navigate('/home'); // camList가 없거나 비어 있는 경우 리다이렉트
+    }
+  }, [camList, navigate]);
+
+  useEffect(() => {
+    handleDateFilterChange('1 Week'); // Default to '1 Week' on component mount
+  }, []);
+
+  useEffect(() => {
+    fetchAndSetVideos(); // Fetch videos when the component mounts
+  }, [fetchAndSetVideos]);
 
   const handleDateFilterChange = (filter: string) => {
     setDateFilter(filter);
@@ -58,14 +81,6 @@ const VideoList: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    handleDateFilterChange('1 Week'); // Default to '1 Week' on component mount
-  }, []);
-
-  useEffect(() => {
-    fetchAndSetVideos(); // Fetch videos when the component mounts
-  }, [fetchAndSetVideos]);
-
   const handleDateChange = (dates: [Date | null, Date | null]) => {
     setFilterDateRange(dates);
   };
@@ -80,7 +95,6 @@ const VideoList: React.FC = () => {
     setSelectedCamera(event.target.value);
 
   const handleVideoClick = (id: number) => {
-    // console.log('Video clicked:', id); // 비디오 클릭 시 ID를 출력
     navigate(`/video/${id}`);
   };
 
@@ -117,23 +131,6 @@ const VideoList: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const fetchCameras = async () => {
-      try {
-        const response = await fetchCams();
-        const cameraData = response.data.map((cam) => ({
-          name: cam.name,
-          id: cam.camId,
-        }));
-        setCameras([{ name: 'All Cameras', id: -1 }, ...cameraData]);
-      } catch (error) {
-        // console.error('Failed to fetch cameras', error);
-      }
-    };
-
-    fetchCameras();
-  }, []);
-
-  useEffect(() => {
     const fetchData = async () => {
       try {
         const startDate = filterDateRange[0]
@@ -145,7 +142,7 @@ const VideoList: React.FC = () => {
         const camId =
           selectedCamera === 'All Cameras'
             ? undefined
-            : cameras.find((cam) => cam.name === selectedCamera)?.id;
+            : camList.find((cam) => cam.name === selectedCamera)?.id;
 
         const params: {
           types?: string[];
@@ -159,7 +156,7 @@ const VideoList: React.FC = () => {
         if (startDate) params.startDate = startDate;
         if (endDate) params.endDate = endDate;
         if (camId) params.camId = camId;
-        if (isThreat !== null) params.isThreat = isThreat; // isReported를 isThreat로 변경
+        if (isThreat !== null) params.isThreat = isThreat;
 
         const response = await fetchVideos(params);
 
@@ -181,17 +178,17 @@ const VideoList: React.FC = () => {
               alerts: video.events.map((event) => ({
                 type: event.type as 'fire' | 'intrusion' | 'loud',
               })),
-              url: 'https://example.com/video-url', // Replace with the actual video URL if available
+              url: 'https://example.com/video-url',
               startTime: new Date(video.recordStartAt).toLocaleTimeString(),
               length: `${Math.floor(video.length / 60)}:${(video.length % 60)
                 .toString()
                 .padStart(2, '0')}`,
               type: Array.from(
                 new Set(video.events.map((event) => event.type))
-              ), // Remove duplicates
+              ),
               date: new Date(video.recordStartAt),
               camera: video.camName,
-              isThreat: video.threat, // isReported -> isThreat으로 변경
+              isThreat: video.threat,
             };
           })
         );
@@ -199,14 +196,13 @@ const VideoList: React.FC = () => {
         setVideos(apiVideos as Video[]);
         setFilteredVideos(apiVideos as Video[]);
       } catch (error) {
-        // console.error('Failed to fetch videos', error);
-        setVideos([]); // Ensure videos is set to an empty array on error
-        setFilteredVideos([]); // Ensure filteredVideos is also empty on error
+        setVideos([]);
+        setFilteredVideos([]);
       }
     };
 
     fetchData();
-  }, [filterDateRange, selectedTypes, selectedCamera, isThreat, cameras]);
+  }, [filterDateRange, selectedTypes, selectedCamera, isThreat, camList]);
 
   const groupedVideos = videos.reduce((acc, video) => {
     const dateKey = video.date.toDateString();
@@ -214,6 +210,10 @@ const VideoList: React.FC = () => {
     acc[dateKey].push(video);
     return acc;
   }, {} as Record<string, Video[]>);
+
+  if (!camList || camList.length === 0) {
+    return null; // camList가 없을 때는 아무것도 렌더링하지 않음
+  }
 
   return (
     <div className="flex flex-col md:flex-row">
@@ -295,7 +295,7 @@ const VideoList: React.FC = () => {
                   onChange={handleCameraChange}
                   className={styles.fullWidth}
                 >
-                  {cameras.map((camera) => (
+                  {camList.map((camera) => (
                     <option key={camera.id} value={camera.name}>
                       {camera.name}
                     </option>
@@ -421,7 +421,7 @@ const VideoList: React.FC = () => {
               onChange={handleCameraChange}
               className={styles.fullWidth}
             >
-              {cameras.map((camera) => (
+              {camList.map((camera) => (
                 <option key={camera.id} value={camera.name}>
                   {camera.name}
                 </option>

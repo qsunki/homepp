@@ -14,27 +14,58 @@ import {
   fetchEventCount,
   fetchLatestEnvInfo,
   controlAllCamerasDetection,
+  fetchCams,
 } from '../api';
 import { useUserStore } from '../stores/useUserStore';
 import { useVideoStore } from '../stores/useVideoStore';
 import ChatBot from '../components/ChatBot';
 import CameraToggle from '../components/CameraToggle';
+import Modal from 'react-modal';
+import DeviceManagement from '../components/mypage/DeviceManagement';
+
+Modal.setAppElement('#root'); // 접근성 설정 (root 엘리먼트를 모달을 제외한 다른 컨텐츠에서 마스크 처리)
 
 const HomePage: React.FC = () => {
   const [showChatBot, setShowChatBot] = useState(false);
   const [alertCount, setAlertCount] = useState<number>(0);
   const [temperatureValue, setTemperatureValue] = useState<number>(0);
   const [humidityValue, setHumidityValue] = useState<number>(0);
-  const [isCamerasOn, setIsCamerasOn] = useState(false); // 카메라 상태를 저장하는 상태 추가
+  const [isCamerasOn, setIsCamerasOn] = useState(false);
+  const [camId, setCamId] = useState<number | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
   const { isLoggedIn } = useUserStore();
   const { liveThumbnailUrl, setLiveThumbnailUrl } = useVideoStore();
 
   useEffect(() => {
+    const fetchCamList = async () => {
+      try {
+        const response = await fetchCams();
+        if (response.data.length > 0) {
+          setCamId(response.data[0].camId);
+        } else {
+          setIsModalOpen(true);
+          // console.error('No cameras found for the user');
+        }
+      } catch (error) {
+        // console.error('Failed to fetch camera list:', error);
+      }
+    };
+
+    if (isLoggedIn) {
+      fetchCamList();
+    } else {
+      navigate('/');
+    }
+  }, [isLoggedIn, navigate]);
+
+  useEffect(() => {
+    if (camId === null) return;
+
     const handleFetchThumbnail = async () => {
       try {
         // console.log('Attempting to fetch live thumbnail...');
-        const thumbnailUrl = await fetchLiveThumbnail(1); // 캠 ID를 1로 가정
+        const thumbnailUrl = await fetchLiveThumbnail(camId);
         // console.log('Fetched live thumbnail URL:', thumbnailUrl);
         setLiveThumbnailUrl(thumbnailUrl);
       } catch (error: unknown) {
@@ -48,7 +79,7 @@ const HomePage: React.FC = () => {
                 await reissueToken(refreshToken);
               localStorage.setItem('token', accessToken);
               localStorage.setItem('refreshToken', newRefreshToken);
-              const thumbnailUrl = await fetchLiveThumbnail(1); // 캠 ID를 1로 가정
+              const thumbnailUrl = await fetchLiveThumbnail(camId);
               // console.log(
               //   'Fetched live thumbnail URL after reissue:',
               //   thumbnailUrl
@@ -78,24 +109,26 @@ const HomePage: React.FC = () => {
     };
 
     const handleFetchEnvInfo = async () => {
-      try {
-        const envInfo = await fetchLatestEnvInfo(1); // 캠 ID를 1로 가정
-        // console.log('Fetched environment info:', envInfo);
-        setTemperatureValue(envInfo.temperature);
-        setHumidityValue(envInfo.humidity);
-      } catch (error) {
-        // console.error('Failed to fetch environment info:', error);
+      if (camId !== null) {
+        try {
+          const envInfo = await fetchLatestEnvInfo(camId);
+          // console.log('Fetched environment info:', envInfo);
+          setTemperatureValue(envInfo.temperature);
+          setHumidityValue(envInfo.humidity);
+        } catch (error) {
+          // console.error('Failed to fetch environment info:', error);
+        }
       }
     };
 
-    if (isLoggedIn) {
+    if (isLoggedIn && camId !== null) {
       handleFetchThumbnail();
       handleFetchAlerts();
       handleFetchEnvInfo();
     } else {
       navigate('/');
     }
-  }, [isLoggedIn, navigate, setLiveThumbnailUrl]);
+  }, [isLoggedIn, camId, navigate, setLiveThumbnailUrl]);
 
   const handleChatBotToggle = () => {
     setShowChatBot(!showChatBot);
@@ -110,6 +143,7 @@ const HomePage: React.FC = () => {
   };
 
   const handleDetectionToggle = async () => {
+    if (camId === null) return;
     const command = isCamerasOn ? 'end' : 'start';
     const confirmationMessage = isCamerasOn
       ? 'Are you sure you want to turn off the detection mode for all cameras?'
@@ -119,9 +153,12 @@ const HomePage: React.FC = () => {
 
     if (confirmed) {
       try {
-        await controlAllCamerasDetection([1], command, 'your-websocket-key'); // 캠 ID와 WebSocket 키를 지정
-        const newStatus = !isCamerasOn;
-        setIsCamerasOn(newStatus);
+        await controlAllCamerasDetection(
+          [camId],
+          command,
+          'your-websocket-key'
+        ); // 캠 ID와 WebSocket 키를 지정
+        setIsCamerasOn(!isCamerasOn);
       } catch (error) {
         // console.error('Failed to toggle all cameras:', error);
       }
@@ -252,6 +289,29 @@ const HomePage: React.FC = () => {
           {showChatBot && <ChatBot />}
         </div>
       </main>
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={() => setIsModalOpen(false)}
+        contentLabel="Device Management Modal"
+        style={{
+          content: {
+            top: '50%',
+            left: '50%',
+            right: 'auto',
+            bottom: 'auto',
+            marginRight: '-50%',
+            transform: 'translate(-50%, -50%)',
+            width: '80%',
+            maxWidth: '500px',
+            padding: '20px',
+          },
+          overlay: {
+            backgroundColor: 'rgba(0, 0, 0, 0.75)',
+          },
+        }}
+      >
+        <DeviceManagement />
+      </Modal>
     </div>
   );
 };
