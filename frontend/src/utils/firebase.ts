@@ -1,6 +1,12 @@
 import { initializeApp } from 'firebase/app';
-import { getMessaging, getToken, onMessage } from 'firebase/messaging';
+import {
+  getMessaging,
+  getToken,
+  onMessage,
+  MessagePayload,
+} from 'firebase/messaging';
 
+// Firebase 구성 정보
 const firebaseConfig = {
   apiKey: 'AIzaSyAPmerBQN_IWn3EQP8k2onJRJqcxQikHWs',
   authDomain: 'homepp-ab3e3.firebaseapp.com',
@@ -11,9 +17,11 @@ const firebaseConfig = {
   measurementId: 'G-JKGWEXGBDX',
 };
 
+// Firebase 앱 초기화
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
 
+// FCM 토큰 요청 함수
 const requestPermissionAndGetToken = async (vapidKey: string) => {
   try {
     const permission = await Notification.requestPermission();
@@ -22,9 +30,7 @@ const requestPermissionAndGetToken = async (vapidKey: string) => {
       if (currentToken) {
         return currentToken;
       } else {
-        console.log(
-          'No registration token available. Request permission to generate one.'
-        );
+        console.log('No registration token available.');
       }
     } else {
       console.log('Unable to get permission to notify.');
@@ -35,29 +41,31 @@ const requestPermissionAndGetToken = async (vapidKey: string) => {
   return null;
 };
 
-const VAPID_KEY =
-  'BM6ml0bVdvvGo9EXGvM9KMtdlsMxUzalN_xxHTc9yvBNmc-t9AD89MOkJZ2xe-J_2gyeXJ7HiyrlpMxhISY9HW8';
+// VAPID 키 설정
+const VAPID_KEY = 'YOUR_VAPID_KEY_HERE';
 
-onMessage(messaging, (payload) => {
-  console.log('Message received. ', payload);
+// 알림 데이터 타입 정의
+interface FCMNotificationPayload {
+  title: string;
+  body: string;
+  icon?: string;
+  click_action?: string;
+}
 
+// FCM 메시지 수신 처리
+onMessage(messaging, async (payload: MessagePayload) => {
+  console.log('Message received: ', payload);
+
+  // 브라우저 알림 표시 (FCM 카드)
   if (payload.notification) {
-    // 만약 notification이 있다면 브라우저 알림 표시
     showBrowserNotification({
       title: payload.notification.title || 'Default Title',
       body: payload.notification.body || 'No content available',
       icon: payload.notification.icon,
     });
-  } else if (payload.data) {
-    // notification이 없다면 data를 사용하여 알림 생성
-    showBrowserNotification({
-      title: payload.data.messageTitle || 'Default Title',
-      body: payload.data.messageBody || 'No content available',
-      icon: undefined, // 필요한 경우 다른 아이콘 설정 가능
-    });
   }
 
-  // 메시지 타입에 따라 UI 업데이트
+  // 메시지 타입에 따른 추가 처리
   if (payload.data) {
     const messageType = payload.data.messageType;
 
@@ -102,18 +110,20 @@ onMessage(messaging, (payload) => {
       default:
         console.log('Unknown message type:', messageType);
     }
+
+    // FCM 카드 알림이 표시된 후 Navbar 알림 갱신
+    updateNavbarNotifications(payload.data);
   }
 });
 
 // 브라우저 알림을 표시하는 함수
-function showBrowserNotification(notification: {
-  title: string;
-  body: string;
-  icon?: string;
-}) {
+function showBrowserNotification(notification: FCMNotificationPayload) {
+  const title = notification.title;
+  const body = notification.body;
+
   if (Notification.permission === 'granted') {
-    new Notification(notification.title, {
-      body: notification.body,
+    new Notification(title, {
+      body: body,
       icon: notification.icon,
     });
   }
@@ -172,6 +182,15 @@ function showCustomNotification({
       notificationElement.style.color = 'white';
   }
 
+  // 아이콘 추가 (선택 사항)
+  const iconElement = document.createElement('div');
+  iconElement.style.width = '24px';
+  iconElement.style.height = '24px';
+  iconElement.style.borderRadius = '50%';
+  iconElement.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+
+  notificationElement.appendChild(iconElement);
+
   const textContent = document.createElement('div');
   textContent.innerHTML = `<strong>${title}</strong><p>${body}</p>`;
 
@@ -182,7 +201,14 @@ function showCustomNotification({
   // 일정 시간 후 알림 제거
   setTimeout(() => {
     document.body.removeChild(notificationElement);
-  }, 6000);
+  }, 5000);
+}
+
+// Navbar 알림을 갱신하는 함수
+function updateNavbarNotifications(data: Record<string, unknown>) {
+  // 이 함수는 Navbar의 알림 상태를 업데이트하기 위해 호출됩니다.
+  // 구체적인 구현은 프로젝트의 상태 관리 또는 API 호출 방식에 따라 다릅니다.
+  console.log('Updating Navbar notifications with data: ', data);
 }
 
 export {
