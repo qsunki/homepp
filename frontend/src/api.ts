@@ -752,7 +752,7 @@ export const controlCameraStream = async (
       key: webSocketKey,
       command,
     };
-    await api.post(`/api/v1/cams/${camId}/stream`, requestBody);
+    await api.post(`/cams/${camId}/stream`, requestBody);
     // console.log(
     //   `Camera stream ${command} command sent successfully for camId ${camId} with key ${webSocketKey}`
     // );
