@@ -8,7 +8,7 @@ import {
 } from '../api';
 
 export interface Alert {
-  type: 'fire' | 'intrusion' | 'loud';
+  type: 'FIRE' | 'INVASION' | 'SOUND';
 }
 
 export interface Video {
@@ -121,7 +121,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
 
       const thumbnail = await fetchThumbnail(apiVideo.videoId);
       const alerts = apiVideo.events.map((event: { type: string }) => ({
-        type: event.type as 'fire' | 'intrusion' | 'loud',
+        type: event.type as 'FIRE' | 'INVASION' | 'SOUND',
       }));
 
       const startTime = new Date(apiVideo.recordStartAt);
@@ -226,7 +226,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
         response.data.map(async (video: ApiVideo) => {
           const thumbnail = await fetchThumbnail(video.videoId);
           const alerts = video.events.map((event: { type: string }) => ({
-            type: event.type as 'fire' | 'intrusion' | 'loud',
+            type: event.type as 'FIRE' | 'INVASION' | 'SOUND',
           }));
 
           const startTime = new Date(video.recordStartAt);

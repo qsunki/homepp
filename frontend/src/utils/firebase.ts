@@ -57,10 +57,11 @@ onMessage(messaging, (payload) => {
     });
   }
 
-  // 메시지 타입에 따라 UI 업데이트
+  // 메시지 타입에 따라 카드 알림을 먼저 표시한 후, Navbar 알림 갱신
   if (payload.data) {
     const messageType = payload.data.messageType;
 
+    // 먼저 카드 알림 표시
     switch (messageType) {
       case 'threat':
         showCustomNotification({
@@ -102,6 +103,9 @@ onMessage(messaging, (payload) => {
       default:
         console.log('Unknown message type:', messageType);
     }
+
+    // 카드 알림이 표시된 후 Navbar 알림 갱신
+    updateNavbarNotifications(payload.data);
   }
 });
 
@@ -183,6 +187,11 @@ function showCustomNotification({
   setTimeout(() => {
     document.body.removeChild(notificationElement);
   }, 6000);
+}
+
+// Navbar 알림을 갱신하는 함수
+function updateNavbarNotifications(data: Record<string, unknown>) {
+  console.log('Updating Navbar notifications with data:', data);
 }
 
 export {
