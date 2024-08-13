@@ -7,7 +7,7 @@ import { format } from 'date-fns';
 import styles from '../utils/filter/Filter1.module.css';
 import { fetchVideos, fetchThumbnail, ApiVideo } from '../api';
 import { useVideoStore, Video } from '../stores/useVideoStore';
-import fireIcon from '../assets/filter/fire.png';
+import fireIcon from '../assets/filter/FIRE.png';
 import intrusionIcon from '../assets/filter/thief.png';
 import soundIcon from '../assets/filter/sound.png';
 
@@ -176,7 +176,7 @@ const VideoList: React.FC = () => {
                 .toString()
                 .padStart(2, '0')}`,
               alerts: video.events.map((event) => ({
-                type: event.type as 'fire' | 'intrusion' | 'loud',
+                type: event.type as 'FIRE' | 'INVASION' | 'SOUND',
               })),
               url: 'https://example.com/video-url',
               startTime: new Date(video.recordStartAt).toLocaleTimeString(),
@@ -236,11 +236,11 @@ const VideoList: React.FC = () => {
               <div className={styles['button-group-horizontal']}>
                 <button
                   className={
-                    selectedTypes.includes('Fire') ? styles.selected : ''
+                    selectedTypes.includes('FIRE') ? styles.selected : ''
                   }
-                  onClick={() => handleTypeToggle('Fire')}
+                  onClick={() => handleTypeToggle('FIRE')}
                 >
-                  Fire
+                  FIRE
                 </button>
                 <button
                   className={
@@ -365,10 +365,10 @@ const VideoList: React.FC = () => {
           <div className={styles['filter-title']}>Event Type</div>
           <div className={styles['button-group-horizontal']}>
             <button
-              className={selectedTypes.includes('Fire') ? styles.selected : ''}
-              onClick={() => handleTypeToggle('Fire')}
+              className={selectedTypes.includes('FIRE') ? styles.selected : ''}
+              onClick={() => handleTypeToggle('FIRE')}
             >
-              Fire
+              FIRE
             </button>
             <button
               className={
