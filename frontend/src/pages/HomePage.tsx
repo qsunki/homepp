@@ -211,7 +211,7 @@ const HomePage: React.FC = () => {
                     <CameraToggle onToggle={setIsCamerasOn} />
                   </div>
                   <span className="font-bold text-gray-800">Detection</span>
-                  <p className="text-gray-600">{isCamerasOn ? 'OFF' : 'ON'}</p>
+                  <p className="text-gray-600">{isCamerasOn ? 'ON' : 'OFF'}</p>
                 </div>
               </button>
               <div className="relative p-4 border-2 border-gray-300 rounded-2xl bg-gray-100 w-1/3 flex flex-col items-center">
