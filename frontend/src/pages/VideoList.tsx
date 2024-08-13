@@ -7,7 +7,7 @@ import { format } from 'date-fns';
 import styles from '../utils/filter/Filter1.module.css';
 import { fetchVideos, fetchThumbnail, ApiVideo } from '../api';
 import { useVideoStore, Video } from '../stores/useVideoStore';
-import fireIcon from '../assets/filter/FIRE.png';
+import fireIcon from '../assets/filter/fire.png';
 import intrusionIcon from '../assets/filter/thief.png';
 import soundIcon from '../assets/filter/sound.png';
 
