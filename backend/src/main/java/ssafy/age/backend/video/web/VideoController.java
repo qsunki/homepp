@@ -38,19 +38,25 @@ public class VideoController {
     }
 
     @GetMapping("/videos/{videoId}")
-    public VideoResponseDto getVideoById(@PathVariable Long videoId) {
-        return videoService.getVideoById(videoId);
+    public VideoResponseDto getVideoById(
+            @PathVariable Long videoId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+        return videoService.getVideoById(videoId, memberInfoDto.getMemberId());
     }
 
     @DeleteMapping("/videos/{videoId}")
-    public void deleteVideo(@PathVariable Long videoId) {
-        videoService.deleteVideo(videoId);
+    public void deleteVideo(
+            @PathVariable Long videoId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+        videoService.deleteVideo(videoId, memberInfoDto.getMemberId());
     }
 
     @GetMapping("/videos/{videoId}/stream")
     public ResponseEntity<ResourceRegion> streamVideo(
-            @PathVariable Long videoId, @RequestHeader HttpHeaders headers) {
-        ResourceRegion region = videoService.getVideoResourceRegion(videoId, headers.getRange());
+            @PathVariable Long videoId,
+            @RequestHeader HttpHeaders headers,
+            @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+        ResourceRegion region =
+                videoService.getVideoResourceRegion(
+                        videoId, memberInfoDto.getMemberId(), headers.getRange());
 
         return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
                 .cacheControl(CacheControl.maxAge(10, TimeUnit.MINUTES))
@@ -61,8 +67,9 @@ public class VideoController {
     }
 
     @GetMapping("/videos/{videoId}/download")
-    public ResponseEntity<Resource> downloadVideo(@PathVariable Long videoId) {
-        Resource resource = videoService.getVideoResource(videoId);
+    public ResponseEntity<Resource> downloadVideo(
+            @PathVariable Long videoId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+        Resource resource = videoService.getVideoResource(videoId, memberInfoDto.getMemberId());
         return ResponseEntity.ok()
                 .contentType(VIDEO_TYPE)
                 .header(
@@ -72,16 +79,23 @@ public class VideoController {
     }
 
     @GetMapping("/videos/{videoId}/thumbnail")
-    public ResponseEntity<Resource> getVideoThumbnail(@PathVariable Long videoId) {
-        Resource resource = videoService.getVideoThumbnailResource(videoId);
+    public ResponseEntity<Resource> getVideoThumbnail(
+            @PathVariable Long videoId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+        Resource resource =
+                videoService.getVideoThumbnailResource(videoId, memberInfoDto.getMemberId());
         return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(resource);
     }
 
     @PostMapping("/{camId}/videos/record")
     public VideoRecordResponseDto recordRequest(
-            @PathVariable Long camId, @RequestBody VideoRecordRequestDto videoRecordRequestDto) {
+            @PathVariable Long camId,
+            @RequestBody VideoRecordRequestDto videoRecordRequestDto,
+            @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
         return videoService.recordVideo(
-                camId, videoRecordRequestDto.getKey(), videoRecordRequestDto.getCommand());
+                camId,
+                memberInfoDto.getMemberId(),
+                videoRecordRequestDto.getKey(),
+                videoRecordRequestDto.getCommand());
     }
 
     @PostMapping("/{camId}/videos")
@@ -89,13 +103,20 @@ public class VideoController {
             @PathVariable Long camId,
             @RequestPart MultipartFile file,
             @RequestPart VideoTimeInfo timeInfo,
-            HttpServletRequest request) {
+            HttpServletRequest request,
+            @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
         log.debug("what content-type: {}", request.getHeader("Content-Type"));
-        videoService.saveVideo(camId, file, timeInfo.getStartTime(), timeInfo.getEndTime());
+        videoService.saveVideo(
+                camId,
+                memberInfoDto.getMemberId(),
+                file,
+                timeInfo.getStartTime(),
+                timeInfo.getEndTime());
     }
 
     @PostMapping("/videos/{videoId}/threat")
-    public void registerThreat(@PathVariable Long videoId) {
-        videoService.registerThreat(videoId);
+    public void registerThreat(
+            @PathVariable Long videoId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+        videoService.registerThreat(videoId, memberInfoDto.getMemberId());
     }
 }

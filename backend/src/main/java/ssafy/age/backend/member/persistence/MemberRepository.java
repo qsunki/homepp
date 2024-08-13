@@ -14,4 +14,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     @Query("SELECT m FROM Member m JOIN m.camList c WHERE c.id = :camId")
     Optional<Member> findByCamId(@Param("camId") Long camId);
+
+    @Query("SELECT m FROM Member m JOIN m.camList c JOIN c.videoList v WHERE v.id = :videoId")
+    Optional<Member> findByVideoId(@Param("videoId") Long videoId);
 }

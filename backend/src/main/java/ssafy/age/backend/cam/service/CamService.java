@@ -64,7 +64,7 @@ public class CamService {
     }
 
     public CamResponseDto updateCamName(Long camId, Long memberId, String name) {
-        verifyMember(camId, memberId);
+        verifyMemberByCamId(camId, memberId);
         Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
         cam.updateCamName(name);
 
@@ -72,7 +72,7 @@ public class CamService {
     }
 
     public void deleteCam(Long camId, Long memberId) {
-        verifyMember(camId, memberId);
+        verifyMemberByCamId(camId, memberId);
         camRepository.deleteById(camId);
     }
 
@@ -145,7 +145,7 @@ public class CamService {
     }
 
     public CamResponseDto findCamById(Long camId, Long memberId) {
-        verifyMember(camId, memberId);
+        verifyMemberByCamId(camId, memberId);
         Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
         return camMapper.toCamResponseDto(cam);
     }
@@ -154,14 +154,14 @@ public class CamService {
         if (!camRepository.existsById(camId)) {
             throw new CamNotFoundException();
         }
-        verifyMember(camId, memberId);
+        verifyMemberByCamId(camId, memberId);
         mqttService.requestStreaming(camId, key, Command.valueOf(command.toUpperCase(Locale.ROOT)));
         return new StreamResponseDto(key, command);
     }
 
     @Transactional
     public void saveCamThumbnail(Long camId, Long memberId, MultipartFile file) {
-        verifyMember(camId, memberId);
+        verifyMemberByCamId(camId, memberId);
         Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
         cam.setThumbnailUrl(URL_PREFIX + camId + THUMBNAIL_SUFFIX);
         fileStorage.saveCamThumbnail(camId, file);
@@ -172,13 +172,12 @@ public class CamService {
     }
 
     public void controlDetection(Long camId, Long memberId, String command) {
-        verifyMember(camId, memberId);
+        verifyMemberByCamId(camId, memberId);
         mqttService.requestControl(camId, command);
     }
 
-    public void verifyMember(Long camId, Long memberId) {
-        Member member =
-                memberRepository.findByCamId(camId).orElseThrow(CamNotFoundException::new);
+    public void verifyMemberByCamId(Long camId, Long memberId) {
+        Member member = memberRepository.findByCamId(camId).orElseThrow(CamNotFoundException::new);
         if (!member.getId().equals(memberId)) {
             throw new MemberInvalidAccessException();
         }
