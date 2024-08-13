@@ -13,7 +13,7 @@ import {
   reissueToken,
   fetchEventCount,
   fetchLatestEnvInfo,
-  controlAllCamerasStream,
+  controlAllCamerasDetection,
 } from '../api';
 import { useUserStore } from '../stores/useUserStore';
 import { useVideoStore } from '../stores/useVideoStore';
@@ -119,7 +119,7 @@ const HomePage: React.FC = () => {
 
     if (confirmed) {
       try {
-        await controlAllCamerasStream([1], command, 'your-websocket-key'); // 캠 ID와 WebSocket 키를 지정
+        await controlAllCamerasDetection([1], command, 'your-websocket-key'); // 캠 ID와 WebSocket 키를 지정
         const newStatus = !isCamerasOn;
         setIsCamerasOn(newStatus);
       } catch (error) {
