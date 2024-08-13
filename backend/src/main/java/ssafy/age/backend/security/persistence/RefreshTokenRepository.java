@@ -1,4 +1,4 @@
-package ssafy.age.backend.auth.persistence;
+package ssafy.age.backend.security.persistence;
 
 import org.springframework.data.repository.CrudRepository;
 

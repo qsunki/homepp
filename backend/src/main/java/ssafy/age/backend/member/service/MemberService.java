@@ -2,21 +2,18 @@ package ssafy.age.backend.member.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import ssafy.age.backend.auth.service.AuthService;
 import ssafy.age.backend.member.exception.MemberInvalidAccessException;
 import ssafy.age.backend.member.exception.MemberNotFoundException;
-import ssafy.age.backend.member.persistence.*;
+import ssafy.age.backend.member.persistence.Member;
+import ssafy.age.backend.member.persistence.MemberRepository;
 import ssafy.age.backend.member.web.MemberResponseDto;
+import ssafy.age.backend.security.service.AuthService;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class MemberService implements UserDetailsService {
+public class MemberService {
 
     private final MemberRepository memberRepository;
     private final AuthService authService;
@@ -64,15 +61,5 @@ public class MemberService implements UserDetailsService {
 
     public boolean checkDuplicatedPhoneNumber(String phoneNumber) {
         return memberRepository.findByPhoneNumber(phoneNumber).isEmpty();
-    }
-
-    @Override
-    @Transactional
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        try {
-            return memberRepository.findByEmail(username).orElseThrow(MemberNotFoundException::new);
-        } catch (Exception e) {
-            throw new MemberNotFoundException();
-        }
     }
 }

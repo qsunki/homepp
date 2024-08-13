@@ -1,4 +1,4 @@
-package ssafy.age.backend.security;
+package ssafy.age.backend.security.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -10,7 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-import ssafy.age.backend.auth.service.TokenProvider;
+import ssafy.age.backend.security.service.TokenProvider;
 
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {

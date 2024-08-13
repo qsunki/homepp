@@ -1,4 +1,4 @@
-package ssafy.age.backend.auth.exception;
+package ssafy.age.backend.security.exception;
 
 import org.springframework.http.HttpStatus;
 import ssafy.age.backend.exception.BusinessException;
