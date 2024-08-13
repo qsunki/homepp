@@ -18,7 +18,7 @@ import {
   FaArrowRight,
   FaCheck,
 } from 'react-icons/fa';
-// import CameraToggle from './CameraToggle'; // CameraToggle 임포트
+import { onMessage, messaging } from '../utils/firebase'; // FCM 메시지 리스너와 messaging 가져오기
 
 interface NavbarNotification {
   id: number;
@@ -121,13 +121,20 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
         ];
         setNotifications(combinedNotifications);
       } catch (error) {
-        // console.error('Failed to fetch notifications:', error);
+        console.error('Failed to fetch notifications:', error);
       }
     }
   };
 
   useEffect(() => {
     fetchNotifications();
+
+    // FCM 메시지 수신 시 처리
+    onMessage(messaging, (payload) => {
+      console.log('FCM message received:', payload);
+      // 새로운 알림을 받으면 알림 리스트를 새로 요청
+      fetchNotifications();
+    });
   }, [isLoggedIn]);
 
   const handleReadNotification = async (
@@ -135,7 +142,7 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
     type: 'event' | 'threat'
   ) => {
     if (id === undefined || id === null) {
-      // console.error('Invalid ID:', id);
+      console.error('Invalid ID:', id);
       return;
     }
     try {
@@ -148,7 +155,7 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
         )
       );
     } catch (error) {
-      // console.error('Failed to update read status:', error);
+      console.error('Failed to update read status:', error);
     }
   };
 
@@ -165,7 +172,7 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
         )
       );
     } catch (error) {
-      // console.error('Failed to delete notification:', error);
+      console.error('Failed to delete notification:', error);
     }
   };
 
@@ -174,9 +181,11 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
       handleNavigate(`/video/${notification.videoId}`);
       handleReadNotification(notification.id, notification.type);
     } else {
-      // console.error('Invalid notification data:', notification);
+      console.error('Invalid notification data:', notification);
     }
   };
+
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   return (
     <nav
@@ -256,18 +265,17 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
       <div className="flex items-center space-x-4">
         {isLoggedIn ? (
           <>
-            {/* <CameraToggle /> */}
             <div className="relative">
               <FaBell
                 className="text-gray-800 text-xl cursor-pointer"
                 onClick={handleShowNotifications}
               />
-              {notifications.length > 0 && (
+              {unreadCount > 0 && (
                 <div
                   className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center cursor-pointer"
                   onClick={handleShowNotifications}
                 >
-                  {notifications.length}
+                  {unreadCount}
                 </div>
               )}
               {showNotifications && (

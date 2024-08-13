@@ -20,18 +20,17 @@ const requestPermissionAndGetToken = async (vapidKey: string) => {
     if (permission === 'granted') {
       const currentToken = await getToken(messaging, { vapidKey });
       if (currentToken) {
-        // console.log('FCM token:', currentToken);
         return currentToken;
       } else {
-        // console.log(
-        //   'No registration token available. Request permission to generate one.'
-        // );
+        console.log(
+          'No registration token available. Request permission to generate one.'
+        );
       }
     } else {
-      // console.log('Unable to get permission to notify.');
+      console.log('Unable to get permission to notify.');
     }
   } catch (error) {
-    // console.error('An error occurred while retrieving token. ', error);
+    console.error('An error occurred while retrieving token. ', error);
   }
   return null;
 };
