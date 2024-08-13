@@ -14,7 +14,6 @@ import {
   fetchEventCount,
   fetchLatestEnvInfo,
   controlAllCamerasDetection,
-  fetchCams,
 } from '../api';
 import { useUserStore } from '../stores/useUserStore';
 import { useVideoStore } from '../stores/useVideoStore';
@@ -26,40 +25,16 @@ const HomePage: React.FC = () => {
   const [alertCount, setAlertCount] = useState<number>(0);
   const [temperatureValue, setTemperatureValue] = useState<number>(0);
   const [humidityValue, setHumidityValue] = useState<number>(0);
-  const [isCamerasOn, setIsCamerasOn] = useState(false);
-  const [camId, setCamId] = useState<number | null>(null);
+  const [isCamerasOn, setIsCamerasOn] = useState(false); // 카메라 상태를 저장하는 상태 추가
   const navigate = useNavigate();
   const { isLoggedIn } = useUserStore();
   const { liveThumbnailUrl, setLiveThumbnailUrl } = useVideoStore();
 
   useEffect(() => {
-    const fetchCamList = async () => {
-      try {
-        const response = await fetchCams();
-        if (response.data.length > 0) {
-          setCamId(response.data[0].camId);
-        } else {
-          // console.error('No cameras found for the user');
-        }
-      } catch (error) {
-        // console.error('Failed to fetch camera list:', error);
-      }
-    };
-
-    if (isLoggedIn) {
-      fetchCamList();
-    } else {
-      navigate('/');
-    }
-  }, [isLoggedIn, navigate]);
-
-  useEffect(() => {
     const handleFetchThumbnail = async () => {
-      if (camId === null) return;
-
       try {
         // console.log('Attempting to fetch live thumbnail...');
-        const thumbnailUrl = await fetchLiveThumbnail(camId);
+        const thumbnailUrl = await fetchLiveThumbnail(1); // 캠 ID를 1로 가정
         // console.log('Fetched live thumbnail URL:', thumbnailUrl);
         setLiveThumbnailUrl(thumbnailUrl);
       } catch (error: unknown) {
@@ -73,7 +48,7 @@ const HomePage: React.FC = () => {
                 await reissueToken(refreshToken);
               localStorage.setItem('token', accessToken);
               localStorage.setItem('refreshToken', newRefreshToken);
-              const thumbnailUrl = await fetchLiveThumbnail(camId);
+              const thumbnailUrl = await fetchLiveThumbnail(1); // 캠 ID를 1로 가정
               // console.log(
               //   'Fetched live thumbnail URL after reissue:',
               //   thumbnailUrl
@@ -103,26 +78,24 @@ const HomePage: React.FC = () => {
     };
 
     const handleFetchEnvInfo = async () => {
-      if (camId !== null) {
-        try {
-          const envInfo = await fetchLatestEnvInfo(camId);
-          // console.log('Fetched environment info:', envInfo);
-          setTemperatureValue(envInfo.temperature);
-          setHumidityValue(envInfo.humidity);
-        } catch (error) {
-          // console.error('Failed to fetch environment info:', error);
-        }
+      try {
+        const envInfo = await fetchLatestEnvInfo(1); // 캠 ID를 1로 가정
+        // console.log('Fetched environment info:', envInfo);
+        setTemperatureValue(envInfo.temperature);
+        setHumidityValue(envInfo.humidity);
+      } catch (error) {
+        // console.error('Failed to fetch environment info:', error);
       }
     };
 
-    if (isLoggedIn && camId !== null) {
+    if (isLoggedIn) {
       handleFetchThumbnail();
       handleFetchAlerts();
       handleFetchEnvInfo();
     } else {
       navigate('/');
     }
-  }, [isLoggedIn, camId, navigate, setLiveThumbnailUrl]);
+  }, [isLoggedIn, navigate, setLiveThumbnailUrl]);
 
   const handleChatBotToggle = () => {
     setShowChatBot(!showChatBot);
@@ -144,13 +117,9 @@ const HomePage: React.FC = () => {
 
     const confirmed = window.confirm(confirmationMessage);
 
-    if (confirmed && camId !== null) {
+    if (confirmed) {
       try {
-        await controlAllCamerasDetection(
-          [camId],
-          command,
-          'your-websocket-key'
-        ); // 캠 ID와 WebSocket 키를 지정
+        await controlAllCamerasDetection([1], command, 'your-websocket-key'); // 캠 ID와 WebSocket 키를 지정
         const newStatus = !isCamerasOn;
         setIsCamerasOn(newStatus);
       } catch (error) {
