@@ -47,7 +47,11 @@ const DetailList: React.FC<DetailListProps> = ({
         const parsedVideos = JSON.parse(savedVideos);
         const restoredVideos = parsedVideos.map((video: Video) => ({
           ...video,
-          date: video.date ? new Date(video.date) : null,
+          date: video.date
+            ? isNaN(new Date(video.date).getTime())
+              ? null
+              : new Date(video.date)
+            : null,
         }));
 
         console.log('Parsed and restored videos:', restoredVideos);

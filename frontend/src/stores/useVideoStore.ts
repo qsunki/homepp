@@ -80,7 +80,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
     set({ selectedVideoId: id, currentVideoId: id });
 
     const { videos } = get();
-    const isThreat = localStorage.getItem(`threat_${id}`) === 'true'; // 변경된 부분
+    const isThreat = localStorage.getItem(`threat_${id}`) === 'true';
     const updatedVideos = videos.map((video) =>
       video.id === id ? { ...video, isThreat } : video
     );
@@ -120,39 +120,46 @@ export const useVideoStore = create<VideoState>((set, get) => ({
         type: event.type as 'fire' | 'intrusion' | 'loud',
       }));
 
+      const startTime = new Date(apiVideo.recordStartAt);
+
+      // 날짜 형식 확인 및 변환
+      const isValidDate = !isNaN(startTime.getTime());
+      const formattedDate = isValidDate
+        ? startTime.toLocaleString()
+        : 'Invalid Date';
+
       const video: Video = {
         id: apiVideo.videoId,
         title: `${apiVideo.camName}`,
-        timestamp: new Date(apiVideo.recordStartAt).toLocaleTimeString(),
+        timestamp: formattedDate,
         thumbnail: thumbnail || 'https://via.placeholder.com/150',
         duration: `${Math.floor(apiVideo.length / 60)}:${(apiVideo.length % 60)
           .toString()
           .padStart(2, '0')}`,
         alerts,
         url: 'https://example.com/video-url',
-        startTime: new Date(apiVideo.recordStartAt).toLocaleTimeString(),
+        startTime: formattedDate,
         length: `${Math.floor(apiVideo.length / 60)}:${(apiVideo.length % 60)
           .toString()
           .padStart(2, '0')}`,
         type: Array.from(
           new Set(apiVideo.events.map((event: { type: string }) => event.type))
         ),
-        date: new Date(apiVideo.recordStartAt),
+        date: isValidDate ? startTime : new Date(),
         camera: apiVideo.camName,
-        isThreat: apiVideo.threat, // 변경된 부분
+        isThreat: apiVideo.threat,
       };
       console.log(`Video object created:`, video);
 
       set({
         videos: [...videos, video],
-        selectedVideo: video, // 선택된 비디오 업데이트
+        selectedVideo: video,
       });
     } catch (error) {
       console.error('Failed to fetch video:', error);
     }
   },
 
-  // 나머지 상태 및 함수들
   filter: initialFilter,
   setFilter: (type) => {
     set((state) => ({ filter: { ...state.filter, type } }));
@@ -167,7 +174,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
   volume: 50,
   setVolume: (volume) => set({ volume }),
   liveThumbnailUrl: '',
-  setLiveThumbnailUrl: (url) => set({ liveThumbnailUrl: url }),
+  setLiveThumbnailUrl: (url: string) => set({ liveThumbnailUrl: url }),
 
   updateFilteredVideos: () => {
     const { videos, filter } = get();
@@ -188,8 +195,8 @@ export const useVideoStore = create<VideoState>((set, get) => ({
   reportVideo: (id: number) => {
     console.log(`reportVideo called with id: ${id}`);
     const { videos, selectedVideo } = get();
-    const updatedVideos = videos.map(
-      (video) => (video.id === id ? { ...video, isThreat: true } : video) // 변경된 부분
+    const updatedVideos = videos.map((video) =>
+      video.id === id ? { ...video, isThreat: true } : video
     );
     console.log(`updatedVideos after report:`, updatedVideos);
 
@@ -200,7 +207,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
         : null,
     });
 
-    localStorage.setItem(`threat_${id}`, 'true'); // 변경된 부분
+    localStorage.setItem(`threat_${id}`, 'true');
     console.log(`Video ${id} reported and stored in localStorage.`);
   },
 
@@ -217,26 +224,33 @@ export const useVideoStore = create<VideoState>((set, get) => ({
           const alerts = video.events.map((event: { type: string }) => ({
             type: event.type as 'fire' | 'intrusion' | 'loud',
           }));
+
+          const startTime = new Date(video.recordStartAt);
+          const isValidDate = !isNaN(startTime.getTime());
+          const formattedDate = isValidDate
+            ? startTime.toLocaleString()
+            : 'Invalid Date';
+
           return {
             id: video.videoId,
             title: `${video.camName}`,
-            timestamp: new Date(video.recordStartAt).toLocaleTimeString(),
+            timestamp: formattedDate,
             thumbnail: thumbnail || 'https://via.placeholder.com/150',
             duration: `${Math.floor(video.length / 60)}:${(video.length % 60)
               .toString()
               .padStart(2, '0')}`,
             alerts,
             url: 'https://example.com/video-url',
-            startTime: new Date(video.recordStartAt).toLocaleTimeString(),
+            startTime: formattedDate,
             length: `${Math.floor(video.length / 60)}:${(video.length % 60)
               .toString()
               .padStart(2, '0')}`,
             type: Array.from(
               new Set(video.events.map((event: { type: string }) => event.type))
             ),
-            date: new Date(video.recordStartAt),
+            date: isValidDate ? startTime : new Date(),
             camera: video.camName,
-            isThreat: video.threat, // 변경된 부분
+            isThreat: video.threat,
           };
         })
       );
