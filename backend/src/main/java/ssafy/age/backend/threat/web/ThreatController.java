@@ -26,11 +26,11 @@ public class ThreatController {
 
     @PatchMapping("/{email}/threats/{threatId}")
     public void readThreat(@PathVariable String email, @PathVariable Long threatId) {
-        threatService.readThreat(threatId);
+        threatService.readThreat(threatId, email);
     }
 
     @DeleteMapping("/{email}/threats/{threatId}")
     public void deleteThreat(@PathVariable String email, @PathVariable Long threatId) {
-        threatService.deleteThreat(threatId);
+        threatService.deleteThreat(threatId, email);
     }
 }

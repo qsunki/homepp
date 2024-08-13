@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import ssafy.age.backend.threat.exception.ThreatNotFoundException;
 import ssafy.age.backend.threat.persistence.Threat;
@@ -25,19 +26,22 @@ public class ThreatService {
     }
 
     @Transactional
+    @PreAuthorize("#email == authentication.principal.email")
     public List<ThreatResponseDto> getThreatsByMember(String email) {
         List<Threat> threats = threatRepository.findAllByMemberEmail(email);
         return threats.stream().map(threatMapper::toThreatResponseDto).toList();
     }
 
-    public void readThreat(Long threatId) {
+    @PreAuthorize("#email == authentication.principal.email")
+    public void readThreat(Long threatId, String email) {
         Threat threat =
                 threatRepository.findById(threatId).orElseThrow(ThreatNotFoundException::new);
         threat.read();
         threatRepository.save(threat);
     }
 
-    public void deleteThreat(Long threatId) {
+    @PreAuthorize("#email == authentication.principal.email")
+    public void deleteThreat(Long threatId, String email) {
         threatRepository.deleteById(threatId);
     }
 }
