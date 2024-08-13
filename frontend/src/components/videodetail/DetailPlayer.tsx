@@ -3,6 +3,7 @@ import { useVideoStore } from '../../stores/useVideoStore';
 import LivePlayer from './LivePlayer';
 import RecordedPlayer from './RecordedPlayer';
 import { fetchVideoStream } from '../../api';
+import styles from '../../pages/VideoDetail.module.css'; // 모듈 CSS 파일을 import
 
 interface DetailPlayerProps {
   isLive?: boolean;
@@ -21,9 +22,6 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({
     const restoreSelectedVideoId = async () => {
       const storedVideoId = localStorage.getItem('selectedVideoId');
       if (storedVideoId && !selectedVideoId) {
-        // console.log(
-        //   `Restoring selectedVideoId from localStorage: ${storedVideoId}`
-        // );
         await setSelectedVideoId(Number(storedVideoId));
         getVideoStream(Number(storedVideoId));
       } else if (selectedVideoId) {
@@ -33,17 +31,13 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({
 
     const getVideoStream = async (videoId: number) => {
       if (!videoId || videoSrc) return;
-      // console.log(`Fetching video stream for videoId: ${videoId}`);
       try {
         const streamUrl = await fetchVideoStream(videoId);
-        // console.log(`Video stream URL fetched: ${streamUrl}`);
         if (streamUrl) {
           setVideoSrc(streamUrl);
-        } else {
-          // console.error('Stream URL is undefined or empty');
         }
       } catch (error) {
-        // console.error('Failed to fetch video stream:', error);
+        // Handle the error appropriately
       }
     };
 
@@ -51,14 +45,16 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({
   }, [selectedVideoId, setSelectedVideoId, videoSrc]);
 
   return (
-    <div className="w-full lg:w-2/3 lg:pr-4 relative">
+    <div
+      className={`${styles.detailPlayerFrame} w-full lg:w-2/3 lg:pr-4 relative`}
+    >
       {isLive ? (
         <LivePlayer />
       ) : (
         <RecordedPlayer
           showDetails={showDetails}
           videoSrc={videoSrc || ''}
-          isThreat={selectedVideo?.isThreat} // 변경된 부분
+          isThreat={selectedVideo?.isThreat}
         />
       )}
     </div>
