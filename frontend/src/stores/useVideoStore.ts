@@ -207,13 +207,8 @@ export const useVideoStore = create<VideoState>((set, get) => ({
         : null,
     });
 
-<<<<<<< HEAD
-    localStorage.setItem(`threat_${id}`, 'true');
-    console.log(`Video ${id} reported and stored in localStorage.`);
-=======
     localStorage.setItem(`threat_${id}`, 'true'); // 변경된 부분
     // console.log(`Video ${id} reported and stored in localStorage.`);
->>>>>>> 668c7798efec7ffc51f387b7142c7602dec688ff
   },
 
   selectedTypes: [],
