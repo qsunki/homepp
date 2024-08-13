@@ -8,7 +8,6 @@ import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
 import ssafy.age.backend.member.web.MemberResponseDto;
-import ssafy.age.backend.security.service.AuthService;
 
 @Slf4j
 @Service
@@ -16,7 +15,6 @@ import ssafy.age.backend.security.service.AuthService;
 public class MemberService {
 
     private final MemberRepository memberRepository;
-    private final AuthService authService;
     private final MemberMapper mapper = MemberMapper.INSTANCE;
 
     public MemberResponseDto findByEmail(String email) {
