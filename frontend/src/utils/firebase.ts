@@ -209,8 +209,8 @@ function showCustomNotification({
   }, 5000);
 }
 
-// Navbar 알림을 갱신하는 함수 (구체적인 구현은 프로젝트 구조에 따라 다를 수 있음)
-function updateNavbarNotifications(data: any) {
+// Navbar 알림을 갱신하는 함수
+function updateNavbarNotifications(data: Record<string, unknown>) {
   // 이 함수는 Navbar의 알림 상태를 업데이트하기 위해 호출됩니다.
   // 구체적인 구현은 프로젝트의 상태 관리 또는 API 호출 방식에 따라 다릅니다.
   console.log('Updating Navbar notifications with data: ', data);
