@@ -52,15 +52,13 @@ public class CamService {
     @Value("${file.dir}")
     private String fileDir;
 
-    public List<CamResponseDto> getCams() {
-        String email = authService.getMemberEmail();
-        List<Cam> cams = camRepository.findCamsByMemberEmail(email);
+    public List<CamResponseDto> getCams(Long memberId) {
+        List<Cam> cams = camRepository.findCamsByMemberId(memberId);
         return cams.stream().map(camMapper::toCamResponseDto).toList();
     }
 
-    public List<CamResponseDto> getCamsBySharedEmail() {
-        String sharedEmail = authService.getMemberEmail();
-        List<Cam> cams = camRepository.findCamsBySharedMemberEmail(sharedEmail);
+    public List<CamResponseDto> getCamsBySharedEmail(Long sharedMemberId) {
+        List<Cam> cams = camRepository.findCamsBySharedMemberId(sharedMemberId);
         return cams.stream().map(camMapper::toCamResponseDto).toList();
     }
 
