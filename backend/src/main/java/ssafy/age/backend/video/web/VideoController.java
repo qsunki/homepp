@@ -9,9 +9,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourceRegion;
 import org.springframework.http.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ssafy.age.backend.event.persistence.EventType;
+import ssafy.age.backend.security.service.MemberInfoDto;
 import ssafy.age.backend.video.service.VideoService;
 import ssafy.age.backend.video.service.VideoTimeInfo;
 
@@ -29,8 +31,10 @@ public class VideoController {
             @RequestParam(required = false) LocalDateTime startDate,
             @RequestParam(required = false) LocalDateTime endDate,
             @RequestParam(required = false) Long camId,
-            @RequestParam(required = false) Boolean isThreat) {
-        return videoService.getAllVideos(types, startDate, endDate, camId, isThreat);
+            @RequestParam(required = false) Boolean isThreat,
+            @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+        return videoService.getAllVideos(
+                types, startDate, endDate, camId, isThreat, memberInfoDto.getMemberId());
     }
 
     @GetMapping("/videos/{videoId}")

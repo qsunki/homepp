@@ -11,17 +11,17 @@ import org.springframework.stereotype.Repository;
 public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findAllByOccurredAtBetween(LocalDateTime start, LocalDateTime end);
 
-    @Query("SELECT e FROM Event e WHERE e.cam.member.email = :email")
-    List<Event> findAllEventsByMemberEmail(@Param("email") String email);
+    @Query("SELECT e FROM Event e WHERE e.cam.member.id = :memberId")
+    List<Event> findAllEventsByMemberId(@Param("memberId") Long memberId);
 
     @Query(
             "SELECT COUNT(e) "
                     + "FROM Event e "
-                    + "WHERE e.cam.member.email = :email "
+                    + "WHERE e.cam.member.id = :memberId "
                     + "AND e.occurredAt >= :startOfDay "
                     + "AND e.occurredAt < :endOfDay")
-    Integer countTodayEventsByMemberEmail(
-            @Param("email") String email,
+    Integer countTodayEventsByMemberId(
+            @Param("memberId") Long memberId,
             @Param("startOfDay") LocalDateTime startOfDay,
             @Param("endOfDay") LocalDateTime endOfDay);
 }

@@ -9,9 +9,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ssafy.age.backend.cam.service.CamService;
+import ssafy.age.backend.security.service.MemberInfoDto;
 
 @Slf4j
 @RestController
@@ -23,13 +25,14 @@ public class CamController {
 
     @GetMapping
     @Operation(summary = "캠 목록 조회", description = "로그인 된 멤버의 모든 캠 목록 조회")
-    public List<CamResponseDto> getCams() {
-        return camService.getCams();
+    public List<CamResponseDto> getCams(@AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+        return camService.getCams(memberInfoDto.getMemberId());
     }
 
     @GetMapping("/shared")
-    public List<CamResponseDto> getCamsShared() {
-        return camService.getCamsBySharedEmail();
+    public List<CamResponseDto> getCamsShared(
+            @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+        return camService.getCamsBySharedEmail(memberInfoDto.getMemberId());
     }
 
     @PostMapping

@@ -24,12 +24,10 @@ public class MemberService {
                 memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new));
     }
 
-    public MemberResponseDto updateMember(String password, String phoneNumber) {
+    public MemberResponseDto updateMember(String password, String phoneNumber, Long memberId) {
         try {
             Member foundMember =
-                    memberRepository
-                            .findByEmail(authService.getMemberEmail())
-                            .orElseThrow(MemberNotFoundException::new);
+                    memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
             ;
             foundMember.updateMember(password, phoneNumber);
             memberRepository.save(foundMember);
@@ -39,17 +37,11 @@ public class MemberService {
         }
     }
 
-    public void deleteMember(String email) {
+    public void deleteMember(Long memberId) {
         try {
-            String loggedInEmail = authService.getMemberEmail();
-            if (email.equals(loggedInEmail)) {
-                memberRepository.delete(
-                        memberRepository
-                                .findByEmail(email)
-                                .orElseThrow(MemberNotFoundException::new));
-            } else {
-                throw new MemberInvalidAccessException();
-            }
+            memberRepository.delete(
+                    memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new));
+
         } catch (Exception e) {
             throw new MemberInvalidAccessException(e);
         }

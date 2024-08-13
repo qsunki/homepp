@@ -4,9 +4,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import ssafy.age.backend.member.service.MemberService;
 import ssafy.age.backend.security.service.AuthService;
+import ssafy.age.backend.security.service.MemberInfoDto;
 
 @Slf4j
 @RestController
@@ -19,8 +21,8 @@ public class MemberController {
 
     @GetMapping
     @Operation(summary = "로그인된 사용자 조회", description = "현재 로그인 된 사용자의 이메일 확인")
-    public String getMemberEmail() {
-        return authService.getMemberEmail();
+    public String getMemberEmail(@AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+        return memberInfoDto.getEmail();
     }
 
     @PostMapping
@@ -34,15 +36,20 @@ public class MemberController {
 
     @PatchMapping("/{email}")
     @Operation(summary = "사용자 정보 수정", description = "현재 로그인 된 사용자 정보 수정")
-    public MemberResponseDto updateMember(@RequestBody MemberRequestDto memberRequestDto) {
+    public MemberResponseDto updateMember(
+            @RequestBody MemberRequestDto memberRequestDto,
+            @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
         return memberService.updateMember(
-                memberRequestDto.getPassword(), memberRequestDto.getPhoneNumber());
+                memberRequestDto.getPassword(),
+                memberRequestDto.getPhoneNumber(),
+                memberInfoDto.getMemberId());
     }
 
     @DeleteMapping("/{email}")
     @Operation(summary = "사용자 정보 삭제", description = "현재 로그인 된 사용자 삭제")
-    public void deleteMember(@PathVariable String email) {
-        memberService.deleteMember(email);
+    public void deleteMember(
+            @PathVariable String email, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+        memberService.deleteMember(memberInfoDto.getMemberId());
     }
 
     @GetMapping("/{email}")

@@ -8,8 +8,6 @@ import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
 import ssafy.age.backend.notification.service.FCMService;
-import ssafy.age.backend.security.service.AuthService;
-import ssafy.age.backend.share.exception.AccessDeniedException;
 import ssafy.age.backend.share.persistence.Share;
 import ssafy.age.backend.share.persistence.ShareRepository;
 import ssafy.age.backend.share.web.ShareDto;
@@ -19,21 +17,18 @@ import ssafy.age.backend.share.web.ShareDto;
 public class ShareService {
 
     private final MemberRepository memberRepository;
-    private final AuthService authService;
     private final ShareRepository shareRepository;
     private final ShareMapper shareMapper = ShareMapper.INSTANCE;
     private final FCMService fcmService;
 
     @Transactional
     public List<ShareDto> getAllShares(String email) {
-        verifyLoginUser(email);
         List<Share> shareList = shareRepository.findAllByMemberEmail(email);
         return shareList.stream().map(shareMapper::toShareDto).toList();
     }
 
     @Transactional
     public ShareDto createShare(String email, String sharedMemberEmail, String nickname) {
-        verifyLoginUser(email);
         Member member =
                 memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
         Member sharedMember =
@@ -56,7 +51,6 @@ public class ShareService {
 
     @Transactional
     public ShareDto updateShare(String email, String sharedMemberEmail, String nickname) {
-        verifyLoginUser(email);
         Share share =
                 shareRepository.findByMemberEmailAndSharedMemberEmail(email, sharedMemberEmail);
         share.setNickname(nickname);
@@ -67,18 +61,8 @@ public class ShareService {
 
     @Transactional
     public void deleteShare(String email, String sharedMemberEmail) {
-        verifyLoginUser(email);
-
         Share share =
                 shareRepository.findByMemberEmailAndSharedMemberEmail(email, sharedMemberEmail);
         shareRepository.delete(share);
-    }
-
-    private void verifyLoginUser(String email) {
-        String loggedEmail = authService.getMemberEmail();
-
-        if (!email.equals(loggedEmail)) {
-            throw new AccessDeniedException();
-        }
     }
 }
