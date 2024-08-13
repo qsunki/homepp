@@ -71,6 +71,13 @@ onMessage(messaging, (payload: MessagePayload) => {
       body: payload.notification.body || 'No content available',
       icon: payload.notification.icon,
     });
+  } else if (payload.data) {
+    // payload.notification이 없을 때 payload.data를 사용하여 브라우저 알림 생성
+    showBrowserNotification({
+      title: payload.data.messageTitle || 'Default Title',
+      body: payload.data.messageBody || 'No content available',
+      icon: undefined, // 필요한 경우 다른 아이콘 설정 가능
+    });
   }
 
   // 메시지 타입에 따른 추가 처리
