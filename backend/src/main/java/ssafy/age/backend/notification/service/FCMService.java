@@ -41,10 +41,9 @@ public class FCMService {
     }
 
     @Transactional
-    public FCMTokenDto save(String token) {
-        String memberEmail = authService.getMemberEmail();
+    public FCMTokenDto save(String token, Long memberId) {
         Member member =
-                memberRepository.findByEmail(memberEmail).orElseThrow(MemberNotFoundException::new);
+                memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
 
         Boolean exist = fcmTokenRepository.existsByTokenAndMember(token, member);
 
