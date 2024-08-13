@@ -33,7 +33,7 @@ const DeviceManagement: React.FC = () => {
       const response = await fetchCams();
       setDevices(response.data);
     } catch (error) {
-      console.error('Error loading device list:', error);
+      // console.error('Error loading device list:', error);
     }
   };
 
@@ -60,7 +60,7 @@ const DeviceManagement: React.FC = () => {
       setNewDeviceName('');
       setNameError(null);
     } catch (error) {
-      console.error('Error updating device name:', error);
+      // console.error('Error updating device name:', error);
     }
   };
 
@@ -117,7 +117,7 @@ const DeviceManagement: React.FC = () => {
       );
       setDeleteConfirmation(null);
     } catch (error) {
-      console.error('Error deleting device:', error);
+      // console.error('Error deleting device:', error);
     }
   };
 

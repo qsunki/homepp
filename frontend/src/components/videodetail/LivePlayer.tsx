@@ -39,7 +39,7 @@ const LivePlayer: React.FC = () => {
     const getCams = async () => {
       try {
         const response = await fetchCams();
-        console.log('Fetched cams:', response.data);
+        // console.log('Fetched cams:', response.data);
         const camsData: Cam[] = response.data.map((cam: CamData) => ({
           id: cam.camId.toString(),
           name: cam.name,
@@ -53,7 +53,7 @@ const LivePlayer: React.FC = () => {
     const getSharedCams = async () => {
       try {
         const response = await fetchSharedCams();
-        console.log('Fetched shared cams:', response.data);
+        // console.log('Fetched shared cams:', response.data);
         const sharedCamsData: Cam[] = response.data.map(
           (cam: SharedCamData) => ({
             id: cam.camId.toString(),
@@ -75,7 +75,7 @@ const LivePlayer: React.FC = () => {
 
     const generateWebSocketKey = () => {
       const key = uuidv4();
-      console.log('Generated WebSocket key:', key);
+      // console.log('Generated WebSocket key:', key);
       setWebSocketKey(key);
     };
 
@@ -87,13 +87,13 @@ const LivePlayer: React.FC = () => {
 
     const startStream = async () => {
       try {
-        console.log('Starting stream for camId:', selectedCamId);
+        // console.log('Starting stream for camId:', selectedCamId);
         await controlCameraStream(
           parseInt(selectedCamId),
           'start',
           webSocketKey
         );
-        console.log('Stream started successfully for camId:', selectedCamId);
+        // console.log('Stream started successfully for camId:', selectedCamId);
       } catch (error) {
         console.error(
           `Failed to start stream for camId ${selectedCamId}:`,
@@ -104,10 +104,10 @@ const LivePlayer: React.FC = () => {
 
     startStream();
 
-    console.log(
-      'Initializing WebSocket and STOMP client with key:',
-      webSocketKey
-    );
+    // console.log(
+    //   'Initializing WebSocket and STOMP client with key:',
+    //   webSocketKey
+    // );
 
     const socketUrl = `https://i11a605.p.ssafy.io/ws`;
     const socket = new SockJS(socketUrl);
@@ -120,14 +120,14 @@ const LivePlayer: React.FC = () => {
       onConnect: (frame) => {
         console.log('STOMP client connected, frame:', frame);
         client.subscribe(`/sub/client/${webSocketKey}`, (message: IMessage) => {
-          console.log(
-            'Received message on key:',
-            webSocketKey,
-            'Message:',
-            message
-          );
+          // console.log(
+          //   'Received message on key:',
+          //   webSocketKey,
+          //   'Message:',
+          //   message
+          // );
           const signal: Signal = JSON.parse(message.body);
-          console.log('Received signal:', signal);
+          // console.log('Received signal:', signal);
           handleSignal(signal);
         });
       },
@@ -136,16 +136,16 @@ const LivePlayer: React.FC = () => {
         console.error('Additional details:', frame.body);
       },
       onDisconnect: () => {
-        console.log('STOMP client disconnected');
+        // console.log('STOMP client disconnected');
       },
     });
 
     clientRef.current = client;
     client.activate();
-    console.log('STOMP client activation requested with key:', webSocketKey);
+    // console.log('STOMP client activation requested with key:', webSocketKey);
 
     return () => {
-      console.log('Deactivating STOMP client with key:', webSocketKey);
+      // console.log('Deactivating STOMP client with key:', webSocketKey);
       client.deactivate();
       if (peerConnectionRef.current) {
         peerConnectionRef.current.close();
@@ -163,7 +163,7 @@ const LivePlayer: React.FC = () => {
   }, [webSocketKey, selectedCamId]);
 
   const handleSignal = async (signal: Signal) => {
-    console.log('Handling signal:', signal, 'with key:', webSocketKey);
+    // console.log('Handling signal:', signal, 'with key:', webSocketKey);
 
     const iceConfiguration = {
       iceServers: [
@@ -186,14 +186,14 @@ const LivePlayer: React.FC = () => {
       peerConnectionRef.current = peerConnection;
 
       peerConnection.onicecandidate = (event) => {
-        console.log('icecandidate event occurred', event);
+        // console.log('icecandidate event occurred', event);
         if (event.candidate && clientRef.current?.connected) {
-          console.log(
-            'Publishing ICE candidate:',
-            event.candidate,
-            'to key:',
-            webSocketKey
-          );
+          // console.log(
+          //   'Publishing ICE candidate:',
+          //   event.candidate,
+          //   'to key:',
+          //   webSocketKey
+          // );
           clientRef.current.publish({
             destination: `/pub/client/${webSocketKey}`,
             body: JSON.stringify({
@@ -205,11 +205,11 @@ const LivePlayer: React.FC = () => {
       };
 
       peerConnection.ontrack = (event) => {
-        console.log('Track event occurred:', event);
+        // console.log('Track event occurred:', event);
         const [remoteStream] = event.streams;
         if (remoteVideoRef.current) {
           remoteVideoRef.current.srcObject = remoteStream;
-          console.log('Remote stream set to video element');
+          // console.log('Remote stream set to video element');
           setIsLive(true); // 라이브 상태를 true로 설정
 
           if (!mediaRecorderRef.current) {
@@ -245,7 +245,7 @@ const LivePlayer: React.FC = () => {
           destination: `/pub/client/${webSocketKey}`,
           body: JSON.stringify({ type: 'answer', data: answer }),
         });
-        console.log('Published answer with key:', webSocketKey);
+        // console.log('Published answer with key:', webSocketKey);
       }
     }
   };
@@ -254,7 +254,7 @@ const LivePlayer: React.FC = () => {
     const peerConnection = peerConnectionRef.current;
     if (peerConnection) {
       await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-      console.log('ICE candidate added successfully with key:', webSocketKey);
+      // console.log('ICE candidate added successfully with key:', webSocketKey);
     }
   };
 

@@ -20,7 +20,7 @@ export const useCameraStore = create<CameraStoreState>((set) => ({
       const ids = response.data.map((cam) => cam.camId);
       set({ camIds: ids });
     } catch (error) {
-      console.error('Failed to fetch camera IDs:', error);
+      // console.error('Failed to fetch camera IDs:', error);
     }
   },
 

@@ -33,12 +33,12 @@ const HomePage: React.FC = () => {
   useEffect(() => {
     const handleFetchThumbnail = async () => {
       try {
-        console.log('Attempting to fetch live thumbnail...');
+        // console.log('Attempting to fetch live thumbnail...');
         const thumbnailUrl = await fetchLiveThumbnail(1); // 캠 ID를 1로 가정
-        console.log('Fetched live thumbnail URL:', thumbnailUrl);
+        // console.log('Fetched live thumbnail URL:', thumbnailUrl);
         setLiveThumbnailUrl(thumbnailUrl);
       } catch (error: unknown) {
-        console.error('Error fetching live thumbnail:', error);
+        // console.error('Error fetching live thumbnail:', error);
         if (axios.isAxiosError(error) && error.response?.status === 401) {
           // accessToken 만료된 경우
           try {
@@ -49,20 +49,20 @@ const HomePage: React.FC = () => {
               localStorage.setItem('token', accessToken);
               localStorage.setItem('refreshToken', newRefreshToken);
               const thumbnailUrl = await fetchLiveThumbnail(1); // 캠 ID를 1로 가정
-              console.log(
-                'Fetched live thumbnail URL after reissue:',
-                thumbnailUrl
-              );
+              // console.log(
+              //   'Fetched live thumbnail URL after reissue:',
+              //   thumbnailUrl
+              // );
               setLiveThumbnailUrl(thumbnailUrl);
             } else {
               navigate('/login');
             }
           } catch (reissueError) {
-            console.error('Failed to reissue token:', reissueError);
+            // console.error('Failed to reissue token:', reissueError);
             navigate('/login');
           }
         } else {
-          console.error('Failed to fetch live thumbnail:', error);
+          // console.error('Failed to fetch live thumbnail:', error);
         }
       }
     };
@@ -70,21 +70,21 @@ const HomePage: React.FC = () => {
     const handleFetchAlerts = async () => {
       try {
         const count = await fetchEventCount();
-        console.log('Fetched alert count:', count);
+        // console.log('Fetched alert count:', count);
         setAlertCount(count);
       } catch (error) {
-        console.error('Failed to fetch alert count:', error);
+        // console.error('Failed to fetch alert count:', error);
       }
     };
 
     const handleFetchEnvInfo = async () => {
       try {
         const envInfo = await fetchLatestEnvInfo(1); // 캠 ID를 1로 가정
-        console.log('Fetched environment info:', envInfo);
+        // console.log('Fetched environment info:', envInfo);
         setTemperatureValue(envInfo.temperature);
         setHumidityValue(envInfo.humidity);
       } catch (error) {
-        console.error('Failed to fetch environment info:', error);
+        // console.error('Failed to fetch environment info:', error);
       }
     };
 
@@ -123,7 +123,7 @@ const HomePage: React.FC = () => {
         const newStatus = !isCamerasOn;
         setIsCamerasOn(newStatus);
       } catch (error) {
-        console.error('Failed to toggle all cameras:', error);
+        // console.error('Failed to toggle all cameras:', error);
       }
     }
   };

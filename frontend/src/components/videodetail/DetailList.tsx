@@ -35,12 +35,12 @@ const DetailList: React.FC<DetailListProps> = ({
   } = useVideoStore();
 
   useEffect(() => {
-    console.log('Restoring state from localStorage...');
+    // console.log('Restoring state from localStorage...');
     const savedVideos = localStorage.getItem('filteredVideos');
     const savedSelectedTypes = localStorage.getItem('selectedTypes');
 
-    console.log('Saved videos:', savedVideos);
-    console.log('Saved selected types:', savedSelectedTypes);
+    // console.log('Saved videos:', savedVideos);
+    // console.log('Saved selected types:', savedSelectedTypes);
 
     try {
       if (savedVideos) {
@@ -50,28 +50,28 @@ const DetailList: React.FC<DetailListProps> = ({
           date: video.date ? new Date(video.date) : null,
         }));
 
-        console.log('Parsed and restored videos:', restoredVideos);
+        // console.log('Parsed and restored videos:', restoredVideos);
         setFilteredVideos(restoredVideos);
       } else {
-        console.warn('No saved videos found in localStorage.');
+        // console.warn('No saved videos found in localStorage.');
       }
 
       if (savedSelectedTypes) {
         const parsedSelectedTypes = JSON.parse(savedSelectedTypes);
-        console.log('Parsed selected types:', parsedSelectedTypes);
+        // console.log('Parsed selected types:', parsedSelectedTypes);
         onTypeToggle(parsedSelectedTypes);
       } else {
-        console.warn('No saved selected types found in localStorage.');
+        // console.warn('No saved selected types found in localStorage.');
       }
     } catch (error) {
-      console.error('Error parsing JSON from localStorage:', error);
+      // console.error('Error parsing JSON from localStorage:', error);
     }
   }, [setFilteredVideos, onTypeToggle]);
 
   useEffect(() => {
-    console.log('Saving state to localStorage...');
-    console.log('Videos:', videos);
-    console.log('Selected types:', selectedTypes);
+    // console.log('Saving state to localStorage...');
+    // console.log('Videos:', videos);
+    // console.log('Selected types:', selectedTypes);
 
     try {
       const stringifiedVideos = JSON.stringify(videos);
@@ -80,20 +80,20 @@ const DetailList: React.FC<DetailListProps> = ({
       localStorage.setItem('filteredVideos', stringifiedVideos);
       localStorage.setItem('selectedTypes', stringifiedSelectedTypes);
     } catch (error) {
-      console.error('Error saving JSON to localStorage:', error);
+      // console.error('Error saving JSON to localStorage:', error);
     }
   }, [videos, selectedTypes]);
 
   useEffect(() => {
     if (showLiveThumbnail) {
-      console.log('Fetching live thumbnail...');
+      // console.log('Fetching live thumbnail...');
       const fetchThumbnail = async () => {
         try {
           const thumbnailUrl = await fetchLiveThumbnail(1);
           setLiveThumbnailUrl(thumbnailUrl);
-          console.log('Live thumbnail fetched:', thumbnailUrl);
+          // console.log('Live thumbnail fetched:', thumbnailUrl);
         } catch (error) {
-          console.error('Failed to fetch live thumbnail:', error);
+          // console.error('Failed to fetch live thumbnail:', error);
         }
       };
       fetchThumbnail();
@@ -101,20 +101,20 @@ const DetailList: React.FC<DetailListProps> = ({
       return () => {
         if (liveThumbnailUrl) {
           URL.revokeObjectURL(liveThumbnailUrl);
-          console.log('Cleaned up Blob URL:', liveThumbnailUrl);
+          // console.log('Cleaned up Blob URL:', liveThumbnailUrl);
         }
       };
     }
   }, [showLiveThumbnail, setLiveThumbnailUrl, liveThumbnailUrl]);
 
   const handleVideoClick = (videoId: number) => {
-    console.log('Video clicked:', videoId);
+    // console.log('Video clicked:', videoId);
     setSelectedVideoId(videoId);
     navigate(`/video/${videoId}`);
   };
 
   const handleLiveThumbnailClick = () => {
-    console.log('Live thumbnail clicked');
+    // console.log('Live thumbnail clicked');
     navigate('/live-video');
   };
 
@@ -132,14 +132,14 @@ const DetailList: React.FC<DetailListProps> = ({
   };
 
   const handleTypeToggle = (type: string) => {
-    console.log('Toggling type:', type);
+    // console.log('Toggling type:', type);
     if (selectedTypes.includes(type)) {
       const newTypes = selectedTypes.filter((t) => t !== type);
-      console.log('Type removed:', newTypes);
+      // console.log('Type removed:', newTypes);
       onTypeToggle(newTypes);
     } else {
       const newTypes = [...selectedTypes, type];
-      console.log('Type added:', newTypes);
+      // console.log('Type added:', newTypes);
       onTypeToggle(newTypes);
     }
   };
@@ -155,7 +155,7 @@ const DetailList: React.FC<DetailListProps> = ({
     .filter((video: Video) => video.id !== currentVideoId);
 
   useEffect(() => {
-    console.log('Rendered filtered videos:', filteredVideos);
+    // console.log('Rendered filtered videos:', filteredVideos);
   }, [filteredVideos]);
 
   return (

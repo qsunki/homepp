@@ -110,15 +110,15 @@ const App: React.FC = () => {
 
   const registerFcmToken = async (email: string) => {
     try {
-      console.log('Requesting FCM token...');
+      // console.log('Requesting FCM token...');
       const fcmToken = await requestPermissionAndGetToken(VAPID_KEY);
       if (fcmToken) {
         await sendFcmTokenToServer(email, fcmToken);
       } else {
-        console.log('FCM 토큰을 가져올 수 없습니다.');
+        // console.log('FCM 토큰을 가져올 수 없습니다.');
       }
     } catch (error) {
-      console.error('FCM 토큰 등록 실패:', error);
+      // console.error('FCM 토큰 등록 실패:', error);
     }
   };
 

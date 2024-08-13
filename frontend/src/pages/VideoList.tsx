@@ -80,7 +80,7 @@ const VideoList: React.FC = () => {
     setSelectedCamera(event.target.value);
 
   const handleVideoClick = (id: number) => {
-    console.log('Video clicked:', id); // 비디오 클릭 시 ID를 출력
+    // console.log('Video clicked:', id); // 비디오 클릭 시 ID를 출력
     navigate(`/video/${id}`);
   };
 
@@ -126,7 +126,7 @@ const VideoList: React.FC = () => {
         }));
         setCameras([{ name: 'All Cameras', id: -1 }, ...cameraData]);
       } catch (error) {
-        console.error('Failed to fetch cameras', error);
+        // console.error('Failed to fetch cameras', error);
       }
     };
 
@@ -199,7 +199,7 @@ const VideoList: React.FC = () => {
         setVideos(apiVideos as Video[]);
         setFilteredVideos(apiVideos as Video[]);
       } catch (error) {
-        console.error('Failed to fetch videos', error);
+        // console.error('Failed to fetch videos', error);
         setVideos([]); // Ensure videos is set to an empty array on error
         setFilteredVideos([]); // Ensure filteredVideos is also empty on error
       }
