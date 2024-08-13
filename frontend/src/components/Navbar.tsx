@@ -18,7 +18,7 @@ import {
   FaArrowRight,
   FaCheck,
 } from 'react-icons/fa';
-import CameraToggle from './CameraToggle'; // CameraToggle 임포트
+// import CameraToggle from './CameraToggle'; // CameraToggle 임포트
 
 interface NavbarNotification {
   id: number;
@@ -121,7 +121,7 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
         ];
         setNotifications(combinedNotifications);
       } catch (error) {
-        console.error('Failed to fetch notifications:', error);
+        // console.error('Failed to fetch notifications:', error);
       }
     }
   };
@@ -135,7 +135,7 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
     type: 'event' | 'threat'
   ) => {
     if (id === undefined || id === null) {
-      console.error('Invalid ID:', id);
+      // console.error('Invalid ID:', id);
       return;
     }
     try {
@@ -148,7 +148,7 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
         )
       );
     } catch (error) {
-      console.error('Failed to update read status:', error);
+      // console.error('Failed to update read status:', error);
     }
   };
 
@@ -165,7 +165,7 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
         )
       );
     } catch (error) {
-      console.error('Failed to delete notification:', error);
+      // console.error('Failed to delete notification:', error);
     }
   };
 
@@ -174,7 +174,7 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
       handleNavigate(`/video/${notification.videoId}`);
       handleReadNotification(notification.id, notification.type);
     } else {
-      console.error('Invalid notification data:', notification);
+      // console.error('Invalid notification data:', notification);
     }
   };
 
@@ -256,7 +256,7 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
       <div className="flex items-center space-x-4">
         {isLoggedIn ? (
           <>
-            <CameraToggle />
+            {/* <CameraToggle /> */}
             <div className="relative">
               <FaBell
                 className="text-gray-800 text-xl cursor-pointer"

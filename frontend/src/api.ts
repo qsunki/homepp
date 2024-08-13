@@ -17,10 +17,10 @@ const api = axios.create({
 export const setAuthToken = (token: string | null) => {
   if (token) {
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    console.log('Authorization token set:', token); // 디버깅용 콘솔 출력
+    // console.log('Authorization token set:', token); // 디버깅용 콘솔 출력
   } else {
     delete api.defaults.headers.common['Authorization'];
-    console.log('Authorization token removed'); // 디버깅용 콘솔 출력
+    // console.log('Authorization token removed'); // 디버깅용 콘솔 출력
   }
 };
 
@@ -181,9 +181,9 @@ export const registerUser = async (
 // 중복 이메일 체크 API 호출 함수
 export const checkDuplicateEmail = async (email: string): Promise<boolean> => {
   try {
-    console.log(`Checking duplicate email: ${email}`);
+    // console.log(`Checking duplicate email: ${email}`);
     const response = await api.get<boolean>(`/members/emails/${email}`);
-    console.log('Email check response:', response.data);
+    // console.log('Email check response:', response.data);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -203,11 +203,11 @@ export const checkDuplicatePhoneNumber = async (
   phoneNumber: string
 ): Promise<boolean> => {
   try {
-    console.log(`Checking duplicate phone number: ${phoneNumber}`);
+    // console.log(`Checking duplicate phone number: ${phoneNumber}`);
     const response = await api.get<boolean>(
       `/members/phone-numbers/${phoneNumber}`
     );
-    console.log('Phone number check response:', response.data);
+    // console.log('Phone number check response:', response.data);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -226,7 +226,7 @@ export const checkDuplicatePhoneNumber = async (
 export const getUserInfo = async (): Promise<AxiosResponse<string>> => {
   try {
     const response = await api.get<string>('/members');
-    console.log('getUserInfo API response:', response.data); // API 응답 확인
+    // console.log('getUserInfo API response:', response.data); // API 응답 확인
     return response;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -318,7 +318,7 @@ export const fetchVideos = async (params?: {
     if (params?.isThreat !== undefined)
       queryParams.append('isThreat', params.isThreat.toString());
 
-    console.log('API request URL:', `/cams/videos?${queryParams.toString()}`);
+    // console.log('API request URL:', `/cams/videos?${queryParams.toString()}`);
 
     const response = await api.get<Video[]>(
       `/cams/videos?${queryParams.toString()}`
@@ -371,15 +371,15 @@ export const fetchVideoById = async (
 // 비디오 스트림 가져오기 함수 추가
 export const fetchVideoStream = async (videoId: number): Promise<string> => {
   try {
-    console.log(`fetchVideoStream called with videoId: ${videoId}`);
+    // console.log(`fetchVideoStream called with videoId: ${videoId}`);
     const response = await api.get(`/cams/videos/${videoId}/stream`, {
       responseType: 'blob', // 바이너리 데이터로 처리하기 위해 responseType을 blob으로 설정
     });
-    console.log(`API response received for video stream:`, response);
+    // console.log(`API response received for video stream:`, response);
 
     if (response.data) {
       const blobUrl = URL.createObjectURL(response.data); // Blob URL 생성
-      console.log(`Generated Blob URL for video stream: ${blobUrl}`);
+      // console.log(`Generated Blob URL for video stream: ${blobUrl}`);
       return blobUrl;
     } else {
       console.error('No resource field in API response');
@@ -398,7 +398,7 @@ export const fetchThumbnail = async (videoId: number): Promise<string> => {
       responseType: 'blob',
     });
     const imageUrl = URL.createObjectURL(response.data);
-    console.log('Fetched thumbnail Blob URL:', imageUrl); // Blob URL 콘솔 출력
+    // console.log('Fetched thumbnail Blob URL:', imageUrl); // Blob URL 콘솔 출력
     return imageUrl;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -451,7 +451,7 @@ export const connectWebSocket = (
       console.error('Additional details:', frame.body);
     },
     onDisconnect: () => {
-      console.log('STOMP client disconnected');
+      // console.log('STOMP client disconnected');
     },
   });
 
@@ -470,7 +470,7 @@ export const publishWebSocketMessage = (
       destination: `/pub/client/${key}`,
       body: JSON.stringify(message),
     });
-    console.log('Published message:', message);
+    // console.log('Published message:', message);
   } else {
     console.error('STOMP client is not connected');
   }
@@ -531,7 +531,7 @@ export const sendFcmTokenToServer = async (email: string, token: string) => {
       `/members/${encodeURIComponent(email)}/tokens`,
       { token }
     );
-    console.log('서버에 FCM 토큰 전송 성공:', response.data);
+    // console.log('서버에 FCM 토큰 전송 성공:', response.data);
     return response.data;
   } catch (error) {
     console.error('Failed to send FCM token to server:', error);
@@ -542,12 +542,12 @@ export const sendFcmTokenToServer = async (email: string, token: string) => {
 // 실시간 썸네일 가져오기 API 호출 함수
 export const fetchLiveThumbnail = async (camId: number): Promise<string> => {
   try {
-    console.log('Fetching live thumbnail for camId:', camId);
+    // console.log('Fetching live thumbnail for camId:', camId);
     const response = await api.get(`/cams/${camId}/thumbnail`, {
       responseType: 'blob',
     });
     const imageUrl = URL.createObjectURL(response.data);
-    console.log('Live thumbnail URL:', imageUrl);
+    // console.log('Live thumbnail URL:', imageUrl);
     return imageUrl;
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
@@ -619,7 +619,7 @@ export const fetchLatestEnvInfo = async (
 export const fetchEventList = async (): Promise<Event[]> => {
   try {
     const response = await api.get<Event[]>('/events');
-    console.log('Fetched events:', response.data); // 로그 추가
+    // console.log('Fetched events:', response.data); // 로그 추가
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -638,7 +638,7 @@ export const fetchEventList = async (): Promise<Event[]> => {
 export const fetchThreatList = async (email: string): Promise<Threat[]> => {
   try {
     const response = await api.get<Threat[]>(`/members/${email}/threats`);
-    console.log('Fetched threats:', response.data); // 로그 추가
+    // console.log('Fetched threats:', response.data); // 로그 추가
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -662,7 +662,7 @@ export const updateReadStatus = async (
     const endpoint =
       type === 'event' ? `/events/${id}` : `/members/threats/${id}`;
     await api.patch(endpoint, { isRead: true });
-    console.log(`Updated read status for ${type} with ID ${id}`);
+    // console.log(`Updated read status for ${type} with ID ${id}`);
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error(
@@ -710,9 +710,9 @@ export const controlCameraStream = async (
       command,
     };
     await api.post(`/cams/${camId}/control`, requestBody);
-    console.log(
-      `Camera stream ${command} command sent successfully for camId ${camId} with key ${webSocketKey}`
-    );
+    // console.log(
+    //   `Camera stream ${command} command sent successfully for camId ${camId} with key ${webSocketKey}`
+    // );
   } catch (error) {
     console.error(
       `Failed to send ${command} command for camId ${camId} with key ${webSocketKey}:`,
@@ -733,7 +733,7 @@ export const controlAllCamerasStream = async (
       controlCameraStream(camId, command, webSocketKey)
     );
     await Promise.all(promises); // 모든 요청이 완료될 때까지 기다림
-    console.log(`All cameras stream ${command} command sent successfully`);
+    // console.log(`All cameras stream ${command} command sent successfully`);
   } catch (error) {
     console.error(`Failed to send ${command} command to all cameras:`, error);
     throw error;
@@ -752,7 +752,7 @@ export const fetchSharedCams = async (): Promise<
 > => {
   try {
     const response = await api.get<SharedCamData[]>('/cams/shared');
-    console.log('Fetched shared cams:', response.data); // 로그 추가
+    // console.log('Fetched shared cams:', response.data); // 로그 추가
     return response;
   } catch (error) {
     if (axios.isAxiosError(error)) {

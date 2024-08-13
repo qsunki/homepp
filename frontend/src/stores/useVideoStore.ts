@@ -76,7 +76,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
   selectedVideo: null,
 
   setSelectedVideoId: (id: number) => {
-    console.log(`setSelectedVideoId called with id: ${id}`);
+    // console.log(`setSelectedVideoId called with id: ${id}`);
     set({ selectedVideoId: id, currentVideoId: id });
 
     const { videos } = get();
@@ -93,21 +93,21 @@ export const useVideoStore = create<VideoState>((set, get) => ({
     });
 
     if (!selectedVideo) {
-      console.log(`Video not found in state, fetching from API...`);
+      // console.log(`Video not found in state, fetching from API...`);
       get().fetchVideoById(id);
     } else {
-      console.log(`Selected video already in state.`);
+      // console.log(`Selected video already in state.`);
     }
   },
 
   fetchVideoById: async (id: number) => {
-    console.log(`fetchVideoById called with id: ${id}`);
+    // console.log(`fetchVideoById called with id: ${id}`);
     const { videos } = get();
     const existingVideo = videos.find((video) => video.id === id);
 
     if (existingVideo) {
       set({ selectedVideo: existingVideo });
-      console.log(`Video already in state:`, existingVideo);
+      // console.log(`Video already in state:`, existingVideo);
       return;
     }
 
@@ -149,14 +149,14 @@ export const useVideoStore = create<VideoState>((set, get) => ({
         camera: apiVideo.camName,
         isThreat: apiVideo.threat,
       };
-      console.log(`Video object created:`, video);
+      // console.log(`Video object created:`, video);
 
       set({
         videos: [...videos, video],
         selectedVideo: video,
       });
     } catch (error) {
-      console.error('Failed to fetch video:', error);
+      // console.error('Failed to fetch video:', error);
     }
   },
 
@@ -193,12 +193,12 @@ export const useVideoStore = create<VideoState>((set, get) => ({
   },
 
   reportVideo: (id: number) => {
-    console.log(`reportVideo called with id: ${id}`);
+    // console.log(`reportVideo called with id: ${id}`);
     const { videos, selectedVideo } = get();
     const updatedVideos = videos.map((video) =>
       video.id === id ? { ...video, isThreat: true } : video
     );
-    console.log(`updatedVideos after report:`, updatedVideos);
+    // console.log(`updatedVideos after report:`, updatedVideos);
 
     set({
       videos: updatedVideos,
@@ -207,15 +207,20 @@ export const useVideoStore = create<VideoState>((set, get) => ({
         : null,
     });
 
+<<<<<<< HEAD
     localStorage.setItem(`threat_${id}`, 'true');
     console.log(`Video ${id} reported and stored in localStorage.`);
+=======
+    localStorage.setItem(`threat_${id}`, 'true'); // 변경된 부분
+    // console.log(`Video ${id} reported and stored in localStorage.`);
+>>>>>>> 668c7798efec7ffc51f387b7142c7602dec688ff
   },
 
   selectedTypes: [],
   setSelectedTypes: (types: string[]) => set({ selectedTypes: types }),
 
   fetchAndSetVideos: async () => {
-    console.log(`fetchAndSetVideos called`);
+    // console.log(`fetchAndSetVideos called`);
     try {
       const response = await fetchVideos();
       const apiVideos = await Promise.all(
@@ -254,7 +259,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
           };
         })
       );
-      console.log(`Videos fetched and processed:`, apiVideos);
+      // console.log(`Videos fetched and processed:`, apiVideos);
 
       set({
         videos: apiVideos,
@@ -266,7 +271,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
       const updatedState = get();
       console.log('Updated state after fetchAndSetVideos:', updatedState);
     } catch (error) {
-      console.error('Failed to fetch videos:', error);
+      // console.error('Failed to fetch videos:', error);
     }
   },
 

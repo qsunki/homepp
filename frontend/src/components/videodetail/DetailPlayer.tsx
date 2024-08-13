@@ -21,9 +21,9 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({
     const restoreSelectedVideoId = async () => {
       const storedVideoId = localStorage.getItem('selectedVideoId');
       if (storedVideoId && !selectedVideoId) {
-        console.log(
-          `Restoring selectedVideoId from localStorage: ${storedVideoId}`
-        );
+        // console.log(
+        //   `Restoring selectedVideoId from localStorage: ${storedVideoId}`
+        // );
         await setSelectedVideoId(Number(storedVideoId));
         getVideoStream(Number(storedVideoId));
       } else if (selectedVideoId) {
@@ -33,17 +33,17 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({
 
     const getVideoStream = async (videoId: number) => {
       if (!videoId || videoSrc) return;
-      console.log(`Fetching video stream for videoId: ${videoId}`);
+      // console.log(`Fetching video stream for videoId: ${videoId}`);
       try {
         const streamUrl = await fetchVideoStream(videoId);
-        console.log(`Video stream URL fetched: ${streamUrl}`);
+        // console.log(`Video stream URL fetched: ${streamUrl}`);
         if (streamUrl) {
           setVideoSrc(streamUrl);
         } else {
-          console.error('Stream URL is undefined or empty');
+          // console.error('Stream URL is undefined or empty');
         }
       } catch (error) {
-        console.error('Failed to fetch video stream:', error);
+        // console.error('Failed to fetch video stream:', error);
       }
     };
 

@@ -45,12 +45,12 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
   const confirmReport = async () => {
     if (selectedVideo) {
       try {
-        console.log('Reporting video with ID:', selectedVideo.id);
+        // console.log('Reporting video with ID:', selectedVideo.id);
         await api.post(`/cams/videos/${selectedVideo.id}/threat`);
         reportVideo(selectedVideo.id);
-        console.log('Video reported successfully:', selectedVideo.id);
+        // console.log('Video reported successfully:', selectedVideo.id);
       } catch (error) {
-        console.error('Failed to report video:', error);
+        // console.error('Failed to report video:', error);
       }
     }
     setShowReportConfirm(false);
@@ -85,7 +85,7 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
       // 링크 정리 및 제거
       link.parentNode?.removeChild(link);
     } catch (error) {
-      console.error('비디오 다운로드 중 오류 발생:', error);
+      // console.error('비디오 다운로드 중 오류 발생:', error);
     }
   };
 
