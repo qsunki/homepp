@@ -12,7 +12,13 @@ interface CamData {
   status?: string;
 }
 
-const DeviceManagement: React.FC = () => {
+interface DeviceManagementProps {
+  disableOutsideClick?: boolean;
+}
+
+const DeviceManagement: React.FC<DeviceManagementProps> = ({
+  disableOutsideClick = false,
+}) => {
   const userEmail = useUserStore((state) => state.email);
   const [devices, setDevices] = useState<CamData[]>([]);
   const [editingDevice, setEditingDevice] = useState<number | null>(null);
@@ -127,6 +133,7 @@ const DeviceManagement: React.FC = () => {
 
   const handleOutsideClick = (e: React.MouseEvent) => {
     if (
+      !disableOutsideClick &&
       (e.target as HTMLElement).classList.contains(
         'delete-confirmation-overlay'
       )
@@ -136,9 +143,11 @@ const DeviceManagement: React.FC = () => {
   };
 
   const closeQRCodePopup = () => {
-    setShowQRCodePopup(false);
-    setQrCodeData(null);
-    loadDevices(); // QR 코드 팝업을 닫을 때 기기 목록을 다시 불러옴
+    if (!disableOutsideClick) {
+      setShowQRCodePopup(false);
+      setQrCodeData(null);
+      loadDevices(); // QR 코드 팝업을 닫을 때 기기 목록을 다시 불러옴
+    }
   };
 
   return (
@@ -199,8 +208,10 @@ const DeviceManagement: React.FC = () => {
         ))}
       </ul>
       {devices.length === 0 && (
-        <p className="text-center text-gray-500">
+        <p className="text-center text-lg text-gray-500">
           No devices have been registered yet.
+          <br />
+          Please register your device first.
         </p>
       )}
       <div
