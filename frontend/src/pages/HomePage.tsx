@@ -20,6 +20,10 @@ import { useUserStore } from '../stores/useUserStore';
 import { useVideoStore } from '../stores/useVideoStore';
 import ChatBot from '../components/ChatBot';
 import CameraToggle from '../components/CameraToggle';
+import Modal from 'react-modal';
+import DeviceManagement from '../components/mypage/DeviceManagement';
+
+Modal.setAppElement('#root'); // 접근성 설정 (root 엘리먼트를 모달을 제외한 다른 컨텐츠에서 마스크 처리)
 
 const HomePage: React.FC = () => {
   const [showChatBot, setShowChatBot] = useState(false);
@@ -28,6 +32,7 @@ const HomePage: React.FC = () => {
   const [humidityValue, setHumidityValue] = useState<number>(0);
   const [isCamerasOn, setIsCamerasOn] = useState(false);
   const [camId, setCamId] = useState<number | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
   const { isLoggedIn } = useUserStore();
   const { liveThumbnailUrl, setLiveThumbnailUrl } = useVideoStore();
@@ -39,6 +44,7 @@ const HomePage: React.FC = () => {
         if (response.data.length > 0) {
           setCamId(response.data[0].camId);
         } else {
+          setIsModalOpen(true);
           // console.error('No cameras found for the user');
         }
       } catch (error) {
@@ -54,9 +60,9 @@ const HomePage: React.FC = () => {
   }, [isLoggedIn, navigate]);
 
   useEffect(() => {
-    const handleFetchThumbnail = async () => {
-      if (camId === null) return;
+    if (camId === null) return;
 
+    const handleFetchThumbnail = async () => {
       try {
         // console.log('Attempting to fetch live thumbnail...');
         const thumbnailUrl = await fetchLiveThumbnail(camId);
@@ -137,6 +143,7 @@ const HomePage: React.FC = () => {
   };
 
   const handleDetectionToggle = async () => {
+    if (camId === null) return;
     const command = isCamerasOn ? 'end' : 'start';
     const confirmationMessage = isCamerasOn
       ? 'Are you sure you want to turn off the detection mode for all cameras?'
@@ -144,15 +151,14 @@ const HomePage: React.FC = () => {
 
     const confirmed = window.confirm(confirmationMessage);
 
-    if (confirmed && camId !== null) {
+    if (confirmed) {
       try {
         await controlAllCamerasDetection(
           [camId],
           command,
           'your-websocket-key'
         ); // 캠 ID와 WebSocket 키를 지정
-        const newStatus = !isCamerasOn;
-        setIsCamerasOn(newStatus);
+        setIsCamerasOn(!isCamerasOn);
       } catch (error) {
         // console.error('Failed to toggle all cameras:', error);
       }
@@ -283,6 +289,29 @@ const HomePage: React.FC = () => {
           {showChatBot && <ChatBot />}
         </div>
       </main>
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={() => setIsModalOpen(false)}
+        contentLabel="Device Management Modal"
+        style={{
+          content: {
+            top: '50%',
+            left: '50%',
+            right: 'auto',
+            bottom: 'auto',
+            marginRight: '-50%',
+            transform: 'translate(-50%, -50%)',
+            width: '80%',
+            maxWidth: '500px',
+            padding: '20px',
+          },
+          overlay: {
+            backgroundColor: 'rgba(0, 0, 0, 0.75)',
+          },
+        }}
+      >
+        <DeviceManagement />
+      </Modal>
     </div>
   );
 };
