@@ -14,6 +14,7 @@ import {
   fetchEventCount,
   fetchLatestEnvInfo,
   controlAllCamerasDetection,
+  fetchCams,
 } from '../api';
 import { useUserStore } from '../stores/useUserStore';
 import { useVideoStore } from '../stores/useVideoStore';
@@ -64,7 +65,7 @@ const HomePage: React.FC = () => {
     const handleFetchThumbnail = async () => {
       try {
         // console.log('Attempting to fetch live thumbnail...');
-        const thumbnailUrl = await fetchLiveThumbnail(1); // 캠 ID를 1로 가정
+        const thumbnailUrl = await fetchLiveThumbnail(camId);
         // console.log('Fetched live thumbnail URL:', thumbnailUrl);
         setLiveThumbnailUrl(thumbnailUrl);
       } catch (error: unknown) {
@@ -78,7 +79,7 @@ const HomePage: React.FC = () => {
                 await reissueToken(refreshToken);
               localStorage.setItem('token', accessToken);
               localStorage.setItem('refreshToken', newRefreshToken);
-              const thumbnailUrl = await fetchLiveThumbnail(1); // 캠 ID를 1로 가정
+              const thumbnailUrl = await fetchLiveThumbnail(camId);
               // console.log(
               //   'Fetched live thumbnail URL after reissue:',
               //   thumbnailUrl
@@ -108,24 +109,26 @@ const HomePage: React.FC = () => {
     };
 
     const handleFetchEnvInfo = async () => {
-      try {
-        const envInfo = await fetchLatestEnvInfo(1); // 캠 ID를 1로 가정
-        // console.log('Fetched environment info:', envInfo);
-        setTemperatureValue(envInfo.temperature);
-        setHumidityValue(envInfo.humidity);
-      } catch (error) {
-        // console.error('Failed to fetch environment info:', error);
+      if (camId !== null) {
+        try {
+          const envInfo = await fetchLatestEnvInfo(camId);
+          // console.log('Fetched environment info:', envInfo);
+          setTemperatureValue(envInfo.temperature);
+          setHumidityValue(envInfo.humidity);
+        } catch (error) {
+          // console.error('Failed to fetch environment info:', error);
+        }
       }
     };
 
-    if (isLoggedIn) {
+    if (isLoggedIn && camId !== null) {
       handleFetchThumbnail();
       handleFetchAlerts();
       handleFetchEnvInfo();
     } else {
       navigate('/');
     }
-  }, [isLoggedIn, navigate, setLiveThumbnailUrl]);
+  }, [isLoggedIn, camId, navigate, setLiveThumbnailUrl]);
 
   const handleChatBotToggle = () => {
     setShowChatBot(!showChatBot);
@@ -148,7 +151,6 @@ const HomePage: React.FC = () => {
 
     const confirmed = window.confirm(confirmationMessage);
 
-    if (confirmed) {
     if (confirmed) {
       try {
         await controlAllCamerasDetection(
