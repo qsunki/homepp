@@ -27,7 +27,7 @@ const LivePlayer: React.FC = () => {
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
   const [cams, setCams] = useState<Cam[]>([]);
   const [sharedCams, setSharedCams] = useState<Cam[]>([]);
-  const [selectedCamId, setSelectedCamId] = useState<string>('1');
+  const [selectedCamId, setSelectedCamId] = useState<string>('');
   const clientRef = useRef<Client | null>(null);
   const [webSocketKey, setWebSocketKey] = useState<string>('');
   const [isRecording, setIsRecording] = useState<boolean>(false);
@@ -45,6 +45,9 @@ const LivePlayer: React.FC = () => {
           name: cam.name,
         }));
         setCams(camsData);
+        if (camsData.length > 0) {
+          setSelectedCamId(camsData[0].id);
+        }
       } catch (error) {
         console.error('Failed to fetch cams:', error);
       }
@@ -83,7 +86,7 @@ const LivePlayer: React.FC = () => {
   }, [selectedCamId]);
 
   useEffect(() => {
-    if (!webSocketKey) return;
+    if (!webSocketKey || !selectedCamId) return;
 
     const startStream = async () => {
       try {
