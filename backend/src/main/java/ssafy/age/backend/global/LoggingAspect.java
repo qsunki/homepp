@@ -18,7 +18,7 @@ public class LoggingAspect {
 
     private static final ThreadLocal<Integer> callDepth = ThreadLocal.withInitial(() -> 0);
 
-    @Pointcut("execution(* ssafy..controller..*(..))")
+    @Pointcut("execution(* ssafy..web..*(..))")
     public void controllerLayer() {}
 
     @Pointcut("execution(* ssafy..service..*(..))")
