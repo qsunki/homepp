@@ -395,11 +395,10 @@ export const fetchVideoStream = async (videoId: number): Promise<string> => {
 // 썸네일 가져오기 함수
 export const fetchThumbnail = async (videoId: number): Promise<string> => {
   try {
-    const response = await api.get(`/cams/videos/${videoId}/thumbnail`, {
-      responseType: 'blob',
-    });
-    const imageUrl = URL.createObjectURL(response.data);
-    // console.log('Fetched thumbnail Blob URL:', imageUrl); // Blob URL 콘솔 출력
+    const response = await api.get(`/cams/videos/${videoId}/thumbnail`);
+    // response.data에 썸네일의 경로가 포함된다고 가정합니다.
+    const imageUrl = response.data;
+    // console.log('Fetched thumbnail URL:', imageUrl); // URL 콘솔 출력
     return imageUrl;
   } catch (error) {
     if (axios.isAxiosError(error)) {

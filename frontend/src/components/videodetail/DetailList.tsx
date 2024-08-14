@@ -218,7 +218,7 @@ const DetailList: React.FC<DetailListProps> = ({
               style={{ aspectRatio: '11 / 7' }}
             >
               <img
-                src={video.thumbnail}
+                src={`https://i11a605.p.ssafy.io/api/v1/cams/videos/${video.id}/thumbnail`}
                 alt="Thumbnail"
                 className="absolute top-0 left-0 w-full h-full object-cover"
               />

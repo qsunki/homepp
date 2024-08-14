@@ -167,6 +167,10 @@ const VideoList: React.FC = () => {
         const apiVideos = await Promise.all(
           response.data.map(async (video: ApiVideo) => {
             const thumbnail = await fetchThumbnail(video.videoId);
+
+            // 추가된 부분: Thumbnail URL 확인을 위한 로그
+            console.log('Thumbnail URL:', thumbnail);
+
             return {
               id: video.videoId,
               title: `${video.camName}`,
@@ -196,6 +200,7 @@ const VideoList: React.FC = () => {
         setVideos(apiVideos as Video[]);
         setFilteredVideos(apiVideos as Video[]);
       } catch (error) {
+        console.error('Failed to fetch videos:', error);
         setVideos([]);
         setFilteredVideos([]);
       }
@@ -487,7 +492,7 @@ const VideoList: React.FC = () => {
                   >
                     <div className="relative w-full h-0 pb-[63.64%]">
                       <img
-                        src={video.thumbnail}
+                        src={`https://i11a605.p.ssafy.io/api/v1/cams/videos/${video.id}/thumbnail`}
                         alt="Thumbnail"
                         className="absolute top-0 left-0 w-full h-full object-cover"
                       />
