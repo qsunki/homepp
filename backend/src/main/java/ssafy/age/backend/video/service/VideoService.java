@@ -86,10 +86,7 @@ public class VideoService {
 
     @Transactional
     public void saveVideo(
-            Long camId,
-            MultipartFile file,
-            LocalDateTime startTime,
-            LocalDateTime endTime) {
+            Long camId, MultipartFile file, LocalDateTime startTime, LocalDateTime endTime) {
         // 비디오 엔티티생성 및 이벤트 연관관계 매핑
         Duration duration = Duration.between(startTime, endTime);
         long videoLength = duration.getSeconds();
@@ -120,8 +117,7 @@ public class VideoService {
         videoRepository.save(saved);
     }
 
-    public VideoRecordResponseDto recordVideo(
-            Long camId, String key, VideoCommand command) {
+    public VideoRecordResponseDto recordVideo(Long camId, String key, VideoCommand command) {
         if (command == VideoCommand.START) {
             key = UUID.randomUUID().toString();
             mqttService.requestRecord(camId, key, Command.START);
@@ -146,8 +142,7 @@ public class VideoService {
         fcmService.sendMessageToAll(savedVideo);
     }
 
-    public ResourceRegion getVideoResourceRegion(
-            Long videoId, List<HttpRange> ranges) {
+    public ResourceRegion getVideoResourceRegion(Long videoId, List<HttpRange> ranges) {
         Resource resource = fileStorage.loadVideoResource(videoId);
         long chunkSize = 1024 * 1024;
         long contentLength;

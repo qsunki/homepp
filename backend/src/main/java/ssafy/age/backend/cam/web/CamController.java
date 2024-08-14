@@ -38,8 +38,7 @@ public class CamController {
     @PostMapping
     @Operation(summary = "캠 등록", description = "디바이스에서 요청을 보내서 캠 초기등록")
     public CamResponseDto createCam(
-            @RequestBody Map<String, String> map,
-            HttpServletRequest request) {
+            @RequestBody Map<String, String> map, HttpServletRequest request) {
         String ip = request.getHeader("X-Forwarded-For");
         if (ip == null) ip = request.getRemoteAddr();
         return camService.createCam(map.get("email"), ip);
@@ -84,9 +83,7 @@ public class CamController {
     }
 
     @PostMapping("/{camId}/thumbnail")
-    public void thumbnailOnServer(
-            @PathVariable Long camId,
-            @RequestPart MultipartFile file) {
+    public void thumbnailOnServer(@PathVariable Long camId, @RequestPart MultipartFile file) {
         camService.saveCamThumbnail(camId, file);
     }
 

@@ -51,11 +51,8 @@ public class VideoController {
 
     @GetMapping("/videos/{videoId}/stream")
     public ResponseEntity<ResourceRegion> streamVideo(
-            @PathVariable Long videoId,
-            @RequestHeader HttpHeaders headers) {
-        ResourceRegion region =
-                videoService.getVideoResourceRegion(
-                        videoId, headers.getRange());
+            @PathVariable Long videoId, @RequestHeader HttpHeaders headers) {
+        ResourceRegion region = videoService.getVideoResourceRegion(videoId, headers.getRange());
 
         return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
                 .cacheControl(CacheControl.maxAge(10, TimeUnit.MINUTES))
@@ -84,12 +81,9 @@ public class VideoController {
 
     @PostMapping("/{camId}/videos/record")
     public VideoRecordResponseDto recordRequest(
-            @PathVariable Long camId,
-            @RequestBody VideoRecordRequestDto videoRecordRequestDto) {
+            @PathVariable Long camId, @RequestBody VideoRecordRequestDto videoRecordRequestDto) {
         return videoService.recordVideo(
-                camId,
-                videoRecordRequestDto.getKey(),
-                videoRecordRequestDto.getCommand());
+                camId, videoRecordRequestDto.getKey(), videoRecordRequestDto.getCommand());
     }
 
     @PostMapping("/{camId}/videos")
@@ -99,11 +93,7 @@ public class VideoController {
             @RequestPart VideoTimeInfo timeInfo,
             HttpServletRequest request) {
         log.debug("what content-type: {}", request.getHeader("Content-Type"));
-        videoService.saveVideo(
-                camId,
-                file,
-                timeInfo.getStartTime(),
-                timeInfo.getEndTime());
+        videoService.saveVideo(camId, file, timeInfo.getStartTime(), timeInfo.getEndTime());
     }
 
     @PostMapping("/videos/{videoId}/threat")
