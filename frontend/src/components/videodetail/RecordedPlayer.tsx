@@ -52,30 +52,20 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
     setShowReportConfirm(false);
   };
 
-  const handleDownloadClick = async () => {
+  const handleDownloadClick = () => {
     if (!selectedVideo) return;
 
-    try {
-      const response = await api.get(
-        `/cams/videos/${selectedVideo.id}/download`,
-        {
-          responseType: 'blob',
-        }
-      );
+    const downloadUrl = `https://i11a605.p.ssafy.io/api/v1/cams/videos/${selectedVideo.id}/download`;
 
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute(
-        'download',
-        `${selectedVideo.title}-${selectedVideo.id}.mp4`
-      );
-      document.body.appendChild(link);
-      link.click();
-      link.parentNode?.removeChild(link);
-    } catch (error) {
-      console.error('Error downloading video:', error);
-    }
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.setAttribute(
+      'download',
+      `${selectedVideo.title}-${selectedVideo.id}.mp4`
+    );
+    document.body.appendChild(link);
+    link.click();
+    link.parentNode?.removeChild(link);
   };
 
   const getTypeIcon = (type: string) => {
