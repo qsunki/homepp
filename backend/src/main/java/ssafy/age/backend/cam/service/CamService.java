@@ -161,7 +161,6 @@ public class CamService {
 
     @Transactional
     public void saveCamThumbnail(Long camId, Long memberId, MultipartFile file) {
-        verifyMemberByCamId(camId, memberId);
         Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
         cam.setThumbnailUrl(URL_PREFIX + camId + THUMBNAIL_SUFFIX);
         fileStorage.saveCamThumbnail(camId, file);
