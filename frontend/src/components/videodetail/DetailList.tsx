@@ -33,61 +33,66 @@ const DetailList: React.FC<DetailListProps> = ({
     setSelectedVideoId,
     setFilteredVideos,
     setVideos,
+    camList, // camList를 가져옴
   } = useVideoStore();
 
   // 첫 페이지 진입 시와 새로 고침 시 데이터를 불러오는 함수
   const fetchData = async () => {
     try {
-      const [thumbnailUrl, videoListResponse] = await Promise.all([
-        fetchLiveThumbnail(1),
-        fetchVideos(),
-      ]);
+      if (camList.length > 0) {
+        const [thumbnailUrl, videoListResponse] = await Promise.all([
+          fetchLiveThumbnail(camList[0].id), // camList의 0번 인덱스 사용
+          fetchVideos(),
+        ]);
 
-      const videoList: Video[] = await Promise.all(
-        videoListResponse.data.map(async (video) => {
-          const thumbnail = await fetchThumbnail(video.videoId);
-          const alerts = video.events.map((event: { type: string }) => ({
-            type: event.type as 'FIRE' | 'INVASION' | 'SOUND',
-          }));
+        const videoList: Video[] = await Promise.all(
+          videoListResponse.data.map(async (video) => {
+            const thumbnail = await fetchThumbnail(video.videoId);
+            const alerts = video.events.map((event: { type: string }) => ({
+              type: event.type as 'FIRE' | 'INVASION' | 'SOUND',
+            }));
 
-          const startTime = new Date(video.recordStartAt);
-          const isValidDate = !isNaN(startTime.getTime());
-          const formattedDate = isValidDate
-            ? startTime.toLocaleString()
-            : 'Invalid Date';
+            const startTime = new Date(video.recordStartAt);
+            const isValidDate = !isNaN(startTime.getTime());
+            const formattedDate = isValidDate
+              ? startTime.toLocaleString()
+              : 'Invalid Date';
 
-          return {
-            id: video.videoId,
-            title: `${video.camName}`,
-            timestamp: formattedDate,
-            thumbnail: thumbnail || 'https://via.placeholder.com/150',
-            duration: `${Math.floor(video.length / 60)}:${(video.length % 60)
-              .toString()
-              .padStart(2, '0')}`,
-            alerts,
-            url: video.streamUrl || 'https://example.com/video-url',
-            startTime: formattedDate,
-            length: `${Math.floor(video.length / 60)}:${(video.length % 60)
-              .toString()
-              .padStart(2, '0')}`,
-            type: Array.from(
-              new Set(video.events.map((event: { type: string }) => event.type))
-            ),
-            date: isValidDate ? startTime : new Date(),
-            camera: video.camName,
-            isThreat: video.threat,
-          } as Video;
-        })
-      );
+            return {
+              id: video.videoId,
+              title: `${video.camName}`,
+              timestamp: formattedDate,
+              thumbnail: thumbnail || 'https://via.placeholder.com/150',
+              duration: `${Math.floor(video.length / 60)}:${(video.length % 60)
+                .toString()
+                .padStart(2, '0')}`,
+              alerts,
+              url: video.streamUrl || 'https://example.com/video-url',
+              startTime: formattedDate,
+              length: `${Math.floor(video.length / 60)}:${(video.length % 60)
+                .toString()
+                .padStart(2, '0')}`,
+              type: Array.from(
+                new Set(
+                  video.events.map((event: { type: string }) => event.type)
+                )
+              ),
+              date: isValidDate ? startTime : new Date(),
+              camera: video.camName,
+              isThreat: video.threat,
+            } as Video;
+          })
+        );
 
-      if (thumbnailUrl !== liveThumbnailUrl) {
-        setLiveThumbnailUrl(thumbnailUrl);
+        if (thumbnailUrl !== liveThumbnailUrl) {
+          setLiveThumbnailUrl(thumbnailUrl);
+        }
+
+        setVideos(videoList); // Update the video list in the store
+        setFilteredVideos(videoList); // 로컬 저장소에 저장된 필터와 일치하도록 업데이트
       }
-
-      setVideos(videoList); // Update the video list in the store
-      setFilteredVideos(videoList); // 로컬 저장소에 저장된 필터와 일치하도록 업데이트
     } catch (error) {
-      // console.error('Failed to fetch data:', error);
+      console.error('Failed to fetch data:', error);
     }
   };
 
@@ -112,7 +117,7 @@ const DetailList: React.FC<DetailListProps> = ({
           fetchData(); // 로컬 저장소에 데이터가 없는 경우 서버에서 데이터를 가져옵니다.
         }
       } catch (error) {
-        // console.error('Error parsing videos:', error);
+        console.error('Error parsing videos:', error);
         fetchData(); // 데이터 파싱에 실패하면 데이터를 다시 가져옵니다.
       }
     } else {
@@ -124,10 +129,10 @@ const DetailList: React.FC<DetailListProps> = ({
         const parsedSelectedTypes = JSON.parse(savedSelectedTypes);
         onTypeToggle(parsedSelectedTypes);
       } catch (error) {
-        // console.error('Error parsing selected types:', error);
+        console.error('Error parsing selected types:', error);
       }
     }
-  }, [setFilteredVideos, onTypeToggle]);
+  }, [setFilteredVideos, onTypeToggle, camList]);
 
   // Save current video list and filters to localStorage
   useEffect(() => {
@@ -138,7 +143,7 @@ const DetailList: React.FC<DetailListProps> = ({
       localStorage.setItem('filteredVideos', stringifiedVideos);
       localStorage.setItem('selectedTypes', stringifiedSelectedTypes);
     } catch (error) {
-      // console.error('Error saving state:', error);
+      console.error('Error saving state:', error);
     }
   }, [videos, selectedTypes]);
 
