@@ -20,20 +20,19 @@ import { useUserStore } from '../stores/useUserStore';
 import { useVideoStore } from '../stores/useVideoStore';
 import ChatBot from '../components/ChatBot';
 import CameraToggle from '../components/CameraToggle';
-import Modal from 'react-modal';
+import Modal from '../components/mypage/Modal';
 import DeviceManagement from '../components/mypage/DeviceManagement';
-import { FaCamera } from 'react-icons/fa'; // 적절한 이모지 사용
-
-Modal.setAppElement('#root'); // 접근성 설정 (root 엘리먼트를 모달을 제외한 다른 컨텐츠에서 마스크 처리)
+import { FaCamera } from 'react-icons/fa';
 
 const HomePage: React.FC = () => {
+  const [modalContent, setModalContent] = useState<React.ReactNode>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [showChatBot, setShowChatBot] = useState(false);
   const [alertCount, setAlertCount] = useState<number>(0);
   const [temperatureValue, setTemperatureValue] = useState<number>(0);
   const [humidityValue, setHumidityValue] = useState<number>(0);
   const [isCamerasOn, setIsCamerasOn] = useState(false);
   const [camId, setCamId] = useState<number | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [liveStatus, setLiveStatus] = useState<string | null>(null);
   const navigate = useNavigate();
   const { isLoggedIn } = useUserStore();
@@ -45,7 +44,7 @@ const HomePage: React.FC = () => {
       if (response.data.length > 0) {
         setCamId(response.data[0].camId);
       } else {
-        setIsModalOpen(true);
+        openModal(<DeviceManagement />);
       }
     } catch (error) {
       console.error('Failed to fetch camera list:', error);
@@ -131,6 +130,16 @@ const HomePage: React.FC = () => {
     liveStatus,
     handleFetchEnvInfo,
   ]);
+
+  const openModal = (content: React.ReactNode) => {
+    setModalContent(content);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setModalContent(null);
+  };
 
   const handleChatBotToggle = () => {
     setShowChatBot(!showChatBot);
@@ -304,28 +313,8 @@ const HomePage: React.FC = () => {
           {showChatBot && <ChatBot />}
         </div>
       </main>
-      <Modal
-        isOpen={isModalOpen}
-        onRequestClose={() => setIsModalOpen(false)}
-        contentLabel="Device Management Modal"
-        style={{
-          content: {
-            top: '50%',
-            left: '50%',
-            right: 'auto',
-            bottom: 'auto',
-            marginRight: '-50%',
-            transform: 'translate(-50%, -50%)',
-            width: '80%',
-            maxWidth: '500px',
-            padding: '20px',
-          },
-          overlay: {
-            backgroundColor: 'rgba(0, 0, 0, 0.75)',
-          },
-        }}
-      >
-        <DeviceManagement disableOutsideClick={true} />
+      <Modal isOpen={isModalOpen} onClose={closeModal}>
+        {modalContent}
       </Modal>
     </div>
   );
