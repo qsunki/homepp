@@ -41,6 +41,8 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
   const { isLoggedIn, logout, email } = useUserStore(); // email 가져오기
   const [showSignIn, setShowSignIn] = useState(false);
   const [activeTab, setActiveTab] = useState<'event' | 'threat'>('event');
+  const [detectionCount, setDetectionCount] = useState<number>(0);
+  const [threatCount, setThreatCount] = useState<number>(0);
   const navigate = useNavigate();
   const location = useLocation();
   const navRef = useRef<HTMLDivElement>(null);
@@ -158,6 +160,20 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
       console.error('Failed to update read status:', error);
     }
   };
+
+  useEffect(() => {
+    // notifications 배열을 기반으로 각각의 카운트를 계산합니다.
+    const detectionUnreadCount = notifications.filter(
+      (notification) => notification.type === 'event' && !notification.isRead
+    ).length;
+
+    const threatUnreadCount = notifications.filter(
+      (notification) => notification.type === 'threat' && !notification.isRead
+    ).length;
+
+    setDetectionCount(detectionUnreadCount);
+    setThreatCount(threatUnreadCount);
+  }, [notifications]);
 
   const handleDeleteNotification = async (
     id: number,
@@ -280,11 +296,11 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
               )}
               {showNotifications && (
                 <div className="absolute right-0 mt-2 w-80 bg-white border border-blue-500 shadow-lg rounded-lg overflow-hidden z-50">
-                  <div className="p-2 bg-blue-700 text-white text-lgrounded-t-lg">
+                  <div className="p-2 bg-blue-700 text-white text-lg rounded-t-lg">
                     Notifications
                   </div>
                   <div className="flex space-x-1 border-[2px] border-blue-500 rounded-xl select-none m-2">
-                    <label className="radio flex flex-grow items-center justify-center rounded-lg p-0.5 cursor-pointer">
+                    <label className="relative radio flex flex-grow items-center justify-center rounded-lg p-0.5 cursor-pointer">
                       <input
                         type="radio"
                         name="notification-tab"
@@ -296,8 +312,13 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
                       <span className="text-sm tracking-wide peer-checked:bg-gradient-to-r peer-checked:from-[#1e3a8a] peer-checked:to-[#3b82f6] peer-checked:text-white text-gray-700 px-2 py-1 rounded-lg transition duration-150 ease-in-out">
                         Detection
                       </span>
+                      {detectionCount > 0 && (
+                        <div className="absolute top-1/6 right-10 transform translate-x-2 -translate-y-1/2 w-4 h-4 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
+                          {detectionCount}
+                        </div>
+                      )}
                     </label>
-                    <label className="radio flex flex-grow items-center justify-center rounded-lg p-0.5 cursor-pointer">
+                    <label className="relative radio flex flex-grow items-center justify-center rounded-lg p-0.5 cursor-pointer">
                       <input
                         type="radio"
                         name="notification-tab"
@@ -309,6 +330,11 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
                       <span className="text-sm tracking-wide peer-checked:bg-gradient-to-r peer-checked:from-[#1e3a8a] peer-checked:to-[#3b82f6] peer-checked:text-white text-gray-700 px-2 py-1 rounded-lg transition duration-150 ease-in-out">
                         Threats
                       </span>
+                      {threatCount > 0 && (
+                        <div className="absolute top-1/6 right-10 transform translate-x-2 -translate-y-1/2 w-4 h-4 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
+                          {threatCount}
+                        </div>
+                      )}
                     </label>
                   </div>
 
