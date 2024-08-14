@@ -177,11 +177,7 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
   };
 
   const handleNotificationClick = (notification: NavbarNotification) => {
-    if (
-      notification.type === 'event' &&
-      notification.videoId !== undefined &&
-      notification.videoId !== null
-    ) {
+    if (notification.type === 'event' && notification.videoId !== undefined) {
       handleNavigate(`/video/${notification.videoId}`);
       handleReadNotification(notification.id, notification.type);
     } else {
