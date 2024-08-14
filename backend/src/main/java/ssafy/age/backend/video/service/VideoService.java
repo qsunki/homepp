@@ -193,7 +193,6 @@ public class VideoService {
     }
 
     public Resource getVideoThumbnailResource(Long videoId, Long memberId) {
-        verifyMemberByVideoId(videoId, memberId);
         return fileStorage.loadVideoThumbnailResource(videoId);
     }
 
