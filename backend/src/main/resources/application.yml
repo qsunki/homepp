@@ -8,4 +8,4 @@ spring:
       profiles:
         active: local
   jpa:
-    open-in-view: false
+    open-in-view: true
