@@ -18,6 +18,6 @@ public class FCMController {
             @RequestBody FCMTokenDto token,
             @PathVariable String email,
             @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
-        return fcmService.save(token.getToken(), memberInfoDto.getMemberId());
+        return fcmService.save(token.getToken(), memberInfoDto.getMemberId(), email);
     }
 }

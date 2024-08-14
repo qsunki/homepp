@@ -38,7 +38,9 @@ public class CamController {
     @PostMapping
     @Operation(summary = "캠 등록", description = "디바이스에서 요청을 보내서 캠 초기등록")
     public CamResponseDto createCam(
-            @RequestBody Map<String, String> map, HttpServletRequest request) {
+            @RequestBody Map<String, String> map,
+            HttpServletRequest request,
+            @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
         String ip = request.getHeader("X-Forwarded-For");
         if (ip == null) ip = request.getRemoteAddr();
         return camService.createCam(map.get("email"), ip);
@@ -46,28 +48,36 @@ public class CamController {
 
     @GetMapping("/{camId}")
     @Operation(summary = "캠 조회", description = "캠 id를 통해서 정보 조회")
-    public CamResponseDto findCamById(@PathVariable Long camId) {
-        return camService.findCamById(camId);
+    public CamResponseDto findCamById(
+            @PathVariable Long camId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+        return camService.findCamById(camId, memberInfoDto.getMemberId());
     }
 
     @CrossOrigin
     @PatchMapping("/{camId}")
     @Operation(summary = "캠 이름 수정", description = "캠 아이디에 따른 캠 이름 수정")
     public CamResponseDto updateCam(
-            @PathVariable Long camId, @RequestBody CamRequestDto camRequestDto) {
-        return camService.updateCamName(camId, camRequestDto.getName());
+            @PathVariable Long camId,
+            @RequestBody CamRequestDto camRequestDto,
+            @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+        return camService.updateCamName(
+                camId, memberInfoDto.getMemberId(), camRequestDto.getName());
     }
 
     @DeleteMapping("/{camId}")
     @Operation(summary = "캠 삭제", description = "캠 아이디에 따른 캠 삭제")
-    public void deleteCam(@PathVariable Long camId) {
-        camService.deleteCam(camId);
+    public void deleteCam(
+            @PathVariable Long camId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+        camService.deleteCam(camId, memberInfoDto.getMemberId());
     }
 
     @PostMapping("/{camId}/stream")
     public StreamResponseDto streamCam(
-            @PathVariable Long camId, @RequestBody StreamRequestDto requestDto) {
-        return camService.streamControl(camId, requestDto.getKey(), requestDto.getCommand());
+            @PathVariable Long camId,
+            @RequestBody StreamRequestDto requestDto,
+            @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+        return camService.streamControl(
+                camId, requestDto.getKey(), requestDto.getCommand(), memberInfoDto.getMemberId());
     }
 
     @GetMapping("/{camId}/thumbnail")
@@ -78,13 +88,19 @@ public class CamController {
     }
 
     @PostMapping("/{camId}/thumbnail")
-    public void thumbnailOnServer(@PathVariable Long camId, @RequestPart MultipartFile file) {
-        camService.saveCamThumbnail(camId, file);
+    public void thumbnailOnServer(
+            @PathVariable Long camId,
+            @RequestPart MultipartFile file,
+            @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+        camService.saveCamThumbnail(camId, memberInfoDto.getMemberId(), file);
     }
 
     @PostMapping("/{camId}/control")
     public void controlDetection(
-            @PathVariable Long camId, @RequestBody ControlRequestDto controlRequestDto) {
-        camService.controlDetection(camId, controlRequestDto.getCommand());
+            @PathVariable Long camId,
+            @RequestBody ControlRequestDto controlRequestDto,
+            @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+        camService.controlDetection(
+                camId, memberInfoDto.getMemberId(), controlRequestDto.getCommand());
     }
 }

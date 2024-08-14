@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ssafy.age.backend.cam.exception.CamNotFoundException;
 import ssafy.age.backend.cam.persistence.CamRepository;
+import ssafy.age.backend.cam.service.CamService;
 import ssafy.age.backend.envInfo.exception.EnvInfoNotFoundException;
 import ssafy.age.backend.envInfo.persistence.EnvInfo;
 import ssafy.age.backend.envInfo.persistence.EnvInfoRepository;
@@ -22,6 +23,7 @@ public class EnvInfoService {
     private final EnvInfoMapper envInfoMapper = EnvInfoMapper.INSTANCE;
     private final EnvInfoRepository envInfoRepository;
     private final CamRepository camRepository;
+    private final CamService camService;
     private final FCMService fcmService;
 
     public void save(EnvInfoReceivedDto envInfoReceivedDto) {
@@ -42,7 +44,8 @@ public class EnvInfoService {
                 String.valueOf(recordStatusDto.getStatus()), recordStatusDto.getCamId());
     }
 
-    public List<EnvInfoResponseDto> getEnvInfos(Long camId) {
+    public List<EnvInfoResponseDto> getEnvInfos(Long camId, Long memberId) {
+        camService.verifyMemberByCamId(camId, memberId);
         if (!camRepository.existsById(camId)) {
             throw new CamNotFoundException();
         }
@@ -50,7 +53,8 @@ public class EnvInfoService {
         return envInfos.stream().map(envInfoMapper::toEnvInfoResponseDto).toList();
     }
 
-    public EnvInfoResponseDto getEnvInfo(Long camId) {
+    public EnvInfoResponseDto getEnvInfo(Long camId, Long memberId) {
+        camService.verifyMemberByCamId(camId, memberId);
         if (!camRepository.existsById(camId)) {
             throw new CamNotFoundException();
         }

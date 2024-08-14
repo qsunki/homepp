@@ -64,12 +64,6 @@ public class Member {
         this.shareList = shareList;
     }
 
-    public Member(String email, String password, String phoneNumber, List<String> roles) {
-        this.email = email;
-        this.password = password;
-        this.phoneNumber = phoneNumber;
-    }
-
     public void updateMember(String password, String phoneNumber) {
         this.password = password;
         this.phoneNumber = phoneNumber;

@@ -58,8 +58,7 @@ public class AuthService implements UserDetailsService {
 
         // 2. 실제로 검증 (사용자 비밀번호 체크) 이 이루어지는 부분
         //    authenticate 메서드가 실행이 될 때 CustomUserDetailsService 에서 만들었던 loadUserByUsername 메서드가 실행됨
-        Authentication authentication =
-                authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
         Member member =
                 memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);

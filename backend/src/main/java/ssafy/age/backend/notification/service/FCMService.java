@@ -7,6 +7,7 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import ssafy.age.backend.event.persistence.Event;
 import ssafy.age.backend.event.persistence.EventType;
@@ -16,7 +17,6 @@ import ssafy.age.backend.member.persistence.MemberRepository;
 import ssafy.age.backend.notification.persistence.FCMToken;
 import ssafy.age.backend.notification.persistence.FCMTokenRepository;
 import ssafy.age.backend.notification.web.FCMTokenDto;
-import ssafy.age.backend.security.service.AuthService;
 import ssafy.age.backend.share.persistence.Share;
 import ssafy.age.backend.video.persistence.Video;
 
@@ -26,7 +26,6 @@ import ssafy.age.backend.video.persistence.Video;
 public class FCMService {
 
     private final FCMTokenRepository fcmTokenRepository;
-    private final AuthService authService;
     private final MemberRepository memberRepository;
 
     public List<FCMToken> getAllFCMTokens() {
@@ -41,7 +40,8 @@ public class FCMService {
     }
 
     @Transactional
-    public FCMTokenDto save(String token, Long memberId) {
+    @PreAuthorize("#email == authentication.principal.email")
+    public FCMTokenDto save(String token, Long memberId, String email) {
         Member member =
                 memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
 
