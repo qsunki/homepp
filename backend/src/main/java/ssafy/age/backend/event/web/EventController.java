@@ -23,12 +23,14 @@ public class EventController {
     }
 
     @PatchMapping("/{eventId}")
-    public void readEvent(@PathVariable Long eventId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+    public void readEvent(
+            @PathVariable Long eventId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
         eventService.readEvent(eventId, memberInfoDto.getMemberId());
     }
 
     @DeleteMapping("/{eventId}")
-    public void deleteEvent(@PathVariable Long eventId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+    public void deleteEvent(
+            @PathVariable Long eventId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
         eventService.deleteEvent(eventId, memberInfoDto.getMemberId());
     }
 

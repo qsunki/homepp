@@ -19,20 +19,16 @@ public class LoggingAspect {
     private static final ThreadLocal<Integer> callDepth = ThreadLocal.withInitial(() -> 0);
 
     @Pointcut("execution(* ssafy..controller..*(..))")
-    public void controllerLayer() {
-    }
+    public void controllerLayer() {}
 
     @Pointcut("execution(* ssafy..service..*(..))")
-    public void serviceLayer() {
-    }
+    public void serviceLayer() {}
 
     @Pointcut("execution(* ssafy..persistence..*(..))")
-    public void repositoryLayer() {
-    }
+    public void repositoryLayer() {}
 
     @Pointcut("execution(* ssafy..member..*(..)) || execution(* ssafy..security..*(..))")
-    public void sensitiveInfo() {
-    }
+    public void sensitiveInfo() {}
 
     @Around("(controllerLayer() || serviceLayer() || repositoryLayer()) && !sensitiveInfo()")
     public Object logMethod(ProceedingJoinPoint joinPoint) throws Throwable {
@@ -44,15 +40,32 @@ public class LoggingAspect {
         String className = joinPoint.getTarget().getClass().getSimpleName();
         Object[] args = joinPoint.getArgs();
 
-        logger.debug("{}[DEPTH {}] [{}]: [{}] parameters: [{}]", indent, depth, className, methodName, args);
+        logger.debug(
+                "{}[DEPTH {}] [{}]: [{}] parameters: [{}]",
+                indent,
+                depth,
+                className,
+                methodName,
+                args);
 
         Object result;
         try {
             result = joinPoint.proceed();
-            logger.debug("{}[DEPTH {}] [{}]: [{}] returned: [{}]", indent, depth, className, methodName, result);
+            logger.debug(
+                    "{}[DEPTH {}] [{}]: [{}] returned: [{}]",
+                    indent,
+                    depth,
+                    className,
+                    methodName,
+                    result);
         } catch (Exception e) {
             logger.error(
-                    "{}[DEPTH {}] [{}]: [{}] threw an exception: [{}]", indent, depth, className, methodName, e.getMessage());
+                    "{}[DEPTH {}] [{}]: [{}] threw an exception: [{}]",
+                    indent,
+                    depth,
+                    className,
+                    methodName,
+                    e.getMessage());
             throw e;
         } finally {
             callDepth.set(depth);

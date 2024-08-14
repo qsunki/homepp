@@ -66,7 +66,8 @@ public class EventService {
     }
 
     public void verifyMemberByEventId(Long eventId, Long memberId) {
-        Member member = memberRepository.findByEventId(eventId).orElseThrow(EventNotFoundException::new);
+        Member member =
+                memberRepository.findByEventId(eventId).orElseThrow(EventNotFoundException::new);
         if (!member.getId().equals(memberId)) {
             throw new MemberInvalidAccessException();
         }

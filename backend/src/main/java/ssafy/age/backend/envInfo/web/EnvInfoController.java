@@ -15,12 +15,14 @@ public class EnvInfoController {
     private final EnvInfoService envInfoService;
 
     @GetMapping("/api/v1/cams/{camId}/envInfos")
-    public List<EnvInfoResponseDto> getEnvInfos(@PathVariable Long camId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+    public List<EnvInfoResponseDto> getEnvInfos(
+            @PathVariable Long camId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
         return envInfoService.getEnvInfos(camId, memberInfoDto.getMemberId());
     }
 
     @GetMapping("/api/v1/cams/{camId}/envInfo")
-    public EnvInfoResponseDto getEnvInfo(@PathVariable Long camId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+    public EnvInfoResponseDto getEnvInfo(
+            @PathVariable Long camId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
         return envInfoService.getEnvInfo(camId, memberInfoDto.getMemberId());
     }
 }
