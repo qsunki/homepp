@@ -68,8 +68,8 @@ public class VideoController {
 
     @GetMapping("/videos/{videoId}/download")
     public ResponseEntity<Resource> downloadVideo(
-            @PathVariable Long videoId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
-        Resource resource = videoService.getVideoResource(videoId, memberInfoDto.getMemberId());
+            @PathVariable Long videoId) {
+        Resource resource = videoService.getVideoResource(videoId);
         return ResponseEntity.ok()
                 .contentType(VIDEO_TYPE)
                 .header(

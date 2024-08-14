@@ -150,11 +150,10 @@ public class CamService {
         return camMapper.toCamResponseDto(cam);
     }
 
-    public StreamResponseDto streamControl(Long camId, String key, String command, Long memberId) {
+    public StreamResponseDto streamControl(Long camId, String key, String command) {
         if (!camRepository.existsById(camId)) {
             throw new CamNotFoundException();
         }
-        verifyMemberByCamId(camId, memberId);
         mqttService.requestStreaming(camId, key, Command.valueOf(command.toUpperCase(Locale.ROOT)));
         return new StreamResponseDto(key, command);
     }

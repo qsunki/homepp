@@ -80,8 +80,7 @@ public class VideoService {
         videoRepository.deleteById(videoId);
     }
 
-    public Resource getVideoResource(Long videoId, Long memberId) {
-        verifyMemberByVideoId(videoId, memberId);
+    public Resource getVideoResource(Long videoId) {
         return fileStorage.loadVideoResource(videoId);
     }
 
