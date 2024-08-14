@@ -9,26 +9,37 @@ interface CameraToggleProps {
 const CameraToggle: React.FC<CameraToggleProps> = ({ onToggle }) => {
   const { camIds, isCamerasOn, fetchCamIds, setCamerasOn } = useCameraStore();
 
+  // 카메라 상태를 가져오는 함수
   const fetchCameraStatus = useCallback(async () => {
     try {
       if (camIds.length > 0) {
+        console.log('Fetching camera status for camId:', camIds[0]);
         const firstCamStatus = await fetchLatestEnvInfo(camIds[0]);
         const status = firstCamStatus.status === 'RECORDING';
+        console.log('Camera status:', status ? 'RECORDING' : 'NOT RECORDING');
         setCamerasOn(status);
         if (onToggle) onToggle(status);
+      } else {
+        console.log('No camera IDs available');
       }
     } catch (error) {
-      // console.error('Failed to fetch camera statuses:', error);
+      console.error('Failed to fetch camera statuses:', error);
     }
-  }, []);
-
-  useEffect(() => {
-    fetchCamIds();
-  }, []);
-
-  useEffect(() => {
-    fetchCameraStatus();
   }, [camIds, setCamerasOn, onToggle]);
+
+  // 카메라 ID 목록을 가져오는 useEffect
+  useEffect(() => {
+    console.log('Fetching camera IDs...');
+    fetchCamIds();
+  }, [fetchCamIds]);
+
+  // 카메라 상태를 가져오는 useEffect
+  useEffect(() => {
+    console.log('Cam IDs:', camIds);
+    if (camIds.length > 0) {
+      fetchCameraStatus();
+    }
+  }, [camIds, fetchCameraStatus]);
 
   return (
     <div className="relative flex items-center justify-center group">
@@ -37,9 +48,7 @@ const CameraToggle: React.FC<CameraToggleProps> = ({ onToggle }) => {
         width="30px"
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
-        xmlnsXlink="http://www.w3.org/1999/xlink"
         viewBox="0 0 30.143 30.143"
-        xmlSpace="preserve"
         fill={isCamerasOn ? '#007bff' : 'black'}
         className="cursor-pointer"
       >
