@@ -375,19 +375,12 @@ export const fetchVideoById = async (
 // 비디오 스트림 가져오기 함수 추가
 export const fetchVideoStream = async (videoId: number): Promise<string> => {
   try {
-    const response = await api.get(`/cams/videos/${videoId}/stream`, {
-      responseType: 'blob',
-    });
-
-    if (response.data) {
-      const blobUrl = URL.createObjectURL(response.data);
-      return blobUrl;
-    } else {
-      console.error('No resource field in API response');
-      return '';
-    }
+    const response = await api.get<{ url: string }>(
+      `/cams/videos/${videoId}/stream`
+    );
+    return response.data.url; // API로부터 받은 스트림 URL을 반환
   } catch (error) {
-    console.error('Failed to fetch video stream:', error);
+    console.error('비디오 스트림 가져오기 오류:', error);
     throw error;
   }
 };

@@ -1,9 +1,7 @@
-// DetailPlayer.tsx
 import React, { useEffect, useState } from 'react';
 import { useVideoStore } from '../../stores/useVideoStore';
 import LivePlayer from './LivePlayer';
 import RecordedPlayer from './RecordedPlayer';
-import { fetchVideoStream } from '../../api';
 import styles from '../../pages/VideoDetail.module.css';
 
 interface DetailPlayerProps {
@@ -24,12 +22,11 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({
     const getVideoStream = async (videoId: number) => {
       setIsLoading(true);
       try {
-        const streamUrl = await fetchVideoStream(videoId);
-        if (streamUrl) {
-          setVideoSrc(streamUrl);
-        }
+        // 비디오 스트림 URL을 직접 생성
+        const streamUrl = `https://i11a605.p.ssafy.io/api/v1/cams/videos/${videoId}/stream`;
+        setVideoSrc(streamUrl);
       } catch (error) {
-        console.error('Failed to fetch video stream:', error);
+        console.error('비디오 스트림 가져오기 오류:', error);
       } finally {
         setIsLoading(false);
       }
