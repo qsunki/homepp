@@ -227,7 +227,7 @@ const VideoList: React.FC = () => {
     setSelectedCamera(event.target.value);
 
   const handleVideoClick = (id: number) => {
-    navigate(`/video/${id}`);
+    navigate(`/video/${id}`, { state: { selectedVideoId: id } }); // selectedVideoId를 state로 전달
   };
 
   const toggleFilters = () => setShowFilters(!showFilters);
