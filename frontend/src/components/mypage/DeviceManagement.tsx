@@ -77,7 +77,15 @@ const DeviceManagement: React.FC<DeviceManagementProps> = ({
   };
 
   const handleAddDevice = () => {
-    const macAddress = prompt('Enter MAC Address (format: 00:00:00:00:00:00)');
+    const macAddress = prompt(
+      '휴대폰의 MAC 주소를 입력하세요.\n' +
+        'MAC 주소는 다음 형식으로 입력해 주세요: 00:00:00:00:00:00\n\n' +
+        'MAC 주소를 찾는 방법:\n' +
+        '1. "설정"을 엽니다.\n' +
+        '2. "휴대전화 정보"로 이동합니다.\n' +
+        '3. "상태 정보"를 탭합니다.\n' +
+        '4. "블루투스 주소"를 찾아 입력하세요.\n'
+    );
     if (!macAddress) return;
 
     if (!validateMacAddress(macAddress)) {
