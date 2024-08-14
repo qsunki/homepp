@@ -73,10 +73,8 @@ public class CamController {
 
     @PostMapping("/{camId}/stream")
     public StreamResponseDto streamCam(
-            @PathVariable Long camId,
-            @RequestBody StreamRequestDto requestDto) {
-        return camService.streamControl(
-                camId, requestDto.getKey(), requestDto.getCommand());
+            @PathVariable Long camId, @RequestBody StreamRequestDto requestDto) {
+        return camService.streamControl(camId, requestDto.getKey(), requestDto.getCommand());
     }
 
     @GetMapping("/{camId}/thumbnail")

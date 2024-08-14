@@ -67,8 +67,7 @@ public class VideoController {
     }
 
     @GetMapping("/videos/{videoId}/download")
-    public ResponseEntity<Resource> downloadVideo(
-            @PathVariable Long videoId) {
+    public ResponseEntity<Resource> downloadVideo(@PathVariable Long videoId) {
         Resource resource = videoService.getVideoResource(videoId);
         return ResponseEntity.ok()
                 .contentType(VIDEO_TYPE)
@@ -79,10 +78,8 @@ public class VideoController {
     }
 
     @GetMapping("/videos/{videoId}/thumbnail")
-    public ResponseEntity<Resource> getVideoThumbnail(
-            @PathVariable Long videoId) {
-        Resource resource =
-                videoService.getVideoThumbnailResource(videoId);
+    public ResponseEntity<Resource> getVideoThumbnail(@PathVariable Long videoId) {
+        Resource resource = videoService.getVideoThumbnailResource(videoId);
         return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(resource);
     }
 
