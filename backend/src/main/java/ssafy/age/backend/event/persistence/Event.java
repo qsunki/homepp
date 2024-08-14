@@ -3,7 +3,6 @@ package ssafy.age.backend.event.persistence;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.video.persistence.Video;
 
@@ -18,7 +17,7 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @CreationTimestamp private LocalDateTime occurredAt;
+    private LocalDateTime occurredAt;
 
     @Enumerated(EnumType.STRING)
     private EventType type;
