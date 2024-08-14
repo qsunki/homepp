@@ -87,11 +87,9 @@ public class VideoService {
     @Transactional
     public void saveVideo(
             Long camId,
-            Long memberId,
             MultipartFile file,
             LocalDateTime startTime,
             LocalDateTime endTime) {
-        camService.verifyMemberByCamId(camId, memberId);
         // 비디오 엔티티생성 및 이벤트 연관관계 매핑
         Duration duration = Duration.between(startTime, endTime);
         long videoLength = duration.getSeconds();
@@ -123,8 +121,7 @@ public class VideoService {
     }
 
     public VideoRecordResponseDto recordVideo(
-            Long camId, Long memberId, String key, VideoCommand command) {
-        camService.verifyMemberByCamId(camId, memberId);
+            Long camId, String key, VideoCommand command) {
         if (command == VideoCommand.START) {
             key = UUID.randomUUID().toString();
             mqttService.requestRecord(camId, key, Command.START);
@@ -150,8 +147,7 @@ public class VideoService {
     }
 
     public ResourceRegion getVideoResourceRegion(
-            Long videoId, Long memberId, List<HttpRange> ranges) {
-        verifyMemberByVideoId(videoId, memberId);
+            Long videoId, List<HttpRange> ranges) {
         Resource resource = fileStorage.loadVideoResource(videoId);
         long chunkSize = 1024 * 1024;
         long contentLength;

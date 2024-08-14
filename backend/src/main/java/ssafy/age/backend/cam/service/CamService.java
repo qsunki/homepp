@@ -159,7 +159,7 @@ public class CamService {
     }
 
     @Transactional
-    public void saveCamThumbnail(Long camId, Long memberId, MultipartFile file) {
+    public void saveCamThumbnail(Long camId, MultipartFile file) {
         Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
         cam.setThumbnailUrl(URL_PREFIX + camId + THUMBNAIL_SUFFIX);
         fileStorage.saveCamThumbnail(camId, file);
