@@ -22,6 +22,7 @@ import ChatBot from '../components/ChatBot';
 import CameraToggle from '../components/CameraToggle';
 import Modal from 'react-modal';
 import DeviceManagement from '../components/mypage/DeviceManagement';
+import { FaCamera } from 'react-icons/fa'; // 적절한 이모지 사용
 
 Modal.setAppElement('#root'); // 접근성 설정 (root 엘리먼트를 모달을 제외한 다른 컨텐츠에서 마스크 처리)
 
@@ -33,6 +34,7 @@ const HomePage: React.FC = () => {
   const [isCamerasOn, setIsCamerasOn] = useState(false);
   const [camId, setCamId] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [liveStatus, setLiveStatus] = useState<string | null>(null);
   const navigate = useNavigate();
   const { isLoggedIn } = useUserStore();
   const { liveThumbnailUrl, setLiveThumbnailUrl } = useVideoStore();
@@ -44,10 +46,9 @@ const HomePage: React.FC = () => {
         setCamId(response.data[0].camId);
       } else {
         setIsModalOpen(true);
-        // console.error('No cameras found for the user');
       }
     } catch (error) {
-      // console.error('Failed to fetch camera list:', error);
+      console.error('Failed to fetch camera list:', error);
     }
   }, []);
 
@@ -55,14 +56,14 @@ const HomePage: React.FC = () => {
     if (camId !== null) {
       try {
         const envInfo = await fetchLatestEnvInfo(camId);
-        // console.log('Fetched environment info:', envInfo);
         setTemperatureValue(envInfo.temperature);
         setHumidityValue(envInfo.humidity);
+        setLiveStatus(envInfo.status);
       } catch (error) {
-        // console.error('Failed to fetch environment info:', error);
+        console.error('Failed to fetch environment info:', error);
       }
     }
-  }, []);
+  }, [camId]);
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -70,21 +71,21 @@ const HomePage: React.FC = () => {
     } else {
       navigate('/');
     }
-  }, [isLoggedIn, navigate]);
+  }, [isLoggedIn, navigate, fetchCamList]);
 
   useEffect(() => {
     if (camId === null) return;
 
     const handleFetchThumbnail = async () => {
       try {
-        // console.log('Attempting to fetch live thumbnail...');
-        const thumbnailUrl = await fetchLiveThumbnail(camId);
-        // console.log('Fetched live thumbnail URL:', thumbnailUrl);
-        setLiveThumbnailUrl(thumbnailUrl);
-      } catch (error: unknown) {
-        // console.error('Error fetching live thumbnail:', error);
+        if (liveStatus === 'RECORDING') {
+          const thumbnailUrl = await fetchLiveThumbnail(camId);
+          setLiveThumbnailUrl(thumbnailUrl);
+        } else {
+          setLiveThumbnailUrl(''); // 녹화 중이 아닐 경우 썸네일을 null로 설정
+        }
+      } catch (error) {
         if (axios.isAxiosError(error) && error.response?.status === 401) {
-          // accessToken 만료된 경우
           try {
             const refreshToken = localStorage.getItem('refreshToken');
             if (refreshToken) {
@@ -93,20 +94,15 @@ const HomePage: React.FC = () => {
               localStorage.setItem('token', accessToken);
               localStorage.setItem('refreshToken', newRefreshToken);
               const thumbnailUrl = await fetchLiveThumbnail(camId);
-              // console.log(
-              //   'Fetched live thumbnail URL after reissue:',
-              //   thumbnailUrl
-              // );
               setLiveThumbnailUrl(thumbnailUrl);
             } else {
               navigate('/login');
             }
           } catch (reissueError) {
-            // console.error('Failed to reissue token:', reissueError);
             navigate('/login');
           }
         } else {
-          // console.error('Failed to fetch live thumbnail:', error);
+          console.error('Failed to fetch live thumbnail:', error);
         }
       }
     };
@@ -114,10 +110,9 @@ const HomePage: React.FC = () => {
     const handleFetchAlerts = async () => {
       try {
         const count = await fetchEventCount();
-        // console.log('Fetched alert count:', count);
         setAlertCount(count);
       } catch (error) {
-        // console.error('Failed to fetch alert count:', error);
+        console.error('Failed to fetch alert count:', error);
       }
     };
 
@@ -128,14 +123,23 @@ const HomePage: React.FC = () => {
     } else {
       navigate('/');
     }
-  }, [isLoggedIn, camId, navigate, setLiveThumbnailUrl]);
+  }, [
+    isLoggedIn,
+    camId,
+    navigate,
+    setLiveThumbnailUrl,
+    liveStatus,
+    handleFetchEnvInfo,
+  ]);
 
   const handleChatBotToggle = () => {
     setShowChatBot(!showChatBot);
   };
 
   const handleWatchLiveClick = () => {
-    navigate('/live-video');
+    if (liveStatus === 'RECORDING') {
+      navigate('/live-video');
+    }
   };
 
   const handleIncidentLogClick = () => {
@@ -157,16 +161,16 @@ const HomePage: React.FC = () => {
           [camId],
           command,
           'your-websocket-key'
-        ); // 캠 ID와 WebSocket 키를 지정
+        );
         setIsCamerasOn(!isCamerasOn);
       } catch (error) {
-        // console.error('Failed to toggle all cameras:', error);
+        console.error('Failed to toggle all cameras:', error);
       }
     }
   };
 
   if (!isLoggedIn) {
-    return null; // 또는 로딩 스피너를 반환하거나 필요한 내용을 추가
+    return null;
   }
 
   return (
@@ -174,23 +178,34 @@ const HomePage: React.FC = () => {
       <main className="flex flex-col lg:flex-row justify-between w-full max-w-7xl mx-auto gap-6">
         <div className="flex-1 relative mb-4 lg:mb-0">
           <div className="w-full h-[300px] lg:h-[400px] relative">
-            <img
-              src={liveThumbnailUrl || 'https://via.placeholder.com/150'}
-              alt="Live Thumbnail"
-              className="w-full h-full object-cover rounded-lg shadow-md cursor-pointer"
-              onClick={handleWatchLiveClick}
-            />
-            <button
-              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-4 bg-black bg-opacity-70 text-white border-none cursor-pointer flex items-center rounded-lg"
-              onClick={handleWatchLiveClick}
-            >
-              Watch Live
+            {liveThumbnailUrl ? (
               <img
-                src={arrow_right_circle}
-                alt="Arrow Right Circle"
-                className="ml-2"
+                src={liveThumbnailUrl}
+                alt="Live Thumbnail"
+                className="w-full h-full object-cover rounded-lg shadow-md cursor-pointer"
+                onClick={handleWatchLiveClick}
               />
-            </button>
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center bg-gray-200 rounded-lg shadow-md">
+                <FaCamera size={50} className="text-gray-500 mb-2" />
+                <p className="text-gray-600">
+                  Camera is not currently recording.
+                </p>
+              </div>
+            )}
+            {liveThumbnailUrl && (
+              <button
+                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-4 bg-black bg-opacity-70 text-white border-none cursor-pointer flex items-center rounded-lg"
+                onClick={handleWatchLiveClick}
+              >
+                Watch Live
+                <img
+                  src={arrow_right_circle}
+                  alt="Arrow Right Circle"
+                  className="ml-2"
+                />
+              </button>
+            )}
           </div>
         </div>
         <div className="flex-1 flex flex-col gap-4">
