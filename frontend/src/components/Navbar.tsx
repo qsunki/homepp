@@ -38,7 +38,7 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
   const [toggleMenu, setToggleMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string>('/');
-  const { isLoggedIn, logout } = useUserStore();
+  const { isLoggedIn, logout, email } = useUserStore(); // email 가져오기
   const [showSignIn, setShowSignIn] = useState(false);
   const [activeTab, setActiveTab] = useState<'event' | 'threat'>('event');
   const navigate = useNavigate();
@@ -98,7 +98,7 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
     if (isLoggedIn) {
       try {
         const events = await fetchEventList();
-        const threats = await fetchThreatList('user@example.com');
+        const threats = await fetchThreatList(email); // 로그인된 유저의 이메일 사용
 
         const combinedNotifications: NavbarNotification[] = [
           ...events.map((event) => ({
@@ -279,26 +279,39 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
                 </div>
               )}
               {showNotifications && (
-                <div className="absolute right-0 mt-2 w-80 bg-white border border-gray-200 shadow-lg rounded-lg overflow-hidden z-50">
-                  <div className="p-2 bg-gray-100 font-bold">Notifications</div>
-                  <div className="flex justify-around">
-                    <button
-                      className={`px-4 py-2 ${
-                        activeTab === 'event' ? 'font-bold' : 'font-normal'
-                      }`}
-                      onClick={() => setActiveTab('event')}
-                    >
-                      Detection Events
-                    </button>
-                    <button
-                      className={`px-4 py-2 ${
-                        activeTab === 'threat' ? 'font-bold' : 'font-normal'
-                      }`}
-                      onClick={() => setActiveTab('threat')}
-                    >
-                      Threats
-                    </button>
+                <div className="absolute right-0 mt-2 w-80 bg-white border border-blue-500 shadow-lg rounded-lg overflow-hidden z-50">
+                  <div className="p-2 bg-blue-700 text-white text-lgrounded-t-lg">
+                    Notifications
                   </div>
+                  <div className="flex space-x-1 border-[2px] border-blue-500 rounded-xl select-none m-2">
+                    <label className="radio flex flex-grow items-center justify-center rounded-lg p-0.5 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="notification-tab"
+                        value="event"
+                        className="peer hidden"
+                        checked={activeTab === 'event'}
+                        onChange={() => setActiveTab('event')}
+                      />
+                      <span className="text-sm tracking-wide peer-checked:bg-gradient-to-r peer-checked:from-[#1e3a8a] peer-checked:to-[#3b82f6] peer-checked:text-white text-gray-700 px-2 py-1 rounded-lg transition duration-150 ease-in-out">
+                        Detection
+                      </span>
+                    </label>
+                    <label className="radio flex flex-grow items-center justify-center rounded-lg p-0.5 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="notification-tab"
+                        value="threat"
+                        className="peer hidden"
+                        checked={activeTab === 'threat'}
+                        onChange={() => setActiveTab('threat')}
+                      />
+                      <span className="text-sm tracking-wide peer-checked:bg-gradient-to-r peer-checked:from-[#1e3a8a] peer-checked:to-[#3b82f6] peer-checked:text-white text-gray-700 px-2 py-1 rounded-lg transition duration-150 ease-in-out">
+                        Threats
+                      </span>
+                    </label>
+                  </div>
+
                   <ul className="max-h-60 overflow-y-auto scrollbar-hide">
                     {notifications
                       .filter((notification) => notification.type === activeTab)
@@ -313,7 +326,7 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
                         >
                           <div>
                             <div
-                              className="cursor-pointer"
+                              className="cursor-pointer font-medium text-gray-800"
                               onClick={() =>
                                 handleNotificationClick(notification)
                               }
@@ -372,6 +385,7 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
                 </div>
               )}
             </div>
+
             <FaUser
               className="text-gray-800 text-xl cursor-pointer"
               onClick={() => navigate('/mypage')}
