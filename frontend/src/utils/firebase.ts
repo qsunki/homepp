@@ -1,5 +1,10 @@
 import { initializeApp } from 'firebase/app';
-import { getMessaging, getToken, onMessage } from 'firebase/messaging';
+import {
+  getMessaging,
+  getToken,
+  onMessage,
+  MessagePayload,
+} from 'firebase/messaging';
 
 // Firebase 구성 객체
 const firebaseConfig = {
@@ -48,10 +53,27 @@ const requestPermissionAndGetToken = async (vapidKey: string) => {
 const VAPID_KEY =
   'BM6ml0bVdvvGo9EXGvM9KMtdlsMxUzalN_xxHTc9yvBNmc-t9AD89MOkJZ2xe-J_2gyeXJ7HiyrlpMxhISY9HW8';
 
-// 메시지 수신 리스너 설정
-console.log('Setting up onMessage listener...');
-onMessage(messaging, (payload) => {
-  console.log('Message received:', payload);
+// 알림 데이터 타입 정의
+interface FCMNotificationPayload {
+  title: string;
+  body: string;
+  icon?: string;
+  click_action?: string;
+}
+
+// FCM 메시지 수신 처리
+onMessage(messaging, (payload: MessagePayload) => {
+  console.log('Message received: ', payload);
+
+  // Navbar 알림 갱신
+  // if (payload.data) {
+  //   updateNavbarNotifications(payload.data);
+  // }
+
+  // 메시지 수신 리스너 설정
+  // console.log('Setting up onMessage listener...');
+  // onMessage(messaging, (payload) => {
+  //   console.log('Message received:', payload);
 
   if (payload.notification) {
     // 만약 notification이 있다면 브라우저 알림 표시
@@ -125,25 +147,20 @@ onMessage(messaging, (payload) => {
     }
 
     // 카드 알림이 표시된 후 Navbar 알림 갱신
-    console.log('Updating Navbar notifications...');
-    updateNavbarNotifications(payload.data);
+    // console.log('Updating Navbar notifications...');
+    // updateNavbarNotifications(payload.data);
   }
 });
 
 // 브라우저 알림을 표시하는 함수
-function showBrowserNotification(notification: {
-  title: string;
-  body: string;
-  icon?: string;
-}) {
-  console.log('Showing browser notification:', notification);
+function showBrowserNotification(notification: FCMNotificationPayload) {
+  const title = notification.title;
+  const body = notification.body;
   if (Notification.permission === 'granted') {
-    new Notification(notification.title, {
-      body: notification.body,
+    new Notification(title, {
+      body: body,
       icon: notification.icon,
     });
-  } else {
-    console.error('Notification permission not granted.');
   }
 }
 
@@ -201,6 +218,14 @@ function showCustomNotification({
       notificationElement.style.color = 'white';
   }
 
+  // 아이콘 추가 (선택 사항)
+  const iconElement = document.createElement('div');
+  iconElement.style.width = '24px';
+  iconElement.style.height = '24px';
+  iconElement.style.borderRadius = '50%';
+  iconElement.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+  notificationElement.appendChild(iconElement);
+
   const textContent = document.createElement('div');
   textContent.innerHTML = `<strong>${title}</strong><p>${body}</p>`;
 
@@ -216,9 +241,9 @@ function showCustomNotification({
 }
 
 // Navbar 알림을 갱신하는 함수
-function updateNavbarNotifications(data: Record<string, unknown>) {
-  console.log('Navbar notifications data:', data);
-}
+// function updateNavbarNotifications(data: Record<string, unknown>) {
+//   console.log('Navbar notifications data:', data);
+// }
 
 // 모듈 내보내기
 export {
