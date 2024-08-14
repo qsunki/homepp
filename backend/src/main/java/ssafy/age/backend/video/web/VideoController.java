@@ -80,9 +80,9 @@ public class VideoController {
 
     @GetMapping("/videos/{videoId}/thumbnail")
     public ResponseEntity<Resource> getVideoThumbnail(
-            @PathVariable Long videoId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+            @PathVariable Long videoId) {
         Resource resource =
-                videoService.getVideoThumbnailResource(videoId, memberInfoDto.getMemberId());
+                videoService.getVideoThumbnailResource(videoId);
         return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(resource);
     }
 

@@ -192,7 +192,7 @@ public class VideoService {
         }
     }
 
-    public Resource getVideoThumbnailResource(Long videoId, Long memberId) {
+    public Resource getVideoThumbnailResource(Long videoId) {
         return fileStorage.loadVideoThumbnailResource(videoId);
     }
 
