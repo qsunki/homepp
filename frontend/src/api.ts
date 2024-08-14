@@ -346,6 +346,9 @@ export const fetchVideoById = async (
     const response = await api.get<Video>(`/cams/videos/${videoId}`);
     const videoData = response.data;
 
+    // 응답 데이터 확인
+    console.log('Fetched video data:', videoData);
+
     // isThreat 필드를 이용해 isReported 상태를 설정
     const video = {
       ...videoData,

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactPlayer from 'react-player';
 import { useVideoStore, Video } from '../../stores/useVideoStore';
 import fireIcon from '../../assets/filter/fire.png';
@@ -24,6 +24,17 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
   const selectedVideo: Video | undefined = videos.find(
     (video) => video.id === selectedVideoId
   );
+
+  useEffect(() => {
+    if (selectedVideo) {
+      console.log(
+        'Selected video startTime (ISO string):',
+        selectedVideo.startTime
+      );
+      const startTime = new Date(selectedVideo.startTime);
+      console.log('Converted startTime (Date object):', startTime);
+    }
+  }, [selectedVideo]);
 
   const handleReportClick = () => {
     setShowReportConfirm(true);
@@ -148,7 +159,8 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
       {showDetails && (
         <>
           <div className="text-sm text-gray-600 mt-2">
-            {selectedVideo.timestamp}
+            {new Date(selectedVideo.startTime).toLocaleString()}{' '}
+            {/* 기록 시작 시간을 표시 */}
           </div>
           <div className="flex space-x-2 mt-2">
             {uniqueAlerts.map((type, index) => (

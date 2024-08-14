@@ -53,7 +53,9 @@ const DetailList: React.FC<DetailListProps> = ({
     setIsLoading(true); // 로더 시작
     try {
       if (camList.length > 0) {
-        const camId = camList[0].id; // camList의 첫 번째 캠을 사용
+        // 사용자의 모든 캠 ID 가져오기
+        const userCamIds = camList.map((cam) => cam.id);
+        const camId = userCamIds[0]; // 첫 번째 캠 ID 사용
         setLiveCamId(camId);
 
         const envInfo = await fetchLatestEnvInfo(camId);
@@ -66,7 +68,11 @@ const DetailList: React.FC<DetailListProps> = ({
           setErrorMessage('Camera is not currently recording.');
         }
 
-        const videoListResponse = await fetchVideos();
+        // API 요청 시 사용자의 캠 ID로 필터링하여 동영상 목록 가져오기
+        const videoListResponse = await fetchVideos({
+          camId: userCamIds.length > 1 ? undefined : userCamIds[0],
+        });
+
         const videoList: Video[] = await Promise.all(
           videoListResponse.data.map(async (video) => {
             const thumbnail = await fetchThumbnail(video.videoId);
@@ -105,6 +111,9 @@ const DetailList: React.FC<DetailListProps> = ({
             } as Video;
           })
         );
+
+        // 동영상 목록 시간 순으로 정렬 (최신이 위로 오도록)
+        videoList.sort((a, b) => b.date.getTime() - a.date.getTime());
 
         setVideos(videoList);
         setFilteredVideos(videoList);
@@ -175,7 +184,9 @@ const DetailList: React.FC<DetailListProps> = ({
             liveStatus === 'RECORDING' ? 'border-4 border-red-500' : ''
           }`}
           onClick={handleLiveThumbnailClick}
-          style={{ height: thumbnailHeight }}
+          style={{
+            height: '225px', // 이미지의 높이와 동일하게 고정
+          }}
         >
           {liveStatus === 'RECORDING' ? (
             <>
