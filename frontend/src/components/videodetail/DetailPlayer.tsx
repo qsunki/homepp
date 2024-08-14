@@ -1,8 +1,9 @@
+// DetailPlayer.tsx
 import React, { useEffect, useState } from 'react';
 import { useVideoStore } from '../../stores/useVideoStore';
 import LivePlayer from './LivePlayer';
 import RecordedPlayer from './RecordedPlayer';
-import CustomLoader from '../videodetail/Loader'; // 커스텀 로더 컴포넌트 임포트
+import { fetchVideoStream } from '../../api';
 import styles from '../../pages/VideoDetail.module.css';
 
 interface DetailPlayerProps {
@@ -15,32 +16,32 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({
   showDetails = false,
 }) => {
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true); // 로딩 상태 추가
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const { selectedVideoId, setSelectedVideoId, selectedVideo } =
     useVideoStore();
 
   useEffect(() => {
-    const setVideoSource = async (videoId: number) => {
+    const getVideoStream = async (videoId: number) => {
+      setIsLoading(true);
       try {
-        const streamUrl = `https://i11a605.p.ssafy.io/api/v1/cams/videos/${videoId}/stream`;
-        setVideoSrc(streamUrl);
-        setIsLoading(false); // 비디오 소스를 설정한 후 로딩 상태를 false로 설정
+        const streamUrl = await fetchVideoStream(videoId);
+        if (streamUrl) {
+          setVideoSrc(streamUrl);
+        }
       } catch (error) {
-        console.error('Failed to set video stream URL:', error);
-        setIsLoading(false); // 에러 발생 시에도 로딩 상태를 false로 설정
+        console.error('Failed to fetch video stream:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     const restoreSelectedVideoId = async () => {
-      setIsLoading(true); // 데이터 로드 시작 시 로딩 상태를 true로 설정
       const storedVideoId = localStorage.getItem('selectedVideoId');
       if (storedVideoId && !selectedVideoId) {
         await setSelectedVideoId(Number(storedVideoId));
-        setVideoSource(Number(storedVideoId));
+        getVideoStream(Number(storedVideoId));
       } else if (selectedVideoId) {
-        setVideoSource(selectedVideoId);
-      } else {
-        setIsLoading(false); // 선택된 비디오가 없을 경우 로딩 상태를 false로 설정
+        getVideoStream(selectedVideoId);
       }
     };
 
@@ -52,7 +53,7 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({
       className={`${styles.detailPlayerFrame} w-full lg:w-2/3 lg:pr-4 relative`}
     >
       {isLoading ? (
-        <CustomLoader /> // 로딩 중일 때 커스텀 로더를 표시
+        <div>Loading...</div> // 로딩 중일 때 표시할 요소
       ) : isLive ? (
         <LivePlayer />
       ) : (

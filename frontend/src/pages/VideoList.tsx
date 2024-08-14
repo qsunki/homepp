@@ -5,13 +5,11 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { FaCaretUp, FaFilter } from 'react-icons/fa';
 import { format } from 'date-fns';
 import styles from '../utils/filter/Filter1.module.css';
-import { fetchVideos, fetchThumbnail, ApiVideo } from '../api';
+import { fetchVideos, ApiVideo } from '../api';
 import { useVideoStore, Video } from '../stores/useVideoStore';
 import fireIcon from '../assets/filter/fire.png';
 import intrusionIcon from '../assets/filter/thief.png';
 import soundIcon from '../assets/filter/sound.png';
-
-// Import your custom loader component
 import CustomLoader from '../components/videodetail/Loader'; // Replace with your actual path
 
 const getIconForType = (type: string) => {
@@ -76,35 +74,31 @@ const VideoList: React.FC = () => {
           throw new Error('Unexpected response format');
         }
 
-        const apiVideos = await Promise.all(
-          response.data.map(async (video: ApiVideo) => {
-            const thumbnail = await fetchThumbnail(video.videoId);
+        const apiVideos = response.data.map((video: ApiVideo) => {
+          const recordStartedAtWithZ = video.recordStartAt + 'Z';
 
-            return {
-              id: video.videoId,
-              title: `${video.camName}`,
-              timestamp: new Date(video.recordStartAt).toLocaleTimeString(),
-              thumbnail: thumbnail || 'https://via.placeholder.com/150',
-              duration: `${Math.floor(video.length / 60)}:${(video.length % 60)
-                .toString()
-                .padStart(2, '0')}`,
-              alerts: video.events.map((event) => ({
-                type: event.type as 'FIRE' | 'INVASION' | 'SOUND',
-              })),
-              url: 'https://example.com/video-url',
-              startTime: new Date(video.recordStartAt).toLocaleTimeString(),
-              length: `${Math.floor(video.length / 60)}:${(video.length % 60)
-                .toString()
-                .padStart(2, '0')}`,
-              type: Array.from(
-                new Set(video.events.map((event) => event.type))
-              ),
-              date: new Date(video.recordStartAt),
-              camera: video.camName,
-              isThreat: video.threat,
-            };
-          })
-        );
+          return {
+            id: video.videoId,
+            title: `${video.camName}`,
+            timestamp: new Date(recordStartedAtWithZ).toLocaleTimeString(),
+            thumbnail: `https://i11a605.p.ssafy.io/api/v1/cams/videos/${video.videoId}/thumbnail`,
+            duration: `${Math.floor(video.length / 60)}:${(video.length % 60)
+              .toString()
+              .padStart(2, '0')}`,
+            alerts: video.events.map((event) => ({
+              type: event.type as 'FIRE' | 'INVASION' | 'SOUND',
+            })),
+            url: 'https://example.com/video-url',
+            startTime: new Date(recordStartedAtWithZ).toLocaleString(), // 수정된 부분
+            length: `${Math.floor(video.length / 60)}:${(video.length % 60)
+              .toString()
+              .padStart(2, '0')}`,
+            type: Array.from(new Set(video.events.map((event) => event.type))),
+            date: new Date(recordStartedAtWithZ),
+            camera: video.camName,
+            isThreat: video.threat,
+          };
+        });
 
         setVideos(apiVideos as Video[]);
         setFilteredVideos(apiVideos as Video[]);
@@ -155,33 +149,31 @@ const VideoList: React.FC = () => {
         throw new Error('Unexpected response format');
       }
 
-      const apiVideos = await Promise.all(
-        response.data.map(async (video: ApiVideo) => {
-          const thumbnail = await fetchThumbnail(video.videoId);
+      const apiVideos = response.data.map((video: ApiVideo) => {
+        const recordStartedAtWithZ = video.recordStartAt + 'Z';
 
-          return {
-            id: video.videoId,
-            title: `${video.camName}`,
-            timestamp: new Date(video.recordStartAt).toLocaleTimeString(),
-            thumbnail: thumbnail || 'https://via.placeholder.com/150',
-            duration: `${Math.floor(video.length / 60)}:${(video.length % 60)
-              .toString()
-              .padStart(2, '0')}`,
-            alerts: video.events.map((event) => ({
-              type: event.type as 'FIRE' | 'INVASION' | 'SOUND',
-            })),
-            url: 'https://example.com/video-url',
-            startTime: new Date(video.recordStartAt).toLocaleTimeString(),
-            length: `${Math.floor(video.length / 60)}:${(video.length % 60)
-              .toString()
-              .padStart(2, '0')}`,
-            type: Array.from(new Set(video.events.map((event) => event.type))),
-            date: new Date(video.recordStartAt),
-            camera: video.camName,
-            isThreat: video.threat,
-          };
-        })
-      );
+        return {
+          id: video.videoId,
+          title: `${video.camName}`,
+          timestamp: new Date(recordStartedAtWithZ).toLocaleTimeString(),
+          thumbnail: `https://i11a605.p.ssafy.io/api/v1/cams/videos/${video.videoId}/thumbnail`,
+          duration: `${Math.floor(video.length / 60)}:${(video.length % 60)
+            .toString()
+            .padStart(2, '0')}`,
+          alerts: video.events.map((event) => ({
+            type: event.type as 'FIRE' | 'INVASION' | 'SOUND',
+          })),
+          url: 'https://example.com/video-url',
+          startTime: new Date(recordStartedAtWithZ).toLocaleString(), // 수정된 부분
+          length: `${Math.floor(video.length / 60)}:${(video.length % 60)
+            .toString()
+            .padStart(2, '0')}`,
+          type: Array.from(new Set(video.events.map((event) => event.type))),
+          date: new Date(recordStartedAtWithZ),
+          camera: video.camName,
+          isThreat: video.threat,
+        };
+      });
 
       setVideos(apiVideos as Video[]);
       setFilteredVideos(apiVideos as Video[]);
@@ -307,11 +299,11 @@ const VideoList: React.FC = () => {
                 </button>
                 <button
                   className={
-                    selectedTypes.includes('Sound') ? styles.selected : ''
+                    selectedTypes.includes('SOUND') ? styles.selected : ''
                   }
-                  onClick={() => handleTypeToggle('Sound')}
+                  onClick={() => handleTypeToggle('SOUND')}
                 >
-                  Sound
+                  SOUND
                 </button>
               </div>
             </div>
@@ -418,7 +410,7 @@ const VideoList: React.FC = () => {
                       >
                         <div className="relative w-full h-0 pb-[63.64%]">
                           <img
-                            src={`https://i11a605.p.ssafy.io/api/v1/cams/videos/${video.id}/thumbnail`}
+                            src={video.thumbnail}
                             alt="Thumbnail"
                             className="absolute top-0 left-0 w-full h-full object-cover"
                           />
@@ -494,11 +486,11 @@ const VideoList: React.FC = () => {
                 </button>
                 <button
                   className={
-                    selectedTypes.includes('Sound') ? styles.selected : ''
+                    selectedTypes.includes('SOUND') ? styles.selected : ''
                   }
-                  onClick={() => handleTypeToggle('Sound')}
+                  onClick={() => handleTypeToggle('SOUND')}
                 >
-                  Sound
+                  SOUND
                 </button>
               </div>
             </div>

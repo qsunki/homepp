@@ -313,13 +313,12 @@ export const fetchVideos = async (params?: {
         queryParams.append('types', type.toUpperCase())
       );
     }
-    if (params?.startDate) queryParams.append('startDate', params.startDate);
-    if (params?.endDate) queryParams.append('endDate', params.endDate);
+    if (params?.startDate)
+      queryParams.append('startDate', `${params.startDate}Z`);
+    if (params?.endDate) queryParams.append('endDate', `${params.endDate}Z`);
     if (params?.camId) queryParams.append('camId', params.camId.toString());
     if (params?.isThreat !== undefined)
       queryParams.append('isThreat', params.isThreat.toString());
-
-    // console.log('API request URL:', `/cams/videos?${queryParams.toString()}`);
 
     const response = await api.get<Video[]>(
       `/cams/videos?${queryParams.toString()}`
@@ -346,13 +345,14 @@ export const fetchVideoById = async (
     const response = await api.get<Video>(`/cams/videos/${videoId}`);
     const videoData = response.data;
 
-    // 응답 데이터 확인
-    console.log('Fetched video data:', videoData);
-
     // isThreat 필드를 이용해 isReported 상태를 설정
     const video = {
       ...videoData,
-      isReported: videoData.threat, // isThreat 값을 isReported에 매핑
+      recordStartAt: `${videoData.recordStartAt}Z`, // Z를 추가하여 UTC로 변환
+      events: videoData.events.map((event) => ({
+        ...event,
+        occurredAt: `${event.occurredAt}Z`, // Z를 추가하여 UTC로 변환
+      })),
     };
 
     return {
@@ -375,15 +375,12 @@ export const fetchVideoById = async (
 // 비디오 스트림 가져오기 함수 추가
 export const fetchVideoStream = async (videoId: number): Promise<string> => {
   try {
-    // console.log(`fetchVideoStream called with videoId: ${videoId}`);
     const response = await api.get(`/cams/videos/${videoId}/stream`, {
-      responseType: 'blob', // 바이너리 데이터로 처리하기 위해 responseType을 blob으로 설정
+      responseType: 'blob',
     });
-    // console.log(`API response received for video stream:`, response);
 
     if (response.data) {
-      const blobUrl = URL.createObjectURL(response.data); // Blob URL 생성
-      // console.log(`Generated Blob URL for video stream: ${blobUrl}`);
+      const blobUrl = URL.createObjectURL(response.data);
       return blobUrl;
     } else {
       console.error('No resource field in API response');

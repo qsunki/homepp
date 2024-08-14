@@ -20,7 +20,7 @@ export interface Video {
   alerts: Alert[];
   isThreat?: boolean;
   url: string;
-  startTime: string; // 이곳에서는 formattedDate를 사용합니다.
+  startTime: string; // 원본 날짜 문자열 저장
   length: string;
   type: string[];
   date: Date; // recordStartedAt을 사용하여 생성된 Date 객체
@@ -120,9 +120,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
       }));
 
       // recordStartAt을 사용하여 Date 객체 생성
-      console.log('recordStartAt from API:', apiVideo.recordStartAt);
-      const startTime = new Date(apiVideo.recordStartAt);
-      console.log('Converted startTime (Date object):', startTime);
+      const startTime = new Date(`${apiVideo.recordStartAt}Z`); // Z 추가하여 UTC로 변환
       const isValidDate = !isNaN(startTime.getTime());
       const formattedDate = isValidDate
         ? startTime.toLocaleString()
@@ -138,7 +136,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
           .padStart(2, '0')}`,
         alerts,
         url: apiVideo.streamUrl || 'https://example.com/video-url',
-        startTime: apiVideo.recordStartAt, // 문자열 그대로 저장
+        startTime: apiVideo.recordStartAt, // 원본 문자열 그대로 저장
         length: `${Math.floor(apiVideo.length / 60)}:${(apiVideo.length % 60)
           .toString()
           .padStart(2, '0')}`,
@@ -220,7 +218,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
             type: event.type as 'FIRE' | 'INVASION' | 'SOUND',
           }));
 
-          const startTime = new Date(video.recordStartAt);
+          const startTime = new Date(`${video.recordStartAt}Z`); // Z 추가하여 UTC로 변환
           const isValidDate = !isNaN(startTime.getTime());
           const formattedDate = isValidDate
             ? startTime.toLocaleString()
