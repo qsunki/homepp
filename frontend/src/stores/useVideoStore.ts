@@ -20,10 +20,10 @@ export interface Video {
   alerts: Alert[];
   isThreat?: boolean;
   url: string;
-  startTime: string;
+  startTime: string; // 이곳에서는 formattedDate를 사용합니다.
   length: string;
   type: string[];
-  date: Date;
+  date: Date; // recordStartedAt을 사용하여 생성된 Date 객체
   camera: string;
   streamUrl?: string;
 }
@@ -60,8 +60,8 @@ interface VideoState {
   fetchAndSetVideos: () => void;
   setVideos: (videos: Video[]) => void;
   setFilteredVideos: (videos: Video[]) => void;
-  camList: { name: string; id: number }[]; // 추가된 camList 상태
-  fetchAndSetCamList: () => Promise<void>; // camList를 fetch하는 함수
+  camList: { name: string; id: number }[];
+  fetchAndSetCamList: () => Promise<void>;
 }
 
 const initialFilter: Filter = {
@@ -78,7 +78,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
   currentVideoId: 0,
   selectedVideoId: null,
   selectedVideo: null,
-  camList: [], // 초기 camList 상태
+  camList: [],
 
   setSelectedVideoId: (id: number) => {
     set({ selectedVideoId: id, currentVideoId: id });
@@ -119,9 +119,10 @@ export const useVideoStore = create<VideoState>((set, get) => ({
         type: event.type as 'FIRE' | 'INVASION' | 'SOUND',
       }));
 
+      // recordStartAt을 사용하여 Date 객체 생성
+      console.log('recordStartAt from API:', apiVideo.recordStartAt);
       const startTime = new Date(apiVideo.recordStartAt);
-
-      // 날짜 형식 확인 및 변환
+      console.log('Converted startTime (Date object):', startTime);
       const isValidDate = !isNaN(startTime.getTime());
       const formattedDate = isValidDate
         ? startTime.toLocaleString()
@@ -130,14 +131,14 @@ export const useVideoStore = create<VideoState>((set, get) => ({
       const video: Video = {
         id: apiVideo.videoId,
         title: `${apiVideo.camName}`,
-        timestamp: formattedDate,
+        timestamp: formattedDate, // 이 값을 UI에 노출
         thumbnail: thumbnail || 'https://via.placeholder.com/150',
         duration: `${Math.floor(apiVideo.length / 60)}:${(apiVideo.length % 60)
           .toString()
           .padStart(2, '0')}`,
         alerts,
-        url: 'https://example.com/video-url',
-        startTime: formattedDate,
+        url: apiVideo.streamUrl || 'https://example.com/video-url',
+        startTime: apiVideo.recordStartAt, // 문자열 그대로 저장
         length: `${Math.floor(apiVideo.length / 60)}:${(apiVideo.length % 60)
           .toString()
           .padStart(2, '0')}`,
