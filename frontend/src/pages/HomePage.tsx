@@ -310,7 +310,7 @@ const HomePage: React.FC = () => {
               </div>
             </div>
           </div>
-          {showChatBot && <ChatBot />}
+          {showChatBot && <ChatBot onClose={handleChatBotToggle} />}
         </div>
       </main>
       <Modal isOpen={isModalOpen} onClose={closeModal}>
