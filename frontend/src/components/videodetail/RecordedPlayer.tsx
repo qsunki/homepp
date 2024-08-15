@@ -129,8 +129,22 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
       )}
       <div className="flex justify-between items-start mt-4">
         <div className="text-xl flex-grow">
-          [{new Date(selectedVideo.date).getMonth() + 1}/
-          {new Date(selectedVideo.date).getDate()}] {selectedVideo.title}
+          {/* <h1>
+            {selectedVideo.date
+              ? selectedVideo.date.toString()
+              : 'No date available'}
+          </h1> */}
+          {selectedVideo.date ? (
+            <>
+              [{selectedVideo.date.getMonth() + 1}/
+              {selectedVideo.date.getDate()}] {selectedVideo.title}
+            </>
+          ) : (
+            <>
+              [{new Date().getMonth() + 1}/{new Date().getDate()}]{' '}
+              {selectedVideo.title}
+            </>
+          )}
         </div>
         <div className="flex-shrink-0 ml-4 flex space-x-2">
           <button
@@ -155,7 +169,9 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
       {showDetails && (
         <>
           <div className="text-sm text-gray-600 mt-2">
-            {new Date(`${selectedVideo.startTime}Z`).toLocaleString()}{' '}
+            {selectedVideo.startTime
+              ? selectedVideo.startTime.split(' ').slice(-2).join(' ')
+              : 'No start time available'}
             {/* 기록 시작 시간을 표시 */}
           </div>
           <div className="flex space-x-2 mt-2">
