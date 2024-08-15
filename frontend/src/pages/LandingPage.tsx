@@ -11,6 +11,7 @@ import automated from '../assets/landingpage/automated.png';
 import noticetype from '../assets/landingpage/noticetype.png';
 import monitoring from '../assets/landingpage/monitoring.png';
 import characterHead from '../assets/landingpage/characterhead.png';
+import timetable from '../assets/landingpage/timetable.png';
 import {
   RiCameraOffLine,
   RiShieldCheckLine,
@@ -89,7 +90,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignInOpen }) => {
       </div> */}
 
       {/* Why You Need This Section */}
-      <div className="flex flex-col items-center w-full px-4 my-12 bg-white">
+      <div className="flex flex-col items-center w-full px-4 my-32 bg-white">
         <h2 className="text-4xl font-semibold text-gray-900 mb-12">
           Why You will Love Our Solution
         </h2>
@@ -133,7 +134,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignInOpen }) => {
       </div>
 
       {/* Core Functions Section */}
-      <div className="flex flex-col items-center w-full px-4 my-12">
+      {/* <div className="flex flex-col items-center w-full px-4 my-12">
         <h2 className="text-3xl font-bold my-20">CORE FUNCTIONS</h2>
         <div className="flex flex-col w-full items-center gap-8">
           <div className="group relative flex flex-col items-center justify-center bg-gray-400 text-white rounded-lg shadow-lg p-6 w-full lg:w-1/2 transform transition-transform duration-300 hover:scale-105 hover:z-10 hover:shadow-2xl lg:mr-40">
@@ -169,18 +170,22 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignInOpen }) => {
               className="w-32 h-32 mt-4 transform transition-transform duration-300 group-hover:scale-125"
               src={monitoring}
               alt="모니터 아이콘"
-            />
-            <p className="mt-4 text-lg text-black text-center">
+              />
+              <p className="mt-4 text-lg text-black text-center">
               데스크탑, 모바일을 통해 실시간으로 보안 상태를 확인하고 관리 가능
               <br />
               위험을 같은 지역 사람들이나 가족에게 공유하여 보안 강화
-            </p>
-          </div>
-        </div>
+              </p>
+              </div>
+              </div>
+              </div> */}
+
+      <div className="w-2/3 h-auto">
+        <img className="w-full mt-20 mb-10" src={timetable} alt="생활계획표" />
       </div>
 
       {/* Feature Highlights */}
-      <div className="flex flex-wrap justify-evenly w-full my-12 bg-gray-100 py-8">
+      <div className="flex flex-wrap justify-evenly w-full my-20 bg-gray-100 py-8">
         <div className="flex flex-col items-center justify-center bg-white rounded-xl w-[200px] h-[200px] p-4 m-4 shadow-lg text-center">
           <div className="mb-2 font-bold text-lg">사용자 수</div>
           <div className="text-2xl font-bold">100만+</div>
@@ -207,7 +212,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignInOpen }) => {
       </div>
 
       {/* Call to Action */}
-      <div className="flex flex-col items-center mt-16">
+      <div className="flex flex-col items-center mt-20">
         <button
           className="px-8 py-3 bg-blue-600 text-white text-lg lg:text-xl rounded-md"
           onClick={openSignInPopup}
@@ -215,7 +220,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignInOpen }) => {
           우리 집 보안 강화하러 가기
         </button>
         <img
-          className="w-52 h-auto mt-8"
+          className="w-60 h-auto mt-8"
           src={characterHead}
           alt="캐릭터 머리"
         />
