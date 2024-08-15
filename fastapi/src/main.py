@@ -16,10 +16,10 @@ model.to(device)
 # 모델을 평가 모드로 전환
 model.eval()
 
-@app.post("/chatbot/")
+@app.post("/api/v1/chat")  # 경로를 '/api/v1/chat'으로 설정
 async def chatbot(request: Request):
     data = await request.json()
-    user_input = data['query']  # 'input' 대신 'query' 키를 사용
+    user_input = data['query']
 
     # 입력 텍스트 토큰화
     input_ids = tokenizer.encode(user_input, return_tensors='pt', add_special_tokens=True).to(device)
@@ -32,17 +32,16 @@ async def chatbot(request: Request):
         outputs = model.generate(
             input_ids,
             attention_mask=attention_mask,
-            max_length=100,  # 최대 길이 설정
+            max_length=100,
             num_return_sequences=1,
             no_repeat_ngram_size=2,
             early_stopping=True,
-            pad_token_id=tokenizer.eos_token_id  # pad_token_id를 eos_token_id로 설정
+            pad_token_id=tokenizer.eos_token_id
         )
 
     # 생성된 텍스트 디코딩
     generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
     
-    # 결과 반환
     return {"response": generated_text}
 
 if __name__ == "__main__":

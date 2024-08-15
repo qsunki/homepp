@@ -39,9 +39,13 @@ const ChatBot: React.FC<ChatBotProps> = ({ onClose }) => {
       setMessages([...messages, userMessage]);
 
       try {
-        const response = await axios.post<{ answer: string }>('/api/v1/chat', {
-          query: input,
-        });
+        // API 요청 URL 수정
+        const response = await axios.post<{ answer: string }>(
+          'https://i11a605.p.ssafy.io/api/v1/chat',
+          {
+            query: input,
+          }
+        );
         const botMessage = { ...userMessage, answer: response.data.answer };
         setMessages((prevMessages) =>
           prevMessages.map((msg) => (msg === userMessage ? botMessage : msg))
