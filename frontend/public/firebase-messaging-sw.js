@@ -1,3 +1,4 @@
+// firebase-messaging-sw.js
 importScripts(
   'https://www.gstatic.com/firebasejs/9.1.2/firebase-app-compat.js'
 );
@@ -17,25 +18,17 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-messaging.onBackgroundMessage((payload) => {
-  console.log('Received background message ', payload);
-
+messaging.onBackgroundMessage(function (payload) {
+  console.log(
+    '[firebase-messaging-sw.js] Received background message ',
+    payload
+  );
+  // Customize notification here
   const notificationTitle = payload.notification.title;
   const notificationOptions = {
     body: payload.notification.body,
-    icon: payload.notification.icon,
-    image: payload.notification.image,
-    data: {
-      click_action: payload.notification.click_action,
-    },
+    icon: '/firebase-logo.png',
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
-});
-
-self.addEventListener('notificationclick', function (event) {
-  event.notification.close();
-  if (event.notification.data && event.notification.data.click_action) {
-    clients.openWindow(event.notification.data.click_action);
-  }
 });

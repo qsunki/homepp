@@ -1,12 +1,6 @@
 import { initializeApp } from 'firebase/app';
-import {
-  getMessaging,
-  getToken,
-  onMessage,
-  MessagePayload,
-} from 'firebase/messaging';
+import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 
-// Firebase 구성 객체
 const firebaseConfig = {
   apiKey: 'AIzaSyAPmerBQN_IWn3EQP8k2onJRJqcxQikHWs',
   authDomain: 'homepp-ab3e3.firebaseapp.com',
@@ -17,154 +11,89 @@ const firebaseConfig = {
   measurementId: 'G-JKGWEXGBDX',
 };
 
-// Firebase 초기화
-console.log('Initializing Firebase...');
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
-console.log('Firebase initialized.');
 
-// 알림 권한 요청 및 토큰 가져오기 함수
 const requestPermissionAndGetToken = async (vapidKey: string) => {
-  console.log('Requesting notification permission...');
   try {
     const permission = await Notification.requestPermission();
-    console.log('Notification permission status:', permission);
     if (permission === 'granted') {
-      console.log('Permission granted, getting FCM token...');
       const currentToken = await getToken(messaging, { vapidKey });
       if (currentToken) {
-        console.log('FCM token obtained:', currentToken);
         return currentToken;
       } else {
-        console.error(
+        console.log(
           'No registration token available. Request permission to generate one.'
         );
       }
     } else {
-      console.error('Unable to get permission to notify.');
+      console.log('Unable to get permission to notify.');
     }
   } catch (error) {
-    console.error('An error occurred while retrieving token:', error);
+    console.error('An error occurred while retrieving token. ', error);
   }
   return null;
 };
 
-// VAPID 키 설정
 const VAPID_KEY =
   'BM6ml0bVdvvGo9EXGvM9KMtdlsMxUzalN_xxHTc9yvBNmc-t9AD89MOkJZ2xe-J_2gyeXJ7HiyrlpMxhISY9HW8';
 
-// 알림 데이터 타입 정의
-interface FCMNotificationPayload {
-  title: string;
-  body: string;
-  icon?: string;
-  click_action?: string;
-}
+// 메시지 수신 처리 로직 추가
+onMessage(messaging, (payload) => {
+  // console.log('Message received. ', payload);
 
-// FCM 메시지 수신 처리
-onMessage(messaging, (payload: MessagePayload) => {
-  console.log('Message received: ', payload);
-
-  // Navbar 알림 갱신
-  // if (payload.data) {
-  //   updateNavbarNotifications(payload.data);
-  // }
-
-  // 메시지 수신 리스너 설정
-  // console.log('Setting up onMessage listener...');
-  // onMessage(messaging, (payload) => {
-  //   console.log('Message received:', payload);
-
-  if (payload.notification) {
-    // 만약 notification이 있다면 브라우저 알림 표시
-    console.log('Notification payload found, showing browser notification.');
-    showBrowserNotification({
-      title: payload.notification.title || 'Default Title',
-      body: payload.notification.body || 'No content available',
-      icon: payload.notification.icon,
-    });
-  } else if (payload.data) {
-    // notification이 없다면 data를 사용하여 알림 생성
-    console.log('Data payload found, using data to show browser notification.');
-    showBrowserNotification({
-      title: payload.data.messageTitle || 'Default Title',
-      body: payload.data.messageBody || 'No content available',
-      icon: undefined, // 필요한 경우 다른 아이콘 설정 가능
-    });
+  if (!payload.data) {
+    // console.log('No data in the payload');
+    return;
   }
 
-  // 메시지 타입에 따라 카드 알림을 먼저 표시한 후, Navbar 알림 갱신
-  if (payload.data) {
-    const messageType = payload.data.messageType;
-    console.log('Message type:', messageType);
+  const messageType = payload.data.messageType;
 
-    // 먼저 카드 알림 표시
-    switch (messageType) {
-      case 'threat':
-        console.log('Threat message detected, showing custom notification.');
-        showCustomNotification({
-          title: payload.data.messageTitle || '위협 알림',
-          body: payload.data.messageBody || '위협이 감지되었습니다.',
-          type: 'threat',
-        });
-        break;
-      case 'event':
-        console.log('Event message detected, showing custom notification.');
-        showCustomNotification({
-          title: payload.data.messageTitle || '이벤트 알림',
-          body: payload.data.messageBody || '이벤트가 발생했습니다.',
-          type: 'event',
-        });
-        break;
-      case 'register':
-        console.log('Register message detected, showing custom notification.');
-        showCustomNotification({
-          title: '캠 등록 완료',
-          body: '캠이 성공적으로 등록되었습니다.',
-          type: 'register',
-        });
-        break;
-      case 'share':
-        console.log('Share message detected, showing custom notification.');
-        showCustomNotification({
-          title: '새로운 공유 알림',
-          body: `${
-            payload.data.email || '알 수 없는 사용자'
-          }님이 캠을 공유했습니다.`,
-          type: 'share',
-        });
-        break;
-      case 'onOff':
-        console.log('OnOff message detected, showing custom notification.');
-        showCustomNotification({
-          title: '감지 모드 상태 변경',
-          body: `현재 상태: ${payload.data.status || '알 수 없음'}`,
-          type: 'onOff',
-        });
-        break;
-      default:
-        console.error('Unknown message type:', messageType);
-    }
-
-    // 카드 알림이 표시된 후 Navbar 알림 갱신
-    // console.log('Updating Navbar notifications...');
-    // updateNavbarNotifications(payload.data);
+  // 메시지 타입에 따라 알림을 다르게 처리
+  switch (messageType) {
+    case 'threat':
+      showCustomNotification({
+        title: payload.data.messageTitle || '위협 알림',
+        body: payload.data.messageBody || '위협이 감지되었습니다.',
+        type: 'threat',
+      });
+      break;
+    case 'event':
+      showCustomNotification({
+        title: payload.data.messageTitle || '이벤트 알림',
+        body: payload.data.messageBody || '이벤트가 발생했습니다.',
+        type: 'event',
+      });
+      break;
+    case 'register':
+      showCustomNotification({
+        title: '캠 등록 완료',
+        body: '캠이 성공적으로 등록되었습니다.',
+        type: 'register',
+      });
+      break;
+    case 'share':
+      showCustomNotification({
+        title: '새로운 공유 알림',
+        body: `${
+          payload.data.email || '알 수 없는 사용자'
+        }님이 캠을 공유했습니다.`,
+        type: 'share',
+      });
+      break;
+    case 'onOff':
+      showCustomNotification({
+        title: '감지 모드 상태 변경',
+        body: `현재 상태: ${payload.data.status || '알 수 없음'}`,
+        type: 'onOff',
+      });
+      break;
+    default:
+      console.log('Unknown message type:', messageType);
   }
 });
 
-// 브라우저 알림을 표시하는 함수
-function showBrowserNotification(notification: FCMNotificationPayload) {
-  const title = notification.title;
-  const body = notification.body;
-  if (Notification.permission === 'granted') {
-    new Notification(title, {
-      body: body,
-      icon: notification.icon,
-    });
-  }
-}
-
-// 커스텀 알림을 표시하는 함수
+// 알림을 표시하는 함수
 function showCustomNotification({
   title,
   body,
@@ -174,11 +103,10 @@ function showCustomNotification({
   body: string;
   type: string;
 }) {
-  console.log('Showing custom notification:', { title, body, type });
   const notificationElement = document.createElement('div');
   notificationElement.className = `notification ${type}`;
   notificationElement.style.position = 'fixed';
-  notificationElement.style.bottom = '20px';
+  notificationElement.style.top = '20px'; // 우측 상단에 표시되도록 수정
   notificationElement.style.right = '20px';
   notificationElement.style.zIndex = '1000';
   notificationElement.style.borderRadius = '12px';
@@ -224,6 +152,7 @@ function showCustomNotification({
   iconElement.style.height = '24px';
   iconElement.style.borderRadius = '50%';
   iconElement.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+
   notificationElement.appendChild(iconElement);
 
   const textContent = document.createElement('div');
@@ -235,17 +164,10 @@ function showCustomNotification({
 
   // 일정 시간 후 알림 제거
   setTimeout(() => {
-    console.log('Removing custom notification:', notificationElement);
     document.body.removeChild(notificationElement);
-  }, 6000);
+  }, 5000);
 }
 
-// Navbar 알림을 갱신하는 함수
-// function updateNavbarNotifications(data: Record<string, unknown>) {
-//   console.log('Navbar notifications data:', data);
-// }
-
-// 모듈 내보내기
 export {
   messaging,
   getToken,
