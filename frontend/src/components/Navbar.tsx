@@ -7,6 +7,7 @@ import {
   updateReadStatus,
   deleteNotification,
 } from '../api';
+import { useVideoStore } from '../stores/useVideoStore'; // useVideoStore 가져오기
 import SignIn from './SignIn';
 import logo from '../assets/icon/logo.png';
 import {
@@ -19,6 +20,7 @@ import {
   FaCheck,
 } from 'react-icons/fa';
 import { onMessage, messaging } from '../utils/firebase'; // FCM 메시지 리스너와 messaging 가져오기
+import axios, { AxiosError } from 'axios'; // AxiosError 가져오기
 
 interface NavbarNotification {
   id: number;
@@ -46,6 +48,8 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const navRef = useRef<HTMLDivElement>(null);
+
+  const { setSelectedVideoId } = useVideoStore(); // useVideoStore에서 setSelectedVideoId 가져오기
 
   useEffect(() => {
     setActiveMenu(location.pathname);
@@ -148,7 +152,12 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
       return;
     }
     try {
-      await updateReadStatus(type, id);
+      if (type === 'threat') {
+        await updateReadStatus(type, id, email); // 이메일 전달
+      } else {
+        await updateReadStatus(type, id); // 이메일 전달하지 않음
+      }
+
       setNotifications(
         notifications.map((notification) =>
           notification.id === id && notification.type === type
@@ -156,13 +165,19 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
             : notification
         )
       );
-    } catch (error) {
-      console.error('Failed to update read status:', error);
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        console.error('Failed to update read status:', err);
+        if (err.response && err.response.status === 404) {
+          alert('해당 이벤트를 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.');
+        }
+      } else {
+        console.error('An unexpected error occurred:', err);
+      }
     }
   };
 
   useEffect(() => {
-    // notifications 배열을 기반으로 각각의 카운트를 계산합니다.
     const detectionUnreadCount = notifications.filter(
       (notification) => notification.type === 'event' && !notification.isRead
     ).length;
@@ -175,12 +190,31 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
     setThreatCount(threatUnreadCount);
   }, [notifications]);
 
+  const handleThreatNotificationClick = async (
+    notification: NavbarNotification
+  ) => {
+    if (notification.type === 'threat') {
+      try {
+        await handleReadNotification(notification.id, notification.type);
+      } catch (error) {
+        console.error('Failed to mark threat notification as read:', error);
+      }
+    } else {
+      console.error('Invalid notification type:', notification.type);
+    }
+  };
+
   const handleDeleteNotification = async (
     id: number,
     type: 'event' | 'threat'
   ) => {
     try {
-      await deleteNotification(type, id);
+      if (type === 'threat') {
+        await deleteNotification(type, id, email); // 이메일 전달
+      } else {
+        await deleteNotification(type, id); // 이메일 전달하지 않음
+      }
+
       setNotifications(
         notifications.filter(
           (notification) =>
@@ -188,14 +222,33 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
         )
       );
     } catch (error) {
-      console.error('Failed to delete notification:', error);
+      if (axios.isAxiosError(error)) {
+        console.error('Failed to delete notification:', error);
+        if (error.response && error.response.status === 404) {
+          alert('해당 이벤트를 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.');
+        }
+      } else {
+        console.error('An unexpected error occurred:', error);
+      }
     }
   };
 
-  const handleNotificationClick = (notification: NavbarNotification) => {
-    if (notification.type === 'event' && notification.videoId !== undefined) {
-      handleNavigate(`/video/${notification.videoId}`);
-      handleReadNotification(notification.id, notification.type);
+  const handleNotificationClick = async (notification: NavbarNotification) => {
+    if (notification.type === 'event') {
+      if (notification.videoId === null || notification.videoId === undefined) {
+        alert(
+          '비디오 ID가 유효하지 않습니다. 해당 이벤트로 이동할 수 없습니다.'
+        );
+        return;
+      }
+
+      try {
+        await handleReadNotification(notification.id, notification.type); // 읽음 처리 먼저
+        setSelectedVideoId(notification.videoId); // 알림 클릭 시 비디오 ID 설정
+        navigate(`/video/${notification.videoId}`, { replace: true }); // 비디오로 이동
+      } catch (error) {
+        console.error('Navigation or read status update failed:', error);
+      }
     } else {
       console.error('Invalid notification data:', notification);
     }

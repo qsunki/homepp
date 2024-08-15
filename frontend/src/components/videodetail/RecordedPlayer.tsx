@@ -112,15 +112,19 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
           </div>
         </div>
       )}
-      <ReactPlayer
-        url={videoSrc || 'https://www.youtube.com/watch?v=uTuuz__8gUM'}
-        playing={isPlaying}
-        controls={true}
-        volume={volume / 100}
-        width="100%"
-        height="auto"
-        style={{ aspectRatio: '11 / 7' }}
-      />
+      {videoSrc ? (
+        <ReactPlayer
+          url={videoSrc}
+          playing={isPlaying}
+          controls={true}
+          volume={volume / 100}
+          width="100%"
+          height="auto"
+          style={{ aspectRatio: '11 / 7' }}
+        />
+      ) : (
+        <div>Error loading video</div> // 비디오 로드 실패 시 표시할 메시지
+      )}
       <div className="flex justify-between items-start mt-4">
         <div className="text-xl flex-grow">
           [{new Date(selectedVideo.date).getMonth() + 1}/

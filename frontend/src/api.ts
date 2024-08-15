@@ -612,7 +612,7 @@ export const fetchLatestEnvInfo = async (
 export const fetchEventList = async (): Promise<Event[]> => {
   try {
     const response = await api.get<Event[]>('/events');
-    // console.log('Fetched events:', response.data); // 로그 추가
+    console.log('Fetched events:', response.data); // 이벤트 데이터를 확인하는 로그 추가
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -649,11 +649,14 @@ export const fetchThreatList = async (email: string): Promise<Threat[]> => {
 // 읽음 상태 업데이트 API 호출 함수
 export const updateReadStatus = async (
   type: 'event' | 'threat',
-  id: number
+  id: number,
+  email?: string // email은 위협 알림에만 필요
 ): Promise<void> => {
   try {
     const endpoint =
-      type === 'event' ? `/events/${id}` : `/members/threats/${id}`;
+      type === 'event'
+        ? `/events/${id}` // 감지 이벤트 API 경로
+        : `/members/${email}/threats/${id}`; // 위협 알림 API 경로
     await api.patch(endpoint, { isRead: true });
     // console.log(`Updated read status for ${type} with ID ${id}`);
   } catch (error) {
@@ -672,11 +675,14 @@ export const updateReadStatus = async (
 // 알림 삭제 API 호출 함수
 export const deleteNotification = async (
   type: 'event' | 'threat',
-  id: number
+  id: number,
+  email?: string // email은 위협 알림에만 필요
 ): Promise<void> => {
   try {
     const endpoint =
-      type === 'event' ? `/events/${id}` : `/members/threats/${id}`;
+      type === 'event'
+        ? `/events/${id}` // 감지 이벤트 API 경로
+        : `/members/${email}/threats/${id}`; // 위협 알림 API 경로
     await api.delete(endpoint);
   } catch (error) {
     if (axios.isAxiosError(error)) {
