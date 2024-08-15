@@ -31,8 +31,10 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
         'Selected video startTime (ISO string):',
         selectedVideo.startTime
       );
-      const startTime = new Date(selectedVideo.startTime);
-      console.log('Converted startTime (Date object):', startTime);
+      const startTime = new Date(`${selectedVideo.startTime}Z`); // 'Z' 추가로 UTC로 변환
+      const isValidDate = !isNaN(startTime.getTime());
+      const displayDate = isValidDate ? startTime : new Date(); // 유효하지 않으면 현재 시점의 날짜 사용
+      console.log('Converted startTime (Date object):', displayDate);
     }
   }, [selectedVideo]);
 
@@ -153,7 +155,7 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
       {showDetails && (
         <>
           <div className="text-sm text-gray-600 mt-2">
-            {new Date(selectedVideo.startTime).toLocaleString()}{' '}
+            {new Date(`${selectedVideo.startTime}Z`).toLocaleString()}{' '}
             {/* 기록 시작 시간을 표시 */}
           </div>
           <div className="flex space-x-2 mt-2">

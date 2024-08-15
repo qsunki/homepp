@@ -80,23 +80,21 @@ const DetailList: React.FC<DetailListProps> = ({
               type: event.type as 'FIRE' | 'INVASION' | 'SOUND',
             }));
 
-            const startTime = new Date(video.recordStartAt);
+            const startTime = new Date(`${video.recordStartAt}Z`); // 'Z' 추가로 UTC로 변환
             const isValidDate = !isNaN(startTime.getTime());
-            const formattedDate = isValidDate
-              ? startTime.toLocaleString()
-              : 'Invalid Date';
+            const displayDate = isValidDate ? startTime : new Date(); // 유효하지 않으면 현재 시점의 날짜 사용
 
             return {
               id: video.videoId,
               title: `${video.camName}`,
-              timestamp: formattedDate,
+              timestamp: displayDate.toLocaleString(),
               thumbnail: thumbnail || 'https://via.placeholder.com/150',
               duration: `${Math.floor(video.length / 60)}:${(video.length % 60)
                 .toString()
                 .padStart(2, '0')}`,
               alerts,
               url: video.streamUrl || 'https://example.com/video-url',
-              startTime: formattedDate,
+              startTime: displayDate.toLocaleString(), // 수정된 부분
               length: `${Math.floor(video.length / 60)}:${(video.length % 60)
                 .toString()
                 .padStart(2, '0')}`,
@@ -105,7 +103,7 @@ const DetailList: React.FC<DetailListProps> = ({
                   video.events.map((event: { type: string }) => event.type)
                 )
               ),
-              date: isValidDate ? startTime : new Date(),
+              date: displayDate, // 유효하지 않으면 현재 시점의 날짜 사용
               camera: video.camName,
               isThreat: video.threat,
             } as Video;

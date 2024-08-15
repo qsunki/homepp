@@ -119,17 +119,16 @@ export const useVideoStore = create<VideoState>((set, get) => ({
         type: event.type as 'FIRE' | 'INVASION' | 'SOUND',
       }));
 
-      // recordStartAt을 사용하여 Date 객체 생성
-      const startTime = new Date(`${apiVideo.recordStartAt}Z`); // Z 추가하여 UTC로 변환
+      const startTime = new Date(`${apiVideo.recordStartAt}Z`);
       const isValidDate = !isNaN(startTime.getTime());
-      const formattedDate = isValidDate
-        ? startTime.toLocaleString()
-        : 'Invalid Date';
+      const dateToUse = isValidDate ? startTime : new Date(); // 유효한 날짜가 아니면 현재 시점의 날짜 사용
+
+      const formattedDate = dateToUse.toLocaleString();
 
       const video: Video = {
         id: apiVideo.videoId,
         title: `${apiVideo.camName}`,
-        timestamp: formattedDate, // 이 값을 UI에 노출
+        timestamp: formattedDate, // UI에 노출되는 값
         thumbnail: thumbnail || 'https://via.placeholder.com/150',
         duration: `${Math.floor(apiVideo.length / 60)}:${(apiVideo.length % 60)
           .toString()
@@ -143,7 +142,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
         type: Array.from(
           new Set(apiVideo.events.map((event: { type: string }) => event.type))
         ),
-        date: isValidDate ? startTime : new Date(),
+        date: dateToUse, // 유효한 날짜가 아니면 현재 시점의 날짜 사용
         camera: apiVideo.camName,
         isThreat: apiVideo.threat,
       };
@@ -218,11 +217,11 @@ export const useVideoStore = create<VideoState>((set, get) => ({
             type: event.type as 'FIRE' | 'INVASION' | 'SOUND',
           }));
 
-          const startTime = new Date(`${video.recordStartAt}Z`); // Z 추가하여 UTC로 변환
+          const startTime = new Date(`${video.recordStartAt}Z`);
           const isValidDate = !isNaN(startTime.getTime());
-          const formattedDate = isValidDate
-            ? startTime.toLocaleString()
-            : 'Invalid Date';
+          const dateToUse = isValidDate ? startTime : new Date(); // 유효한 날짜가 아니면 현재 시점의 날짜 사용
+
+          const formattedDate = dateToUse.toLocaleString();
 
           return {
             id: video.videoId,
@@ -241,7 +240,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
             type: Array.from(
               new Set(video.events.map((event: { type: string }) => event.type))
             ),
-            date: isValidDate ? startTime : new Date(),
+            date: dateToUse, // 유효한 날짜가 아니면 현재 시점의 날짜 사용
             camera: video.camName,
             isThreat: video.threat,
           };

@@ -75,12 +75,15 @@ const VideoList: React.FC = () => {
         }
 
         const apiVideos = response.data.map((video: ApiVideo) => {
-          const recordStartedAtWithZ = video.recordStartAt + 'Z';
+          const recordStartedAtWithZ = `${video.recordStartAt}Z`; // 'Z' 추가로 UTC로 변환
+          const startTime = new Date(recordStartedAtWithZ);
+          const isValidDate = !isNaN(startTime.getTime());
+          const displayDate = isValidDate ? startTime : new Date(); // 유효하지 않으면 현재 시점의 날짜 사용
 
           return {
             id: video.videoId,
             title: `${video.camName}`,
-            timestamp: new Date(recordStartedAtWithZ).toLocaleTimeString(),
+            timestamp: displayDate.toLocaleTimeString(),
             thumbnail: `https://i11a605.p.ssafy.io/api/v1/cams/videos/${video.videoId}/thumbnail`,
             duration: `${Math.floor(video.length / 60)}:${(video.length % 60)
               .toString()
@@ -89,12 +92,12 @@ const VideoList: React.FC = () => {
               type: event.type as 'FIRE' | 'INVASION' | 'SOUND',
             })),
             url: 'https://example.com/video-url',
-            startTime: new Date(recordStartedAtWithZ).toLocaleString(), // 수정된 부분
+            startTime: displayDate.toLocaleString(), // 수정된 부분
             length: `${Math.floor(video.length / 60)}:${(video.length % 60)
               .toString()
               .padStart(2, '0')}`,
             type: Array.from(new Set(video.events.map((event) => event.type))),
-            date: new Date(recordStartedAtWithZ),
+            date: displayDate, // 유효하지 않으면 현재 시점의 날짜 사용
             camera: video.camName,
             isThreat: video.threat,
           };
