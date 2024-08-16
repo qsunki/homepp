@@ -19,8 +19,7 @@ import {
   FaArrowRight,
   FaCheck,
 } from 'react-icons/fa';
-import { onMessage, messaging } from '../utils/firebase'; // FCM 메시지 리스너와 messaging 가져오기
-import axios, { AxiosError } from 'axios'; // AxiosError 가져오기
+import axios from 'axios';
 
 interface NavbarNotification {
   id: number;
@@ -134,13 +133,6 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
 
   useEffect(() => {
     fetchNotifications();
-
-    // FCM 메시지 수신 시 처리
-    onMessage(messaging, (payload) => {
-      console.log('FCM message received:', payload);
-      // 새로운 알림을 받으면 알림 리스트를 새로 요청
-      fetchNotifications();
-    });
   }, [isLoggedIn]);
 
   const handleReadNotification = async (
