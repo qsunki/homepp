@@ -1,0 +1,146 @@
+<!-- cam_offer.html -->
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <title>Video Provider</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+  </head>
+  <body>
+    <video id="localVideo" autoplay playsinline></video>
+    <script>
+      const localVideo = document.getElementById("localVideo");
+      let localStream;
+      let peerConnection;
+      let key = 0;
+      let subscription = null;
+
+      const socketIO = io.connect("http://127.0.0.1:8000");
+
+      socketIO.on("stream_id_update", function (data) {
+        key = data.stream_id;
+        console.log("Updated Stream ID:", key);
+        startVideoStream();
+        if (subscription) {
+          subscription.unsubscribe();
+          subscription = null;
+        }
+        subscription = stompClient.subscribe(`/sub/cam/${key}`, (message) => {
+          console.log("message is ", message);
+          const signal = JSON.parse(message.body);
+          handleSignal(signal);
+        });
+      });
+
+      socketIO.on("stop_stream", function () {
+        if (subscription) {
+          subscription.unsubscribe();
+          subscription = null;
+        }
+        stopVideoStream();
+      });
+
+      const socket = new SockJS("http://i11a605.p.ssafy.io:8081/ws");
+      const stompClient = new StompJs.Client({
+        webSocketFactory: () => socket,
+      });
+
+      async function startVideoStream() {
+        console.log("call startVideoStream");
+        localStream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
+        localVideo.srcObject = localStream;
+
+        peerConnection = new RTCPeerConnection({
+            iceServers: [
+            {
+                urls: "stun:i11a605.p.ssafy.io",
+                username: "username",
+                credential: "password",
+            },
+            {
+                urls: "turn:i11a605.p.ssafy.io",
+                username: "username",
+                credential: "password",
+            },
+            ],
+        });
+
+        peerConnection.onicecandidate = (event) => {
+            console.log("icecandidate event occurred ", event);
+            if (event.candidate) {
+            stompClient.publish({
+                destination: `/pub/cam/${key}`,
+                body: JSON.stringify({
+                type: "candidate",
+                data: event.candidate,
+                }),
+            });
+            }
+        };
+
+        localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+        const offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
+
+        stompClient.publish({
+                destination: `/pub/cam/${key}`,
+                body: JSON.stringify({
+                type: "offer",
+                data: peerConnection.localDescription,
+                }),
+            });
+        console.log(`pub offer to ${key}`)
+        };
+
+      stompClient.activate();
+
+      async function handleSignal(signal) {
+        console.log("signal is ", signal);
+
+        switch (signal.type) {
+
+          case "answer":
+            await peerConnection.setRemoteDescription(
+              new RTCSessionDescription(signal.data)
+            );
+            console.log("set remote description");
+            break;
+
+          case "candidate":
+            await peerConnection.addIceCandidate(
+                new RTCIceCandidate(signal.data)
+            );
+            console.log("add ice candidate");
+            break;
+        }
+      }
+
+      function stopVideoStream() {
+        // 1. 비디오 스트림 정지 및 해제
+        if (localStream) {
+          localStream.getTracks().forEach((track) => track.stop()); // 모든 트랙 정지
+          localVideo.srcObject = null; // 비디오 소스 제거
+          console.log("Video stream stopped");
+        }
+
+        // 2. PeerConnection 해제
+        if (peerConnection) {
+          // peerConnections[key].close(); // PeerConnection 닫기
+          peerConnection.close(); // PeerConnection 닫기
+          // delete peerConnections[key]; // 객체에서 삭제
+          delete peerConnection; // 객체에서 삭제
+          console.log("PeerConnection closed and removed.");
+        }
+
+        // 3. STOMP 구독 해제
+        if (subscription) {
+          subscription.unsubscribe();
+          subscription = null;
+          console.log("STOMP subscription canceled.");
+        }
+      }
+    </script>
+  </body>
+</html>

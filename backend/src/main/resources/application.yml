@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: homepp
+  profiles:
+    active: local
+  docker:
+    compose:
+      profiles:
+        active: local
+  jpa:
+    open-in-view: true

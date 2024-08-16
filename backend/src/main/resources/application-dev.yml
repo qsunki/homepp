@@ -1,0 +1,52 @@
+spring:
+  datasource:
+    url: ${MYSQL_JDBC_URL}
+    username: ${MYSQL_USER}
+    password: ${MYSQL_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  servlet:
+    multipart:
+      max-file-size: 5GB
+      max-request-size: 5GB
+  sql:
+    init:
+      mode: never
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  data:
+    redis:
+      host: dev-redis-1
+      password: ${REDIS_PASSWORD}
+
+server:
+  tomcat:
+    max-http-form-post-size: 5GB
+
+logging:
+  level:
+    ssafy:
+      age:
+        backend: debug
+    web: debug
+    sql: debug
+    org.springframework.web.cors.DefaultCorsProcessor: TRACE
+
+jwt:
+  secret: ${JWT_SECRET}
+
+mqtt:
+  broker:
+    url: ${MQTT_BROKER_URL}
+    topics: server/envInfo, server/event, server/status
+
+openAPI:
+  secret: ${OPEN_API_KEY}
+
+file:
+  dir: /app/
+  video: /app/videos
+  video-thumbnail: /app/video-thumbnails
+  cam-thumbnail: /app/cam-thumbnails
