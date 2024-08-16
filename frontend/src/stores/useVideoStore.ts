@@ -134,7 +134,9 @@ export const useVideoStore = create<VideoState>((set, get) => ({
           .toString()
           .padStart(2, '0')}`,
         alerts,
-        url: apiVideo.streamUrl || 'https://example.com/video-url',
+        url:
+          apiVideo.streamUrl ||
+          `/api/v1/cams/videos/${apiVideo.videoId}/stream`,
         startTime: apiVideo.recordStartedAt,
         length: `${Math.floor(apiVideo.length / 60)}:${(apiVideo.length % 60)
           .toString()
@@ -232,7 +234,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
               .toString()
               .padStart(2, '0')}`,
             alerts,
-            url: 'https://example.com/video-url',
+            url: `/api/v1/cams/videos/${video.videoId}/stream`,
             startTime: formattedDate,
             length: `${Math.floor(video.length / 60)}:${(video.length % 60)
               .toString()
