@@ -2,7 +2,7 @@ import json
 import threading
 import time
 import paho.mqtt.client as mqtt
-from datetime import datetime
+from datetime import datetime, timedelta
 import cv2
 import schedule
 from pyzbar import pyzbar
@@ -134,7 +134,7 @@ def upload_tmp_hmdt(date_time):
             print(f"Unexpected error: {e}")
 
         if is_system_on:
-            status = "RECODING"
+            status = "RECORDING"
         else:
             status = "OFFLINE"
         data = {
@@ -165,6 +165,7 @@ def video_upload(file, json_data):
             data=encoder,
             headers={'Content-Type': encoder.content_type}
         )
+        print(json_data)
         print(response.status_code)
         print(response)
         os.remove(file)
@@ -290,7 +291,7 @@ if __name__ == '__main__':
                     decode_qr(frame)
             else:
                 schedule.run_pending()
-                now = datetime.now()
+                now = datetime.now() - timedelta(hours=9)
                 nowDatetime = now.strftime('%Y-%m-%dT%H:%M:%SZ')
                 nowDatetime_path = now.strftime('%Y-%m-%d %H_%M_%S')
 
