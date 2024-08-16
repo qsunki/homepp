@@ -80,7 +80,7 @@ const DetailList: React.FC<DetailListProps> = ({
               type: event.type as 'FIRE' | 'INVASION' | 'SOUND',
             }));
 
-            const startTime = new Date(`${video.recordStartAt}Z`); // 'Z' 추가로 UTC로 변환
+            const startTime = new Date(`${video.recordStartedAt}Z`); // 'Z' 추가로 UTC로 변환
             const isValidDate = !isNaN(startTime.getTime());
             const displayDate = isValidDate ? startTime : new Date(); // 유효하지 않으면 현재 시점의 날짜 사용
 

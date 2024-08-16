@@ -119,7 +119,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
         type: event.type as 'FIRE' | 'INVASION' | 'SOUND',
       }));
 
-      const startTime = new Date(`${apiVideo.recordStartAt}Z`);
+      const startTime = new Date(`${apiVideo.recordStartedAt}Z`);
       const isValidDate = !isNaN(startTime.getTime());
       const dateToUse = isValidDate ? startTime : new Date(); // 유효한 날짜가 아니면 현재 시점의 날짜 사용
 
@@ -135,7 +135,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
           .padStart(2, '0')}`,
         alerts,
         url: apiVideo.streamUrl || 'https://example.com/video-url',
-        startTime: apiVideo.recordStartAt, // 원본 문자열 그대로 저장
+        startTime: apiVideo.recordStartedAt, // 원본 문자열 그대로 저장
         length: `${Math.floor(apiVideo.length / 60)}:${(apiVideo.length % 60)
           .toString()
           .padStart(2, '0')}`,
@@ -217,7 +217,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
             type: event.type as 'FIRE' | 'INVASION' | 'SOUND',
           }));
 
-          const startTime = new Date(`${video.recordStartAt}Z`);
+          const startTime = new Date(`${video.recordStartedAt}Z`);
           const isValidDate = !isNaN(startTime.getTime());
           const dateToUse = isValidDate ? startTime : new Date(); // 유효한 날짜가 아니면 현재 시점의 날짜 사용
 
