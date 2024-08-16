@@ -8,17 +8,23 @@ import api from '../../api';
 
 interface RecordedPlayerProps {
   showDetails?: boolean;
-  videoSrc: string; // videoSrc를 prop으로 추가
+  videoSrc: string | null; // videoSrc를 string | null 타입으로 유지
   isThreat?: boolean;
 }
 
 const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
   showDetails = false,
-  videoSrc, // videoSrc prop 받아오기
+  videoSrc,
   isThreat,
 }) => {
-  const { selectedVideoId, videos, isPlaying, volume, reportVideo } =
-    useVideoStore();
+  const {
+    selectedVideoId,
+    videos,
+    isPlaying,
+    volume,
+    reportVideo,
+    fetchVideoById,
+  } = useVideoStore();
   const [showReportConfirm, setShowReportConfirm] = useState<boolean>(false);
 
   const selectedVideo: Video | undefined = videos.find(
@@ -27,14 +33,7 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
 
   useEffect(() => {
     if (selectedVideo) {
-      console.log(
-        'Selected video startTime (ISO string):',
-        selectedVideo.startTime
-      );
-      const startTime = new Date(`${selectedVideo.startTime}Z`); // 'Z' 추가로 UTC로 변환
-      const isValidDate = !isNaN(startTime.getTime());
-      const displayDate = isValidDate ? startTime : new Date(); // 유효하지 않으면 현재 시점의 날짜 사용
-      console.log('Converted startTime (Date object):', displayDate);
+      console.log('Selected video URL:', selectedVideo.url); // URL 로그 추가
     }
   }, [selectedVideo]);
 
@@ -84,6 +83,7 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
   };
 
   if (!selectedVideo) {
+    console.log('No selected video found.');
     return null;
   }
 
@@ -114,26 +114,23 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
           </div>
         </div>
       )}
-      {videoSrc ? (
+      {selectedVideo.url ? (
         <ReactPlayer
-          url={videoSrc}
+          url={`https://i11a605.p.ssafy.io${selectedVideo.url}`} // videoSrc 대신 selectedVideo.url 사용
           playing={isPlaying}
           controls={true}
           volume={volume / 100}
           width="100%"
           height="auto"
           style={{ aspectRatio: '11 / 7' }}
+          onError={(e) => console.error('ReactPlayer error:', e)}
+          onReady={() => console.log('ReactPlayer is ready.')}
         />
       ) : (
-        <div>Error loading video</div> // 비디오 로드 실패 시 표시할 메시지
+        <div>Error loading video</div>
       )}
       <div className="flex justify-between items-start mt-4">
         <div className="text-xl flex-grow">
-          {/* <h1>
-            {selectedVideo.date
-              ? selectedVideo.date.toString()
-              : 'No date available'}
-          </h1> */}
           {selectedVideo.date ? (
             <>
               [{selectedVideo.date.getMonth() + 1}/
@@ -172,7 +169,6 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
             {selectedVideo.startTime
               ? selectedVideo.startTime.split(' ').slice(-2).join(' ')
               : 'No start time available'}
-            {/* 기록 시작 시간을 표시 */}
           </div>
           <div className="flex space-x-2 mt-2">
             {uniqueAlerts.map((type, index) => (
