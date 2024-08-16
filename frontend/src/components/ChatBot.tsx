@@ -47,7 +47,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ onClose }) => {
       try {
         // API 요청 URL 수정
         const response = await axios.post<{ answer: string }>(
-          'http://i11a605.p.ssafy.io:8083/api/v1/chat',
+          'https://i11a605.p.ssafy.io/api/v1/chat',
           {
             query: input,
           }
