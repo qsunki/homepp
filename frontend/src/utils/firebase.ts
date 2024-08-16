@@ -146,15 +146,6 @@ function showCustomNotification({
       notificationElement.style.color = 'white';
   }
 
-  // 아이콘 추가 (선택 사항)
-  const iconElement = document.createElement('div');
-  iconElement.style.width = '24px';
-  iconElement.style.height = '24px';
-  iconElement.style.borderRadius = '50%';
-  iconElement.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
-
-  notificationElement.appendChild(iconElement);
-
   const textContent = document.createElement('div');
   textContent.innerHTML = `<strong>${title}</strong><p>${body}</p>`;
 
@@ -165,7 +156,7 @@ function showCustomNotification({
   // 일정 시간 후 알림 제거
   setTimeout(() => {
     document.body.removeChild(notificationElement);
-  }, 5000);
+  }, 6000);
 }
 
 export {
