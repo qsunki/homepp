@@ -1,8 +1,17 @@
 from fastapi import FastAPI, Request
 from transformers import AutoTokenizer, GPT2LMHeadModel
 import torch
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 모든 출처 허용
+    allow_credentials=True,  # 자격 증명 포함 요청 허용
+    allow_methods=["*"],  # 모든 HTTP 메소드 허용
+    allow_headers=["*"],  # 모든 HTTP 헤더 허용
+)
 
 # 모델과 토크나이저 로드 (models 폴더에서 로드)
 model_path = "models/"  # 모델 경로
