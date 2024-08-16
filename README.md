@@ -23,21 +23,16 @@
 * 주요 기능
   - 실시간 카메라 화면 시청
   - Object Detection을 통한 침입자 감지
-  - 라즈베리파이 센서를 활용한 화재 감지
+  - 라즈베리파이 센서를 활용한 화재, 소음, 온습도 감지
   - 이상징후 감지 시 사용자에게 알림
   - 침입, 화재 등 위험 상황 공유
+  - 귀가 시 자동으로 감지모드 OFF
 * 주요 기술
   - WebRTC
   - WebSocket
   - JWT Authentication
   - REST API
-* 참조 리소스
-  * Vuetify: 디자인 전반 적용
-  * Vue Argon Design System: 디자인 전반 적용
-  * Vue Black Dashboard Pro(유료): 캘린더 컴포넌트 사용
-  * AR Core: 구글에서 제공하는 AR 지원 라이브러리. 이미지 인식 및 오버레이 영상에 활용
-  * Color Thief: 이미지 색상 추출 라이브러리. 커버 사진 색상 추출 및 배경 변경에 활용
-  * Animation.css: CSS 애니메이션 지원 라이브러리. 메인 페이지 진입 애니메이션에 활용
+  - FCM
 * 배포 환경
   - URL: https://i11a605.p.ssafy.io/
   - 테스트 계정: live1@ssafy.com / 1234
@@ -68,4 +63,10 @@
 ![2](/uploads/81e2a9e071876bada128953bac0c52bb/2.png)
 
 ![3](/uploads/43c380af303f26a3dba54bbba2d32605/3.png)
+
+### 통신 구조
+![4](/uploads/509624a70c7d8f13d9f67a3e1819aca0/4.png)
+
+### 배포
+![5](/uploads/d44cb6c98428d1b213d088bdb572b615/5.png)
 
