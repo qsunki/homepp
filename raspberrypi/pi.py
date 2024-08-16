@@ -25,13 +25,12 @@ fourcc = cv2.VideoWriter_fourcc(*'avc1')
 face_cascade = cv2.CascadeClassifier('haarcascade/haarcascade_upperbody.xml')
 dht_device = adafruit_dht.DHT11(board.D2, use_pulseio=False)
 
-global cnt_record, max_cnt_record, on_record, is_detected, is_record, is_capture, is_stream, is_system_on, is_first, blt_address, cam_id, stream_id, is_req_temp_hmdt, is_nearby, temp, hmdt, is_sound, is_fire, cap
+global cnt_record, max_cnt_record, on_record, is_detected, is_record, is_capture, is_stream, is_system_on, is_first, blt_address, cam_id, stream_id, is_req_temp_hmdt, is_nearby, temp, hmdt, is_sound, is_fire, cap, nowDatetime
 is_fire = is_sound = is_req_temp_hmdt = is_system_on = is_stream = on_record = is_record = is_detected = is_capture = False
 is_first = True
 temp = hmdt = cnt_record = 0
 is_nearby = deque(maxlen=6)
-stream_id = cap = None
-# 테스트 시에는 동작을 원하는 캠id, 블루투스 주소를 아래에 입력해주셔야 합니다.
+stream_id = cap = nowDatetime = None
 cam_id = 63
 blt_address = 'A4:75:B9:A0:2B:41'
 max_cnt_record = 90
@@ -128,8 +127,8 @@ def upload_tmp_hmdt(date_time):
     global cam_id, is_system_on, is_req_temp_hmdt, temp, hmdt, is_first
     if is_first is False:
         try:
-            temperature_c = temp = dht_device.temperature
-            humidity = hmdt = dht_device.humidity
+            temp = dht_device.temperature
+            hmdt = dht_device.humidity
         except RuntimeError as error:
             print(f"Error reading sensor: {error}")
         except Exception as e:
@@ -201,7 +200,7 @@ def is_device_nearby(device_address):
     return False
 
 def scan_for_devices():
-    global blt_address, is_nearby, is_stream, is_system_on, on_record, is_detected
+    global blt_address, is_nearby, is_stream, is_system_on, on_record, is_detected, nowDatetime, temp, hmdt
     while True:
         time.sleep(30)
         if is_system_on and is_stream is False and on_record is False and is_detected is False:
@@ -211,6 +210,15 @@ def scan_for_devices():
                 is_system_on = False
                 data = json.dumps({'camId': cam_id, 'status': 'OFFLINE'})
                 client.publish('server/status', data)
+                data = {
+                    "camId": cam_id,
+                    "recordedAt": nowDatetime,
+                    "temperature": temp,
+                    "humidity": hmdt,
+                    "status": 'OFFLINE'
+                }
+                json_data = json.dumps(data)
+                client.publish('server/envInfo', json_data)
                 print(f'pub {data}')
             else:
                 print(f'Device {blt_address} is not nearby.')
@@ -244,7 +252,7 @@ socketio = SocketIO(app)
 
 @app.route('/')
 def index():
-    return render_template('cam.html')
+    return render_template('cam_offer_test.html')
 
 def run_server():
     app.run(host='0.0.0.0', port=8000, debug=False)
@@ -268,8 +276,8 @@ if __name__ == '__main__':
     cap = cv2.VideoCapture(0)
     # 캠 등록부터 하려면 아래 두 줄을 주석처리 할 것
     # 원활한 시연을 위해 존재하는 코드입니다.
-    # is_first = False
-    # mqtt_setup()
+    is_first = False
+    mqtt_setup()
 
     env = os.environ.copy()
     env['DISPLAY'] = ':0'
