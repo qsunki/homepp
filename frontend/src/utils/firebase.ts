@@ -40,10 +40,10 @@ const VAPID_KEY =
 
 // 메시지 수신 처리 로직 추가
 onMessage(messaging, (payload) => {
-  // console.log('Message received. ', payload);
+  console.log('Message received: ', payload);
 
   if (!payload.data) {
-    // console.log('No data in the payload');
+    console.log('No data in the payload');
     return;
   }
 
@@ -106,7 +106,7 @@ function showCustomNotification({
   const notificationElement = document.createElement('div');
   notificationElement.className = `notification ${type}`;
   notificationElement.style.position = 'fixed';
-  notificationElement.style.top = '20px'; // 우측 상단에 표시되도록 수정
+  notificationElement.style.top = '20px';
   notificationElement.style.right = '20px';
   notificationElement.style.zIndex = '1000';
   notificationElement.style.borderRadius = '12px';
