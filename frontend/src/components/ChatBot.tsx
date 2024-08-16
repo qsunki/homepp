@@ -12,9 +12,11 @@ const ChatBot: React.FC<ChatBotProps> = ({ onClose }) => {
   );
   const [input, setInput] = useState('');
   const chatBotRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null); // 메시지 끝 부분에 대한 참조 추가
 
   useEffect(() => {
     sessionStorage.setItem('chatMessages', JSON.stringify(messages));
+    scrollToBottom(); // 메시지가 업데이트될 때마다 스크롤
   }, [messages]);
 
   const handleClickOutside = (event: MouseEvent) => {
@@ -32,6 +34,10 @@ const ChatBot: React.FC<ChatBotProps> = ({ onClose }) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   const sendMessage = async () => {
     if (input.trim()) {
@@ -108,6 +114,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ onClose }) => {
             )}
           </div>
         ))}
+        <div ref={messagesEndRef} /> {/* 마지막 메시지 위치에 대한 참조 */}
       </div>
       <div className="flex p-2 border-t border-gray-200">
         <textarea

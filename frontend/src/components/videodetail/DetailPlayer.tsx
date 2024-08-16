@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useVideoStore } from '../../stores/useVideoStore';
 import LivePlayer from './LivePlayer';
 import RecordedPlayer from './RecordedPlayer';
-import styles from '../../pages/VideoDetail.module.css';
+import { fetchVideoStream } from '../../api';
 
 interface DetailPlayerProps {
   isLive?: boolean;
@@ -14,53 +14,45 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({
   showDetails = false,
 }) => {
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const { selectedVideoId, setSelectedVideoId, selectedVideo } =
     useVideoStore();
 
   useEffect(() => {
+    const restoreSelectedVideoId = async () => {
+      const storedVideoId = localStorage.getItem('selectedVideoId');
+      if (storedVideoId && !selectedVideoId) {
+        await setSelectedVideoId(Number(storedVideoId));
+        getVideoStream(Number(storedVideoId));
+      } else if (selectedVideoId) {
+        getVideoStream(selectedVideoId);
+      }
+    };
+
     const getVideoStream = async (videoId: number) => {
-      setIsLoading(true);
+      if (!videoId || videoSrc || isLive) return; // isLive가 true면 스트림을 가져오지 않음
       try {
-        const streamUrl = `https://i11a605.p.ssafy.io/api/v1/cams/videos/${videoId}/stream`;
-        const response = await fetch(streamUrl);
-        if (!response.ok) {
-          throw new Error('Failed to fetch video stream');
+        const streamUrl = await fetchVideoStream(videoId);
+        if (streamUrl) {
+          setVideoSrc(streamUrl);
         }
-        setVideoSrc(streamUrl);
       } catch (error) {
-        console.error('Error fetching video stream:', error);
-        setVideoSrc(null);
-      } finally {
-        setIsLoading(false);
+        console.error('Failed to fetch video stream:', error);
       }
     };
 
-    const initializeVideo = async () => {
-      if (selectedVideoId) {
-        await getVideoStream(selectedVideoId);
-      } else {
-        setIsLoading(false);
-      }
-    };
-
-    initializeVideo();
-  }, [selectedVideoId]);
+    restoreSelectedVideoId();
+  }, [selectedVideoId, setSelectedVideoId, videoSrc, isLive]);
 
   return (
-    <div
-      className={`${styles.detailPlayerFrame} w-full lg:w-2/3 lg:pr-4 relative`}
-    >
-      {isLoading ? (
-        <div>Loading...</div>
-      ) : videoSrc ? (
+    <div className="w-full lg:w-2/3 lg:pr-4 relative">
+      {isLive ? (
+        <LivePlayer />
+      ) : (
         <RecordedPlayer
           showDetails={showDetails}
-          videoSrc={videoSrc}
+          videoSrc={videoSrc || ''}
           isThreat={selectedVideo?.isThreat}
         />
-      ) : (
-        <div>Video could not be loaded</div>
       )}
     </div>
   );
