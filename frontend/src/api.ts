@@ -69,7 +69,7 @@ export interface Video {
   streamUrl: string;
   videoId: number;
   camName: string;
-  recordStartAt: string;
+  recordStartedAt: string;
   length: number;
   events: {
     occurredAt: string;
@@ -355,7 +355,7 @@ export const fetchVideoById = async (
     // isThreat 필드를 이용해 isReported 상태를 설정
     const video = {
       ...videoData,
-      recordStartAt: `${videoData.recordStartAt}Z`, // Z를 추가하여 UTC로 변환
+      recordStartedAt: `${videoData.recordStartedAt}Z`, // Z를 추가하여 UTC로 변환
       events: videoData.events.map((event) => ({
         ...event,
         occurredAt: `${event.occurredAt}Z`, // Z를 추가하여 UTC로 변환
