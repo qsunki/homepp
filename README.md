@@ -39,8 +39,8 @@
   * Color Thief: 이미지 색상 추출 라이브러리. 커버 사진 색상 추출 및 배경 변경에 활용
   * Animation.css: CSS 애니메이션 지원 라이브러리. 메인 페이지 진입 애니메이션에 활용
 * 배포 환경
-  - URL: // 웹 서비스, 랜딩 페이지, 프로젝트 소개 등의 배포 URL 기입
-  - 테스트 계정: // 로그인이 필요한 경우, 사용 가능한 테스트 계정(ID/PW) 기입
+  - URL: https://i11a605.p.ssafy.io/
+  - 테스트 계정: live1@ssafy.com / 1234
 
 <!-- 자유 양식 -->
 
@@ -56,4 +56,16 @@
 
 ## 프로젝트 상세 설명
 
-// 개발 환경, 기술 스택, 시스템 구성도, ERD, 기능 상세 설명 등
+### ERD
+![home++_ERD](/uploads/47906a4070c5809eef5876b003c062c1/home++_ERD.png)
+
+### Architecture
+![architecture](/uploads/c5a2a4569c9e355b1d6975184db5f6fb/architecture.png)
+
+### 동작 프로세스
+![1](/uploads/24e5f9929c2a1da977548b5296a9aad6/1.png)
+
+![2](/uploads/81e2a9e071876bada128953bac0c52bb/2.png)
+
+![3](/uploads/43c380af303f26a3dba54bbba2d32605/3.png)
+
