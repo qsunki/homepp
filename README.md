@@ -1,5 +1,6 @@
-# 홈 보안 솔루션 home++
-
+# 홈 보안 솔루션 HOME++
+### 노션 페이지 
+https://momentous-pentagon-5b9.notion.site/AGE-454af6f7e4e94c2f84a7d19bd7a04946
 <!-- 필수 항목 -->
 
 ## 카테고리
@@ -57,16 +58,13 @@
 ### Architecture
 ![architecture](/uploads/c5a2a4569c9e355b1d6975184db5f6fb/architecture.png)
 
-### 동작 프로세스
-![1](/uploads/24e5f9929c2a1da977548b5296a9aad6/1.png)
-
-![2](/uploads/81e2a9e071876bada128953bac0c52bb/2.png)
-
-![3](/uploads/43c380af303f26a3dba54bbba2d32605/3.png)
-
 ### 통신 구조
 ![4](/uploads/509624a70c7d8f13d9f67a3e1819aca0/4.png)
 
-### 배포
+### 배포 구조
 ![5](/uploads/d44cb6c98428d1b213d088bdb572b615/5.png)
 
+### 동작 프로세스
+![1](/uploads/24e5f9929c2a1da977548b5296a9aad6/1.png)
+![2](/uploads/81e2a9e071876bada128953bac0c52bb/2.png)
+![3](/uploads/43c380af303f26a3dba54bbba2d32605/3.png)
