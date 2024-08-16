@@ -12,11 +12,11 @@ const ChatBot: React.FC<ChatBotProps> = ({ onClose }) => {
   );
   const [input, setInput] = useState('');
   const chatBotRef = useRef<HTMLDivElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null); // 메시지 끝 부분에 대한 참조 추가
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     sessionStorage.setItem('chatMessages', JSON.stringify(messages));
-    scrollToBottom(); // 메시지가 업데이트될 때마다 스크롤
+    scrollToBottom();
   }, [messages]);
 
   const handleClickOutside = (event: MouseEvent) => {
@@ -39,25 +39,48 @@ const ChatBot: React.FC<ChatBotProps> = ({ onClose }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const processResponse = (responseText: string, userQuery: string) => {
+    // 사용자의 입력 문장 이후의 텍스트 추출
+    const queryIndex = responseText.indexOf(userQuery);
+    let processedText =
+      queryIndex !== -1
+        ? responseText.slice(queryIndex + userQuery.length).trim()
+        : responseText;
+
+    // 마침표까지의 텍스트를 추출
+    const periodIndex = processedText.indexOf('.');
+    if (periodIndex !== -1) {
+      processedText = processedText.slice(0, periodIndex + 1).trim();
+    }
+
+    return processedText;
+  };
+
   const sendMessage = async () => {
     if (input.trim()) {
       const userMessage = { query: input.trim(), answer: '' };
       setMessages([...messages, userMessage]);
 
       try {
-        // API 요청 URL 수정
-        const response = await axios.post<{ answer: string }>(
+        const response = await axios.post<{ response: string }>(
           'https://i11a605.p.ssafy.io/api/v1/chat',
           {
             query: input,
           }
         );
-        const botMessage = { ...userMessage, answer: response.data.answer };
+
+        // 응답 텍스트 처리
+        const processedAnswer = processResponse(
+          response.data.response,
+          input.trim()
+        );
+        const botMessage = { ...userMessage, answer: processedAnswer };
+
         setMessages((prevMessages) =>
           prevMessages.map((msg) => (msg === userMessage ? botMessage : msg))
         );
       } catch (error) {
-        // console.error('Failed to fetch chatbot response:', error);
+        console.error('Failed to fetch chatbot response:', error);
         const errorMessage = {
           ...userMessage,
           answer: 'Error: Unable to fetch response',
@@ -107,7 +130,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ onClose }) => {
             )}
             {msg.answer && (
               <div className="text-left">
-                <div className="inline-block bg-gray-200 text-gray-800 p-2 rounded-lg rounded-bl-none">
+                <div className="inline-block bg-gray-200 text-gray-800 p-2 rounded-lg rounded-bl-none break-words">
                   {msg.answer}
                 </div>
               </div>
