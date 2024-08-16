@@ -92,7 +92,9 @@ const DetailList: React.FC<DetailListProps> = ({
                 .toString()
                 .padStart(2, '0')}`,
               alerts,
-              url: video.streamUrl || 'https://example.com/video-url',
+              url:
+                video.streamUrl ||
+                `/api/v1/cams/videos/${video.videoId}/stream`,
               startTime: displayDate.toLocaleString(),
               length: `${Math.floor(video.length / 60)}:${(video.length % 60)
                 .toString()
