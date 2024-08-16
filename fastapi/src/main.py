@@ -5,7 +5,7 @@ import torch
 app = FastAPI()
 
 # 모델과 토크나이저 로드 (models 폴더에서 로드)
-model_path = "models/kogpt2_finetuned_epoch5"  # 모델 경로
+model_path = "models/"  # 모델 경로
 tokenizer = AutoTokenizer.from_pretrained(model_path, local_files_only=True)
 model = GPT2LMHeadModel.from_pretrained(model_path, local_files_only=True)
 

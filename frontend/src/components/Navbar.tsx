@@ -27,7 +27,7 @@ interface NavbarNotification {
   message: string;
   timestamp: Date;
   type: 'event' | 'threat';
-  videoId?: number;
+  videoId?: number | null;
   isRead: boolean;
 }
 
@@ -105,14 +105,14 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
       try {
         const events = await fetchEventList();
         const threats = await fetchThreatList(email); // 로그인된 유저의 이메일 사용
-
+        console.log(events);
         const combinedNotifications: NavbarNotification[] = [
           ...events.map((event) => ({
             id: event.eventId,
-            message: `${event.camName} - ${event.eventType}`,
-            timestamp: new Date(event.occuredAt),
+            message: `${event.camName} - ${event.type}`,
+            timestamp: new Date(`${event.occurredAt}Z`), // 필드명을 정확하게 수정
             type: 'event' as const,
-            videoId: event.videoId,
+            videoId: event.videoId ?? undefined,
             isRead: event.isRead,
           })),
           ...threats.map((threat) => ({
@@ -120,7 +120,7 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
             message: `${threat.region} 근방에 ${threat.eventTypes.join(
               ', '
             )} 발생`,
-            timestamp: new Date(threat.recordStartedAt),
+            timestamp: new Date(`${threat.recordStartedAt}Z`), // LocalDateTime을 UTC로 변환
             type: 'threat' as const,
             isRead: threat.isRead,
           })),

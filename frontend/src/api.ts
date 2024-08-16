@@ -87,15 +87,22 @@ export interface SharedMember {
   email: string;
 }
 
+export enum EventType {
+  INVASION = 'INVASION',
+  FIRE = 'FIRE',
+  CUSTOM = 'CUSTOM',
+  SOUND = 'SOUND',
+}
+
 // 감지 이벤트 데이터 타입 정의
 export interface Event {
   eventId: number;
   isRead: boolean;
   camId: number;
   camName: string;
-  eventType: string;
-  videoId: number;
-  occuredAt: string;
+  type: EventType;
+  videoId: number | null;
+  occurredAt: string;
 }
 
 // 위협 알림 데이터 타입 정의
@@ -612,8 +619,18 @@ export const fetchLatestEnvInfo = async (
 export const fetchEventList = async (): Promise<Event[]> => {
   try {
     const response = await api.get<Event[]>('/events');
-    console.log('Fetched events:', response.data); // 이벤트 데이터를 확인하는 로그 추가
-    return response.data;
+    console.log('Fetched events:', response.data);
+
+    // 여기에서 event를 Event 타입으로 명시하고 필드명 수정
+    return response.data.map((event) => ({
+      eventId: event.eventId,
+      isRead: event.isRead,
+      camId: event.camId,
+      camName: event.camName,
+      type: event.type, // type을 EventType enum으로 처리
+      videoId: event.videoId,
+      occurredAt: event.occurredAt || event.occurredAt, // 필드명 변환 및 처리
+    }));
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error(
