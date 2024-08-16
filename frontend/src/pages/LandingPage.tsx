@@ -134,29 +134,29 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignInOpen }) => {
       </div>
 
       {/* Core Functions Section */}
-      {/* <div className="flex flex-col items-center w-full px-4 my-12">
+      <div className="flex flex-col items-center w-full px-4 my-12">
         <h2 className="text-3xl font-bold my-20">CORE FUNCTIONS</h2>
         <div className="flex flex-col w-full items-center gap-8">
-          <div className="group relative flex flex-col items-center justify-center bg-gray-400 text-white rounded-lg shadow-lg p-6 w-full lg:w-1/2 transform transition-transform duration-300 hover:scale-105 hover:z-10 hover:shadow-2xl lg:mr-40">
+          <div className="group relative flex flex-col items-center justify-center bg-gray-400 text-black rounded-lg shadow-lg p-6 w-full lg:w-1/2 transform transition-transform duration-300 hover:scale-105 hover:z-10 hover:shadow-2xl lg:mr-40">
             <p className="text-2xl font-bold">01. 자동으로 켜지는 카메라</p>
             <img
               className="w-32 h-32 mt-4 transform transition-transform duration-300 group-hover:scale-125"
               src={automated}
               alt="자동화 아이콘"
             />
-            <p className="mt-4 text-lg text-black text-center">
+            <p className="mt-4 text-lg text-zinc-700 text-center">
               적외선, Wi-Fi, 블루투스, GPS, 비전 기술을 통한 on/off 자동화 기능
             </p>
           </div>
 
-          <div className="group relative flex flex-col items-center justify-center bg-slate-300 text-white rounded-lg shadow-lg p-6 w-full lg:w-1/2 transform transition-transform duration-300 hover:scale-105 hover:z-10 hover:shadow-2xl lg:ml-40">
+          <div className="group relative flex flex-col items-center justify-center bg-slate-300 text-black rounded-lg shadow-lg p-6 w-full lg:w-1/2 transform transition-transform duration-300 hover:scale-105 hover:z-10 hover:shadow-2xl lg:ml-40">
             <p className="text-2xl font-bold">02. 침입자, 화재, 큰소리 감지</p>
             <img
               className="w-32 h-32 mt-4 transform transition-transform duration-300 group-hover:scale-125"
               src={noticetype}
               alt="알림 종류 아이콘"
             />
-            <p className="mt-4 text-lg text-black text-center">
+            <p className="mt-4 text-lg text-zinc-700 text-center">
               보안 카메라에 탐재된 비전, 적외선, 가스, 사운드 센서 등을 통한
               위험 감지
               <br />
@@ -164,21 +164,21 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignInOpen }) => {
             </p>
           </div>
 
-          <div className="group relative flex flex-col items-center justify-center bg-blue-200 text-white rounded-lg shadow-lg p-6 w-full lg:w-1/2 transform transition-transform duration-300 hover:scale-105 hover:z-10 hover:shadow-2xl lg:mr-40">
+          <div className="group relative flex flex-col items-center justify-center bg-blue-200 text-black rounded-lg shadow-lg p-6 w-full lg:w-1/2 transform transition-transform duration-300 hover:scale-105 hover:z-10 hover:shadow-2xl lg:mr-40">
             <p className="text-2xl font-bold">03. 원격 모니터링</p>
             <img
               className="w-32 h-32 mt-4 transform transition-transform duration-300 group-hover:scale-125"
               src={monitoring}
               alt="모니터 아이콘"
-              />
-              <p className="mt-4 text-lg text-black text-center">
+            />
+            <p className="mt-4 text-lg text-zinc-700 text-center">
               데스크탑, 모바일을 통해 실시간으로 보안 상태를 확인하고 관리 가능
               <br />
               위험을 같은 지역 사람들이나 가족에게 공유하여 보안 강화
-              </p>
-              </div>
-              </div>
-              </div> */}
+            </p>
+          </div>
+        </div>
+      </div>
 
       <div className="w-2/3 h-auto">
         <img className="w-full mt-20 mb-10" src={timetable} alt="생활계획표" />
