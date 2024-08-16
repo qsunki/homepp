@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class CamResponseDto {
-    private final String name;
-    private final String ip;
+    private Long camId;
+    private String name;
+    private String thumbnailUrl;
 }

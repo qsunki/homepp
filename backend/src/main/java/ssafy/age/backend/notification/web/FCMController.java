@@ -1,19 +1,23 @@
 package ssafy.age.backend.notification.web;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 import ssafy.age.backend.notification.service.FCMService;
-import ssafy.age.backend.notification.service.FCMTokenDto;
+import ssafy.age.backend.security.service.MemberInfoDto;
 
-@Controller
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/v1")
 public class FCMController {
 
-    private FCMService fcmService;
+    private final FCMService fcmService;
 
-    @PostMapping("/tokens")
-    public FCMTokenDto sendToken(@RequestBody FCMTokenDto token) {
-        fcmService.save(token);
-        return token;
+    @PostMapping("/members/{email}/tokens")
+    public FCMTokenDto registerToken(
+            @RequestBody FCMTokenDto token,
+            @PathVariable String email,
+            @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+        return fcmService.save(token.getToken(), memberInfoDto.getMemberId(), email);
     }
 }

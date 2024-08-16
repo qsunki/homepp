@@ -1,14 +1,18 @@
 package ssafy.age.backend.notification.persistence;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import ssafy.age.backend.member.persistence.Member;
 
 @Entity
-@NoArgsConstructor
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FCMToken {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    public Member member;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,7 +20,8 @@ public class FCMToken {
 
     private String token;
 
-    public FCMToken(String token) {
+    public FCMToken(String token, Member member) {
         this.token = token;
+        this.member = member;
     }
 }

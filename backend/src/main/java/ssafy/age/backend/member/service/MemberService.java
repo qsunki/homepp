@@ -2,61 +2,58 @@ package ssafy.age.backend.member.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import ssafy.age.backend.member.persistence.*;
+import ssafy.age.backend.member.exception.MemberInvalidAccessException;
+import ssafy.age.backend.member.exception.MemberNotFoundException;
+import ssafy.age.backend.member.persistence.Member;
+import ssafy.age.backend.member.persistence.MemberRepository;
+import ssafy.age.backend.member.web.MemberResponseDto;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class MemberService implements UserDetailsService {
+public class MemberService {
 
     private final MemberRepository memberRepository;
     private final MemberMapper mapper = MemberMapper.INSTANCE;
 
-    public MemberDto findByEmail(String email) {
-        return mapper.toMemberDto(memberRepository.findByEmail(email));
+    public MemberResponseDto findByEmail(String email) {
+        return mapper.toMemberResponseDto(
+                memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new));
     }
 
-    public MemberDto updateMember(MemberDto memberDto) {
+    @PreAuthorize("#email == authentication.principal.email")
+    public MemberResponseDto updateMember(
+            String email, String password, String phoneNumber, Long memberId) {
         try {
-            Member member = mapper.toMember(memberDto);
-            Member foundMember = memberRepository.findByEmail(member.getEmail());
-            foundMember.updateMember(member.getPassword(), member.getPhoneNumber());
+            Member foundMember =
+                    memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
+            ;
+            foundMember.updateMember(password, phoneNumber);
             memberRepository.save(foundMember);
-            return mapper.toMemberDto(foundMember);
-        } catch(Exception e) {
-            throw new RuntimeException("회원 정보 변경 시 오류 발생");
+            return mapper.toMemberResponseDto(foundMember);
+        } catch (Exception e) {
+            throw new MemberNotFoundException();
         }
     }
 
-    public void deleteMember(MemberDto memberDto) {
+    @PreAuthorize("#email == authentication.principal.email")
+    public void deleteMember(String email, Long memberId) {
         try {
-            Member member = mapper.toMember(memberDto);
-            memberRepository.delete(memberRepository.findByEmail(member.getEmail()));
-        } catch(Exception e) {
-            throw new RuntimeException("회원 삭제 시 오류 발생");
+            memberRepository.delete(
+                    memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new));
+
+        } catch (Exception e) {
+            throw new MemberInvalidAccessException(e);
         }
     }
 
     public boolean checkDuplicatedEmail(String email) {
-        return memberRepository.findByEmail(email) == null;
+        return memberRepository.findByEmail(email).isEmpty();
     }
 
     public boolean checkDuplicatedPhoneNumber(String phoneNumber) {
-        return memberRepository.findByPhoneNumber(phoneNumber) == null;
-    }
-
-    @Override
-    @Transactional
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        try {
-            return memberRepository.findByEmail(username); 
-        } catch(Exception e) {
-            throw new RuntimeException("회원 찾지 못함");
-        }
+        return memberRepository.findByPhoneNumber(phoneNumber).isEmpty();
     }
 }

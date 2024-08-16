@@ -1,16 +1,14 @@
 package ssafy.age.backend.member.web;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import ssafy.age.backend.auth.persistence.RefreshTokenDto;
-import ssafy.age.backend.auth.persistence.TokenMapper;
-import ssafy.age.backend.auth.service.AuthService;
-import ssafy.age.backend.auth.persistence.TokenDto;
-import ssafy.age.backend.member.service.MemberDto;
-import ssafy.age.backend.member.service.MemberMapper;
 import ssafy.age.backend.member.service.MemberService;
+import ssafy.age.backend.security.service.AuthService;
+import ssafy.age.backend.security.service.MemberInfoDto;
 
 @Slf4j
 @RestController
@@ -20,63 +18,74 @@ public class MemberController {
 
     private final MemberService memberService;
     private final AuthService authService;
-    private final MemberMapper memberMapper = MemberMapper.INSTANCE;
-    private final TokenMapper tokenMapper = TokenMapper.INSTANCE;
 
     @GetMapping
-    public MemberResponseDto findMember(@RequestBody MemberRequestDto memberRequestDto) {
-        MemberDto memberDto = memberService.findByEmail(memberRequestDto.getEmail());
-        return memberMapper.toResponseDto(memberDto);
+    @Operation(summary = "로그인된 사용자 조회", description = "현재 로그인 된 사용자의 이메일 확인")
+    public String getMemberEmail(@AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+        return memberInfoDto.getEmail();
     }
 
     @PostMapping
+    @Operation(summary = "회원 가입", description = "신규 회원 가입")
     public MemberResponseDto joinMember(@RequestBody @Valid MemberRequestDto memberRequestDto) {
-        MemberDto memberDto = authService.joinMember(memberMapper.toMemberDto(memberRequestDto));
-        return memberMapper.toResponseDto(memberDto);
+        return authService.joinMember(
+                memberRequestDto.getEmail(),
+                memberRequestDto.getPassword(),
+                memberRequestDto.getPhoneNumber());
     }
 
-    @PatchMapping
-    public MemberResponseDto updateMember(@RequestBody MemberRequestDto memberRequestDto) {
-        MemberDto memberDto = memberService.updateMember(memberMapper.toMemberDto(memberRequestDto));
-        return memberMapper.toResponseDto(memberDto);
+    @PatchMapping("/{email}")
+    @Operation(summary = "사용자 정보 수정", description = "현재 로그인 된 사용자 정보 수정")
+    public MemberResponseDto updateMember(
+            @PathVariable String email,
+            @RequestBody MemberRequestDto memberRequestDto,
+            @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+        return memberService.updateMember(
+                email,
+                memberRequestDto.getPassword(),
+                memberRequestDto.getPhoneNumber(),
+                memberInfoDto.getMemberId());
     }
 
-    @DeleteMapping
-    public void deleteMember(@RequestBody MemberRequestDto memberRequestDto) {
-        MemberDto memberDto = memberMapper.toMemberDto(memberRequestDto);
-        memberService.deleteMember(memberDto);
+    @DeleteMapping("/{email}")
+    @Operation(summary = "사용자 정보 삭제", description = "현재 로그인 된 사용자 삭제")
+    public void deleteMember(
+            @PathVariable String email, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+        memberService.deleteMember(email, memberInfoDto.getMemberId());
     }
 
     @GetMapping("/{email}")
+    @Operation(summary = "이메일을 통해 사용자 정보 조회", description = "마이페이지 개인정보 조회에서 사용")
     public MemberResponseDto findByEmail(@PathVariable String email) {
-        MemberDto memberDto = memberService.findByEmail(email);
-        return memberMapper.toResponseDto(memberDto);
+        return memberService.findByEmail(email);
     }
 
-    // 사용할 수 있으면 true, 없으면 false
     @GetMapping("/emails/{email}")
+    @Operation(summary = "사용중인 이메일인지 확인", description = "사용할 수 있으면 true, 없으면 false")
     public boolean checkDuplicatedEmail(@PathVariable String email) {
         return memberService.checkDuplicatedEmail(email);
     }
 
-    // 사용할 수 있으면 true, 없으면 false
     @GetMapping("/phone-numbers/{phoneNumber}")
+    @Operation(summary = "사용중인 전화번호인지 확인", description = "사용할 수 있으면 true, 없으면 false")
     public boolean checkDuplicatedPhoneNumber(@PathVariable String phoneNumber) {
         return memberService.checkDuplicatedPhoneNumber(phoneNumber);
     }
 
     @PostMapping("/login")
+    @Operation(summary = "로그인", description = "정상적으로 로그인 시 토큰 발급")
     public TokenDto login(@RequestBody @Valid MemberRequestDto memberRequestDto) {
-        MemberDto memberDto = memberMapper.toMemberDto(memberRequestDto);
-        return authService.login(memberDto);
+        return authService.login(memberRequestDto.getEmail(), memberRequestDto.getPassword());
     }
 
     @PostMapping("/reissue")
-    public TokenDto reissue(@RequestBody @Valid RefreshTokenDto refreshTokenDto) {
-        return authService.reissue(tokenMapper.toTokenDto(refreshTokenDto));
+    @Operation(summary = "access token 재발급", description = "refresh token 유효하면, access token 재발급")
+    public TokenDto reissue(@RequestBody @Valid TokenDto tokenDto) {
+        return authService.reissue(tokenDto.getRefreshToken());
     }
 
     @PostMapping("/logout")
+    @Operation(summary = "로그아웃", description = "로그인 된 사용자 로그아웃, 토큰 만료시킴")
     public void logout(@RequestBody @Valid TokenDto tokenDto) {
         authService.logout(tokenDto);
     }

@@ -1,11 +1,11 @@
-jwt:
-  secret: d8c02ed35fda0c0ffa4dc7f37117972390f3f6672103bbcadb684985aff2e1de
 spring:
   application:
     name: homepp
   profiles:
     active: local
-  redis:
-    data:
-      host: localhost
-      port: 6379
+  docker:
+    compose:
+      profiles:
+        active: local
+  jpa:
+    open-in-view: true
