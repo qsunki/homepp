@@ -2,10 +2,8 @@ import json
 import threading
 import time
 import paho.mqtt.client as mqtt
-# from PIL import ImageDraw, Image
 from datetime import datetime
 import cv2
-import numpy as np
 import schedule
 from pyzbar import pyzbar
 import requests
@@ -18,32 +16,28 @@ import subprocess
 from flask_socketio import SocketIO, emit
 import board
 import adafruit_dht
+import RPi.GPIO as GPIO
 
 BROKER = 'i11a605.p.ssafy.io'
 PORT = 3000
-fourcc = cv2.VideoWriter_fourcc(*'H264')
-face_cascade = cv2.CascadeClassifier('haarcascade/haarcascade_frontalface_default.xml')
+# fourcc = cv2.VideoWriter_fourcc(*'H264')
+fourcc = cv2.VideoWriter_fourcc(*'avc1')
+face_cascade = cv2.CascadeClassifier('haarcascade/haarcascade_upperbody.xml')
 dht_device = adafruit_dht.DHT11(board.D2, use_pulseio=False)
 
-global cnt_record, max_cnt_record, on_record, is_detected, is_record, is_capture, is_stream, is_system_on, is_first, blt_address, cam_id, stream_id, is_req_temp_hmdt, is_nearby, temp, hmdt
-temp = hmdt = 0
-is_nearby = deque(maxlen=6)
-is_req_temp_hmdt = False
-stream_id = None
-cam_id = 2
-blt_address = 'A4:75:B9:A0:2B:41'
+global cnt_record, max_cnt_record, on_record, is_detected, is_record, is_capture, is_stream, is_system_on, is_first, blt_address, cam_id, stream_id, is_req_temp_hmdt, is_nearby, temp, hmdt, is_sound, is_fire, cap
+is_fire = is_sound = is_req_temp_hmdt = is_system_on = is_stream = on_record = is_record = is_detected = is_capture = False
 is_first = True
-is_system_on = False
-is_stream = False
-on_record = False
-is_record = False
-is_detected = False
-is_capture = False
-cnt_record = 0
+temp = hmdt = cnt_record = 0
+is_nearby = deque(maxlen=6)
+stream_id = cap = None
+# 테스트 시에는 동작을 원하는 캠id, 블루투스 주소를 아래에 입력해주셔야 합니다.
+cam_id = 63
+blt_address = 'A4:75:B9:A0:2B:41'
 max_cnt_record = 90
 
 def on_message(client, userdata, message):
-    global is_stream, cam_id, stream_id, is_system_on
+    global is_stream, cam_id, stream_id, is_system_on, cap
     topic = message.topic
     sub_message = message.payload.decode()
     print(f"Received message: {sub_message} on topic {topic}")
@@ -59,15 +53,17 @@ def on_message(client, userdata, message):
             if data.get('command') == 'start':
                 data = json.dumps({'camId': cam_id, 'status': 'RECORDING'})
                 is_system_on = True
-                client.publish('server/status', data)
                 print('system start')
-            elif data.get('command') == 'end':
+                client.publish('server/status', data)
+                print('pub sys start')
+            elif data.get('command') == 'end' and not is_first:
                 data = json.dumps({'camId': cam_id, 'status': 'OFFLINE'})
                 is_system_on = False
-                client.publish('server/status', data)
                 print('system end')
+                client.publish('server/status', data)
+                print('pub sys end')
 
-        if topic == f'cams/{cam_id}/stream' and not is_first:
+        if topic == f'cams/{cam_id}/stream' and not is_first and is_system_on:
             stream_id = data.get('key')
             command = data.get('command')
             if command == 'start':
@@ -75,10 +71,11 @@ def on_message(client, userdata, message):
                 is_stream = True
                 cap.release()
                 socketio.emit('stream_id_update', {'stream_id': stream_id})
-            elif command == 'end':
+            elif command == 'end' and not is_first and is_system_on:
                 print('stream end')
                 is_stream = False
                 socketio.emit('stop_stream')
+                time.sleep(1)
                 cap.open(0)
 
     except Exception as e:
@@ -91,11 +88,10 @@ def mqtt_setup():
     client.connect(BROKER, PORT)
     client.subscribe(f"cams/{cam_id}/control")
     client.subscribe(f"cams/{cam_id}/stream")
-    client.subscribe(f"cams/{cam_id}/video")
     client.loop_start()
 
 def decode_qr(frame):
-    global blt_address, cam_id
+    global blt_address, cam_id, is_first
     decoded_objects = pyzbar.decode(frame)
     if decoded_objects:
         for obj in decoded_objects:
@@ -103,6 +99,7 @@ def decode_qr(frame):
             data = json.loads(text)
             email = data.get('email')
             blt_address = data.get('blt_address')
+            print(blt_address)
             # API로 이메일 전송 및 응답 수신 (추후 수정)
             if email:
                 print(email)
@@ -115,12 +112,10 @@ def decode_qr(frame):
                     print(response_data)
                     cam_id = response_data.get('camId')
                     print(f'response cam_id : {cam_id}')
+                    is_first = False
+                    mqtt_setup()
                 else:
                     print(f"Failed to get camId: {response.status_code}, {response.text}")
-        print(blt_address)
-
-        return False
-    return True
 
 def interval_task():
     global is_capture, is_first, is_req_temp_hmdt, is_system_on
@@ -130,45 +125,36 @@ def interval_task():
             is_capture = True
 
 def upload_tmp_hmdt(date_time):
-    global cam_id, is_system_on, is_req_temp_hmdt, temp, hmdt
-    try:
-        temperature_c = temp = dht_device.temperature
-        humidity = hmdt = dht_device.humidity
-        if humidity is not None and temperature_c is not None:
-            print('Temp={0:0.1f}*C  Humidity={1:0.1f}%'.format(temperature_c, humidity))
-        else:
-            print('Failed to get reading. Try again!')
-    except RuntimeError as error:
-        print(f"Error reading sensor: {error}")
-    except Exception as e:
-        print(f"Unexpected error: {e}")
+    global cam_id, is_system_on, is_req_temp_hmdt, temp, hmdt, is_first
+    if is_first is False:
+        try:
+            temperature_c = temp = dht_device.temperature
+            humidity = hmdt = dht_device.humidity
+        except RuntimeError as error:
+            print(f"Error reading sensor: {error}")
+        except Exception as e:
+            print(f"Unexpected error: {e}")
 
-    if is_system_on:
-        status = "RECODING"
-    else:
-        status = "OFFLINE"
-    data = {
-        "camId": cam_id,
-        "recordedAt": date_time,
-        "temperature": temp,
-        "humidity": hmdt,
-        "status": status
-    }
-    json_data = json.dumps(data)
-    client.publish('server/envInfo', json_data)
-    is_req_temp_hmdt = False
+        if is_system_on:
+            status = "RECODING"
+        else:
+            status = "OFFLINE"
+        data = {
+            "camId": cam_id,
+            "recordedAt": date_time,
+            "temperature": temp,
+            "humidity": hmdt,
+            "status": status
+        }
+        json_data = json.dumps(data)
+        client.publish('server/envInfo', json_data)
+        is_req_temp_hmdt = False
+        print(json_data)
 
 def video_upload(file, json_data):
     global cam_id
     api_url = f'https://i11a605.p.ssafy.io/api/v1/cams/{cam_id}/videos'
     try:
-        # with open(file, 'rb') as f:
-        #     # 파일을 multipart/form-data 형식으로 전송
-        #     files = {'file': ('filename.mp4', f, 'video/mp4')}
-        #     # JSON 데이터를 문자열로 변환
-        #     data = {'timeInfo': json_data}
-        #     # POST 요청을 보냄
-        #     response = requests.post(api_url, files=files, data=data)
         encoder = MultipartEncoder(
             fields={
                 'file': (file, open(file, 'rb'), 'video/mp4'),
@@ -183,6 +169,7 @@ def video_upload(file, json_data):
         )
         print(response.status_code)
         print(response)
+        os.remove(file)
     except Exception as e:
         print(f'request error : {e}')
 
@@ -202,6 +189,7 @@ def image_upload(file, data_time):
         )
         print(response.status_code)
         print(response)
+        os.remove(file)
     except Exception as e:
         print(f'request error : {e}')
 
@@ -213,16 +201,43 @@ def is_device_nearby(device_address):
     return False
 
 def scan_for_devices():
-    global blt_address, is_nearby, is_stream
+    global blt_address, is_nearby, is_stream, is_system_on, on_record, is_detected
     while True:
         time.sleep(30)
-        if is_stream is False:
+        if is_system_on and is_stream is False and on_record is False and is_detected is False:
+            print('blt scan start')
             if is_device_nearby(blt_address):
                 print(f"Device {blt_address} is nearby.")
-                is_nearby.append(True)
+                is_system_on = False
+                data = json.dumps({'camId': cam_id, 'status': 'OFFLINE'})
+                client.publish('server/status', data)
+                print(f'pub {data}')
             else:
-                is_nearby.append(False)
-            print(list(is_nearby))
+                print(f'Device {blt_address} is not nearby.')
+
+def sensor():
+    global is_system_on, is_sound, is_fire
+    SOUND_PIN = 17
+    FLAME_SENSOR_PIN = 4
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(SOUND_PIN, GPIO.IN)
+    GPIO.setup(FLAME_SENSOR_PIN, GPIO.IN)
+    sounds = deque(maxlen=10)
+    while True:
+        time.sleep(0.05)
+        try:
+            if is_system_on:
+                if GPIO.input(FLAME_SENSOR_PIN):
+                    is_fire = True
+                    # print("불꽃 감지됨!")
+                soundlevel = GPIO.input(SOUND_PIN)
+                sounds.append(soundlevel)
+                # if soundlevel and 1 not in sounds:
+                #     print('큰소리 감지!')
+                if soundlevel:
+                    is_sound = True
+        except Exception as e:
+            print('error message :', e)
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -234,31 +249,38 @@ def index():
 def run_server():
     app.run(host='0.0.0.0', port=8000, debug=False)
 
-# schedule.every(1).minutes.do(interval_task)
-# schedule.every(15).seconds.do(interval_task)
+schedule.every(1).minutes.do(interval_task)
+# schedule.every(5).seconds.do(interval_task)
 # schedule.every(2).seconds.do(interval_task)
 
 if __name__ == '__main__':
     global client
-    mqtt_setup()
     server_thread = threading.Thread(target=run_server)
     server_thread.daemon = True  # 메인 스레드 종료 시 백그라운드 스레드도 종료됩니다.
     server_thread.start()
-    # scan_thread = threading.Thread(target=scan_for_devices)
-    # scan_thread.daemon = True  # 메인 스레드 종료 시 백그라운드 스레드도 종료됩니다.
-    # scan_thread.start()
+    scan_thread = threading.Thread(target=scan_for_devices)
+    scan_thread.daemon = True
+    scan_thread.start()
+    scan_thread = threading.Thread(target=sensor)
+    scan_thread.daemon = True
+    scan_thread.start()
     
     cap = cv2.VideoCapture(0)
+    # 캠 등록부터 하려면 아래 두 줄을 주석처리 할 것
+    # 원활한 시연을 위해 존재하는 코드입니다.
     is_first = False
+    mqtt_setup()
 
-    subprocess.Popen(['xdg-open', 'http://127.0.0.1:8000'])
+    env = os.environ.copy()
+    env['DISPLAY'] = ':0'
+    subprocess.Popen(['xdg-open', 'http://127.0.0.1:8000'], env=env)
 
     while True:
         try:
             if is_first:
                 if cap.isOpened():
                     ret, frame = cap.read()
-                    is_first = decode_qr(frame)
+                    decode_qr(frame)
             else:
                 schedule.run_pending()
                 now = datetime.now()
@@ -278,27 +300,32 @@ if __name__ == '__main__':
                         faces = face_cascade.detectMultiScale(gray, scaleFactor= 1.5, minNeighbors=3, minSize=(20,20))
                     
                         # 1-1-1. 특정 대상이 감지됐을 때
-                        if len(faces):
-                            if True in is_nearby:
-                                is_system_on = False
-                                print('device is nearby. system off')
-                                continue
+                        if len(faces) and is_sound or is_fire:
+                            if len(faces):
+                                event = 'INVASION'
+                            if is_sound:
+                                event = 'SOUND'
+                                is_sound = False
+                            if is_fire:
+                                event = 'FIRE'
+                                is_fire = False
                             is_detected = True
                             if on_record == False:  # 현재 녹화상태가 아니면
-                                # 영상 파일을 쓸 준비 (파일명, 인코더, fps, 영상크기)
+                                print(f'{event} 감지')
                                 detect_file_name = f'detected_{nowDatetime_path}.mp4'
                                 detected_video = cv2.VideoWriter(detect_file_name, fourcc, 15, (frame.shape[1], frame.shape[0]))
                                 print(nowDatetime, '감지 시작')
                                 detected_data = {
                                     "camId": cam_id,
                                     "occurredAt": nowDatetime,
-                                    "type": "INVASION"
+                                    "type": event
                                 }
                                 json_data = json.dumps(detected_data)
                                 client.publish('server/event', json_data)
+                                print(f'pub {json_data}')
                                 record_data = {
                                     "startTime": nowDatetime,
-                                    "endTime": "yyyy-mm-ddThh:mm:ssZ"
+                                    "endTime": nowDatetime
                                 }
                             cnt_record = max_cnt_record
                         if is_detected == True :     # 감지 상태가 True 이면
@@ -320,8 +347,8 @@ if __name__ == '__main__':
                             is_capture = False
                             thumbnail_file_name = f'thumbnail_{nowDatetime_path}.png'
                             cv2.imwrite(thumbnail_file_name, frame)  # 파일이름(한글안됨), 이미지
-                            image_upload(thumbnail_file_name, nowDatetime)
                             print(nowDatetime, 'thumbnail captured')
+                            image_upload(thumbnail_file_name, nowDatetime)
 
                     # 1-2. 귀가 했을 때 (대기)
                     else:
