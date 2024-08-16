@@ -122,38 +122,29 @@ function showCustomNotification({
   // 각 타입에 따른 스타일 적용
   switch (type) {
     case 'threat':
-      notificationElement.style.backgroundColor = '#FF3B30'; // 애플 레드
+      notificationElement.style.backgroundColor = '#FF3B30';
       notificationElement.style.color = 'white';
       break;
     case 'event':
-      notificationElement.style.backgroundColor = '#FF9500'; // 애플 오렌지
+      notificationElement.style.backgroundColor = '#FF9500';
       notificationElement.style.color = 'white';
       break;
     case 'register':
-      notificationElement.style.backgroundColor = '#34C759'; // 애플 그린
+      notificationElement.style.backgroundColor = '#34C759';
       notificationElement.style.color = 'white';
       break;
     case 'share':
-      notificationElement.style.backgroundColor = '#007AFF'; // 애플 블루
+      notificationElement.style.backgroundColor = '#007AFF';
       notificationElement.style.color = 'white';
       break;
     case 'onOff':
-      notificationElement.style.backgroundColor = '#8E8E93'; // 애플 그레이
+      notificationElement.style.backgroundColor = '#8E8E93';
       notificationElement.style.color = 'white';
       break;
     default:
-      notificationElement.style.backgroundColor = '#333333'; // 다크 모드 기본 배경
+      notificationElement.style.backgroundColor = '#333333';
       notificationElement.style.color = 'white';
   }
-
-  // 아이콘 추가 (선택 사항)
-  const iconElement = document.createElement('div');
-  iconElement.style.width = '24px';
-  iconElement.style.height = '24px';
-  iconElement.style.borderRadius = '50%';
-  iconElement.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
-
-  notificationElement.appendChild(iconElement);
 
   const textContent = document.createElement('div');
   textContent.innerHTML = `<strong>${title}</strong><p>${body}</p>`;
@@ -165,7 +156,7 @@ function showCustomNotification({
   // 일정 시간 후 알림 제거
   setTimeout(() => {
     document.body.removeChild(notificationElement);
-  }, 5000);
+  }, 6000);
 }
 
 export {

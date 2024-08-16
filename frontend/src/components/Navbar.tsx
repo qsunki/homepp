@@ -7,7 +7,7 @@ import {
   updateReadStatus,
   deleteNotification,
 } from '../api';
-import { useVideoStore } from '../stores/useVideoStore'; // useVideoStore 가져오기
+import { useVideoStore } from '../stores/useVideoStore';
 import SignIn from './SignIn';
 import logo from '../assets/icon/logo.png';
 import {
@@ -39,7 +39,7 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
   const [toggleMenu, setToggleMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string>('/');
-  const { isLoggedIn, logout, email } = useUserStore(); // email 가져오기
+  const { isLoggedIn, logout, email } = useUserStore();
   const [showSignIn, setShowSignIn] = useState(false);
   const [activeTab, setActiveTab] = useState<'event' | 'threat'>('event');
   const [detectionCount, setDetectionCount] = useState<number>(0);
@@ -48,7 +48,7 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
   const location = useLocation();
   const navRef = useRef<HTMLDivElement>(null);
 
-  const { setSelectedVideoId } = useVideoStore(); // useVideoStore에서 setSelectedVideoId 가져오기
+  const { setSelectedVideoId } = useVideoStore();
 
   useEffect(() => {
     setActiveMenu(location.pathname);
@@ -103,13 +103,12 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
     if (isLoggedIn) {
       try {
         const events = await fetchEventList();
-        const threats = await fetchThreatList(email); // 로그인된 유저의 이메일 사용
-        console.log(events);
+        const threats = await fetchThreatList(email);
         const combinedNotifications: NavbarNotification[] = [
           ...events.map((event) => ({
             id: event.eventId,
             message: `${event.camName} - ${event.type}`,
-            timestamp: new Date(`${event.occurredAt}Z`), // 필드명을 정확하게 수정
+            timestamp: new Date(`${event.occurredAt}Z`),
             type: 'event' as const,
             videoId: event.videoId ?? undefined,
             isRead: event.isRead,
@@ -119,14 +118,14 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
             message: `${threat.region} 근방에 ${threat.eventTypes.join(
               ', '
             )} 발생`,
-            timestamp: new Date(`${threat.recordStartedAt}Z`), // LocalDateTime을 UTC로 변환
+            timestamp: new Date(`${threat.recordStartedAt}Z`),
             type: 'threat' as const,
             isRead: threat.isRead,
           })),
         ];
         setNotifications(combinedNotifications);
       } catch (error) {
-        console.error('Failed to fetch notifications:', error);
+        // console.error('Failed to fetch notifications:', error);
       }
     }
   };
@@ -140,14 +139,13 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
     type: 'event' | 'threat'
   ) => {
     if (id === undefined || id === null) {
-      console.error('Invalid ID:', id);
       return;
     }
     try {
       if (type === 'threat') {
-        await updateReadStatus(type, id, email); // 이메일 전달
+        await updateReadStatus(type, id, email);
       } else {
-        await updateReadStatus(type, id); // 이메일 전달하지 않음
+        await updateReadStatus(type, id);
       }
 
       setNotifications(
@@ -159,12 +157,11 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
       );
     } catch (err) {
       if (axios.isAxiosError(err)) {
-        console.error('Failed to update read status:', err);
         if (err.response && err.response.status === 404) {
           alert('해당 이벤트를 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.');
         }
       } else {
-        console.error('An unexpected error occurred:', err);
+        // console.error('An unexpected error occurred:', err);
       }
     }
   };
@@ -189,10 +186,10 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
       try {
         await handleReadNotification(notification.id, notification.type);
       } catch (error) {
-        console.error('Failed to mark threat notification as read:', error);
+        // console.error('Failed to mark threat notification as read:', error);
       }
     } else {
-      console.error('Invalid notification type:', notification.type);
+      // console.error('Invalid notification type:', notification.type);
     }
   };
 
@@ -202,9 +199,9 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
   ) => {
     try {
       if (type === 'threat') {
-        await deleteNotification(type, id, email); // 이메일 전달
+        await deleteNotification(type, id, email);
       } else {
-        await deleteNotification(type, id); // 이메일 전달하지 않음
+        await deleteNotification(type, id);
       }
 
       setNotifications(
@@ -215,12 +212,11 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
       );
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error('Failed to delete notification:', error);
         if (error.response && error.response.status === 404) {
           alert('해당 이벤트를 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.');
         }
       } else {
-        console.error('An unexpected error occurred:', error);
+        // console.error('An unexpected error occurred:', error);
       }
     }
   };
@@ -235,14 +231,14 @@ const Navbar: React.FC<NavbarProps> = ({ notifications, setNotifications }) => {
       }
 
       try {
-        await handleReadNotification(notification.id, notification.type); // 읽음 처리 먼저
-        setSelectedVideoId(notification.videoId); // 알림 클릭 시 비디오 ID 설정
-        navigate(`/video/${notification.videoId}`, { replace: true }); // 비디오로 이동
+        await handleReadNotification(notification.id, notification.type);
+        setSelectedVideoId(notification.videoId);
+        navigate(`/video/${notification.videoId}`, { replace: true });
       } catch (error) {
-        console.error('Navigation or read status update failed:', error);
+        // console.error('Navigation or read status update failed:', error);
       }
     } else {
-      console.error('Invalid notification data:', notification);
+      // console.error('Invalid notification data:', notification);
     }
   };
 

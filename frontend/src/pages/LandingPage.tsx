@@ -5,8 +5,6 @@ import characterImage from '../assets/icon/character.png';
 import laptop from '../assets/landingpage/laptop.png';
 import notification from '../assets/landingpage/notification.png';
 import clock from '../assets/landingpage/clock.png';
-// import shield from '../assets/landingpage/shield.png';
-// import webCamera from '../assets/landingpage/webCamera.png';
 import automated from '../assets/landingpage/automated.png';
 import noticetype from '../assets/landingpage/noticetype.png';
 import monitoring from '../assets/landingpage/monitoring.png';
@@ -16,7 +14,7 @@ import {
   RiCameraOffLine,
   RiShieldCheckLine,
   RiSmartphoneLine,
-} from 'react-icons/ri'; // React Icons 사용
+} from 'react-icons/ri';
 
 interface LandingPageProps {
   onSignInOpen: () => void;
@@ -95,39 +93,36 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignInOpen }) => {
           Why You will Love Our Solution
         </h2>
         <div className="flex flex-col lg:flex-row justify-center items-center gap-8 lg:gap-30">
-          {/* 카드 1: 자동으로 꺼지는 카메라 */}
           <div className="group relative flex flex-col items-center bg-gray-50 rounded-xl p-8 shadow-lg transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl max-w-xs">
             <RiCameraOffLine className="text-blue-600 text-6xl mb-6" />
             <h3 className="text-xl font-bold text-gray-800 mb-4">
               자동으로 꺼지는 카메라
             </h3>
             <p className="text-gray-600 text-center">
-              집에 들어오면 카메라가 자동으로 꺼져, <br />
-              귀찮게 끄는 것을 잊어도 프라이버시가 보호됩니다.
+              외출 시 수동 ON, 귀가 시 자동 OFF <br />
+              프라이버시 보호 가능
             </p>
           </div>
 
-          {/* 카드 2: 침입자, 화재, 큰소리 감지 */}
           <div className="group relative flex flex-col items-center bg-gray-50 rounded-xl p-8 shadow-lg transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl max-w-xs">
             <RiShieldCheckLine className="text-blue-600 text-6xl mb-6" />
             <h3 className="text-xl font-bold text-gray-800 mb-4">
               침입자, 화재, 큰소리 감지
             </h3>
             <p className="text-gray-600 text-center">
-              위험 요소를 빠르게 감지하고, <br />
-              실시간으로 알림을 보내 당신의 집을 안전하게 지켜줍니다.
+              침입, 화재, 큰 소리 감지 시 <br />
+              알림 전송 및 영상 자동 녹화
             </p>
           </div>
 
-          {/* 카드 3: 원격 모니터링 */}
           <div className="group relative flex flex-col items-center bg-gray-50 rounded-xl p-8 shadow-lg transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl max-w-xs">
             <RiSmartphoneLine className="text-blue-600 text-6xl mb-6" />
             <h3 className="text-xl font-bold text-gray-800 mb-4">
               원격 모니터링
             </h3>
             <p className="text-gray-600 text-center">
-              스마트폰이나 컴퓨터를 통해 언제 어디서나 집을 지켜보고, <br />
-              이상 상황을 빠르게 파악할 수 있습니다.
+              홈캠을 통한 실시간 모니터링 가능 <br />
+              집안의 온습도 환경 확인 가능
             </p>
           </div>
         </div>

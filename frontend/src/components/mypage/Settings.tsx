@@ -127,7 +127,7 @@ const Settings: React.FC = () => {
             </label>
           </div>
         </div>
-        <hr className="my-4" /> {/* 구분선 추가 */}
+        <hr className="my-4" />
         <div className="flex items-center justify-between">
           <span className="text-lg">외부에서 공유된 알림 수신</span>
           <label className={styles.switch}>

@@ -31,23 +31,19 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({
     const getVideoStream = async (videoId: number) => {
       if (!videoId || videoSrc) return;
       try {
-        console.log(`Fetching video stream for videoId: ${videoId}`);
         const streamUrl = await fetchVideoStream(videoId);
         if (streamUrl) {
-          console.log(`Stream URL received: ${streamUrl}`);
           setVideoSrc(streamUrl);
         } else {
-          console.error('Stream URL is undefined or empty');
+          // console.error('Stream URL is undefined or empty');
         }
       } catch (error) {
-        console.error('Failed to fetch video stream:', error);
+        // console.error('Failed to fetch video stream:', error);
       }
     };
 
     restoreSelectedVideoId();
   }, [selectedVideoId, setSelectedVideoId, videoSrc]);
-
-  console.log('Rendering DetailPlayer with videoSrc:', videoSrc);
 
   return (
     <div className="w-full lg:w-2/3 lg:pr-4 relative">

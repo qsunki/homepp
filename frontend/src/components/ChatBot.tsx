@@ -57,7 +57,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ onClose }) => {
           prevMessages.map((msg) => (msg === userMessage ? botMessage : msg))
         );
       } catch (error) {
-        console.error('Failed to fetch chatbot response:', error);
+        // console.error('Failed to fetch chatbot response:', error);
         const errorMessage = {
           ...userMessage,
           answer: 'Error: Unable to fetch response',

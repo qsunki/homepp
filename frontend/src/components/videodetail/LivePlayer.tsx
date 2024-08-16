@@ -39,7 +39,6 @@ const LivePlayer: React.FC = () => {
     const getCams = async () => {
       try {
         const response = await fetchCams();
-        // console.log('Fetched cams:', response.data);
         const camsData: Cam[] = response.data.map((cam: CamData) => ({
           id: cam.camId.toString(),
           name: cam.name,
@@ -49,14 +48,13 @@ const LivePlayer: React.FC = () => {
           setSelectedCamId(camsData[0].id);
         }
       } catch (error) {
-        console.error('Failed to fetch cams:', error);
+        // console.error('Failed to fetch cams:', error);
       }
     };
 
     const getSharedCams = async () => {
       try {
         const response = await fetchSharedCams();
-        // console.log('Fetched shared cams:', response.data);
         const sharedCamsData: Cam[] = response.data.map(
           (cam: SharedCamData) => ({
             id: cam.camId.toString(),
@@ -65,7 +63,7 @@ const LivePlayer: React.FC = () => {
         );
         setSharedCams(sharedCamsData);
       } catch (error) {
-        console.error('Failed to fetch shared cams:', error);
+        // console.error('Failed to fetch shared cams:', error);
       }
     };
 
@@ -78,7 +76,6 @@ const LivePlayer: React.FC = () => {
 
     const generateWebSocketKey = () => {
       const key = uuidv4();
-      // console.log('Generated WebSocket key:', key);
       setWebSocketKey(key);
     };
 
@@ -90,27 +87,20 @@ const LivePlayer: React.FC = () => {
 
     const startStream = async () => {
       try {
-        // console.log('Starting stream for camId:', selectedCamId);
         await controlCameraStream(
           parseInt(selectedCamId),
           'start',
           webSocketKey
         );
-        // console.log('Stream started successfully for camId:', selectedCamId);
       } catch (error) {
-        console.error(
-          `Failed to start stream for camId ${selectedCamId}:`,
-          error
-        );
+        // console.error(
+        //   `Failed to start stream for camId ${selectedCamId}:`,
+        //   error
+        // );
       }
     };
 
     startStream();
-
-    // console.log(
-    //   'Initializing WebSocket and STOMP client with key:',
-    //   webSocketKey
-    // );
 
     const socketUrl = `https://i11a605.p.ssafy.io/ws`;
     const socket = new SockJS(socketUrl);
@@ -118,25 +108,18 @@ const LivePlayer: React.FC = () => {
     const client = new Client({
       webSocketFactory: () => socket,
       debug: (str) => {
-        console.log('STOMP Debug: ', str);
+        // console.log('STOMP Debug: ', str);
       },
       onConnect: (frame) => {
-        console.log('STOMP client connected, frame:', frame);
+        // console.log('STOMP client connected, frame:', frame);
         client.subscribe(`/sub/client/${webSocketKey}`, (message: IMessage) => {
-          // console.log(
-          //   'Received message on key:',
-          //   webSocketKey,
-          //   'Message:',
-          //   message
-          // );
           const signal: Signal = JSON.parse(message.body);
-          // console.log('Received signal:', signal);
           handleSignal(signal);
         });
       },
       onStompError: (frame) => {
-        console.error('Broker reported error:', frame.headers['message']);
-        console.error('Additional details:', frame.body);
+        // console.error('Broker reported error:', frame.headers['message']);
+        // console.error('Additional details:', frame.body);
       },
       onDisconnect: () => {
         // console.log('STOMP client disconnected');
@@ -155,10 +138,10 @@ const LivePlayer: React.FC = () => {
       }
       controlCameraStream(parseInt(selectedCamId), 'end', webSocketKey).catch(
         (error) => {
-          console.error(
-            `Failed to stop stream for camId ${selectedCamId}:`,
-            error
-          );
+          // console.error(
+          //   `Failed to stop stream for camId ${selectedCamId}:`,
+          //   error
+          // );
         }
       );
       setIsLive(false); // 라이브 상태를 false로 설정
@@ -166,8 +149,6 @@ const LivePlayer: React.FC = () => {
   }, [webSocketKey, selectedCamId]);
 
   const handleSignal = async (signal: Signal) => {
-    // console.log('Handling signal:', signal, 'with key:', webSocketKey);
-
     const iceConfiguration = {
       iceServers: [
         {
@@ -189,14 +170,7 @@ const LivePlayer: React.FC = () => {
       peerConnectionRef.current = peerConnection;
 
       peerConnection.onicecandidate = (event) => {
-        // console.log('icecandidate event occurred', event);
         if (event.candidate && clientRef.current?.connected) {
-          // console.log(
-          //   'Publishing ICE candidate:',
-          //   event.candidate,
-          //   'to key:',
-          //   webSocketKey
-          // );
           clientRef.current.publish({
             destination: `/pub/client/${webSocketKey}`,
             body: JSON.stringify({
@@ -208,11 +182,9 @@ const LivePlayer: React.FC = () => {
       };
 
       peerConnection.ontrack = (event) => {
-        // console.log('Track event occurred:', event);
         const [remoteStream] = event.streams;
         if (remoteVideoRef.current) {
           remoteVideoRef.current.srcObject = remoteStream;
-          // console.log('Remote stream set to video element');
           setIsLive(true); // 라이브 상태를 true로 설정
 
           if (!mediaRecorderRef.current) {
@@ -248,7 +220,6 @@ const LivePlayer: React.FC = () => {
           destination: `/pub/client/${webSocketKey}`,
           body: JSON.stringify({ type: 'answer', data: answer }),
         });
-        // console.log('Published answer with key:', webSocketKey);
       }
     }
   };
@@ -257,7 +228,6 @@ const LivePlayer: React.FC = () => {
     const peerConnection = peerConnectionRef.current;
     if (peerConnection) {
       await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-      // console.log('ICE candidate added successfully with key:', webSocketKey);
     }
   };
 

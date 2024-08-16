@@ -127,7 +127,7 @@ const CamSharingManagement: React.FC = () => {
     try {
       await deleteSharedMember(userEmail, email);
       loadSharedMembers();
-      closeModal(); // 모달 닫기
+      closeModal();
     } catch (error) {
       // console.error('공유 사용자 삭제 오류:', error);
     }
@@ -258,7 +258,6 @@ const CamSharingManagement: React.FC = () => {
         <div className="text-blue-500 text-xs mb-4">{successMessage}</div>
       )}
 
-      {/* 모달 구현 */}
       {isModalOpen && (
         <div className="custom-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>

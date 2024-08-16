@@ -13,29 +13,25 @@ const CameraToggle: React.FC<CameraToggleProps> = ({ onToggle }) => {
   const fetchCameraStatus = useCallback(async () => {
     try {
       if (camIds.length > 0) {
-        console.log('Fetching camera status for camId:', camIds[0]);
         const firstCamStatus = await fetchLatestEnvInfo(camIds[0]);
         const status = firstCamStatus.status === 'RECORDING';
-        console.log('Camera status:', status ? 'RECORDING' : 'NOT RECORDING');
         setCamerasOn(status);
         if (onToggle) onToggle(status);
       } else {
-        console.log('No camera IDs available');
+        // console.log('No camera IDs available');
       }
     } catch (error) {
-      console.error('Failed to fetch camera statuses:', error);
+      // console.error('Failed to fetch camera statuses:', error);
     }
   }, [camIds, setCamerasOn, onToggle]);
 
   // 카메라 ID 목록을 가져오는 useEffect
   useEffect(() => {
-    console.log('Fetching camera IDs...');
     fetchCamIds();
   }, [fetchCamIds]);
 
   // 카메라 상태를 가져오는 useEffect
   useEffect(() => {
-    console.log('Cam IDs:', camIds);
     if (camIds.length > 0) {
       fetchCameraStatus();
     }

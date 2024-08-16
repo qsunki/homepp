@@ -110,7 +110,6 @@ const App: React.FC = () => {
 
   const registerFcmToken = async (email: string) => {
     try {
-      console.log('Requesting FCM token...');
       const fcmToken = await requestPermissionAndGetToken(VAPID_KEY);
       if (fcmToken) {
         await sendFcmTokenToServer(email, fcmToken);

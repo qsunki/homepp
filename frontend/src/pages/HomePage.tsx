@@ -47,7 +47,7 @@ const HomePage: React.FC = () => {
         openModal(<DeviceManagement />);
       }
     } catch (error) {
-      console.error('Failed to fetch camera list:', error);
+      // console.error('Failed to fetch camera list:', error);
     }
   }, []);
 
@@ -59,7 +59,7 @@ const HomePage: React.FC = () => {
         setHumidityValue(envInfo.humidity);
         setLiveStatus(envInfo.status);
       } catch (error) {
-        console.error('Failed to fetch environment info:', error);
+        // console.error('Failed to fetch environment info:', error);
       }
     }
   }, [camId]);
@@ -101,7 +101,7 @@ const HomePage: React.FC = () => {
             navigate('/login');
           }
         } else {
-          console.error('Failed to fetch live thumbnail:', error);
+          // console.error('Failed to fetch live thumbnail:', error);
         }
       }
     };
@@ -111,7 +111,7 @@ const HomePage: React.FC = () => {
         const count = await fetchEventCount();
         setAlertCount(count);
       } catch (error) {
-        console.error('Failed to fetch alert count:', error);
+        // console.error('Failed to fetch alert count:', error);
       }
     };
 
@@ -173,7 +173,7 @@ const HomePage: React.FC = () => {
         );
         setIsCamerasOn(!isCamerasOn);
       } catch (error) {
-        console.error('Failed to toggle all cameras:', error);
+        // console.error('Failed to toggle all cameras:', error);
       }
     }
   };

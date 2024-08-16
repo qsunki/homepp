@@ -12,9 +12,9 @@
 }
 
 .wifiLoader {
-  --background: #62abff; /* 파란색 배경 */
-  --front-color: #0074e9; /* 앞쪽 파란색 */
-  --back-color: #7aacde; /* 뒤쪽 파란색 */
+  --background: #62abff;
+  --front-color: #0074e9;
+  --back-color: #7aacde;
   --text-color: #303030;
   width: 64px;
   height: 64px;

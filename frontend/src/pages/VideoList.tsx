@@ -10,7 +10,7 @@ import { useVideoStore, Video } from '../stores/useVideoStore';
 import fireIcon from '../assets/filter/fire.png';
 import intrusionIcon from '../assets/filter/thief.png';
 import soundIcon from '../assets/filter/sound.png';
-import CustomLoader from '../components/videodetail/Loader'; // Replace with your actual path
+import CustomLoader from '../components/videodetail/Loader';
 
 const getIconForType = (type: string) => {
   switch (type) {
@@ -92,12 +92,12 @@ const VideoList: React.FC = () => {
               type: event.type as 'FIRE' | 'INVASION' | 'SOUND',
             })),
             url: 'https://example.com/video-url',
-            startTime: displayDate.toLocaleString(), // 수정된 부분
+            startTime: displayDate.toLocaleString(),
             length: `${Math.floor(video.length / 60)}:${(video.length % 60)
               .toString()
               .padStart(2, '0')}`,
             type: Array.from(new Set(video.events.map((event) => event.type))),
-            date: displayDate, // 유효하지 않으면 현재 시점의 날짜 사용
+            date: displayDate,
             camera: video.camName,
             isThreat: video.threat,
           };
@@ -106,7 +106,7 @@ const VideoList: React.FC = () => {
         setVideos(apiVideos as Video[]);
         setFilteredVideos(apiVideos as Video[]);
       } catch (error) {
-        console.error('Failed to fetch videos:', error);
+        // console.error('Failed to fetch videos:', error);
         setVideos([]);
         setFilteredVideos([]);
       } finally {
@@ -167,7 +167,7 @@ const VideoList: React.FC = () => {
             type: event.type as 'FIRE' | 'INVASION' | 'SOUND',
           })),
           url: 'https://example.com/video-url',
-          startTime: new Date(recordStartedAtWithZ).toLocaleString(), // 수정된 부분
+          startTime: new Date(recordStartedAtWithZ).toLocaleString(),
           length: `${Math.floor(video.length / 60)}:${(video.length % 60)
             .toString()
             .padStart(2, '0')}`,
@@ -182,7 +182,7 @@ const VideoList: React.FC = () => {
       setFilteredVideos(apiVideos as Video[]);
       setFiltered(true); // 필터 적용 상태로 변경
     } catch (error) {
-      console.error('Failed to fetch videos:', error);
+      // console.error('Failed to fetch videos:', error);
       setVideos([]);
       setFilteredVideos([]);
     } finally {
@@ -269,14 +269,12 @@ const VideoList: React.FC = () => {
   }, {} as Record<string, Video[]>);
 
   if (!camList || camList.length === 0) {
-    return null; // Return nothing if camList is empty
+    return null;
   }
 
   return (
     <div className="flex flex-col md:flex-row">
-      {isLoading && (
-        <CustomLoader /> // Use your custom loader component here
-      )}
+      {isLoading && <CustomLoader />}
       {!isLoading && (
         <>
           <div className="hidden md:block md:w-1/4 p-4 filter-section">

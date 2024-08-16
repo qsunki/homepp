@@ -1,4 +1,3 @@
-// components/ProtectedRoute.tsx
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useUserStore } from '../stores/useUserStore';
