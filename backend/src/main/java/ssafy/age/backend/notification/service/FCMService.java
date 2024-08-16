@@ -19,6 +19,7 @@ import ssafy.age.backend.notification.persistence.FCMTokenRepository;
 import ssafy.age.backend.notification.web.FCMTokenDto;
 import ssafy.age.backend.share.persistence.Share;
 import ssafy.age.backend.video.persistence.Video;
+import ssafy.age.backend.video.persistence.VideoRepository;
 
 @Service
 @Slf4j
@@ -27,6 +28,7 @@ public class FCMService {
 
     private final FCMTokenRepository fcmTokenRepository;
     private final MemberRepository memberRepository;
+    private final VideoRepository videoRepository;
 
     public List<FCMToken> getAllFCMTokens() {
         return fcmTokenRepository.findAll();
@@ -186,7 +188,7 @@ public class FCMService {
 
     public Message buildThreatMessage(String targetToken, Video video) {
         StringBuilder types = new StringBuilder();
-        for (Event event : video.getEvents()) {
+        for (Event event : videoRepository.findEventsByVideoId(video.getId())) {
             if (event.getType() == EventType.INVASION) {
                 types.append("침입");
             } else if (event.getType() == EventType.FIRE) {
