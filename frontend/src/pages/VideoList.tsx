@@ -91,7 +91,7 @@ const VideoList: React.FC = () => {
             alerts: video.events.map((event) => ({
               type: event.type as 'FIRE' | 'INVASION' | 'SOUND',
             })),
-            url: 'https://example.com/video-url',
+            url: `/api/v1/cams/videos/${video.videoId}/stream`,
             startTime: displayDate.toLocaleString(),
             length: `${Math.floor(video.length / 60)}:${(video.length % 60)
               .toString()
@@ -166,7 +166,7 @@ const VideoList: React.FC = () => {
           alerts: video.events.map((event) => ({
             type: event.type as 'FIRE' | 'INVASION' | 'SOUND',
           })),
-          url: 'https://example.com/video-url',
+          url: `/api/v1/cams/videos/${video.videoId}/stream`,
           startTime: new Date(recordStartedAtWithZ).toLocaleString(),
           length: `${Math.floor(video.length / 60)}:${(video.length % 60)
             .toString()
