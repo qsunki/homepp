@@ -268,8 +268,8 @@ if __name__ == '__main__':
     cap = cv2.VideoCapture(0)
     # 캠 등록부터 하려면 아래 두 줄을 주석처리 할 것
     # 원활한 시연을 위해 존재하는 코드입니다.
-    is_first = False
-    mqtt_setup()
+    # is_first = False
+    # mqtt_setup()
 
     env = os.environ.copy()
     env['DISPLAY'] = ':0'
