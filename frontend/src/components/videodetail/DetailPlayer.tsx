@@ -22,18 +22,22 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({
       const storedVideoId = localStorage.getItem('selectedVideoId');
       if (storedVideoId && !selectedVideoId) {
         await setSelectedVideoId(Number(storedVideoId));
-        getVideoStream(Number(storedVideoId));
+        await getVideoStream(Number(storedVideoId));
       } else if (selectedVideoId) {
-        getVideoStream(selectedVideoId);
+        await getVideoStream(selectedVideoId);
       }
     };
 
     const getVideoStream = async (videoId: number) => {
-      if (!videoId || videoSrc || isLive) return; // isLive가 true면 스트림을 가져오지 않음
+      if (!videoId || videoSrc) return;
       try {
+        console.log(`Fetching video stream for videoId: ${videoId}`);
         const streamUrl = await fetchVideoStream(videoId);
         if (streamUrl) {
+          console.log(`Stream URL received: ${streamUrl}`);
           setVideoSrc(streamUrl);
+        } else {
+          console.error('Stream URL is undefined or empty');
         }
       } catch (error) {
         console.error('Failed to fetch video stream:', error);
@@ -41,7 +45,9 @@ const DetailPlayer: React.FC<DetailPlayerProps> = ({
     };
 
     restoreSelectedVideoId();
-  }, [selectedVideoId, setSelectedVideoId, videoSrc, isLive]);
+  }, [selectedVideoId, setSelectedVideoId, videoSrc]);
+
+  console.log('Rendering DetailPlayer with videoSrc:', videoSrc);
 
   return (
     <div className="w-full lg:w-2/3 lg:pr-4 relative">
