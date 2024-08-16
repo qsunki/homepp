@@ -604,7 +604,6 @@ export const fetchLatestEnvInfo = async (
 export const fetchEventList = async (): Promise<Event[]> => {
   try {
     const response = await api.get<Event[]>('/events');
-    console.log('Fetched events:', response.data);
 
     // 여기에서 event를 Event 타입으로 명시하고 필드명 수정
     return response.data.map((event) => ({
