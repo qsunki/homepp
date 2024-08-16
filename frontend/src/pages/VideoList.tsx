@@ -154,7 +154,7 @@ const VideoList: React.FC = () => {
 
       const apiVideos = response.data.map((video: ApiVideo) => {
         const recordStartedAtWithZ = video.recordStartedAt + 'Z';
-
+        console.log(event);
         return {
           id: video.videoId,
           title: `${video.camName}`,
@@ -177,7 +177,6 @@ const VideoList: React.FC = () => {
           isThreat: video.threat,
         };
       });
-
       setVideos(apiVideos as Video[]);
       setFilteredVideos(apiVideos as Video[]);
       setFiltered(true); // 필터 적용 상태로 변경
