@@ -133,9 +133,6 @@ const App: React.FC = () => {
           isRead: false,
         },
       ]);
-      alert(
-        `Message received: ${payload.notification?.title}\n${payload.notification?.body}`
-      );
     });
   };
 
