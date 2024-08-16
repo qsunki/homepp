@@ -11,8 +11,8 @@ import {
   fetchVideos,
   fetchThumbnail,
 } from '../../api';
-import { FaCamera } from 'react-icons/fa'; // React 아이콘에서 카메라 아이콘을 사용
-import CustomLoader from '../videodetail/Loader'; // 커스텀 로더 컴포넌트 임포트
+import { FaCamera } from 'react-icons/fa';
+import CustomLoader from '../videodetail/Loader';
 import styles from './DetailList.module.css';
 
 interface DetailListProps {
@@ -35,7 +35,7 @@ const DetailList: React.FC<DetailListProps> = ({
   const [liveCamId, setLiveCamId] = useState<number | null>(null);
   const [liveStatus, setLiveStatus] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true); // 로딩 상태
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const navigate = useNavigate();
   const {
     liveThumbnailUrl,
@@ -48,14 +48,13 @@ const DetailList: React.FC<DetailListProps> = ({
     fetchAndSetCamList,
   } = useVideoStore();
 
-  // 첫 페이지 진입 시 데이터를 불러오는 함수
   const fetchData = async () => {
-    setIsLoading(true); // 로더 시작
+    setIsLoading(true);
     try {
       if (camList.length > 0) {
         // 사용자의 모든 캠 ID 가져오기
         const userCamIds = camList.map((cam) => cam.id);
-        const camId = userCamIds[0]; // 첫 번째 캠 ID 사용
+        const camId = userCamIds[0];
         setLiveCamId(camId);
 
         const envInfo = await fetchLatestEnvInfo(camId);
@@ -80,9 +79,9 @@ const DetailList: React.FC<DetailListProps> = ({
               type: event.type as 'FIRE' | 'INVASION' | 'SOUND',
             }));
 
-            const startTime = new Date(`${video.recordStartedAt}Z`); // 'Z' 추가로 UTC로 변환
+            const startTime = new Date(`${video.recordStartedAt}Z`);
             const isValidDate = !isNaN(startTime.getTime());
-            const displayDate = isValidDate ? startTime : new Date(); // 유효하지 않으면 현재 시점의 날짜 사용
+            const displayDate = isValidDate ? startTime : new Date();
 
             return {
               id: video.videoId,
@@ -94,7 +93,7 @@ const DetailList: React.FC<DetailListProps> = ({
                 .padStart(2, '0')}`,
               alerts,
               url: video.streamUrl || 'https://example.com/video-url',
-              startTime: displayDate.toLocaleString(), // 수정된 부분
+              startTime: displayDate.toLocaleString(),
               length: `${Math.floor(video.length / 60)}:${(video.length % 60)
                 .toString()
                 .padStart(2, '0')}`,
@@ -103,7 +102,7 @@ const DetailList: React.FC<DetailListProps> = ({
                   video.events.map((event: { type: string }) => event.type)
                 )
               ),
-              date: displayDate, // 유효하지 않으면 현재 시점의 날짜 사용
+              date: displayDate,
               camera: video.camName,
               isThreat: video.threat,
             } as Video;
@@ -120,12 +119,12 @@ const DetailList: React.FC<DetailListProps> = ({
       console.error('Failed to fetch data:', error);
       setErrorMessage('Failed to load camera status.');
     } finally {
-      setIsLoading(false); // 로더 종료
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchAndSetCamList(); // camList를 초기화
+    fetchAndSetCamList();
   }, [fetchAndSetCamList]);
 
   useEffect(() => {
@@ -175,7 +174,7 @@ const DetailList: React.FC<DetailListProps> = ({
 
   return (
     <div className={`w-full lg:w-1/3 pl-4 pr-8 ${styles['video-list']}`}>
-      {isLoading && <CustomLoader />} {/* 커스텀 로더 */}
+      {isLoading && <CustomLoader />}
       {!isLoading && showLiveThumbnail && (
         <div
           className={`relative mb-4 cursor-pointer lg:block hidden ${
@@ -183,7 +182,7 @@ const DetailList: React.FC<DetailListProps> = ({
           }`}
           onClick={handleLiveThumbnailClick}
           style={{
-            height: '225px', // 이미지의 높이와 동일하게 고정
+            height: '225px',
           }}
         >
           {liveStatus === 'RECORDING' ? (

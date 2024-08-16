@@ -154,7 +154,7 @@ const DeviceManagement: React.FC<DeviceManagementProps> = ({
     if (!disableOutsideClick) {
       setShowQRCodePopup(false);
       setQrCodeData(null);
-      loadDevices(); // QR 코드 팝업을 닫을 때 기기 목록을 다시 불러옴
+      loadDevices();
     }
   };
 

@@ -39,23 +39,20 @@ export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
         email: inputEmail,
         password: inputPassword,
       });
-      // console.log('loginUser response:', response.data); // 응답 데이터 콘솔에 출력
 
       if (response.data.accessToken) {
-        // console.log('로그인 성공:', response.data); // 디버깅용 콘솔 메시지
-        localStorage.setItem('password', inputPassword); // 비밀번호 로컬 스토리지에 저장
+        localStorage.setItem('password', inputPassword);
         login(
           response.data.userId,
           inputEmail,
           inputPassword,
           response.data.accessToken
-        ); // 비밀번호를 추가로 전달
+        );
 
         // 로그인 후 FCM 토큰 요청 및 서버 전송
         await registerFcmToken(inputEmail);
 
         navigate('/home'); // 로그인 성공 시 홈페이지로 리다이렉트
-        // console.log('navigate 함수 호출됨');
         onClose();
       } else {
         setLoginError('로그인에 실패했습니다.');
@@ -76,11 +73,8 @@ export const SignIn: React.FC<SignInProps> = ({ onClose }) => {
   const registerFcmToken = async (email: string) => {
     try {
       const fcmToken = await requestPermissionAndGetToken(VAPID_KEY);
-      // console.log('FCM 토큰:', fcmToken); // FCM 토큰 콘솔 출력
       if (fcmToken) {
-        // console.log('FCM 토큰 등록 성공:', fcmToken);
         await sendFcmTokenToServer(email, fcmToken); // 서버에 FCM 토큰 전송
-        // console.log('서버에 FCM 토큰 전송 성공:', fcmToken);
       } else {
         // console.log('FCM 토큰을 가져올 수 없습니다.');
       }

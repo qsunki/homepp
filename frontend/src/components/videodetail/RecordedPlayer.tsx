@@ -8,7 +8,7 @@ import api from '../../api';
 
 interface RecordedPlayerProps {
   showDetails?: boolean;
-  videoSrc: string | null; // videoSrc를 string | null 타입으로 유지
+  videoSrc: string | null;
   isThreat?: boolean;
 }
 
@@ -33,7 +33,7 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
 
   useEffect(() => {
     if (selectedVideo) {
-      console.log('Selected video URL:', selectedVideo.url); // URL 로그 추가
+      // console.log('Selected video URL:', selectedVideo.url);
     }
   }, [selectedVideo]);
 
@@ -47,7 +47,7 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
         await api.post(`/cams/videos/${selectedVideo.id}/threat`);
         reportVideo(selectedVideo.id);
       } catch (error) {
-        console.error('Failed to report video:', error);
+        // console.error('Failed to report video:', error);
       }
     }
     setShowReportConfirm(false);
@@ -83,7 +83,7 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
   };
 
   if (!selectedVideo) {
-    console.log('No selected video found.');
+    // console.log('No selected video found.');
     return null;
   }
 
@@ -123,8 +123,8 @@ const RecordedPlayer: React.FC<RecordedPlayerProps> = ({
           width="100%"
           height="auto"
           style={{ aspectRatio: '11 / 7' }}
-          onError={(e) => console.error('ReactPlayer error:', e)}
-          onReady={() => console.log('ReactPlayer is ready.')}
+          // onError={(e) => console.error('ReactPlayer error:', e)}
+          // onReady={() => console.log('ReactPlayer is ready.')}
         />
       ) : (
         <div>Error loading video</div>

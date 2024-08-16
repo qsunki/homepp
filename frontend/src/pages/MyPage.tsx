@@ -15,7 +15,7 @@ import Announcement from '../components/mypage/Announcement';
 import FAQ from '../components/mypage/FAQ';
 import Support from '../components/mypage/Support';
 import DeviceManagement from '../components/mypage/DeviceManagement';
-import CamSharingManagement from '../components/mypage/CamSharingManagement'; // 추가된 부분
+import CamSharingManagement from '../components/mypage/CamSharingManagement';
 import Settings from '../components/mypage/Settings';
 import { useUserStore } from '../stores/useUserStore';
 
@@ -40,9 +40,6 @@ const MyPage: React.FC = () => {
   };
 
   const verifyPassword = (inputPassword: string) => {
-    // console.log('Input password:', inputPassword); // 입력 비밀번호 확인용 로그 추가
-    // console.log('Stored password:', password); // 저장된 비밀번호 확인용 로그 추가
-
     if (inputPassword === password) {
       openModal(<EditProfile onClose={closeModal} />);
     } else {

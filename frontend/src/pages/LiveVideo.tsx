@@ -17,7 +17,7 @@ const LiveVideo: React.FC = () => {
   } = useVideoStore();
 
   useEffect(() => {
-    fetchAndSetCamList(); // camList를 가져오는 API 호출
+    fetchAndSetCamList();
   }, [fetchAndSetCamList]);
 
   useEffect(() => {

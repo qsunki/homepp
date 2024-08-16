@@ -1,16 +1,13 @@
-/* 기본 스타일 */
 .live-thumbnail {
   display: block;
 }
 
-/* 모바일 버전에서는 숨기기 */
 @media (max-width: 768px) {
   .live-thumbnail {
     display: none;
   }
 }
 
-/* 추가된 클래스 */
 .video-container {
   display: flex;
   flex-direction: column;
@@ -19,21 +16,21 @@
 .video-details {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start; /* 추가하여 수직 정렬 맞춤 */
-  margin-top: 16px; /* 여유 공간 추가 */
+  align-items: flex-start;
+  margin-top: 16px;
 }
 
 .video-info {
-  margin-top: 16px; /* 여유 공간 추가 */
+  margin-top: 16px;
 }
 
 .video-list-container {
-  margin-top: 16px; /* 여유 공간 추가 */
+  margin-top: 16px;
 }
 
 @media (max-width: 768px) {
   .video-details {
     flex-direction: column;
-    align-items: center; /* 모바일에서 중앙 정렬 */
+    align-items: center;
   }
 }

@@ -1,4 +1,3 @@
-// src/components/mypage/Support.tsx
 import React, { useState } from 'react';
 
 const Support: React.FC = () => {
@@ -18,7 +17,6 @@ const Support: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // 여기서 서버로 formData를 전송하는 로직을 추가합니다.
     setIsSubmitted(true);
   };
 

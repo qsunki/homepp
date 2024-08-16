@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 기존 CSS 코드 */
 * {
   box-sizing: border-box;
 }
@@ -49,7 +48,7 @@ div {
 
 .fixed-button {
   position: fixed;
-  bottom: 100px; /* Adjusted to account for footer height */
+  bottom: 100px;
   right: 20px;
   z-index: 20;
 }

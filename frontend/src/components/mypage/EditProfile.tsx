@@ -21,7 +21,7 @@ const EditProfile: React.FC<EditProfileProps> = ({ onClose }) => {
   }, [phoneNumber]);
 
   const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, ''); // 숫자가 아닌 문자는 제거
+    const value = e.target.value.replace(/\D/g, '');
     let formattedValue = value;
 
     if (value.length > 3 && value.length <= 7) {

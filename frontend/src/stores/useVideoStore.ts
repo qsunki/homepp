@@ -20,10 +20,10 @@ export interface Video {
   alerts: Alert[];
   isThreat?: boolean;
   url: string;
-  startTime: string; // 원본 날짜 문자열 저장
+  startTime: string;
   length: string;
   type: string[];
-  date: Date; // recordStartedAt을 사용하여 생성된 Date 객체
+  date: Date;
   camera: string;
   streamUrl?: string;
 }
@@ -121,28 +121,28 @@ export const useVideoStore = create<VideoState>((set, get) => ({
 
       const startTime = new Date(`${apiVideo.recordStartedAt}Z`);
       const isValidDate = !isNaN(startTime.getTime());
-      const dateToUse = isValidDate ? startTime : new Date(); // 유효한 날짜가 아니면 현재 시점의 날짜 사용
+      const dateToUse = isValidDate ? startTime : new Date();
 
       const formattedDate = dateToUse.toLocaleString();
 
       const video: Video = {
         id: apiVideo.videoId,
         title: `${apiVideo.camName}`,
-        timestamp: formattedDate, // UI에 노출되는 값
+        timestamp: formattedDate,
         thumbnail: thumbnail || 'https://via.placeholder.com/150',
         duration: `${Math.floor(apiVideo.length / 60)}:${(apiVideo.length % 60)
           .toString()
           .padStart(2, '0')}`,
         alerts,
         url: apiVideo.streamUrl || 'https://example.com/video-url',
-        startTime: apiVideo.recordStartedAt, // 원본 문자열 그대로 저장
+        startTime: apiVideo.recordStartedAt,
         length: `${Math.floor(apiVideo.length / 60)}:${(apiVideo.length % 60)
           .toString()
           .padStart(2, '0')}`,
         type: Array.from(
           new Set(apiVideo.events.map((event: { type: string }) => event.type))
         ),
-        date: dateToUse, // 유효한 날짜가 아니면 현재 시점의 날짜 사용
+        date: dateToUse,
         camera: apiVideo.camName,
         isThreat: apiVideo.threat,
       };
@@ -152,7 +152,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
         selectedVideo: video,
       });
     } catch (error) {
-      console.error('Failed to fetch video:', error);
+      // console.error('Failed to fetch video:', error);
     }
   },
 
@@ -219,7 +219,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
 
           const startTime = new Date(`${video.recordStartedAt}Z`);
           const isValidDate = !isNaN(startTime.getTime());
-          const dateToUse = isValidDate ? startTime : new Date(); // 유효한 날짜가 아니면 현재 시점의 날짜 사용
+          const dateToUse = isValidDate ? startTime : new Date();
 
           const formattedDate = dateToUse.toLocaleString();
 
@@ -240,7 +240,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
             type: Array.from(
               new Set(video.events.map((event: { type: string }) => event.type))
             ),
-            date: dateToUse, // 유효한 날짜가 아니면 현재 시점의 날짜 사용
+            date: dateToUse,
             camera: video.camName,
             isThreat: video.threat,
           };
@@ -255,9 +255,9 @@ export const useVideoStore = create<VideoState>((set, get) => ({
       });
 
       const updatedState = get();
-      console.log('Updated state after fetchAndSetVideos:', updatedState);
+      // console.log('Updated state after fetchAndSetVideos:', updatedState);
     } catch (error) {
-      console.error('Failed to fetch videos:', error);
+      // console.error('Failed to fetch videos:', error);
     }
   },
 
@@ -265,7 +265,6 @@ export const useVideoStore = create<VideoState>((set, get) => ({
   setFilteredVideos: (videos: Video[]) => set({ filteredVideos: videos }),
 
   fetchAndSetCamList: async () => {
-    console.log('fetchAndSetCamList');
     try {
       const response = await fetchCams();
       const camList = response.data.map(
@@ -276,7 +275,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
       );
       set({ camList });
     } catch (error) {
-      console.error('Failed to fetch cam list:', error);
+      // console.error('Failed to fetch cam list:', error);
     }
   },
 }));

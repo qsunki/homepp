@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import '@fortawesome/fontawesome-free/css/all.min.css'; // Font Awesome CSS 파일 임포트
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const Announcement: React.FC = () => {
   const [selectedAnnouncement, setSelectedAnnouncement] = useState<

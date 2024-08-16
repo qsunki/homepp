@@ -17,10 +17,8 @@ const api = axios.create({
 export const setAuthToken = (token: string | null) => {
   if (token) {
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    // console.log('Authorization token set:', token); // 디버깅용 콘솔 출력
   } else {
     delete api.defaults.headers.common['Authorization'];
-    // console.log('Authorization token removed'); // 디버깅용 콘솔 출력
   }
 };
 
@@ -33,7 +31,6 @@ if (token) {
 // 인터셉터 추가하여 요청 설정을 확인
 api.interceptors.request.use(
   (config) => {
-    // console.log('Request config:', config); // 요청 설정을 콘솔에 출력
     return config;
   },
   (error) => {
@@ -61,7 +58,7 @@ interface LoginData {
 export interface CamData {
   camId: number;
   name: string;
-  status?: string; // status 속성 추가
+  status?: string;
 }
 
 // 비디오 데이터 타입 정의
@@ -189,9 +186,7 @@ export const registerUser = async (
 // 중복 이메일 체크 API 호출 함수
 export const checkDuplicateEmail = async (email: string): Promise<boolean> => {
   try {
-    // console.log(`Checking duplicate email: ${email}`);
     const response = await api.get<boolean>(`/members/emails/${email}`);
-    // console.log('Email check response:', response.data);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -211,11 +206,9 @@ export const checkDuplicatePhoneNumber = async (
   phoneNumber: string
 ): Promise<boolean> => {
   try {
-    // console.log(`Checking duplicate phone number: ${phoneNumber}`);
     const response = await api.get<boolean>(
       `/members/phone-numbers/${phoneNumber}`
     );
-    // console.log('Phone number check response:', response.data);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -234,7 +227,6 @@ export const checkDuplicatePhoneNumber = async (
 export const getUserInfo = async (): Promise<AxiosResponse<string>> => {
   try {
     const response = await api.get<string>('/members');
-    // console.log('getUserInfo API response:', response.data); // API 응답 확인
     return response;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -355,10 +347,10 @@ export const fetchVideoById = async (
     // isThreat 필드를 이용해 isReported 상태를 설정
     const video = {
       ...videoData,
-      recordStartedAt: `${videoData.recordStartedAt}Z`, // Z를 추가하여 UTC로 변환
+      recordStartedAt: `${videoData.recordStartedAt}Z`,
       events: videoData.events.map((event) => ({
         ...event,
-        occurredAt: `${event.occurredAt}Z`, // Z를 추가하여 UTC로 변환
+        occurredAt: `${event.occurredAt}Z`,
       })),
     };
 
@@ -396,9 +388,7 @@ export const fetchVideoStream = async (videoId: number): Promise<string> => {
 export const fetchThumbnail = async (videoId: number): Promise<string> => {
   try {
     const response = await api.get(`/cams/videos/${videoId}/thumbnail`);
-    // response.data에 썸네일의 경로가 포함된다고 가정합니다.
     const imageUrl = response.data;
-    // console.log('Fetched thumbnail URL:', imageUrl); // URL 콘솔 출력
     return imageUrl;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -443,7 +433,6 @@ export const connectWebSocket = (
       console.log('STOMP Debug: ', str);
     },
     onConnect: (frame) => {
-      console.log('STOMP client connected, frame:', frame);
       client.subscribe(`/sub/client/${key}`, onMessage);
     },
     onStompError: (frame) => {
@@ -470,7 +459,6 @@ export const publishWebSocketMessage = (
       destination: `/pub/client/${key}`,
       body: JSON.stringify(message),
     });
-    // console.log('Published message:', message);
   } else {
     console.error('STOMP client is not connected');
   }
@@ -531,7 +519,6 @@ export const sendFcmTokenToServer = async (email: string, token: string) => {
       `/members/${encodeURIComponent(email)}/tokens`,
       { token }
     );
-    // console.log('서버에 FCM 토큰 전송 성공:', response.data);
     return response.data;
   } catch (error) {
     console.error('Failed to send FCM token to server:', error);
@@ -542,12 +529,10 @@ export const sendFcmTokenToServer = async (email: string, token: string) => {
 // 실시간 썸네일 가져오기 API 호출 함수
 export const fetchLiveThumbnail = async (camId: number): Promise<string> => {
   try {
-    // console.log('Fetching live thumbnail for camId:', camId);
     const response = await api.get(`/cams/${camId}/thumbnail`, {
       responseType: 'blob',
     });
     const imageUrl = URL.createObjectURL(response.data);
-    // console.log('Live thumbnail URL:', imageUrl);
     return imageUrl;
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
@@ -648,7 +633,6 @@ export const fetchEventList = async (): Promise<Event[]> => {
 export const fetchThreatList = async (email: string): Promise<Threat[]> => {
   try {
     const response = await api.get<Threat[]>(`/members/${email}/threats`);
-    // console.log('Fetched threats:', response.data); // 로그 추가
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -675,7 +659,6 @@ export const updateReadStatus = async (
         ? `/events/${id}` // 감지 이벤트 API 경로
         : `/members/${email}/threats/${id}`; // 위협 알림 API 경로
     await api.patch(endpoint, { isRead: true });
-    // console.log(`Updated read status for ${type} with ID ${id}`);
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error(
@@ -726,9 +709,6 @@ export const controlCameraDetection = async (
       command,
     };
     await api.post(`/cams/${camId}/control`, requestBody);
-    // console.log(
-    //   `Camera detection ${command} command sent successfully for camId ${camId} with key ${webSocketKey}`
-    // );
   } catch (error) {
     console.error(
       `Failed to send ${command} command for camId ${camId} with key ${webSocketKey}:`,
@@ -749,7 +729,6 @@ export const controlAllCamerasDetection = async (
       controlCameraDetection(camId, command, webSocketKey)
     );
     await Promise.all(promises); // 모든 요청이 완료될 때까지 기다림
-    // console.log(`All cameras detection ${command} command sent successfully`);
   } catch (error) {
     console.error(`Failed to send ${command} command to all cameras:`, error);
     throw error;
@@ -769,9 +748,6 @@ export const controlCameraStream = async (
       command,
     };
     await api.post(`/cams/${camId}/stream`, requestBody);
-    // console.log(
-    //   `Camera stream ${command} command sent successfully for camId ${camId} with key ${webSocketKey}`
-    // );
   } catch (error) {
     console.error(
       `Failed to send ${command} command for camId ${camId} with key ${webSocketKey}:`,
@@ -792,7 +768,6 @@ export const controlAllCamerasStream = async (
       controlCameraStream(camId, command, webSocketKey)
     );
     await Promise.all(promises); // 모든 요청이 완료될 때까지 기다림
-    // console.log(`All cameras stream ${command} command sent successfully`);
   } catch (error) {
     console.error(`Failed to send ${command} command to all cameras:`, error);
     throw error;
@@ -811,7 +786,6 @@ export const fetchSharedCams = async (): Promise<
 > => {
   try {
     const response = await api.get<SharedCamData[]>('/cams/shared');
-    // console.log('Fetched shared cams:', response.data); // 로그 추가
     return response;
   } catch (error) {
     if (axios.isAxiosError(error)) {
