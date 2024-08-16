@@ -1,0 +1,36 @@
+.live-thumbnail {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .live-thumbnail {
+    display: none;
+  }
+}
+
+.video-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.video-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: 16px;
+}
+
+.video-info {
+  margin-top: 16px;
+}
+
+.video-list-container {
+  margin-top: 16px;
+}
+
+@media (max-width: 768px) {
+  .video-details {
+    flex-direction: column;
+    align-items: center;
+  }
+}
