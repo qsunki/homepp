@@ -20,9 +20,8 @@ import RPi.GPIO as GPIO
 
 BROKER = 'i11a605.p.ssafy.io'
 PORT = 3000
-# fourcc = cv2.VideoWriter_fourcc(*'H264')
 fourcc = cv2.VideoWriter_fourcc(*'avc1')
-face_cascade = cv2.CascadeClassifier('haarcascade/haarcascade_upperbody.xml')
+face_cascade = cv2.CascadeClassifier('haarcascade/haarcascade_frontalface_default.xml')
 dht_device = adafruit_dht.DHT11(board.D2, use_pulseio=False)
 
 global cnt_record, max_cnt_record, on_record, is_detected, is_record, is_capture, is_stream, is_system_on, is_first, blt_address, cam_id, stream_id, is_req_temp_hmdt, is_nearby, temp, hmdt, is_sound, is_fire, cap, nowDatetime
@@ -308,7 +307,7 @@ if __name__ == '__main__':
                         faces = face_cascade.detectMultiScale(gray, scaleFactor= 1.5, minNeighbors=3, minSize=(20,20))
                     
                         # 1-1-1. 특정 대상이 감지됐을 때
-                        if len(faces) and is_sound or is_fire:
+                        if len(faces) or is_sound or is_fire:
                             if len(faces):
                                 event = 'INVASION'
                             if is_sound:
