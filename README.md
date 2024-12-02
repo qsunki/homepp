@@ -17,9 +17,6 @@
   - JWT Authentication
   - REST API
   - FCM
-* 배포 환경
-  - URL: https://i11a605.p.ssafy.io/
-  - 테스트 계정: live1@ssafy.com / 1234
 
 ## 팀 소개
 
