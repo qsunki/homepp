@@ -30,18 +30,18 @@
 ## 프로젝트 상세 설명
 
 ### ERD
-![home++_ERD](/uploads/47906a4070c5809eef5876b003c062c1/home++_ERD.png)
+![home++_ERD](https://github.com/user-attachments/assets/3074c3d2-b2f0-4ed8-a076-cbdea85c5a42)
 
 ### Architecture
-![architecture](/uploads/c5a2a4569c9e355b1d6975184db5f6fb/architecture.png)
+![architecture](https://github.com/user-attachments/assets/0453089b-7b6e-4fe9-9797-06bd4dac4fa5)
 
 ### 통신 구조
-![4](/uploads/509624a70c7d8f13d9f67a3e1819aca0/4.png)
+![4](https://github.com/user-attachments/assets/cdd50c97-3c6e-4502-9dcc-3c8042515c28)
 
 ### 배포 구조
-![5](/uploads/d44cb6c98428d1b213d088bdb572b615/5.png)
+![5](https://github.com/user-attachments/assets/fe6d5bd2-5829-4de4-8c59-e1b467992a50)
 
 ### 동작 프로세스
-![1](/uploads/24e5f9929c2a1da977548b5296a9aad6/1.png)
-![2](/uploads/81e2a9e071876bada128953bac0c52bb/2.png)
-![3](/uploads/43c380af303f26a3dba54bbba2d32605/3.png)
+![1](https://github.com/user-attachments/assets/2640e410-3b44-464f-86a5-f5b3c619fabc)
+![2](https://github.com/user-attachments/assets/94ce7929-30dc-439f-a17b-0b30cf3a1d2c)
+![3](https://github.com/user-attachments/assets/1bcb4063-d886-4d61-a510-6f8cd75f8fc8)
