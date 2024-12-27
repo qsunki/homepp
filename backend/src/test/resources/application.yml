@@ -11,6 +11,9 @@ openAPI:
 
 file:
   dir: /app/
+  video: classpath:video
+  video-thumbnail: classpath:video-thumbnail
+  cam-thumbnail: classpath:cam-thumbnail
 
 mqtt:
   broker:
