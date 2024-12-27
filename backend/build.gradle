@@ -98,7 +98,7 @@ spotless {
 	}
 
 	format 'yaml', {
-		target '*.yml', '*.yaml'
+		target '**/*.yml'
 
 		trimTrailingWhitespace()
 		indentWithSpaces(2)
