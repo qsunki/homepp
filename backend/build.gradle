@@ -8,6 +8,7 @@ plugins {
 
 group = 'ssafy.age'
 version = '0.0.1-SNAPSHOT'
+description = 'homepp-server'
 
 java {
 	toolchain {
@@ -87,6 +88,15 @@ spotless {
 		indentWithTabs()
 		endWithNewline()
 	}
+
+	format 'yaml', {
+		target '*.yml', '*.yaml'
+
+		trimTrailingWhitespace()
+		indentWithSpaces(2)
+		endWithNewline()
+	}
+
 	java {
 		removeUnusedImports()
 		googleJavaFormat().aosp().reflowLongStrings().skipJavadocFormatting()
