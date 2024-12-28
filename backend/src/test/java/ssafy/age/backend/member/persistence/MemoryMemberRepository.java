@@ -23,9 +23,7 @@ public class MemoryMemberRepository {
     }
 
     public Optional<Member> findByEmail(String email) {
-        return members.stream()
-                .filter(member -> member.getEmail().equals(email))
-                .findFirst();
+        return members.stream().filter(member -> member.getEmail().equals(email)).findFirst();
     }
 
     public List<Member> findAll() {
