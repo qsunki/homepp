@@ -55,7 +55,6 @@ public class FCMService {
 
         FCMToken fcmToken = new FCMToken(token, member);
         FCMToken saved = fcmTokenRepository.save(fcmToken);
-        member.getFcmTokenList().add(saved);
         memberRepository.save(member);
         return new FCMTokenDto(saved.getToken());
     }

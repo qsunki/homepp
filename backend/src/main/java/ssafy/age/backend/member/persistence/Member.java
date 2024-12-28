@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import ssafy.age.backend.cam.persistence.Cam;
-import ssafy.age.backend.notification.persistence.FCMToken;
 import ssafy.age.backend.share.persistence.Share;
 
 @Getter
@@ -33,12 +31,6 @@ public class Member {
     private String phoneNumber;
 
     @OneToMany(mappedBy = "member")
-    private List<FCMToken> fcmTokenList = new ArrayList<>();
-
-    @OneToMany(mappedBy = "member")
-    private List<Cam> camList = new ArrayList<>();
-
-    @OneToMany(mappedBy = "member")
     private List<Share> shareList = new ArrayList<>();
 
     @Builder
@@ -48,16 +40,12 @@ public class Member {
             String password,
             LocalDateTime createdAt,
             String phoneNumber,
-            List<FCMToken> fcmTokenList,
-            List<Cam> camList,
             List<Share> shareList) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.createdAt = createdAt;
         this.phoneNumber = phoneNumber;
-        this.fcmTokenList = fcmTokenList;
-        this.camList = camList;
         this.shareList = shareList;
     }
 

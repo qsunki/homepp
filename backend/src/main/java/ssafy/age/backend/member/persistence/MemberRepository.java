@@ -12,7 +12,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     boolean existsByEmail(String email);
 
-    @Query("SELECT m FROM Member m JOIN m.camList c WHERE c.id = :camId")
+    @Query("SELECT m FROM Member m JOIN Cam c WHERE c.id = :camId")
     Optional<Member> findByCamId(@Param("camId") Long camId);
 
     @Query("SELECT m FROM Member m JOIN Cam c JOIN Video v WHERE v.id = :videoId")
