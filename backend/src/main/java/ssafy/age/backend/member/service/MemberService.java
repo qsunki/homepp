@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ssafy.age.backend.member.exception.MemberInvalidAccessException;
 import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.Member;
@@ -23,13 +24,11 @@ public class MemberService {
                 memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new));
     }
 
-    @PreAuthorize("#email == authentication.principal.email")
-    public MemberResponseDto updateMember(
-            String email, String password, String phoneNumber, Long memberId) {
+    @Transactional
+    public MemberResponseDto updateMember(String password, String phoneNumber, Long memberId) {
         try {
             Member foundMember =
                     memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
-            ;
             foundMember.updateMember(password, phoneNumber);
             memberRepository.save(foundMember);
             return mapper.toMemberResponseDto(foundMember);

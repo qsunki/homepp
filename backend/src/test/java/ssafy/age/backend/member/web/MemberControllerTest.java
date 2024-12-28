@@ -65,13 +65,13 @@ class MemberControllerTest {
         String email = "current@example.com";
         String updatedPassword = "1234";
         String updatedPhoneNumber = "010-1111-1111";
-        MemberRequestDto requestDto =
-                new MemberRequestDto(email, updatedPassword, updatedPhoneNumber);
+        MemberUpdateRequestDto requestDto =
+                new MemberUpdateRequestDto(updatedPassword, updatedPhoneNumber);
         MemberResponseDto responseDto = new MemberResponseDto(email, updatedPhoneNumber);
-        given(memberService.updateMember(email, updatedPassword, updatedPhoneNumber, memberId))
-                .willReturn(responseDto);
         String request = objectMapper.writeValueAsString(requestDto);
         String response = objectMapper.writeValueAsString(responseDto);
+        given(memberService.updateMember(updatedPassword, updatedPhoneNumber, memberId))
+                .willReturn(responseDto);
 
         UsernamePasswordAuthenticationToken authentication =
                 UsernamePasswordAuthenticationToken.authenticated(
@@ -79,7 +79,7 @@ class MemberControllerTest {
 
         // when & then
         mockMvc.perform(
-                        patch("/api/v1/members/{email}", email)
+                        patch("/api/v1/members")
                                 .with(authentication(authentication))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(request))

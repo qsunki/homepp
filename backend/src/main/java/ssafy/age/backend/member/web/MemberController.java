@@ -34,17 +34,13 @@ public class MemberController {
                 memberRequestDto.getPhoneNumber());
     }
 
-    @PatchMapping("/{email}")
+    @PatchMapping
     @Operation(summary = "사용자 정보 수정", description = "현재 로그인 된 사용자 정보 수정")
     public MemberResponseDto updateMember(
-            @PathVariable String email,
-            @RequestBody MemberRequestDto memberRequestDto,
+            @RequestBody MemberUpdateRequestDto requestDto,
             @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
         return memberService.updateMember(
-                email,
-                memberRequestDto.getPassword(),
-                memberRequestDto.getPhoneNumber(),
-                memberInfoDto.getMemberId());
+                requestDto.password(), requestDto.phoneNumber(), memberInfoDto.getMemberId());
     }
 
     @DeleteMapping("/{email}")
