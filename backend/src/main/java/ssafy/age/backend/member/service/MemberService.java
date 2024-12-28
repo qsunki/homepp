@@ -40,10 +40,10 @@ public class MemberService {
     }
 
     public boolean checkDuplicatedEmail(String email) {
-        return memberRepository.findByEmail(email).isEmpty();
+        return memberRepository.existsByEmail(email);
     }
 
     public boolean checkDuplicatedPhoneNumber(String phoneNumber) {
-        return memberRepository.findByPhoneNumber(phoneNumber).isEmpty();
+        return memberRepository.existsByPhoneNumber(phoneNumber);
     }
 }

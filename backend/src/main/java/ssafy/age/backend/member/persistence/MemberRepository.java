@@ -8,9 +8,9 @@ import org.springframework.data.repository.query.Param;
 public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByEmail(String email);
 
-    Optional<Member> findByPhoneNumber(String phoneNumber);
-
     boolean existsByEmail(String email);
+
+    boolean existsByPhoneNumber(String phoneNumber);
 
     @Query("SELECT m FROM Member m JOIN Cam c WHERE c.id = :camId")
     Optional<Member> findByCamId(@Param("camId") Long camId);
