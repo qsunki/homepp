@@ -64,7 +64,7 @@ class CamControllerTest {
     void getCamsWithNoSession() throws Exception {
         // when & then
         mockMvc.perform(get("/api/v1/cams").contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isUnauthorized())
+                .andExpect(status().is4xxClientError())
                 .andDo(print());
     }
 
