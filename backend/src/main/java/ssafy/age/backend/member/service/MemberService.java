@@ -36,8 +36,7 @@ public class MemberService {
 
     @Transactional
     public void deleteMember(Long memberId) {
-        memberRepository.delete(
-                memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new));
+        memberRepository.delete(memberRepository.getReferenceById(memberId));
     }
 
     public boolean checkDuplicatedEmail(String email) {
