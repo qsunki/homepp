@@ -32,4 +32,8 @@ public class MemoryMemberRepository {
     public Optional<Member> findById(Long id) {
         return members.stream().filter(member -> member.getId().equals(id)).findFirst();
     }
+
+    public void delete(Member member) {
+        members.remove(member);
+    }
 }

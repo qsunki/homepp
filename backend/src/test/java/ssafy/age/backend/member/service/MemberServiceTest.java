@@ -1,8 +1,10 @@
 package ssafy.age.backend.member.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willAnswer;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -33,8 +35,24 @@ class MemberServiceTest {
     @BeforeEach
     void setUp() {
         memberService = new MemberService(memberRepository, passwordEncoder);
+
         given(memberRepository.findById(anyLong()))
                 .willAnswer(invocation -> fakeMemberRepository.findById(invocation.getArgument(0)));
+
+        given(memberRepository.getReferenceById(anyLong()))
+                .willAnswer(
+                        invocation ->
+                                fakeMemberRepository
+                                        .findById(invocation.getArgument(0))
+                                        .orElseThrow());
+
+        willAnswer(
+                        invocation -> {
+                            fakeMemberRepository.delete(invocation.getArgument(0));
+                            return null;
+                        })
+                .given(memberRepository)
+                .delete(any(Member.class));
     }
 
     @DisplayName("비밀번호와 전화번호를 업데이트 할 수 있다.")
@@ -55,5 +73,19 @@ class MemberServiceTest {
         assertThat(memberResponseDto.getPhoneNumber()).isEqualTo(updatedPhoneNumber);
         assertThat(passwordEncoder.matches(updatedPassword, member.getPassword())).isTrue();
         assertThat(member.getPhoneNumber()).isEqualTo(updatedPhoneNumber);
+    }
+
+    @DisplayName("회원을 삭제하여 탈퇴처리 할 수 있다.")
+    @Test
+    void deleteMember() {
+        // given
+        Member member = new MemberStub(1L, "test@example.com", "testpassword", "010-0000-0000");
+        fakeMemberRepository.save(member);
+
+        // when
+        memberService.deleteMember(member.getId());
+
+        // then
+        assertThat(fakeMemberRepository.findById(member.getId())).isEmpty();
     }
 }
