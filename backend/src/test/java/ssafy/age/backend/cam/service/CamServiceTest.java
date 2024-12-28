@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import ssafy.age.backend.cam.persistence.*;
 import ssafy.age.backend.cam.web.CamResponseDto;
 import ssafy.age.backend.file.FileStorage;
@@ -24,6 +26,7 @@ import ssafy.age.backend.notification.service.FCMService;
 import ssafy.age.backend.util.IPUtil;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class CamServiceTest {
 
     @Mock CamRepository camRepository;
@@ -47,16 +50,21 @@ class CamServiceTest {
                         fcmService,
                         fileStorage,
                         ipUtil);
+        given(camRepository.findCamsByMemberId(anyLong()))
+                .willAnswer(
+                        invocation ->
+                                fakeCamRepository.findCamsByMemberId(invocation.getArgument(0)));
+        given(memberRepository.findByEmail(anyString()))
+                .willAnswer(
+                        invocation -> fakeMemberRepository.findByEmail(invocation.getArgument(0)));
+        given(camRepository.save(any(Cam.class)))
+                .willAnswer(invocation -> fakeCamRepository.save(invocation.getArgument(0)));
     }
 
     @DisplayName("memberId로 캠 목록을 가져올 수 있다.")
     @Test
     void getCams() {
         // given
-        given(camRepository.findCamsByMemberId(anyLong()))
-                .willAnswer(
-                        invocation ->
-                                fakeCamRepository.findCamsByMemberId(invocation.getArgument(0)));
         Long memberId = 1L;
         Member member =
                 new MemberStub(
@@ -108,11 +116,6 @@ class CamServiceTest {
     @Test
     void creatCam() {
         // given
-        given(memberRepository.findByEmail(anyString()))
-                .willAnswer(
-                        invocation -> fakeMemberRepository.findByEmail(invocation.getArgument(0)));
-        given(camRepository.save(any(Cam.class)))
-                .willAnswer(invocation -> fakeCamRepository.save(invocation.getArgument(0)));
         Long memberId = 1L;
         String email = "test@example.com";
         String clientIP = "0.0.0.0";
