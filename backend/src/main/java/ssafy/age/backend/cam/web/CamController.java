@@ -3,7 +3,6 @@ package ssafy.age.backend.cam.web;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -38,10 +37,13 @@ public class CamController {
     @PostMapping
     @Operation(summary = "캠 등록", description = "디바이스에서 요청을 보내서 캠 초기등록")
     public CamResponseDto createCam(
-            @RequestBody Map<String, String> map, HttpServletRequest request) {
-        String ip = request.getHeader("X-Forwarded-For");
-        if (ip == null) ip = request.getRemoteAddr();
-        return camService.createCam(map.get("email"), ip);
+            @RequestBody CamCreateRequestDto camCreateRequestDto,
+            @RequestHeader("X-Forwarded-For") String ip,
+            HttpServletRequest request) {
+        if (ip == null) {
+            ip = request.getRemoteAddr();
+        }
+        return camService.createCam(camCreateRequestDto.email(), ip);
     }
 
     @GetMapping("/{camId}")
