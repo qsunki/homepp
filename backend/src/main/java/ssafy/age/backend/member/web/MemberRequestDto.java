@@ -11,4 +11,10 @@ public class MemberRequestDto {
     @NotBlank private String password;
 
     private String phoneNumber;
+
+    public MemberRequestDto(String email, String password, String phoneNumber) {
+        this.email = email;
+        this.password = password;
+        this.phoneNumber = phoneNumber;
+    }
 }
