@@ -17,8 +17,9 @@ import ssafy.age.backend.member.web.MemberResponseDto;
 @RequiredArgsConstructor
 public class MemberService {
 
+    private static final MemberMapper mapper = MemberMapper.INSTANCE;
+
     private final MemberRepository memberRepository;
-    private final MemberMapper mapper = MemberMapper.INSTANCE;
     private final PasswordEncoder passwordEncoder;
 
     public MemberResponseDto findByEmail(String email) {
