@@ -69,15 +69,6 @@ public class Cam {
         this.name = name;
     }
 
-    public void registerMember(Member member) {
-        this.member = member;
-        this.status = CamStatus.REGISTERED;
-    }
-
-    public void unregister() {
-        this.status = CamStatus.UNREGISTERED;
-    }
-
     public void updateThumbnailUrl(String thumbnailUrl) {
         this.thumbnailUrl = thumbnailUrl;
     }
