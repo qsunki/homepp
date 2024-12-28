@@ -24,7 +24,8 @@ public class TestSecurityConfig {
                 .authorizeHttpRequests(
                         authorize ->
                                 authorize
-                                        .requestMatchers(HttpMethod.POST, "/api/v1/members")
+                                        .requestMatchers(
+                                                HttpMethod.POST, "/api/v1/members", "/api/v1/cams")
                                         .permitAll()
                                         .anyRequest()
                                         .authenticated());
