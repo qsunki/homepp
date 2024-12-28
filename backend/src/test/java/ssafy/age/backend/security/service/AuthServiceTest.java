@@ -60,7 +60,7 @@ class AuthServiceTest {
         assertThat(fakeMemberRepository.findAll()).hasSize(1);
         assertThat(fakeMemberRepository.existsByEmail(email)).isTrue();
 
-        Member saved = fakeMemberRepository.findByEmail(email);
+        Member saved = fakeMemberRepository.findByEmail(email).orElseThrow();
         assertThat(saved.getEmail()).isEqualTo(email);
         assertThat(saved.getPhoneNumber()).isEqualTo(phoneNumber);
         assertThat(passwordEncoder.matches(password, saved.getPassword())).isTrue();

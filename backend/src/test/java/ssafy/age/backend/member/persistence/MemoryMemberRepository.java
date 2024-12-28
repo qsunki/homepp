@@ -2,6 +2,7 @@ package ssafy.age.backend.member.persistence;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class MemoryMemberRepository {
 
@@ -21,11 +22,10 @@ public class MemoryMemberRepository {
                 member.getPhoneNumber());
     }
 
-    public Member findByEmail(String email) {
+    public Optional<Member> findByEmail(String email) {
         return members.stream()
                 .filter(member -> member.getEmail().equals(email))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
     public List<Member> findAll() {
