@@ -20,6 +20,7 @@ import ssafy.age.backend.member.persistence.MemberRepository;
 import ssafy.age.backend.member.persistence.MemberStub;
 import ssafy.age.backend.mqtt.MqttService;
 import ssafy.age.backend.notification.service.FCMService;
+import ssafy.age.backend.util.IPUtil;
 
 @ExtendWith(MockitoExtension.class)
 class CamServiceTest {
@@ -29,6 +30,7 @@ class CamServiceTest {
     @Mock MqttService mqttService;
     @Mock FCMService fcmService;
     @Mock FileStorage fileStorage;
+    @Mock IPUtil ipUtil;
     MemoryCamRepository fakeCamRepository = new MemoryCamRepository();
 
     CamService camService;
@@ -37,17 +39,22 @@ class CamServiceTest {
     void setUp() {
         camService =
                 new CamService(
-                        camRepository, memberRepository, mqttService, fcmService, fileStorage);
-        given(camRepository.findCamsByMemberId(anyLong()))
-                .willAnswer(
-                        invocation ->
-                                fakeCamRepository.findCamsByMemberId(invocation.getArgument(0)));
+                        camRepository,
+                        memberRepository,
+                        mqttService,
+                        fcmService,
+                        fileStorage,
+                        ipUtil);
     }
 
     @DisplayName("memberId로 캠 목록을 가져올 수 있다.")
     @Test
     void getCams() {
         // given
+        given(camRepository.findCamsByMemberId(anyLong()))
+                .willAnswer(
+                        invocation ->
+                                fakeCamRepository.findCamsByMemberId(invocation.getArgument(0)));
         Long memberId = 1L;
         Member member =
                 new MemberStub(

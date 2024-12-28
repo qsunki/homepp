@@ -1,12 +1,6 @@
 package ssafy.age.backend.cam.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +10,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ssafy.age.backend.cam.exception.CamNotFoundException;
-import ssafy.age.backend.cam.exception.JsonParsingException;
 import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.cam.persistence.CamRepository;
 import ssafy.age.backend.cam.web.CamResponseDto;
@@ -29,6 +22,7 @@ import ssafy.age.backend.member.persistence.MemberRepository;
 import ssafy.age.backend.mqtt.Command;
 import ssafy.age.backend.mqtt.MqttService;
 import ssafy.age.backend.notification.service.FCMService;
+import ssafy.age.backend.util.IPUtil;
 
 @Service
 @Slf4j
@@ -44,9 +38,7 @@ public class CamService {
     private final MqttService mqttService;
     private final FCMService fcmService;
     private final FileStorage fileStorage;
-
-    @Value("${openAPI.secret}")
-    private String key;
+    private final IPUtil ipUtil;
 
     @Value("${file.dir}")
     private String fileDir;
@@ -93,49 +85,11 @@ public class CamService {
         }
     }
 
-    private String getRegion(String ip) {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode jsonNode = objectMapper.readTree(getJsonData(ip));
-
-            return jsonNode.get("response")
-                    .get("whois")
-                    .get("korean")
-                    .get("user")
-                    .get("netinfo")
-                    .get("addr")
-                    .asText();
-        } catch (Exception e) {
-            throw new JsonParsingException();
-        }
-    }
-
-    private String getJsonData(String ip) {
-        log.debug("key: {}", key);
-        try {
-            URI uri =
-                    new URI(
-                            "https://apis.data.go.kr/B551505/whois/ip_address?serviceKey="
-                                    + key
-                                    + "&query="
-                                    + ip
-                                    + "&answer=json");
-            log.debug("uri: {}", uri);
-            BufferedReader br =
-                    new BufferedReader(
-                            new InputStreamReader(
-                                    uri.toURL().openStream(), StandardCharsets.UTF_8));
-            return br.readLine() + "}";
-        } catch (Exception e) {
-            throw new JsonParsingException(e);
-        }
-    }
-
     @Transactional
     public CamResponseDto createCam(String email, String ip) {
         Member member =
                 memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
-        String region = getRegion(ip);
+        String region = ipUtil.getRegion(ip);
         Cam cam = camRepository.save(Cam.create(ip, region, member));
         cam.updateName("Cam" + cam.getId());
         fcmService.sendRegisterMessage(email);
