@@ -41,7 +41,7 @@ class MemberControllerTest {
         String email = "test@example.com";
         String password = "1234";
         String phoneNumber = "010-0000-0000";
-        MemberRequestDto requestDto = new MemberRequestDto(email, password, phoneNumber);
+        MemberJoinRequestDto requestDto = new MemberJoinRequestDto(email, password, phoneNumber);
         MemberResponseDto responseDto = new MemberResponseDto(email, phoneNumber);
         String request = objectMapper.writeValueAsString(requestDto);
         String response = objectMapper.writeValueAsString(responseDto);

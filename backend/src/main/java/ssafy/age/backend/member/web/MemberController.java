@@ -27,11 +27,9 @@ public class MemberController {
 
     @PostMapping
     @Operation(summary = "회원 가입", description = "신규 회원 가입")
-    public MemberResponseDto joinMember(@RequestBody @Valid MemberRequestDto memberRequestDto) {
+    public MemberResponseDto joinMember(@RequestBody @Valid MemberJoinRequestDto requestDto) {
         return authService.joinMember(
-                memberRequestDto.getEmail(),
-                memberRequestDto.getPassword(),
-                memberRequestDto.getPhoneNumber());
+                requestDto.email(), requestDto.password(), requestDto.phoneNumber());
     }
 
     @PatchMapping
