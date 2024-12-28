@@ -11,7 +11,6 @@ import ssafy.age.backend.share.persistence.Share;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "member")
 public class Member {
 
     @Id
