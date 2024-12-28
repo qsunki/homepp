@@ -29,7 +29,6 @@ import ssafy.age.backend.member.persistence.MemberRepository;
 import ssafy.age.backend.mqtt.Command;
 import ssafy.age.backend.mqtt.MqttService;
 import ssafy.age.backend.notification.service.FCMService;
-import ssafy.age.backend.security.service.AuthService;
 
 @Service
 @Slf4j
@@ -44,7 +43,6 @@ public class CamService {
     private final MemberRepository memberRepository;
     private final MqttService mqttService;
     private final FCMService fcmService;
-    private final AuthService authService;
     private final FileStorage fileStorage;
 
     @Value("${openAPI.secret}")
