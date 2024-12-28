@@ -8,9 +8,11 @@ import jakarta.annotation.PreDestroy;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
+@Profile({"dev", "prod"})
 public class FirebaseInitializer {
 
     @PostConstruct
