@@ -14,7 +14,6 @@ import ssafy.age.backend.share.persistence.Share;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "member")
-@Builder
 public class Member {
 
     @Id
@@ -34,17 +33,15 @@ public class Member {
     private String phoneNumber;
 
     @OneToMany(mappedBy = "member")
-    @Builder.Default
     private List<FCMToken> fcmTokenList = new ArrayList<>();
 
     @OneToMany(mappedBy = "member")
-    @Builder.Default
     private List<Cam> camList = new ArrayList<>();
 
     @OneToMany(mappedBy = "member")
-    @Builder.Default
     private List<Share> shareList = new ArrayList<>();
 
+    @Builder
     public Member(
             Long id,
             String email,
@@ -64,8 +61,19 @@ public class Member {
         this.shareList = shareList;
     }
 
+    public Member(String email, String password, LocalDateTime createdAt, String phoneNumber) {
+        this.email = email;
+        this.password = password;
+        this.createdAt = createdAt;
+        this.phoneNumber = phoneNumber;
+    }
+
     public void updateMember(String password, String phoneNumber) {
         this.password = password;
         this.phoneNumber = phoneNumber;
+    }
+
+    protected void setId(Long id) {
+        this.id = id;
     }
 }
