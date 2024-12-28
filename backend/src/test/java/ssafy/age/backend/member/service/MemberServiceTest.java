@@ -12,6 +12,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
 import ssafy.age.backend.member.persistence.MemberStub;
@@ -22,6 +24,7 @@ import ssafy.age.backend.member.web.MemberResponseDto;
 @MockitoSettings(strictness = Strictness.LENIENT)
 class MemberServiceTest {
 
+    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     @Mock MemberRepository memberRepository;
     MemoryMemberRepository fakeMemberRepository = new MemoryMemberRepository();
 
@@ -29,7 +32,7 @@ class MemberServiceTest {
 
     @BeforeEach
     void setUp() {
-        memberService = new MemberService(memberRepository);
+        memberService = new MemberService(memberRepository, passwordEncoder);
         given(memberRepository.findById(anyLong()))
                 .willAnswer(invocation -> fakeMemberRepository.findById(invocation.getArgument(0)));
     }
@@ -50,7 +53,7 @@ class MemberServiceTest {
         // then
         assertThat(memberResponseDto.getEmail()).isEqualTo(member.getEmail());
         assertThat(memberResponseDto.getPhoneNumber()).isEqualTo(updatedPhoneNumber);
-        assertThat(member.getPassword()).isEqualTo(updatedPassword);
+        assertThat(passwordEncoder.matches(updatedPassword, member.getPassword())).isTrue();
         assertThat(member.getPhoneNumber()).isEqualTo(updatedPhoneNumber);
     }
 }

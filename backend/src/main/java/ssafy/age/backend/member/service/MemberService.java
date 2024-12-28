@@ -3,6 +3,7 @@ package ssafy.age.backend.member.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ssafy.age.backend.member.exception.MemberInvalidAccessException;
@@ -18,6 +19,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final MemberMapper mapper = MemberMapper.INSTANCE;
+    private final PasswordEncoder passwordEncoder;
 
     public MemberResponseDto findByEmail(String email) {
         return mapper.toMemberResponseDto(
@@ -28,7 +30,8 @@ public class MemberService {
     public MemberResponseDto updateMember(String password, String phoneNumber, Long memberId) {
         Member member =
                 memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
-        member.update(password, phoneNumber);
+        String encodedPassword = passwordEncoder.encode(password);
+        member.update(encodedPassword, phoneNumber);
         return mapper.toMemberResponseDto(member);
     }
 
