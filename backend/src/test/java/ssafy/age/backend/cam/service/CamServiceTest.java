@@ -1,10 +1,12 @@
 package ssafy.age.backend.cam.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +17,7 @@ import ssafy.age.backend.cam.web.CamResponseDto;
 import ssafy.age.backend.file.FileStorage;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
+import ssafy.age.backend.member.persistence.MemberStub;
 import ssafy.age.backend.mqtt.MqttService;
 import ssafy.age.backend.notification.service.FCMService;
 
@@ -28,24 +31,32 @@ class CamServiceTest {
     @Mock FileStorage fileStorage;
     MemoryCamRepository fakeCamRepository = new MemoryCamRepository();
 
+    CamService camService;
+
+    @BeforeEach
+    void setUp() {
+        camService =
+                new CamService(
+                        camRepository, memberRepository, mqttService, fcmService, fileStorage);
+        given(camRepository.findCamsByMemberId(anyLong()))
+                .willAnswer(
+                        invocation ->
+                                fakeCamRepository.findCamsByMemberId(invocation.getArgument(0)));
+    }
+
     @DisplayName("memberId로 캠 목록을 가져올 수 있다.")
     @Test
     void getCams() {
         // given
-        CamService camService =
-                new CamService(
-                        camRepository, memberRepository, mqttService, fcmService, fileStorage);
+        Long memberId = 1L;
         Member member =
-                new Member(
-                        1L,
+                new MemberStub(
+                        memberId,
                         "test@example.com",
                         "testpassword",
                         LocalDateTime.of(2024, 1, 1, 0, 0),
-                        "010-0000-0000",
-                        List.of(),
-                        List.of(),
-                        List.of());
-        Long memberId = 1L;
+                        "010-0000-0000");
+
         fakeCamRepository.save(
                 new CamStub(
                         1L,
@@ -73,8 +84,6 @@ class CamServiceTest {
                         CamStatus.REGISTERED,
                         member,
                         "https://example.com/image.jpg"));
-        given(camRepository.findCamsByMemberId(memberId))
-                .willAnswer(invocation -> fakeCamRepository.findCamsByMemberId(memberId));
 
         // when
         List<CamResponseDto> camResponseDtos = camService.getCams(memberId);
