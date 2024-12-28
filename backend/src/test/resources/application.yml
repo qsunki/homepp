@@ -3,6 +3,15 @@ spring:
     init:
       mode: never
 
+  jpa:
+    hibernate:
+      ddl-auto: create
+
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+
 jwt:
   secret: d8c02ed35fda0c0ffa4dc7f37117972390f3f6672103bbcadb684985aff2e1de
 
