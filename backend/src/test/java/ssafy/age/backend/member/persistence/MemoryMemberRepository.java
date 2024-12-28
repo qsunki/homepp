@@ -28,4 +28,8 @@ public class MemoryMemberRepository {
     public List<Member> findAll() {
         return members;
     }
+
+    public Optional<Member> findById(Long id) {
+        return members.stream().filter(member -> member.getId().equals(id)).findFirst();
+    }
 }

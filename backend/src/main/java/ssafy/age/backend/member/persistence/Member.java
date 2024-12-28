@@ -38,7 +38,7 @@ public class Member {
         this.phoneNumber = phoneNumber;
     }
 
-    public void updateMember(String password, String phoneNumber) {
+    public void update(String password, String phoneNumber) {
         this.password = password;
         this.phoneNumber = phoneNumber;
     }

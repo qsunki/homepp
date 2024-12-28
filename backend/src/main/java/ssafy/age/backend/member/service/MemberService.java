@@ -26,15 +26,10 @@ public class MemberService {
 
     @Transactional
     public MemberResponseDto updateMember(String password, String phoneNumber, Long memberId) {
-        try {
-            Member foundMember =
-                    memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
-            foundMember.updateMember(password, phoneNumber);
-            memberRepository.save(foundMember);
-            return mapper.toMemberResponseDto(foundMember);
-        } catch (Exception e) {
-            throw new MemberNotFoundException();
-        }
+        Member member =
+                memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
+        member.update(password, phoneNumber);
+        return mapper.toMemberResponseDto(member);
     }
 
     @PreAuthorize("#email == authentication.principal.email")
