@@ -43,11 +43,10 @@ public class MemberController {
                 requestDto.password(), requestDto.phoneNumber(), memberInfoDto.getMemberId());
     }
 
-    @DeleteMapping("/{email}")
-    @Operation(summary = "사용자 정보 삭제", description = "현재 로그인 된 사용자 삭제")
-    public void deleteMember(
-            @PathVariable String email, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
-        memberService.deleteMember(email, memberInfoDto.getMemberId());
+    @DeleteMapping
+    @Operation(summary = "회원 탈퇴", description = "현재 로그인 된 회원 탈퇴")
+    public void deleteMember(@AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+        memberService.deleteMember(memberInfoDto.getMemberId());
     }
 
     @GetMapping("/{email}")
