@@ -64,7 +64,7 @@ public class CamService {
     public CamResponseDto updateCamName(Long camId, Long memberId, String name) {
         verifyMemberByCamId(camId, memberId);
         Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
-        cam.updateCamName(name);
+        cam.updateName(name);
 
         return camMapper.toCamResponseDto(camRepository.save(cam));
     }
@@ -84,7 +84,7 @@ public class CamService {
     public CamResponseDto unregisterCam(Long camId) {
         try {
             Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
-            cam.unregisterCam();
+            cam.unregister();
 
             return camMapper.toCamResponseDto(cam);
 
@@ -136,8 +136,8 @@ public class CamService {
         Member member =
                 memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
         String region = getRegion(ip);
-        Cam cam = camRepository.save(Cam.builder().ip(ip).region(region).member(member).build());
-        cam.updateCamName("Cam" + cam.getId());
+        Cam cam = camRepository.save(Cam.create(ip, region, member));
+        cam.updateName("Cam" + cam.getId());
         fcmService.sendRegisterMessage(email);
         return camMapper.toCamResponseDto(cam);
     }
@@ -159,7 +159,7 @@ public class CamService {
     @Transactional
     public void saveCamThumbnail(Long camId, MultipartFile file) {
         Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
-        cam.setThumbnailUrl(URL_PREFIX + camId + THUMBNAIL_SUFFIX);
+        cam.updateThumbnailUrl(URL_PREFIX + camId + THUMBNAIL_SUFFIX);
         fileStorage.saveCamThumbnail(camId, file);
     }
 

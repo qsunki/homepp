@@ -7,7 +7,6 @@ import ssafy.age.backend.member.persistence.Member;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "cam")
 public class Cam {
     @Id
     @Column(name = "cam_id")
@@ -18,7 +17,7 @@ public class Cam {
 
     private String ip;
 
-    @Setter private String region;
+    private String region;
 
     @Enumerated(EnumType.STRING)
     private CamStatus status;
@@ -27,7 +26,11 @@ public class Cam {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @Setter private String thumbnailUrl;
+    private String thumbnailUrl;
+
+    public static Cam create(String ip, String region, Member member) {
+        return new Cam(null, ip, region, CamStatus.REGISTERED, member, null);
+    }
 
     @Builder
     public Cam(
@@ -62,7 +65,7 @@ public class Cam {
         this.thumbnailUrl = thumbnailUrl;
     }
 
-    public void updateCamName(String name) {
+    public void updateName(String name) {
         this.name = name;
     }
 
@@ -71,8 +74,12 @@ public class Cam {
         this.status = CamStatus.REGISTERED;
     }
 
-    public void unregisterCam() {
+    public void unregister() {
         this.status = CamStatus.UNREGISTERED;
+    }
+
+    public void updateThumbnailUrl(String thumbnailUrl) {
+        this.thumbnailUrl = thumbnailUrl;
     }
 
     protected void setId(Long id) {
