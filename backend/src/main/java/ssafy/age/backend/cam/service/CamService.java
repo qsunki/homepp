@@ -66,25 +66,6 @@ public class CamService {
         camRepository.deleteById(camId);
     }
 
-    public CamResponseDto registerCam(Long camId, Member member) {
-        Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
-        cam.registerMember(member);
-
-        return camMapper.toCamResponseDto(camRepository.save(cam));
-    }
-
-    public CamResponseDto unregisterCam(Long camId) {
-        try {
-            Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
-            cam.unregister();
-
-            return camMapper.toCamResponseDto(cam);
-
-        } catch (Exception e) {
-            throw new CamNotFoundException();
-        }
-    }
-
     @Transactional
     public CamResponseDto createCam(String email, String ip) {
         Member member =
