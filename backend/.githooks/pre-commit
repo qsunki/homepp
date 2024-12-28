@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# move to gradle project
+cd backend || exit
+
+# spotless 확인 출력 파일 경로
+SPOTLESS_OUTPUT_FILE="spotless_check_output.txt"
+
+# spotless 확인, 결과를 파일에 저장
+./gradlew spotlessCheck > "$SPOTLESS_OUTPUT_FILE" 2>&1
+
+# spotlessCheck가 실패하면 커밋 중단
+if [ $? -ne 0 ]; then
+  echo -e "\033[0;31mSpotless check failed. Aborting commit.\033[0m\nSee the details in $SPOTLESS_OUTPUT_FILE"
+  exit 1
+fi

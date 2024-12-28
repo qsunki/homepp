@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+HOOKS_DIR="backend/.githooks"
+
+echo "Updating Git hooks directory to $HOOKS_DIR..."
+git config core.hooksPath "$HOOKS_DIR"

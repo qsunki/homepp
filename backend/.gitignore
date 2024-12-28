@@ -39,3 +39,6 @@ out/
 ### Secret ###
 fcmKey.json
 .env
+
+### misc ###
+spotless_check_output.txt
