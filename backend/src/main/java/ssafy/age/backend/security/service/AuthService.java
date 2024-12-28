@@ -40,12 +40,8 @@ public class AuthService implements UserDetailsService {
             throw new MemberDuplicateEntityException();
         }
 
-        Member member =
-                Member.builder()
-                        .email(email)
-                        .password(passwordEncoder.encode(password))
-                        .phoneNumber(phoneNumber)
-                        .build();
+        String encodedPassword = passwordEncoder.encode(password);
+        Member member = new Member(email, encodedPassword, phoneNumber);
 
         return mapper.toMemberResponseDto(memberRepository.save(member));
     }

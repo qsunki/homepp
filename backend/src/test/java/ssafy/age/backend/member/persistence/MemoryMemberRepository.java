@@ -18,7 +18,6 @@ public class MemoryMemberRepository {
                 (long) members.size(),
                 member.getEmail(),
                 member.getPassword(),
-                member.getCreatedAt(),
                 member.getPhoneNumber());
     }
 

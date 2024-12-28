@@ -49,10 +49,9 @@ public class Member {
         this.shareList = shareList;
     }
 
-    public Member(String email, String password, LocalDateTime createdAt, String phoneNumber) {
+    public Member(String email, String password, String phoneNumber) {
         this.email = email;
         this.password = password;
-        this.createdAt = createdAt;
         this.phoneNumber = phoneNumber;
     }
 

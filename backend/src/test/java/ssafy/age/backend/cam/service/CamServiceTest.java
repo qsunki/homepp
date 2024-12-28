@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -67,12 +66,7 @@ class CamServiceTest {
         // given
         Long memberId = 1L;
         Member member =
-                new MemberStub(
-                        memberId,
-                        "test@example.com",
-                        "testpassword",
-                        LocalDateTime.of(2024, 1, 1, 0, 0),
-                        "010-0000-0000");
+                new MemberStub(memberId, "test@example.com", "testpassword", "010-0000-0000");
 
         fakeCamRepository.save(
                 new CamStub(
@@ -119,13 +113,7 @@ class CamServiceTest {
         Long memberId = 1L;
         String email = "test@example.com";
         String clientIP = "0.0.0.0";
-        Member member =
-                new MemberStub(
-                        memberId,
-                        email,
-                        "testpassword",
-                        LocalDateTime.of(2024, 1, 1, 0, 0),
-                        "010-0000-0000");
+        Member member = new MemberStub(memberId, email, "testpassword", "010-0000-0000");
         fakeMemberRepository.save(member);
 
         // when
