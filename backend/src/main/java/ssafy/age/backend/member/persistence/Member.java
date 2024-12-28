@@ -31,23 +31,7 @@ public class Member {
     private String phoneNumber;
 
     @OneToMany(mappedBy = "member")
-    private List<Share> shareList = new ArrayList<>();
-
-    @Builder
-    public Member(
-            Long id,
-            String email,
-            String password,
-            LocalDateTime createdAt,
-            String phoneNumber,
-            List<Share> shareList) {
-        this.id = id;
-        this.email = email;
-        this.password = password;
-        this.createdAt = createdAt;
-        this.phoneNumber = phoneNumber;
-        this.shareList = shareList;
-    }
+    private final List<Share> shareList = new ArrayList<>();
 
     public Member(String email, String password, String phoneNumber) {
         this.email = email;

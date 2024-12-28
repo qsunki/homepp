@@ -9,21 +9,23 @@ import ssafy.age.backend.share.web.ShareDto;
 
 class ShareMapperTest {
 
-    private ShareMapper shareMapper = ShareMapper.INSTANCE;
+    ShareMapper shareMapper = ShareMapper.INSTANCE;
 
     @Test
     void toShareDto() {
-        // Given
-        Member sharedMember = Member.builder().email("shared@example.com").build();
+        // given
+        String email = "shared@example.com";
+        Member sharedMember = new Member(email, "password123", "123-456-7890");
 
-        Share share = Share.builder().sharedMember(sharedMember).nickname("nickname").build();
+        String nickname = "nickname";
+        Share share = Share.builder().sharedMember(sharedMember).nickname(nickname).build();
 
-        // When
+        // when
         ShareDto shareDto = shareMapper.toShareDto(share);
 
-        // Then
+        // then
         assertNotNull(shareDto);
-        assertEquals("shared@example.com", shareDto.getEmail());
-        assertEquals("nickname", shareDto.getNickname());
+        assertEquals(email, shareDto.getEmail());
+        assertEquals(nickname, shareDto.getNickname());
     }
 }
