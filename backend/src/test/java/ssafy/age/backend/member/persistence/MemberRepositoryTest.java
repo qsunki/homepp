@@ -21,7 +21,7 @@ class MemberRepositoryTest {
     @Autowired MemberRepository memberRepository;
     @Autowired CamRepository camRepository;
     @Autowired VideoRepository videoRepository;
-    @Autowired private EventRepository eventRepository;
+    @Autowired EventRepository eventRepository;
 
     @DisplayName("camId로 member를 찾을 수 있다.")
     @Test
