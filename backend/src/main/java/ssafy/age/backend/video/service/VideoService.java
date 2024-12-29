@@ -14,7 +14,7 @@ import org.springframework.http.HttpRange;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ssafy.age.backend.cam.persistence.Cam;
-import ssafy.age.backend.cam.service.CamService;
+import ssafy.age.backend.cam.persistence.CamRepository;
 import ssafy.age.backend.event.persistence.Event;
 import ssafy.age.backend.event.persistence.EventRepository;
 import ssafy.age.backend.event.persistence.EventType;
@@ -25,7 +25,6 @@ import ssafy.age.backend.member.persistence.MemberRepository;
 import ssafy.age.backend.mqtt.Command;
 import ssafy.age.backend.mqtt.MqttService;
 import ssafy.age.backend.notification.service.FCMService;
-import ssafy.age.backend.security.service.AuthService;
 import ssafy.age.backend.threat.persistence.Threat;
 import ssafy.age.backend.threat.persistence.ThreatRepository;
 import ssafy.age.backend.video.exception.VideoNotFoundException;
@@ -43,16 +42,16 @@ public class VideoService {
     private static final String DOWNLOAD = "download";
     private static final String URL_PREFIX = "/api/v1/cams/videos";
 
+    private static final VideoMapper videoMapper = VideoMapper.INSTANCE;
+
     private final VideoRepository videoRepository;
-    private final VideoMapper videoMapper = VideoMapper.INSTANCE;
     private final MqttService mqttService;
     private final FCMService fcmService;
     private final EventRepository eventRepository;
     private final FileStorage fileStorage;
     private final MemberRepository memberRepository;
     private final ThreatRepository threatRepository;
-    private final AuthService authService;
-    private final CamService camService;
+    private final CamRepository camRepository;
 
     @Transactional
     public List<VideoResponseDto> getAllVideos(
@@ -92,7 +91,7 @@ public class VideoService {
         long videoLength = duration.getSeconds();
 
         List<Event> events = eventRepository.findAllByOccurredAtBetween(startTime, endTime);
-        Cam cam = Cam.builder().id(camId).build();
+        Cam cam = camRepository.getReferenceById(camId);
         Video video =
                 Video.builder()
                         .cam(cam)
