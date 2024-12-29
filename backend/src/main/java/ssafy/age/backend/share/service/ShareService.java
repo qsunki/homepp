@@ -53,7 +53,7 @@ public class ShareService {
         Share share =
                 shareRepository.findBySharingMemberEmailAndSharedMemberEmail(
                         email, sharedMemberEmail);
-        share.setNickname(nickname);
+        share.updateNickname(nickname);
         shareRepository.save(share);
 
         return shareMapper.toShareDto(share);

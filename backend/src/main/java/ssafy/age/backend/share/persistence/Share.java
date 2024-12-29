@@ -21,11 +21,15 @@ public class Share {
     @JoinColumn(name = "shared_member_id")
     private Member sharedMember;
 
-    @Setter private String nickname;
+    private String nickname;
 
     public Share(Member sharingMember, Member sharedMember, String nickname) {
         this.sharingMember = sharingMember;
         this.sharedMember = sharedMember;
+        this.nickname = nickname;
+    }
+
+    public void updateNickname(String nickname) {
         this.nickname = nickname;
     }
 }
