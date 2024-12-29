@@ -17,7 +17,6 @@ import ssafy.age.backend.member.persistence.MemberRepository;
 import ssafy.age.backend.notification.persistence.FCMToken;
 import ssafy.age.backend.notification.persistence.FCMTokenRepository;
 import ssafy.age.backend.notification.web.FCMTokenDto;
-import ssafy.age.backend.share.persistence.Share;
 import ssafy.age.backend.video.persistence.Video;
 import ssafy.age.backend.video.persistence.VideoRepository;
 
@@ -117,8 +116,7 @@ public class FCMService {
             sendMessage(fcmToken, message);
         }
 
-        for (Share share : member.getShareList()) {
-            Member sharedMember = share.getSharedMember();
+        for (Member sharedMember : memberRepository.findAllSharedMemberBySharingMember(member)) {
             List<FCMToken> sharedMemberTokens =
                     fcmTokenRepository.findByMemberEmail(sharedMember.getEmail());
             for (FCMToken fcmToken : sharedMemberTokens) {

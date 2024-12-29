@@ -2,11 +2,8 @@ package ssafy.age.backend.member.persistence;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import ssafy.age.backend.share.persistence.Share;
 
 @Getter
 @Entity
@@ -28,9 +25,6 @@ public class Member {
 
     @Column(nullable = false)
     private String phoneNumber;
-
-    @OneToMany(mappedBy = "sharingMember")
-    private final List<Share> shareList = new ArrayList<>();
 
     public Member(String email, String password, String phoneNumber) {
         this.email = email;
