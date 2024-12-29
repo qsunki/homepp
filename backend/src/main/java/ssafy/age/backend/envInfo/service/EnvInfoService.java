@@ -20,14 +20,18 @@ import ssafy.age.backend.notification.service.FCMService;
 @Slf4j
 public class EnvInfoService {
 
-    private final EnvInfoMapper envInfoMapper = EnvInfoMapper.INSTANCE;
+    private static final EnvInfoMapper envInfoMapper = EnvInfoMapper.INSTANCE;
+
     private final EnvInfoRepository envInfoRepository;
     private final CamRepository camRepository;
     private final CamService camService;
     private final FCMService fcmService;
 
     public void save(EnvInfoReceivedDto envInfoReceivedDto) {
-        EnvInfo envInfo = envInfoMapper.toEnvInfo(envInfoReceivedDto);
+        EnvInfo envInfo =
+                envInfoMapper.toEnvInfo(
+                        envInfoReceivedDto,
+                        camRepository.getReferenceById(envInfoReceivedDto.getCamId()));
         log.debug("Saving envInfoReceivedDto: {}", envInfoReceivedDto);
         log.debug("Saving envInfo.cam.id: {}", envInfo.getCam().getId());
         envInfoRepository.save(envInfo);
