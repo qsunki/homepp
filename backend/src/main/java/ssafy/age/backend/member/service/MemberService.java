@@ -34,9 +34,8 @@ public class MemberService {
         return mapper.toMemberResponseDto(member);
     }
 
-    @Transactional
     public void deleteMember(Long memberId) {
-        memberRepository.delete(memberRepository.getReferenceById(memberId));
+        memberRepository.deleteById(memberId);
     }
 
     public boolean checkDuplicatedEmail(String email) {
