@@ -10,8 +10,6 @@ import ssafy.age.backend.event.persistence.Event;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PACKAGE)
-@Builder
 public class Video {
 
     @Id
@@ -34,6 +32,45 @@ public class Video {
 
     @OneToMany(mappedBy = "video")
     private List<Event> events;
+
+    @Builder
+    public Video(
+            Long id,
+            LocalDateTime recordStartedAt,
+            Long length,
+            String streamUrl,
+            String downloadUrl,
+            String thumbnailUrl,
+            Boolean isThreat,
+            Cam cam,
+            List<Event> events) {
+        this.id = id;
+        this.recordStartedAt = recordStartedAt;
+        this.length = length;
+        this.streamUrl = streamUrl;
+        this.downloadUrl = downloadUrl;
+        this.thumbnailUrl = thumbnailUrl;
+        this.isThreat = isThreat;
+        this.cam = cam;
+        this.events = events;
+    }
+
+    public Video(
+            LocalDateTime recordStartedAt,
+            Long length,
+            String streamUrl,
+            String downloadUrl,
+            String thumbnailUrl,
+            Boolean isThreat,
+            Cam cam) {
+        this.recordStartedAt = recordStartedAt;
+        this.length = length;
+        this.streamUrl = streamUrl;
+        this.downloadUrl = downloadUrl;
+        this.thumbnailUrl = thumbnailUrl;
+        this.isThreat = isThreat;
+        this.cam = cam;
+    }
 
     public void registerThreat() {
         this.isThreat = true;
