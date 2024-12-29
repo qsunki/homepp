@@ -9,8 +9,6 @@ import ssafy.age.backend.video.persistence.Video;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "event")
-@Builder
 public class Event {
     @Id
     @Column(name = "event_id")
@@ -34,6 +32,7 @@ public class Event {
     @Setter
     private Video video;
 
+    @Builder
     public Event(
             Long id,
             LocalDateTime occurredAt,
@@ -42,6 +41,14 @@ public class Event {
             Cam cam,
             Video video) {
         this.id = id;
+        this.occurredAt = occurredAt;
+        this.type = type;
+        this.isRead = isRead;
+        this.cam = cam;
+        this.video = video;
+    }
+
+    public Event(LocalDateTime occurredAt, EventType type, Boolean isRead, Cam cam, Video video) {
         this.occurredAt = occurredAt;
         this.type = type;
         this.isRead = isRead;
