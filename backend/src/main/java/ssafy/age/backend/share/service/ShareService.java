@@ -17,9 +17,10 @@ import ssafy.age.backend.share.web.ShareDto;
 @RequiredArgsConstructor
 public class ShareService {
 
+    private static final ShareMapper shareMapper = ShareMapper.INSTANCE;
+
     private final MemberRepository memberRepository;
     private final ShareRepository shareRepository;
-    private final ShareMapper shareMapper = ShareMapper.INSTANCE;
     private final FCMService fcmService;
 
     @Transactional
