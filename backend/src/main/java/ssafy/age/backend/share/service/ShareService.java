@@ -39,12 +39,7 @@ public class ShareService {
                         .findByEmail(sharedMemberEmail)
                         .orElseThrow(MemberNotFoundException::new);
 
-        Share share =
-                Share.builder()
-                        .sharingMember(member)
-                        .sharedMember(sharedMember)
-                        .nickname(nickname)
-                        .build();
+        Share share = new Share(member, sharedMember, nickname);
 
         shareRepository.save(share);
         fcmService.sendSharedMessage(email, sharedMemberEmail);

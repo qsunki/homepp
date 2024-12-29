@@ -98,12 +98,7 @@ class ShareServiceTest {
 
         given(sharedMember.getEmail()).willReturn(sharedMemberEmail);
 
-        Share share =
-                Share.builder()
-                        .sharingMember(member)
-                        .sharedMember(sharedMember)
-                        .nickname(nickname)
-                        .build();
+        Share share = new Share(member, sharedMember, nickname);
         ShareDto shareDto = new ShareDto();
         shareDto.setEmail(sharedMemberEmail);
         shareDto.setNickname(nickname);
@@ -161,12 +156,7 @@ class ShareServiceTest {
         Member member = mock(Member.class);
         Member sharedMember = mock(Member.class);
 
-        Share share =
-                Share.builder()
-                        .sharingMember(member)
-                        .sharedMember(sharedMember)
-                        .nickname("oldNickname")
-                        .build();
+        Share share = new Share(member, sharedMember, "oldNickname");
 
         ShareDto updatedShareDto = new ShareDto();
         updatedShareDto.setNickname(newNickname);

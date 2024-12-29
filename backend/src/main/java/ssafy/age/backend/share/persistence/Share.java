@@ -23,14 +23,6 @@ public class Share {
 
     @Setter private String nickname;
 
-    @Builder
-    public Share(Long id, Member sharingMember, Member sharedMember, String nickname) {
-        this.id = id;
-        this.sharingMember = sharingMember;
-        this.sharedMember = sharedMember;
-        this.nickname = nickname;
-    }
-
     public Share(Member sharingMember, Member sharedMember, String nickname) {
         this.sharingMember = sharingMember;
         this.sharedMember = sharedMember;
