@@ -12,7 +12,6 @@ import ssafy.age.backend.envinfo.web.EnvInfoResponseDto;
 public interface EnvInfoMapper {
     EnvInfoMapper INSTANCE = Mappers.getMapper(EnvInfoMapper.class);
 
-    @Mapping(target = "id", ignore = true)
     @Mapping(target = "status", source = "envInfoReceivedDto.status")
     EnvInfo toEnvInfo(EnvInfoReceivedDto envInfoReceivedDto, Cam cam);
 

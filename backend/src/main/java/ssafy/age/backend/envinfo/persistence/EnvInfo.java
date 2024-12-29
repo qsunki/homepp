@@ -9,7 +9,6 @@ import ssafy.age.backend.envinfo.service.RecordStatus;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "ENV_INFO")
 public class EnvInfo {
 
     @Id
@@ -30,15 +29,12 @@ public class EnvInfo {
     @Setter
     private Cam cam;
 
-    @Builder
     public EnvInfo(
-            Long id,
             LocalDateTime recordedAt,
             Double temperature,
             Double humidity,
             RecordStatus status,
             Cam cam) {
-        this.id = id;
         this.recordedAt = recordedAt;
         this.temperature = temperature;
         this.humidity = humidity;
