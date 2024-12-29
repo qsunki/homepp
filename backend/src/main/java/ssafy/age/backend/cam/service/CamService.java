@@ -49,7 +49,7 @@ public class CamService {
     }
 
     public List<CamResponseDto> getCamsBySharedEmail(Long sharedMemberId) {
-        List<Cam> cams = camRepository.findAllBySharedMemberId(sharedMemberId);
+        List<Cam> cams = camRepository.findAllSharedCamsByMemberId(sharedMemberId);
         return cams.stream().map(camMapper::toCamResponseDto).toList();
     }
 

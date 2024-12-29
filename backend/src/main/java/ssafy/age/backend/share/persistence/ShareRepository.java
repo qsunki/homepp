@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ShareRepository extends JpaRepository<Share, Long> {
 
-    List<Share> findAllByMemberEmail(String email);
+    List<Share> findAllBySharingMemberEmail(String email);
 
-    Share findByMemberEmailAndSharedMemberEmail(String email, String sharedMemberEmail);
+    Share findBySharingMemberEmailAndSharedMemberEmail(String email, String sharedMemberEmail);
 }

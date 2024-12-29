@@ -74,7 +74,7 @@ class ShareServiceTest {
         List<ShareDto> shareDtos = List.of(shareDto);
 
         //        given(authService.getMemberEmail()).willReturn(email);
-        given(shareRepository.findAllByMemberEmail(email)).willReturn(shares);
+        given(shareRepository.findAllBySharingMemberEmail(email)).willReturn(shares);
         given(shareMapper.toShareDto(share)).willReturn(shareDto);
 
         // when
@@ -82,7 +82,7 @@ class ShareServiceTest {
 
         // then
         assertEquals(shareDtos, result);
-        then(shareRepository).should().findAllByMemberEmail(email);
+        then(shareRepository).should().findAllBySharingMemberEmail(email);
     }
 
     @Test
@@ -100,7 +100,7 @@ class ShareServiceTest {
 
         Share share =
                 Share.builder()
-                        .member(member)
+                        .sharingMember(member)
                         .sharedMember(sharedMember)
                         .nickname(nickname)
                         .build();
@@ -163,7 +163,7 @@ class ShareServiceTest {
 
         Share share =
                 Share.builder()
-                        .member(member)
+                        .sharingMember(member)
                         .sharedMember(sharedMember)
                         .nickname("oldNickname")
                         .build();
@@ -179,7 +179,9 @@ class ShareServiceTest {
                                 .findByEmail(sharedMemberEmail)
                                 .orElseThrow(MemberNotFoundException::new))
                 .willReturn(sharedMember);
-        given(shareRepository.findByMemberEmailAndSharedMemberEmail(email, sharedMemberEmail))
+        given(
+                        shareRepository.findBySharingMemberEmailAndSharedMemberEmail(
+                                email, sharedMemberEmail))
                 .willReturn(share);
         given(shareMapper.toShareDto(any(Share.class))).willReturn(updatedShareDto);
 
@@ -201,7 +203,9 @@ class ShareServiceTest {
         Share share = mock(Share.class);
 
         //        given(authService.getMemberEmail()).willReturn(email);
-        given(shareRepository.findByMemberEmailAndSharedMemberEmail(email, sharedMemberEmail))
+        given(
+                        shareRepository.findBySharingMemberEmailAndSharedMemberEmail(
+                                email, sharedMemberEmail))
                 .willReturn(share);
 
         // when

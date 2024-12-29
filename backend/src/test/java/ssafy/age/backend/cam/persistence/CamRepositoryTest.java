@@ -21,7 +21,7 @@ class CamRepositoryTest {
 
     @DisplayName("memberId로 공유받은 cam을 찾을 수 있다.")
     @Test
-    void findAllBySharedMemberId() {
+    void findAllSharedCamsByMemberId() {
         // given
         Member sharingMember = new Member("sharing@example.com", "password", "010-0000-0000");
         Member savedSharingMember = memberRepository.save(sharingMember);
@@ -52,7 +52,7 @@ class CamRepositoryTest {
         shareRepository.save(share);
 
         // when
-        List<Cam> cams = camRepository.findAllBySharedMemberId(savedSharedMember.getId());
+        List<Cam> cams = camRepository.findAllSharedCamsByMemberId(savedSharedMember.getId());
 
         // then
         assertThat(cams).hasSize(2);

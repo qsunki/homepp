@@ -16,7 +16,7 @@ class ShareRepositoryTest {
     @Autowired private MemberRepository memberRepository;
 
     @Test
-    void findAllByMemberEmail() {
+    void findAllBySharingMemberEmail() {
         // Given
         String email = "test@example.com";
         String password = "password123";
@@ -25,15 +25,15 @@ class ShareRepositoryTest {
 
         memberRepository.save(member);
 
-        Share share1 = Share.builder().member(member).nickname("nickname1").build();
+        Share share1 = Share.builder().sharingMember(member).nickname("nickname1").build();
 
-        Share share2 = Share.builder().member(member).nickname("nickname2").build();
+        Share share2 = Share.builder().sharingMember(member).nickname("nickname2").build();
 
         shareRepository.save(share1);
         shareRepository.save(share2);
 
         // When
-        List<Share> shares = shareRepository.findAllByMemberEmail(email);
+        List<Share> shares = shareRepository.findAllBySharingMemberEmail(email);
 
         // Then
         assertNotNull(shares);
@@ -43,7 +43,7 @@ class ShareRepositoryTest {
     }
 
     @Test
-    void findByMemberEmailAndSharedMemberEmail() {
+    void findBySharingMemberEmailAndSharedMemberEmail() {
         // Given
         String email1 = "test@example.com";
         String password = "password123";
@@ -58,7 +58,7 @@ class ShareRepositoryTest {
 
         Share share =
                 Share.builder()
-                        .member(member)
+                        .sharingMember(member)
                         .sharedMember(sharedMember)
                         .nickname("nickname")
                         .build();
@@ -66,11 +66,12 @@ class ShareRepositoryTest {
         shareRepository.save(share);
 
         // When
-        Share foundShare = shareRepository.findByMemberEmailAndSharedMemberEmail(email1, email2);
+        Share foundShare =
+                shareRepository.findBySharingMemberEmailAndSharedMemberEmail(email1, email2);
 
         // Then
         assertNotNull(foundShare);
-        assertEquals(email1, foundShare.getMember().getEmail());
+        assertEquals(email1, foundShare.getSharingMember().getEmail());
         assertEquals(email2, foundShare.getSharedMember().getEmail());
     }
 }

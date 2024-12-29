@@ -29,7 +29,7 @@ public class Member {
     @Column(nullable = false)
     private String phoneNumber;
 
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "sharingMember")
     private final List<Share> shareList = new ArrayList<>();
 
     public Member(String email, String password, String phoneNumber) {

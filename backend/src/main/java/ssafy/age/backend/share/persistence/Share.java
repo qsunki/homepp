@@ -14,8 +14,8 @@ public class Share {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
+    @JoinColumn(name = "sharing_member_id")
+    private Member sharingMember;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shared_member_id")
@@ -24,15 +24,15 @@ public class Share {
     @Setter private String nickname;
 
     @Builder
-    public Share(Long id, Member member, Member sharedMember, String nickname) {
+    public Share(Long id, Member sharingMember, Member sharedMember, String nickname) {
         this.id = id;
-        this.member = member;
+        this.sharingMember = sharingMember;
         this.sharedMember = sharedMember;
         this.nickname = nickname;
     }
 
-    public Share(Member member, Member sharedMember, String nickname) {
-        this.member = member;
+    public Share(Member sharingMember, Member sharedMember, String nickname) {
+        this.sharingMember = sharingMember;
         this.sharedMember = sharedMember;
         this.nickname = nickname;
     }

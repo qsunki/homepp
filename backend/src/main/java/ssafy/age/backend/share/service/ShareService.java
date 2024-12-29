@@ -25,7 +25,7 @@ public class ShareService {
     @Transactional
     @PreAuthorize("#email == authentication.principal.email")
     public List<ShareDto> getAllShares(String email) {
-        List<Share> shareList = shareRepository.findAllByMemberEmail(email);
+        List<Share> shareList = shareRepository.findAllBySharingMemberEmail(email);
         return shareList.stream().map(shareMapper::toShareDto).toList();
     }
 
@@ -41,7 +41,7 @@ public class ShareService {
 
         Share share =
                 Share.builder()
-                        .member(member)
+                        .sharingMember(member)
                         .sharedMember(sharedMember)
                         .nickname(nickname)
                         .build();
@@ -56,7 +56,8 @@ public class ShareService {
     @PreAuthorize("#email == authentication.principal.email")
     public ShareDto updateShare(String email, String sharedMemberEmail, String nickname) {
         Share share =
-                shareRepository.findByMemberEmailAndSharedMemberEmail(email, sharedMemberEmail);
+                shareRepository.findBySharingMemberEmailAndSharedMemberEmail(
+                        email, sharedMemberEmail);
         share.setNickname(nickname);
         shareRepository.save(share);
 
@@ -67,7 +68,8 @@ public class ShareService {
     @PreAuthorize("#email == authentication.principal.email")
     public void deleteShare(String email, String sharedMemberEmail) {
         Share share =
-                shareRepository.findByMemberEmailAndSharedMemberEmail(email, sharedMemberEmail);
+                shareRepository.findBySharingMemberEmailAndSharedMemberEmail(
+                        email, sharedMemberEmail);
         shareRepository.delete(share);
     }
 }

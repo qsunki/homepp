@@ -8,7 +8,7 @@ public interface CamRepository extends JpaRepository<Cam, Long> {
     List<Cam> findAllByMemberId(Long memberId);
 
     @Query(
-            "SELECT c FROM Cam c JOIN Share s ON c.member.id = s.member.id WHERE"
-                    + " s.sharedMember.id = :sharedMemberId")
-    List<Cam> findAllBySharedMemberId(Long sharedMemberId);
+            "SELECT c FROM Cam c JOIN Share s ON c.member.id = s.sharingMember.id WHERE"
+                    + " s.sharedMember.id = :memberId")
+    List<Cam> findAllSharedCamsByMemberId(Long memberId);
 }
