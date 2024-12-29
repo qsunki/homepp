@@ -1,16 +1,12 @@
 package ssafy.age.backend.share.persistence;
 
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import ssafy.age.backend.member.persistence.Member;
 
 @Getter
 @Entity
-@NoArgsConstructor
-@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Share {
     @Id
     @Column(name = "share_id")
@@ -27,8 +23,15 @@ public class Share {
 
     @Setter private String nickname;
 
+    @Builder
     public Share(Long id, Member member, Member sharedMember, String nickname) {
         this.id = id;
+        this.member = member;
+        this.sharedMember = sharedMember;
+        this.nickname = nickname;
+    }
+
+    public Share(Member member, Member sharedMember, String nickname) {
         this.member = member;
         this.sharedMember = sharedMember;
         this.nickname = nickname;
