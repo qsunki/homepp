@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.*;
 import ssafy.age.backend.cam.persistence.Cam;
-import ssafy.age.backend.envinfo.service.RecordStatus;
 
 @Getter
 @Entity

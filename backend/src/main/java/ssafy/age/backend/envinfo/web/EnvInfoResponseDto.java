@@ -2,7 +2,7 @@ package ssafy.age.backend.envinfo.web;
 
 import java.time.LocalDateTime;
 import lombok.Data;
-import ssafy.age.backend.envinfo.service.RecordStatus;
+import ssafy.age.backend.envinfo.persistence.RecordStatus;
 
 @Data
 public class EnvInfoResponseDto {
