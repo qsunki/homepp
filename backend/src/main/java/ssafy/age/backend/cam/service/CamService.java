@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,16 +31,14 @@ public class CamService {
     private static final String URL_PREFIX = "/api/v1/cams/";
     private static final String THUMBNAIL_SUFFIX = "/thumbnail";
 
+    private static final CamMapper camMapper = CamMapper.INSTANCE;
+
     private final CamRepository camRepository;
-    private final CamMapper camMapper = CamMapper.INSTANCE;
     private final MemberRepository memberRepository;
     private final MqttService mqttService;
     private final FCMService fcmService;
     private final FileStorage fileStorage;
     private final IPUtil ipUtil;
-
-    @Value("${file.dir}")
-    private String fileDir;
 
     public List<CamResponseDto> getCams(Long memberId) {
         List<Cam> cams = camRepository.findAllByMemberId(memberId);
