@@ -32,24 +32,6 @@ public class Cam {
         return new Cam(null, ip, region, CamStatus.REGISTERED, member, null);
     }
 
-    @Builder
-    public Cam(
-            Long id,
-            String name,
-            String ip,
-            String region,
-            CamStatus status,
-            Member member,
-            String thumbnailUrl) {
-        this.id = id;
-        this.name = name;
-        this.ip = ip;
-        this.region = region;
-        this.status = status;
-        this.member = member;
-        this.thumbnailUrl = thumbnailUrl;
-    }
-
     public Cam(
             String name,
             String ip,
