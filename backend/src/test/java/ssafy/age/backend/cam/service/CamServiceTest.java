@@ -49,7 +49,7 @@ class CamServiceTest {
                         fcmService,
                         fileStorage,
                         ipUtil);
-        given(camRepository.findCamsByMemberId(anyLong()))
+        given(camRepository.findAllByMemberId(anyLong()))
                 .willAnswer(
                         invocation ->
                                 fakeCamRepository.findCamsByMemberId(invocation.getArgument(0)));

@@ -44,12 +44,12 @@ public class CamService {
     private String fileDir;
 
     public List<CamResponseDto> getCams(Long memberId) {
-        List<Cam> cams = camRepository.findCamsByMemberId(memberId);
+        List<Cam> cams = camRepository.findAllByMemberId(memberId);
         return cams.stream().map(camMapper::toCamResponseDto).toList();
     }
 
     public List<CamResponseDto> getCamsBySharedEmail(Long sharedMemberId) {
-        List<Cam> cams = camRepository.findCamsBySharedMemberId(sharedMemberId);
+        List<Cam> cams = camRepository.findAllBySharedMemberId(sharedMemberId);
         return cams.stream().map(camMapper::toCamResponseDto).toList();
     }
 
