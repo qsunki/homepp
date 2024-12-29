@@ -33,7 +33,7 @@ public class MemoryMemberRepository {
         return members.stream().filter(member -> member.getId().equals(id)).findFirst();
     }
 
-    public void delete(Member member) {
-        members.remove(member);
+    public void deleteById(Long memberId) {
+        members.removeIf(member -> member.getId().equals(memberId));
     }
 }

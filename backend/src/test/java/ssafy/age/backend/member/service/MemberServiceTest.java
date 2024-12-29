@@ -1,7 +1,6 @@
 package ssafy.age.backend.member.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willAnswer;
@@ -48,11 +47,11 @@ class MemberServiceTest {
 
         willAnswer(
                         invocation -> {
-                            fakeMemberRepository.delete(invocation.getArgument(0));
+                            fakeMemberRepository.deleteById(invocation.getArgument(0));
                             return null;
                         })
                 .given(memberRepository)
-                .delete(any(Member.class));
+                .deleteById(anyLong());
     }
 
     @DisplayName("비밀번호와 전화번호를 업데이트 할 수 있다.")
