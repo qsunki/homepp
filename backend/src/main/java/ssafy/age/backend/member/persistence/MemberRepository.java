@@ -1,5 +1,6 @@
 package ssafy.age.backend.member.persistence;
 
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -20,4 +21,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     @Query("SELECT e.cam.member FROM Event e WHERE e.id = :eventId")
     Optional<Member> findByEventId(@Param("eventId") Long eventId);
+
+    @Query("SELECT s.sharedMember FROM Share s WHERE s.sharingMember = :sharingMember")
+    List<Member> findAllSharedMemberBySharingMember(Member sharingMember);
 }
