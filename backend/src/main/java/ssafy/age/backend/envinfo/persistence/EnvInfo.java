@@ -1,10 +1,10 @@
-package ssafy.age.backend.envInfo.persistence;
+package ssafy.age.backend.envinfo.persistence;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.*;
 import ssafy.age.backend.cam.persistence.Cam;
-import ssafy.age.backend.envInfo.service.RecordStatus;
+import ssafy.age.backend.envinfo.service.RecordStatus;
 
 @Getter
 @Entity

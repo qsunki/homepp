@@ -1,4 +1,4 @@
-package ssafy.age.backend.envInfo.exception;
+package ssafy.age.backend.envinfo.exception;
 
 import org.springframework.http.HttpStatus;
 import ssafy.age.backend.exception.BusinessException;

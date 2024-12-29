@@ -1,4 +1,4 @@
-package ssafy.age.backend.envInfo.persistence;
+package ssafy.age.backend.envinfo.persistence;
 
 import java.util.List;
 import java.util.Optional;

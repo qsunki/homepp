@@ -9,9 +9,9 @@ import org.springframework.integration.mqtt.support.MqttHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.stereotype.Component;
-import ssafy.age.backend.envInfo.service.EnvInfoService;
-import ssafy.age.backend.envInfo.web.EnvInfoReceivedDto;
-import ssafy.age.backend.envInfo.web.RecordStatusDto;
+import ssafy.age.backend.envinfo.service.EnvInfoService;
+import ssafy.age.backend.envinfo.web.EnvInfoReceivedDto;
+import ssafy.age.backend.envinfo.web.RecordStatusDto;
 import ssafy.age.backend.event.service.EventDto;
 import ssafy.age.backend.event.service.EventService;
 

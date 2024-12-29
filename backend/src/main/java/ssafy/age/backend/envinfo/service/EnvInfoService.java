@@ -1,4 +1,4 @@
-package ssafy.age.backend.envInfo.service;
+package ssafy.age.backend.envinfo.service;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -7,12 +7,12 @@ import org.springframework.stereotype.Service;
 import ssafy.age.backend.cam.exception.CamNotFoundException;
 import ssafy.age.backend.cam.persistence.CamRepository;
 import ssafy.age.backend.cam.service.CamService;
-import ssafy.age.backend.envInfo.exception.EnvInfoNotFoundException;
-import ssafy.age.backend.envInfo.persistence.EnvInfo;
-import ssafy.age.backend.envInfo.persistence.EnvInfoRepository;
-import ssafy.age.backend.envInfo.web.EnvInfoReceivedDto;
-import ssafy.age.backend.envInfo.web.EnvInfoResponseDto;
-import ssafy.age.backend.envInfo.web.RecordStatusDto;
+import ssafy.age.backend.envinfo.exception.EnvInfoNotFoundException;
+import ssafy.age.backend.envinfo.persistence.EnvInfo;
+import ssafy.age.backend.envinfo.persistence.EnvInfoRepository;
+import ssafy.age.backend.envinfo.web.EnvInfoReceivedDto;
+import ssafy.age.backend.envinfo.web.EnvInfoResponseDto;
+import ssafy.age.backend.envinfo.web.RecordStatusDto;
 import ssafy.age.backend.notification.service.FCMService;
 
 @Service

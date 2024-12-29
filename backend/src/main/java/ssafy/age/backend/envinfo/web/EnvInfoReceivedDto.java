@@ -1,8 +1,8 @@
-package ssafy.age.backend.envInfo.web;
+package ssafy.age.backend.envinfo.web;
 
 import java.time.LocalDateTime;
 import lombok.Data;
-import ssafy.age.backend.envInfo.service.RecordStatus;
+import ssafy.age.backend.envinfo.service.RecordStatus;
 
 @Data
 public class EnvInfoReceivedDto {

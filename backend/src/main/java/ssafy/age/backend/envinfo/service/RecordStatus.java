@@ -1,4 +1,4 @@
-package ssafy.age.backend.envInfo.service;
+package ssafy.age.backend.envinfo.service;
 
 public enum RecordStatus {
     RECORDING,

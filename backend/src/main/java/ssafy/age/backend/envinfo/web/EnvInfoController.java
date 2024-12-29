@@ -1,4 +1,4 @@
-package ssafy.age.backend.envInfo.web;
+package ssafy.age.backend.envinfo.web;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -6,7 +6,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-import ssafy.age.backend.envInfo.service.EnvInfoService;
+import ssafy.age.backend.envinfo.service.EnvInfoService;
 import ssafy.age.backend.security.service.MemberInfoDto;
 
 @RestController
