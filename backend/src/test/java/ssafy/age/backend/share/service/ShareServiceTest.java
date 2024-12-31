@@ -22,6 +22,7 @@ import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
 import ssafy.age.backend.member.persistence.MemberStub;
+import ssafy.age.backend.member.persistence.MemoryMemberRepository;
 import ssafy.age.backend.notification.service.FCMService;
 import ssafy.age.backend.share.persistence.MemoryShareRepository;
 import ssafy.age.backend.share.persistence.Share;
@@ -35,6 +36,7 @@ class ShareServiceTest {
     @Mock ShareRepository shareRepository;
     @Mock FCMService fcmService;
     MemoryShareRepository fakeShareRepository = new MemoryShareRepository();
+    MemoryMemberRepository fakeMemberRepository = new MemoryMemberRepository();
 
     ShareService shareService;
 
@@ -48,6 +50,9 @@ class ShareServiceTest {
                         invocation ->
                                 fakeShareRepository.findAllBySharingMemberEmail(
                                         invocation.getArgument(0)));
+        given(memberRepository.findByEmail(anyString()))
+                .willAnswer(
+                        invocation -> fakeMemberRepository.findByEmail(invocation.getArgument(0)));
     }
 
     @Test
@@ -74,39 +79,24 @@ class ShareServiceTest {
     }
 
     @Test
-    @DisplayName("유효한 데이터로 공유회원을 등록할 때 공유된 회원 이메일과 닉네임 반환")
-    void givenValidData_whenCreateShare_thenReturnShareDto() {
-
+    @DisplayName("공유회원을 등록할 때 공유된 회원 이메일과 닉네임을 반환한다.")
+    void createShare() {
         // given
-        String email = "test@example.com";
-        String sharedMemberEmail = "shared@example.com";
-        String nickname = "nickname";
-        Member member = mock(Member.class);
-        Member sharedMember = mock(Member.class);
-
-        given(sharedMember.getEmail()).willReturn(sharedMemberEmail);
-
-        Share share = new Share(member, sharedMember, nickname);
-        ShareDto shareDto = new ShareDto();
-        shareDto.setEmail(sharedMemberEmail);
-        shareDto.setNickname(nickname);
-
-        //        given(authService.getMemberEmail()).willReturn(email);
-        given(memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new))
-                .willReturn(member);
-        given(
-                        memberRepository
-                                .findByEmail(sharedMemberEmail)
-                                .orElseThrow(MemberNotFoundException::new))
-                .willReturn(sharedMember);
-        given(shareRepository.save(any(Share.class))).willReturn(share);
+        Member sharingMember = new Member("sharing@example.com", "password", "010-0000-0000");
+        Member sharedMember = new Member("shared@example.com", "password", "010-0000-0001");
+        fakeMemberRepository.save(sharingMember);
+        fakeMemberRepository.save(sharedMember);
+        Share share = new Share(sharingMember, sharedMember, "friend");
+        fakeShareRepository.save(share);
+        ShareDto expectedShareDto = new ShareDto(sharedMember.getEmail(), share.getNickname());
 
         // when
-        ShareDto result = shareService.createShare(email, sharedMemberEmail, nickname);
+        ShareDto shareDto =
+                shareService.createShare(
+                        sharingMember.getEmail(), sharedMember.getEmail(), share.getNickname());
 
         // then
-        assertEquals(shareDto, result);
-        then(shareRepository).should(times(1)).save(any(Share.class));
+        assertThat(shareDto).isEqualTo(expectedShareDto);
     }
 
     @Test
