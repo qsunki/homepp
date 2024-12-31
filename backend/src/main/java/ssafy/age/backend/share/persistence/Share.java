@@ -32,4 +32,8 @@ public class Share {
     public void updateNickname(String nickname) {
         this.nickname = nickname;
     }
+
+    protected void setId(Long id) {
+        this.id = id;
+    }
 }
