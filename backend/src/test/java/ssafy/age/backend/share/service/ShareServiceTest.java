@@ -2,7 +2,6 @@ package ssafy.age.backend.share.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -21,7 +20,6 @@ import org.mockito.quality.Strictness;
 import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
-import ssafy.age.backend.member.persistence.MemberStub;
 import ssafy.age.backend.member.persistence.MemoryMemberRepository;
 import ssafy.age.backend.notification.service.FCMService;
 import ssafy.age.backend.share.persistence.MemoryShareRepository;
@@ -43,8 +41,6 @@ class ShareServiceTest {
     @BeforeEach
     void setUp() {
         shareService = new ShareService(memberRepository, shareRepository, fcmService);
-        given(shareRepository.save(any(Share.class)))
-                .willAnswer(invocation -> fakeShareRepository.save(invocation.getArgument(0)));
         given(shareRepository.findAllBySharingMemberEmail(anyString()))
                 .willAnswer(
                         invocation ->
@@ -59,17 +55,18 @@ class ShareServiceTest {
     @DisplayName("공유 목록을 가져올 때 이메일과 닉네임 리스트를 반환한다.")
     void getAllShares() {
         // given
-        Member me = new MemberStub(1L, "me@example.com", "password", "010-0000-0000");
-        Member mother = new MemberStub(1L, "mother@example.com", "password", "010-0000-0000");
-        Member father = new MemberStub(1L, "father@example.com", "password", "010-0000-0000");
+        Member me = new Member("me@example.com", "password", "010-0000-0000");
+        Member mother = new Member("mother@example.com", "password", "010-0000-0000");
+        Member father = new Member("father@example.com", "password", "010-0000-0000");
+        fakeMemberRepository.save(me);
+        fakeMemberRepository.save(mother);
+        fakeMemberRepository.save(father);
         Share share1 = new Share(me, mother, "mother");
         Share share2 = new Share(me, father, "father");
-        ShareDto shareDto1 =
-                new ShareDto(share1.getSharedMember().getEmail(), share1.getNickname());
-        ShareDto shareDto2 =
-                new ShareDto(share2.getSharedMember().getEmail(), share2.getNickname());
-        shareRepository.save(share1);
-        shareRepository.save(share2);
+        fakeShareRepository.save(share1);
+        fakeShareRepository.save(share2);
+        ShareDto shareDto1 = new ShareDto(mother.getEmail(), share1.getNickname());
+        ShareDto shareDto2 = new ShareDto(father.getEmail(), share2.getNickname());
 
         // when
         List<ShareDto> shareDtos = shareService.getAllShares(me.getEmail());
