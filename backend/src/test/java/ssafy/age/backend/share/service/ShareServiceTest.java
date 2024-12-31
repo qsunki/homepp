@@ -1,6 +1,7 @@
 package ssafy.age.backend.share.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -100,23 +101,17 @@ class ShareServiceTest {
     @DisplayName("가입되지 않은 이메일의 공유를 생성할 때 SharedMemberNotFoundException이 발생")
     void givenInvalidSharedMemberEmail_whenCreateShare_thenThrowSharedMemberNotFoundException() {
         // given
-        String email = "test@example.com";
-        String sharedMemberEmail = "invalid@example.com";
-        String nickname = "nickname";
-        Member member = mock(Member.class);
-
-        //        given(authService.getMemberEmail()).willReturn(email);
-        given(memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new))
-                .willReturn(member);
-        given(memberRepository.findByEmail(sharedMemberEmail)).willReturn(null);
+        String sharingMemberEmail = "sharing@example.com";
+        Member sharingMember = new Member(sharingMemberEmail, "password", "010-0000-0000");
+        String invalidSharedEmail = "shared@example.com";
+        fakeMemberRepository.save(sharingMember);
 
         // when & then
-        //        assertThrows(
-        //                SharedMemberNotFoundException.class,
-        //                () -> {
-        //                    shareService.createShare(email, sharedMemberEmail, nickname);
-        //                });
-        //        then(shareRepository).should(never()).save(any(Share.class));
+        assertThatThrownBy(
+                        () ->
+                                shareService.createShare(
+                                        sharingMemberEmail, invalidSharedEmail, "friend"))
+                .isInstanceOf(MemberNotFoundException.class);
     }
 
     @Test
