@@ -1,8 +1,9 @@
 package ssafy.age.backend.share.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
@@ -12,77 +13,64 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
-import ssafy.age.backend.security.service.AuthService;
-import ssafy.age.backend.share.exception.AccessDeniedException;
+import ssafy.age.backend.member.persistence.MemberStub;
+import ssafy.age.backend.notification.service.FCMService;
+import ssafy.age.backend.share.persistence.MemoryShareRepository;
 import ssafy.age.backend.share.persistence.Share;
 import ssafy.age.backend.share.persistence.ShareRepository;
 import ssafy.age.backend.share.web.ShareDto;
 
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class ShareServiceTest {
-    @Mock private ShareRepository shareRepository;
-    @Mock private AuthService authService;
-    @Mock private MemberRepository memberRepository;
-    @Mock private ShareMapper shareMapper;
+    @Mock MemberRepository memberRepository;
+    @Mock ShareRepository shareRepository;
+    @Mock FCMService fcmService;
+    MemoryShareRepository fakeShareRepository = new MemoryShareRepository();
 
-    @InjectMocks private ShareService shareService;
+    ShareService shareService;
 
     @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
+    void setUp() {
+        shareService = new ShareService(memberRepository, shareRepository, fcmService);
+        given(shareRepository.save(any(Share.class)))
+                .willAnswer(invocation -> fakeShareRepository.save(invocation.getArgument(0)));
+        given(shareRepository.findAllBySharingMemberEmail(anyString()))
+                .willAnswer(
+                        invocation ->
+                                fakeShareRepository.findAllBySharingMemberEmail(
+                                        invocation.getArgument(0)));
     }
 
     @Test
-    @DisplayName("로그인한 회원과 URI의 이메일이 다를 때 AccessDeniedException 발생")
-    void givenDifferentUser_whenCreateShare_thenThrowAccessDeniedException() {
+    @DisplayName("공유 목록을 가져올 때 이메일과 닉네임 리스트를 반환한다.")
+    void getAllShares() {
         // given
-        String email = "test@example.com";
-        String differentEmail = "different@example.com";
-        Member member = mock(Member.class);
-        Member differentMember = mock(Member.class);
-
-        //        given(authService.getMemberEmail()).willReturn(differentEmail);
-        given(
-                        memberRepository
-                                .findByEmail(differentEmail)
-                                .orElseThrow(MemberNotFoundException::new))
-                .willReturn(differentMember);
-        given(memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new))
-                .willReturn(member);
-
-        // when & then
-        assertThrows(
-                AccessDeniedException.class,
-                () -> {
-                    shareService.createShare(email, "shared@example.com", "nickname");
-                });
-    }
-
-    @Test
-    @DisplayName("유효한 이메일로 공유 목록을 가져올 때 이메일과 닉네임 리스트를 반환")
-    void givenValidEmail_whenGetAllShares_thenReturnShares() {
-        // given
-        String email = "test@example.com";
-        Share share = mock(Share.class);
-        List<Share> shares = List.of(share);
-        ShareDto shareDto = new ShareDto();
-        List<ShareDto> shareDtos = List.of(shareDto);
-
-        //        given(authService.getMemberEmail()).willReturn(email);
-        given(shareRepository.findAllBySharingMemberEmail(email)).willReturn(shares);
-        given(shareMapper.toShareDto(share)).willReturn(shareDto);
+        Member me = new MemberStub(1L, "me@example.com", "password", "010-0000-0000");
+        Member mother = new MemberStub(1L, "mother@example.com", "password", "010-0000-0000");
+        Member father = new MemberStub(1L, "father@example.com", "password", "010-0000-0000");
+        Share share1 = new Share(me, mother, "mother");
+        Share share2 = new Share(me, father, "father");
+        ShareDto shareDto1 =
+                new ShareDto(share1.getSharedMember().getEmail(), share1.getNickname());
+        ShareDto shareDto2 =
+                new ShareDto(share2.getSharedMember().getEmail(), share2.getNickname());
+        shareRepository.save(share1);
+        shareRepository.save(share2);
 
         // when
-        List<ShareDto> result = shareService.getAllShares(email);
+        List<ShareDto> shareDtos = shareService.getAllShares(me.getEmail());
 
         // then
-        assertEquals(shareDtos, result);
-        then(shareRepository).should().findAllBySharingMemberEmail(email);
+        assertThat(shareDtos).hasSize(2).containsExactlyInAnyOrder(shareDto1, shareDto2);
     }
 
     @Test
@@ -112,7 +100,6 @@ class ShareServiceTest {
                                 .orElseThrow(MemberNotFoundException::new))
                 .willReturn(sharedMember);
         given(shareRepository.save(any(Share.class))).willReturn(share);
-        given(shareMapper.toShareDto(any(Share.class))).willReturn(shareDto);
 
         // when
         ShareDto result = shareService.createShare(email, sharedMemberEmail, nickname);
@@ -173,7 +160,6 @@ class ShareServiceTest {
                         shareRepository.findBySharingMemberEmailAndSharedMemberEmail(
                                 email, sharedMemberEmail))
                 .willReturn(share);
-        given(shareMapper.toShareDto(any(Share.class))).willReturn(updatedShareDto);
 
         // when
         ShareDto result = shareService.updateShare(email, sharedMemberEmail, newNickname);
