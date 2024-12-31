@@ -84,14 +84,13 @@ class ShareServiceTest {
         Member sharedMember = new Member("shared@example.com", "password", "010-0000-0001");
         fakeMemberRepository.save(sharingMember);
         fakeMemberRepository.save(sharedMember);
-        Share share = new Share(sharingMember, sharedMember, "friend");
-        fakeShareRepository.save(share);
-        ShareDto expectedShareDto = new ShareDto(sharedMember.getEmail(), share.getNickname());
+        String nickname = "friend";
+        ShareDto expectedShareDto = new ShareDto(sharedMember.getEmail(), nickname);
 
         // when
         ShareDto shareDto =
                 shareService.createShare(
-                        sharingMember.getEmail(), sharedMember.getEmail(), share.getNickname());
+                        sharingMember.getEmail(), sharedMember.getEmail(), nickname);
 
         // then
         assertThat(shareDto).isEqualTo(expectedShareDto);
