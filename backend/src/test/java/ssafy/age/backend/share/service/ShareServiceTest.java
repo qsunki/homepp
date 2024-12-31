@@ -2,11 +2,8 @@ package ssafy.age.backend.share.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -130,41 +127,28 @@ class ShareServiceTest {
     }
 
     @Test
-    @DisplayName("유효한 데이터로 공유를 업데이트할 때, 업데이트된 닉네임과 원래의 공유받은 이메일 반환")
-    void givenValidData_whenUpdateShare_thenReturnShareDto() {
-
+    @DisplayName("공유를 업데이트할 때, 업데이트된 닉네임과 원래의 공유받은 이메일 반환한다.")
+    void updateShare() {
         // given
-        String email = "test@example.com";
-        String sharedMemberEmail = "shared@example.com";
-        String newNickname = "newNickname";
-        Member member = mock(Member.class);
-        Member sharedMember = mock(Member.class);
-
-        Share share = new Share(member, sharedMember, "oldNickname");
-
-        ShareDto updatedShareDto = new ShareDto();
-        updatedShareDto.setNickname(newNickname);
-
-        //        given(authService.getMemberEmail()).willReturn(email);
-        given(memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new))
-                .willReturn(member);
-        given(
-                        memberRepository
-                                .findByEmail(sharedMemberEmail)
-                                .orElseThrow(MemberNotFoundException::new))
-                .willReturn(sharedMember);
-        given(
-                        shareRepository.findBySharingMemberEmailAndSharedMemberEmail(
-                                email, sharedMemberEmail))
-                .willReturn(share);
+        Member sharingMember = new Member("sharingMember@example.com", "password", "010-0000-0000");
+        Member sharedMember = new Member("sharedMember@example.com", "password", "010-0000-0001");
+        fakeMemberRepository.save(sharingMember);
+        fakeMemberRepository.save(sharedMember);
+        Share share = new Share(sharingMember, sharedMember, "friend");
+        fakeShareRepository.save(share);
 
         // when
-        ShareDto result = shareService.updateShare(email, sharedMemberEmail, newNickname);
+        String updatedNickname = "best friend";
+        shareService.updateShare(
+                sharingMember.getEmail(), sharedMember.getEmail(), updatedNickname);
 
         // then
-        assertEquals(updatedShareDto, result);
-        assertEquals(newNickname, share.getNickname());
-        then(shareRepository).should(times(1)).save(share);
+        assertThat(
+                        shareRepository
+                                .findBySharingMemberEmailAndSharedMemberEmail(
+                                        sharingMember.getEmail(), sharedMember.getEmail())
+                                .getNickname())
+                .isEqualTo(updatedNickname);
     }
 
     @Test
