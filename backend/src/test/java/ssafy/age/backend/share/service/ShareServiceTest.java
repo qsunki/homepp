@@ -4,8 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 
@@ -50,6 +49,23 @@ class ShareServiceTest {
         given(memberRepository.findByEmail(anyString()))
                 .willAnswer(
                         invocation -> fakeMemberRepository.findByEmail(invocation.getArgument(0)));
+        given(
+                        shareRepository.findBySharingMemberEmailAndSharedMemberEmail(
+                                anyString(), anyString()))
+                .willAnswer(
+                        invocation ->
+                                fakeShareRepository
+                                        .findBySharingMemberEmailAndSharedMemberEmail(
+                                                invocation.getArgument(0),
+                                                invocation.getArgument(1))
+                                        .orElseThrow());
+        willAnswer(
+                        invocation -> {
+                            fakeShareRepository.delete(invocation.getArgument(0));
+                            return null;
+                        })
+                .given(shareRepository)
+                .delete(any(Share.class));
     }
 
     @Test
@@ -152,23 +168,26 @@ class ShareServiceTest {
     }
 
     @Test
-    @DisplayName("유효한 데이터로 공유를 삭제할 때 삭제 성공")
-    void givenValidData_whenDeleteShare_thenDeleted() {
+    @DisplayName("공유를 삭제할 때 삭제 성공한다.")
+    void deleteShare() {
         // given
-        String email = "test@example.com";
-        String sharedMemberEmail = "shared@example.com";
-        Share share = mock(Share.class);
-
-        //        given(authService.getMemberEmail()).willReturn(email);
-        given(
-                        shareRepository.findBySharingMemberEmailAndSharedMemberEmail(
-                                email, sharedMemberEmail))
-                .willReturn(share);
+        Member me = new Member("me@example.com", "password", "010-0000-0000");
+        Member mother = new Member("mother@example.com", "password", "010-0000-0000");
+        Member father = new Member("father@example.com", "password", "010-0000-0000");
+        fakeMemberRepository.save(me);
+        fakeMemberRepository.save(mother);
+        fakeMemberRepository.save(father);
+        Share share1 = new Share(me, mother, "mother");
+        Share share2 = new Share(me, father, "father");
+        fakeShareRepository.save(share1);
+        fakeShareRepository.save(share2);
 
         // when
-        shareService.deleteShare(email, sharedMemberEmail);
+        shareService.deleteShare(me.getEmail(), mother.getEmail());
 
         // then
-        then(shareRepository).should(times(1)).delete(share);
+        assertThat(fakeShareRepository.findAllBySharingMemberEmail(me.getEmail()))
+                .hasSize(1)
+                .containsExactly(share2);
     }
 }

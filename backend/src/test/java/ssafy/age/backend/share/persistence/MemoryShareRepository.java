@@ -24,4 +24,20 @@ public class MemoryShareRepository {
                 .filter(share -> share.getSharingMember().getEmail().equals(email))
                 .toList();
     }
+
+    public Optional<Share> findBySharingMemberEmailAndSharedMemberEmail(
+            String sharingMemberEmail, String sharedMemberEmail) {
+        return shares.values().stream()
+                .filter(
+                        share ->
+                                share.getSharingMember().getEmail().equals(sharingMemberEmail)
+                                        && share.getSharedMember()
+                                                .getEmail()
+                                                .equals(sharedMemberEmail))
+                .findFirst();
+    }
+
+    public void delete(Share share) {
+        shares.remove(share.getId());
+    }
 }
