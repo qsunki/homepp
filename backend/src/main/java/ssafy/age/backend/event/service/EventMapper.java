@@ -18,12 +18,6 @@ public interface EventMapper {
     @Mapping(target = "videoId", source = "video.id")
     EventResponseDto toEventResponseDto(Event event);
 
-    @Mapping(target = "cam", ignore = true)
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "isRead", ignore = true)
-    @Mapping(target = "video", ignore = true)
-    Event toEvent(EventDto eventDto);
-
     EventDetailDto eventToEventDetailDto(Event event);
 
     List<EventDetailDto> map(List<Event> events);

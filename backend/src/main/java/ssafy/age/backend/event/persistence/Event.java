@@ -24,36 +24,17 @@ public class Event {
 
     @ManyToOne
     @JoinColumn(name = "cam_id")
-    @Setter
     private Cam cam;
 
     @ManyToOne
     @JoinColumn(name = "video_id")
-    @Setter
     private Video video;
 
-    @Builder
-    public Event(
-            Long id,
-            LocalDateTime occurredAt,
-            EventType type,
-            Boolean isRead,
-            Cam cam,
-            Video video) {
-        this.id = id;
+    public Event(LocalDateTime occurredAt, EventType type, Cam cam) {
         this.occurredAt = occurredAt;
         this.type = type;
-        this.isRead = isRead;
+        this.isRead = false;
         this.cam = cam;
-        this.video = video;
-    }
-
-    public Event(LocalDateTime occurredAt, EventType type, Boolean isRead, Cam cam, Video video) {
-        this.occurredAt = occurredAt;
-        this.type = type;
-        this.isRead = isRead;
-        this.cam = cam;
-        this.video = video;
     }
 
     public void read() {

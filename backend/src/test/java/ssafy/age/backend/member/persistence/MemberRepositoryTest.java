@@ -108,24 +108,7 @@ class MemberRepositoryTest {
                         "https://example.com/image.jpg");
         Cam savedCam = camRepository.save(cam);
 
-        Video video =
-                new Video(
-                        LocalDateTime.of(2024, 1, 1, 0, 0),
-                        100L,
-                        "https://stream.example.com",
-                        "https://download.example.com",
-                        "https://thumbnail.example.com",
-                        Boolean.TRUE,
-                        savedCam);
-        Video savedVideo = videoRepository.save(video);
-
-        Event event =
-                new Event(
-                        LocalDateTime.of(2024, 1, 2, 0, 0),
-                        EventType.FIRE,
-                        Boolean.FALSE,
-                        savedCam,
-                        savedVideo);
+        Event event = new Event(LocalDateTime.of(2024, 1, 2, 0, 0), EventType.FIRE, savedCam);
         Event savedEvent = eventRepository.save(event);
 
         // when
