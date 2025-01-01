@@ -40,4 +40,8 @@ public class EnvInfo {
         this.status = status;
         this.cam = cam;
     }
+
+    protected void setId(Long id) {
+        this.id = id;
+    }
 }
