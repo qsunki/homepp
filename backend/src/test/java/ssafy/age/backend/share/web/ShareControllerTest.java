@@ -1,117 +1,131 @@
 package ssafy.age.backend.share.web;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import ssafy.age.backend.security.TestSecurityConfig;
+import ssafy.age.backend.security.service.MemberInfoDto;
 import ssafy.age.backend.share.service.ShareService;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest(ShareController.class)
+@Import(TestSecurityConfig.class)
 class ShareControllerTest {
 
-    @Mock private ShareService shareService;
-    @InjectMocks private ShareController shareController;
+    @Autowired MockMvc mockMvc;
+    @Autowired ObjectMapper objectMapper;
 
-    private MockMvc mockMvc;
+    @MockitoBean ShareService shareService;
 
-    @BeforeEach
-    public void initMockMvc() {
-        mockMvc = MockMvcBuilders.standaloneSetup(shareController).build();
-    }
-
+    @DisplayName("인증된 사용자는 공유 회원 목록을 조회할 수 있다.")
     @Test
-    @DisplayName("공유 회원 목록 전체 조회")
     void getAllShares() throws Exception {
-        String email = "test@example.com";
-        ShareDto shareDto = new ShareDto();
-        shareDto.setEmail("shared@example.com");
-        shareDto.setNickname("nickname");
-        List<ShareDto> shareDtoList = List.of(shareDto);
+        // given
+        MemberInfoDto memberInfoDto = new MemberInfoDto(1L, "test@example.com");
+        ShareDto shareDto1 = new ShareDto("mother@example.com", "mother");
+        ShareDto shareDto2 = new ShareDto("father@example.com", "father");
+        List<ShareDto> shareDtos = List.of(shareDto1, shareDto2);
+        given(shareService.getAllShares(memberInfoDto.getEmail())).willReturn(shareDtos);
 
-        given(shareService.getAllShares(email)).willReturn(shareDtoList);
+        UsernamePasswordAuthenticationToken authentication =
+                UsernamePasswordAuthenticationToken.authenticated(memberInfoDto, null, List.of());
+        String response = objectMapper.writeValueAsString(shareDtos);
 
-        mockMvc.perform(get("/api/v1/members/{email}/sharedMembers", email))
+        // when & then
+        mockMvc.perform(
+                        get("/api/v1/shared-members")
+                                .with(authentication(authentication))
+                                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].email").value("shared@example.com"))
-                .andExpect(jsonPath("$[0].nickname").value("nickname"));
+                .andExpect(content().json(response))
+                .andDo(print());
     }
 
     @Test
-    @DisplayName("공유 회원 추가")
+    @DisplayName("인증된 사용자는 공유 회원을 추가할 수 있다.")
     void createShare() throws Exception {
-        String email = "test@example.com";
-        ShareDto shareDto = new ShareDto();
-        shareDto.setEmail("shared@example.com");
-        shareDto.setNickname("nickname");
-
-        given(shareService.createShare(any(String.class), any(String.class), any(String.class)))
+        // given
+        MemberInfoDto memberInfoDto = new MemberInfoDto(1L, "test@example.com");
+        ShareDto shareDto = new ShareDto("sharedMember@example.com", "shared");
+        given(
+                        shareService.createShare(
+                                memberInfoDto.getEmail(), "sharedMember@example.com", "shared"))
                 .willReturn(shareDto);
 
+        UsernamePasswordAuthenticationToken authentication =
+                UsernamePasswordAuthenticationToken.authenticated(memberInfoDto, null, List.of());
+        String response = objectMapper.writeValueAsString(shareDto);
+
+        // when & then
         mockMvc.perform(
-                        post("/api/v1/members/{email}/sharedMembers", email)
+                        post("/api/v1/shared-members")
+                                .with(authentication(authentication))
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(new ObjectMapper().writeValueAsString(shareDto)))
+                                .content(objectMapper.writeValueAsString(shareDto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value("shared@example.com"))
-                .andExpect(jsonPath("$.nickname").value("nickname"));
+                .andExpect(content().json(response))
+                .andDo(print());
     }
 
     @Test
-    @DisplayName("공유 회원 수정")
+    @DisplayName("인증된 사용자는 공유 회원 닉네임을 수정할 수 있다.")
     void updateShare() throws Exception {
-        String email = "test@example.com";
-        String sharedMemberEmail = "shared@example.com";
-        ShareDto inputDto = new ShareDto();
-        inputDto.setNickname("new엄마");
+        // given
+        MemberInfoDto memberInfoDto = new MemberInfoDto(1L, "test@example.com");
+        ShareDto shareDto = new ShareDto("sharedMember@example.com", "shared");
+        given(
+                        shareService.updateShare(
+                                memberInfoDto.getEmail(), "sharedMember@example.com", "shared"))
+                .willReturn(shareDto);
 
-        ShareDto returnedDto = new ShareDto();
-        returnedDto.setNickname("new엄마");
-        returnedDto.setEmail("shared@example.com");
+        UsernamePasswordAuthenticationToken authentication =
+                UsernamePasswordAuthenticationToken.authenticated(memberInfoDto, null, List.of());
+        String response = objectMapper.writeValueAsString(shareDto);
 
-        given(shareService.updateShare(any(String.class), any(String.class), any(String.class)))
-                .willReturn(returnedDto);
-
+        // when & then
         mockMvc.perform(
                         patch(
-                                        "/api/v1/members/{email}/sharedMembers/{sharedMemberEmail}",
-                                        email,
-                                        sharedMemberEmail)
+                                        "/api/v1/shared-members/{sharedMemberEmail}",
+                                        "sharedMember@example.com")
+                                .with(authentication(authentication))
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(new ObjectMapper().writeValueAsString(inputDto)))
+                                .content(objectMapper.writeValueAsString(shareDto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.nickname").value("new엄마"))
-                .andExpect(jsonPath("$.email").value("shared@example.com"));
+                .andExpect(content().json(response))
+                .andDo(print());
     }
 
     @Test
     @DisplayName("공유 회원 삭제")
     void deleteShare() throws Exception {
-        String email = "test@example.com";
-        String sharedMemberEmail = "shared@example.com";
+        // given
+        MemberInfoDto memberInfoDto = new MemberInfoDto(1L, "test@example.com");
 
-        doNothing().when(shareService).deleteShare(any(String.class), any(String.class));
+        UsernamePasswordAuthenticationToken authentication =
+                UsernamePasswordAuthenticationToken.authenticated(memberInfoDto, null, List.of());
 
+        // when & then
         mockMvc.perform(
                         delete(
-                                "/api/v1/members/{email}/sharedMembers/{sharedMemberEmail}",
-                                email,
-                                sharedMemberEmail))
-                .andExpect(status().isOk());
+                                        "/api/v1/shared-members/{sharedMemberEmail}",
+                                        "sharedMember@example.com")
+                                .with(authentication(authentication))
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
     }
 }
