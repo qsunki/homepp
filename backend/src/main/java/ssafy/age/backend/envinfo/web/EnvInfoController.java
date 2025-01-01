@@ -26,6 +26,7 @@ public class EnvInfoController {
     @GetMapping("/api/v1/cams/{camId}/envInfo")
     public EnvInfoResponseDto getEnvInfo(
             @PathVariable Long camId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
-        return envInfoService.getEnvInfo(camId, memberInfoDto.getMemberId());
+        camService.verifyMemberByCamId(camId, memberInfoDto.getMemberId());
+        return envInfoService.getEnvInfo(camId);
     }
 }
