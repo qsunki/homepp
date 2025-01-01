@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ssafy.age.backend.cam.persistence.CamRepository;
-import ssafy.age.backend.cam.service.CamService;
 import ssafy.age.backend.envinfo.exception.EnvInfoNotFoundException;
 import ssafy.age.backend.envinfo.persistence.EnvInfo;
 import ssafy.age.backend.envinfo.persistence.EnvInfoRepository;
@@ -14,16 +13,15 @@ import ssafy.age.backend.envinfo.web.EnvInfoResponseDto;
 import ssafy.age.backend.envinfo.web.RecordStatusDto;
 import ssafy.age.backend.notification.service.FCMService;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class EnvInfoService {
 
     private static final EnvInfoMapper envInfoMapper = EnvInfoMapper.INSTANCE;
 
     private final EnvInfoRepository envInfoRepository;
     private final CamRepository camRepository;
-    private final CamService camService;
     private final FCMService fcmService;
 
     public void save(EnvInfoReceivedDto envInfoReceivedDto) {

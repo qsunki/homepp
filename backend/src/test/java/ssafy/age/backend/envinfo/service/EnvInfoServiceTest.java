@@ -19,7 +19,6 @@ import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.cam.persistence.CamRepository;
 import ssafy.age.backend.cam.persistence.CamStatus;
 import ssafy.age.backend.cam.persistence.MemoryCamRepository;
-import ssafy.age.backend.cam.service.CamService;
 import ssafy.age.backend.envinfo.persistence.EnvInfo;
 import ssafy.age.backend.envinfo.persistence.EnvInfoRepository;
 import ssafy.age.backend.envinfo.persistence.MemoryEnvInfoRepository;
@@ -37,7 +36,6 @@ class EnvInfoServiceTest {
 
     @Mock EnvInfoRepository envInfoRepository;
     @Mock CamRepository camRepository;
-    @Mock CamService camService;
     @Mock FCMService fcmService;
     MemoryMemberRepository fakeMemberRepository = new MemoryMemberRepository();
     MemoryCamRepository fakeCamRepository = new MemoryCamRepository();
@@ -47,8 +45,7 @@ class EnvInfoServiceTest {
 
     @BeforeEach
     void setUp() {
-        envInfoService =
-                new EnvInfoService(envInfoRepository, camRepository, camService, fcmService);
+        envInfoService = new EnvInfoService(envInfoRepository, camRepository, fcmService);
         given(envInfoRepository.save(any(EnvInfo.class)))
                 .willAnswer(invocation -> fakeEnvInfoRepository.save(invocation.getArgument(0)));
         given(envInfoRepository.findLatestByCamId(anyLong()))
