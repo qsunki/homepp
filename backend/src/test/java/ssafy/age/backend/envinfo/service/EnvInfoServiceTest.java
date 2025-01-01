@@ -175,4 +175,41 @@ class EnvInfoServiceTest {
                 .hasSize(2)
                 .containsExactlyInAnyOrder(envInfoResponseDto1, envInfoResponseDto2);
     }
+
+    @DisplayName("EnvInfo를 가져올 수 있다.")
+    @Test
+    void getEnvInfo() {
+        // given
+        Member member = new Member("test@example.com", "testpassword", "010-0000-0000");
+        fakeMemberRepository.save(member);
+        Cam cam =
+                new Cam(
+                        "living room",
+                        "192.168.0.1",
+                        "seoul",
+                        CamStatus.REGISTERED,
+                        member,
+                        "https://img.example.com/1");
+        fakeCamRepository.save(cam);
+        EnvInfo envInfo1 =
+                new EnvInfo(
+                        LocalDateTime.of(2023, 1, 1, 0, 0), 23.3, 50.0, RecordStatus.OFFLINE, cam);
+        EnvInfo envInfo2 =
+                new EnvInfo(
+                        LocalDateTime.of(2024, 1, 1, 0, 0), 23.3, 50.0, RecordStatus.OFFLINE, cam);
+        fakeEnvInfoRepository.save(envInfo1);
+        fakeEnvInfoRepository.save(envInfo2);
+        EnvInfoResponseDto envInfoResponseDto =
+                new EnvInfoResponseDto(
+                        envInfo2.getRecordedAt(),
+                        envInfo2.getTemperature(),
+                        envInfo2.getHumidity(),
+                        envInfo2.getStatus());
+
+        // when
+        EnvInfoResponseDto envInfo = envInfoService.getEnvInfo(cam.getId());
+
+        // then
+        assertThat(envInfo).isEqualTo(envInfoResponseDto);
+    }
 }
