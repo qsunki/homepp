@@ -25,6 +25,7 @@ import ssafy.age.backend.envinfo.persistence.EnvInfoRepository;
 import ssafy.age.backend.envinfo.persistence.MemoryEnvInfoRepository;
 import ssafy.age.backend.envinfo.persistence.RecordStatus;
 import ssafy.age.backend.envinfo.web.EnvInfoReceivedDto;
+import ssafy.age.backend.envinfo.web.RecordStatusDto;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemoryMemberRepository;
 import ssafy.age.backend.notification.service.FCMService;
@@ -49,6 +50,10 @@ class EnvInfoServiceTest {
                 new EnvInfoService(envInfoRepository, camRepository, camService, fcmService);
         given(envInfoRepository.save(any(EnvInfo.class)))
                 .willAnswer(invocation -> fakeEnvInfoRepository.save(invocation.getArgument(0)));
+        given(envInfoRepository.findLatestByCamId(anyLong()))
+                .willAnswer(
+                        invocation ->
+                                fakeEnvInfoRepository.findLatestByCamId(invocation.getArgument(0)));
         given(camRepository.getReferenceById(anyLong()))
                 .willAnswer(
                         invocation ->
@@ -88,5 +93,36 @@ class EnvInfoServiceTest {
         assertThat(envInfos.getFirst().getHumidity()).isEqualTo(envInfoReceivedDto.getHumidity());
         assertThat(envInfos.getFirst().getStatus()).isEqualTo(envInfoReceivedDto.getStatus());
         assertThat(envInfos.getFirst().getCam()).isEqualTo(cam);
+    }
+
+    @DisplayName("RecordStatus를 변경할 수 있다.")
+    @Test
+    void updateStatus() {
+        // given
+        Member member = new Member("test@example.com", "testpassword", "010-0000-0000");
+        fakeMemberRepository.save(member);
+        Cam cam =
+                new Cam(
+                        "living room",
+                        "192.168.0.1",
+                        "seoul",
+                        CamStatus.REGISTERED,
+                        member,
+                        "https://img.example.com/1");
+        fakeCamRepository.save(cam);
+        EnvInfo envInfo1 =
+                new EnvInfo(
+                        LocalDateTime.of(2023, 1, 1, 0, 0), 23.3, 50.0, RecordStatus.OFFLINE, cam);
+        EnvInfo envInfo2 =
+                new EnvInfo(
+                        LocalDateTime.of(2024, 1, 1, 0, 0), 23.3, 50.0, RecordStatus.OFFLINE, cam);
+        fakeEnvInfoRepository.save(envInfo1);
+        fakeEnvInfoRepository.save(envInfo2);
+
+        // when
+        envInfoService.updateStatus(new RecordStatusDto(cam.getId(), RecordStatus.RECORDING));
+
+        // then
+        assertThat(envInfo2.getStatus()).isEqualTo(RecordStatus.RECORDING);
     }
 }

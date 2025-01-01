@@ -1,8 +1,6 @@
 package ssafy.age.backend.envinfo.persistence;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MemoryEnvInfoRepository {
 
@@ -24,5 +22,11 @@ public class MemoryEnvInfoRepository {
 
     public List<EnvInfo> findAll() {
         return envInfos.values().stream().toList();
+    }
+
+    public Optional<EnvInfo> findLatestByCamId(Long camId) {
+        return envInfos.values().stream()
+                .filter(envInfo -> envInfo.getCam().getId().equals(camId))
+                .max(Comparator.comparing(EnvInfo::getRecordedAt));
     }
 }
