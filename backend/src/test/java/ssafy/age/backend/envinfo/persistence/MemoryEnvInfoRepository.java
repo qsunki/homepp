@@ -29,4 +29,10 @@ public class MemoryEnvInfoRepository {
                 .filter(envInfo -> envInfo.getCam().getId().equals(camId))
                 .max(Comparator.comparing(EnvInfo::getRecordedAt));
     }
+
+    public List<EnvInfo> findAllByCamId(Long camId) {
+        return envInfos.values().stream()
+                .filter(envInfo -> envInfo.getCam().getId().equals(camId))
+                .toList();
+    }
 }
