@@ -26,4 +26,8 @@ public class MemoryCamRepository {
                 .filter(cam -> cam.getMember().getId().equals(memberId))
                 .toList();
     }
+
+    public Cam getReferenceById(Long camId) {
+        return cams.get(camId);
+    }
 }
