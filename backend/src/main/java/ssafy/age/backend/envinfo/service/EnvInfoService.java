@@ -51,11 +51,7 @@ public class EnvInfoService {
                 String.valueOf(recordStatusDto.getStatus()), recordStatusDto.getCamId());
     }
 
-    public List<EnvInfoResponseDto> getEnvInfos(Long camId, Long memberId) {
-        camService.verifyMemberByCamId(camId, memberId);
-        if (!camRepository.existsById(camId)) {
-            throw new CamNotFoundException();
-        }
+    public List<EnvInfoResponseDto> getEnvInfos(Long camId) {
         List<EnvInfo> envInfos = envInfoRepository.findAllByCamId(camId);
         return envInfos.stream().map(envInfoMapper::toEnvInfoResponseDto).toList();
     }

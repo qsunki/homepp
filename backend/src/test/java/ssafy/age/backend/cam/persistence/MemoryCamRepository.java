@@ -30,8 +30,4 @@ public class MemoryCamRepository {
     public Cam getReferenceById(Long camId) {
         return cams.get(camId);
     }
-
-    public boolean existsById(Long camId) {
-        return cams.containsKey(camId);
-    }
 }

@@ -63,8 +63,6 @@ class EnvInfoServiceTest {
                 .willAnswer(
                         invocation ->
                                 fakeCamRepository.getReferenceById(invocation.getArgument(0)));
-        given(camRepository.existsById(anyLong()))
-                .willAnswer(invocation -> fakeCamRepository.existsById(invocation.getArgument(0)));
     }
 
     @DisplayName("EnvInfo를 저장할 수 있다.")
@@ -170,8 +168,7 @@ class EnvInfoServiceTest {
                         envInfo2.getStatus());
 
         // when
-        List<EnvInfoResponseDto> envInfoResponseDtos =
-                envInfoService.getEnvInfos(cam.getId(), member.getId());
+        List<EnvInfoResponseDto> envInfoResponseDtos = envInfoService.getEnvInfos(cam.getId());
 
         // then
         assertThat(envInfoResponseDtos)
