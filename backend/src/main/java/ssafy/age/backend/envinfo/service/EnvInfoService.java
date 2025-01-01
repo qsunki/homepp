@@ -29,8 +29,11 @@ public class EnvInfoService {
 
     public void save(EnvInfoReceivedDto envInfoReceivedDto) {
         EnvInfo envInfo =
-                envInfoMapper.toEnvInfo(
-                        envInfoReceivedDto,
+                new EnvInfo(
+                        envInfoReceivedDto.getRecordedAt(),
+                        envInfoReceivedDto.getTemperature(),
+                        envInfoReceivedDto.getHumidity(),
+                        envInfoReceivedDto.getStatus(),
                         camRepository.getReferenceById(envInfoReceivedDto.getCamId()));
         log.debug("Saving envInfoReceivedDto: {}", envInfoReceivedDto);
         log.debug("Saving envInfo.cam.id: {}", envInfo.getCam().getId());
