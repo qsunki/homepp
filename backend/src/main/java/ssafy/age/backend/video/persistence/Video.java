@@ -2,6 +2,7 @@ package ssafy.age.backend.video.persistence;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.*;
 import ssafy.age.backend.cam.persistence.Cam;
@@ -31,44 +32,11 @@ public class Video {
     private Cam cam;
 
     @OneToMany(mappedBy = "video")
-    private List<Event> events;
+    private final List<Event> events = new ArrayList<>();
 
-    @Builder
-    public Video(
-            Long id,
-            LocalDateTime recordStartedAt,
-            Long length,
-            String streamUrl,
-            String downloadUrl,
-            String thumbnailUrl,
-            Boolean isThreat,
-            Cam cam,
-            List<Event> events) {
-        this.id = id;
+    public Video(LocalDateTime recordStartedAt, Long length, Cam cam) {
         this.recordStartedAt = recordStartedAt;
         this.length = length;
-        this.streamUrl = streamUrl;
-        this.downloadUrl = downloadUrl;
-        this.thumbnailUrl = thumbnailUrl;
-        this.isThreat = isThreat;
-        this.cam = cam;
-        this.events = events;
-    }
-
-    public Video(
-            LocalDateTime recordStartedAt,
-            Long length,
-            String streamUrl,
-            String downloadUrl,
-            String thumbnailUrl,
-            Boolean isThreat,
-            Cam cam) {
-        this.recordStartedAt = recordStartedAt;
-        this.length = length;
-        this.streamUrl = streamUrl;
-        this.downloadUrl = downloadUrl;
-        this.thumbnailUrl = thumbnailUrl;
-        this.isThreat = isThreat;
         this.cam = cam;
     }
 

@@ -92,14 +92,7 @@ public class VideoService {
 
         List<Event> events = eventRepository.findAllByOccurredAtBetween(startTime, endTime);
         Cam cam = camRepository.getReferenceById(camId);
-        Video video =
-                Video.builder()
-                        .cam(cam)
-                        .events(events)
-                        .isThreat(false)
-                        .length(videoLength)
-                        .recordStartedAt(startTime)
-                        .build();
+        Video video = new Video(startTime, videoLength, cam);
         Video saved = videoRepository.save(video);
 
         // 녹화영상 저장
@@ -113,7 +106,6 @@ public class VideoService {
         saved.setThumbnailUrl(thumbnailUrl);
         saved.setStreamUrl(streamUrl);
         saved.setDownloadUrl(downloadUrl);
-        videoRepository.save(saved);
     }
 
     public VideoRecordResponseDto recordVideo(Long camId, String key, VideoCommand command) {

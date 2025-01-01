@@ -70,15 +70,7 @@ class MemberRepositoryTest {
                         "https://example.com/image.jpg");
         Cam savedCam = camRepository.save(cam);
 
-        Video video =
-                new Video(
-                        LocalDateTime.of(2024, 1, 1, 0, 0),
-                        100L,
-                        "https://stream.example.com",
-                        "https://download.example.com",
-                        "https://thumbnail.example.com",
-                        Boolean.TRUE,
-                        savedCam);
+        Video video = new Video(LocalDateTime.of(2024, 1, 1, 0, 0), 100L, savedCam);
         Video savedVideo = videoRepository.save(video);
 
         // when
