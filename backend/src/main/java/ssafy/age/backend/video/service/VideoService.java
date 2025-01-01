@@ -134,7 +134,7 @@ public class VideoService {
         video.registerThreat();
         List<Member> members = memberRepository.findAll();
         for (Member member : members) {
-            Threat threat = Threat.builder().member(member).video(video).isRead(false).build();
+            Threat threat = new Threat(video, member);
             threatRepository.save(threat);
         }
         Video savedVideo = videoRepository.save(video);
