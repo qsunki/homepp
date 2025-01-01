@@ -11,4 +11,17 @@ public class EnvInfoReceivedDto {
     private Double temperature;
     private Double humidity;
     private LocalDateTime recordedAt;
+
+    public EnvInfoReceivedDto(
+            Long camId,
+            RecordStatus status,
+            Double temperature,
+            Double humidity,
+            LocalDateTime recordedAt) {
+        this.camId = camId;
+        this.status = status;
+        this.temperature = temperature;
+        this.humidity = humidity;
+        this.recordedAt = recordedAt;
+    }
 }
