@@ -10,15 +10,15 @@ import ssafy.age.backend.member.persistence.Member;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FCMToken {
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    public Member member;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String token;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    public Member member;
 
     public FCMToken(String token, Member member) {
         this.token = token;
