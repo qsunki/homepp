@@ -2,8 +2,6 @@ package ssafy.age.backend.share.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.BDDMockito.*;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,21 +10,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemoryMemberRepository;
 import ssafy.age.backend.notification.service.FCMService;
 import ssafy.age.backend.share.persistence.MemoryShareRepository;
 import ssafy.age.backend.share.persistence.Share;
-import ssafy.age.backend.share.persistence.ShareRepository;
 import ssafy.age.backend.share.web.ShareDto;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 class ShareServiceTest {
-    @Mock ShareRepository shareRepository;
     @Mock FCMService fcmService;
     MemoryShareRepository fakeShareRepository = new MemoryShareRepository();
     MemoryMemberRepository fakeMemberRepository = new MemoryMemberRepository();
@@ -35,29 +28,7 @@ class ShareServiceTest {
 
     @BeforeEach
     void setUp() {
-        shareService = new ShareService(fakeMemberRepository, shareRepository, fcmService);
-        given(shareRepository.findAllBySharingMemberEmail(anyString()))
-                .willAnswer(
-                        invocation ->
-                                fakeShareRepository.findAllBySharingMemberEmail(
-                                        invocation.getArgument(0)));
-        given(
-                        shareRepository.findBySharingMemberEmailAndSharedMemberEmail(
-                                anyString(), anyString()))
-                .willAnswer(
-                        invocation ->
-                                fakeShareRepository
-                                        .findBySharingMemberEmailAndSharedMemberEmail(
-                                                invocation.getArgument(0),
-                                                invocation.getArgument(1))
-                                        .orElseThrow());
-        willAnswer(
-                        invocation -> {
-                            fakeShareRepository.delete(invocation.getArgument(0));
-                            return null;
-                        })
-                .given(shareRepository)
-                .delete(any(Share.class));
+        shareService = new ShareService(fakeMemberRepository, fakeShareRepository, fcmService);
     }
 
     @Test
@@ -139,7 +110,7 @@ class ShareServiceTest {
 
         // then
         assertThat(
-                        shareRepository
+                        fakeShareRepository
                                 .findBySharingMemberEmailAndSharedMemberEmail(
                                         sharingMember.getEmail(), sharedMember.getEmail())
                                 .getNickname())
