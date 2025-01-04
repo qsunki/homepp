@@ -6,13 +6,16 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import ssafy.age.backend.cam.persistence.MemoryCamRepository;
 import ssafy.age.backend.event.persistence.MemoryEventRepository;
 import ssafy.age.backend.event.web.EventResponseDto;
 import ssafy.age.backend.member.persistence.MemoryMemberRepository;
 import ssafy.age.backend.notification.service.FCMService;
 
+@ExtendWith(MockitoExtension.class)
 class EventServiceTest {
 
     @Mock FCMService fcmService;
