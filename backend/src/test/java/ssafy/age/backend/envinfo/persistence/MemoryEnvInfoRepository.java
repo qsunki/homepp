@@ -1,13 +1,16 @@
 package ssafy.age.backend.envinfo.persistence;
 
 import java.util.*;
+import org.springframework.lang.NonNull;
+import ssafy.age.backend.NotJpaRepository;
 
-public class MemoryEnvInfoRepository {
+public class MemoryEnvInfoRepository implements EnvInfoRepository, NotJpaRepository<EnvInfo, Long> {
 
     private final Map<Long, EnvInfo> envInfos = new HashMap<>();
     private Long sequence = 1L;
 
-    public EnvInfo save(EnvInfo envInfo) {
+    @Override
+    @NonNull public <S extends EnvInfo> S save(S envInfo) {
         if (envInfo.getId() != null) {
             envInfos.put(envInfo.getId(), envInfo);
             return envInfo;
@@ -20,16 +23,19 @@ public class MemoryEnvInfoRepository {
         return envInfo;
     }
 
-    public List<EnvInfo> findAll() {
+    @Override
+    @NonNull public List<EnvInfo> findAll() {
         return envInfos.values().stream().toList();
     }
 
+    @Override
     public Optional<EnvInfo> findLatestByCamId(Long camId) {
         return envInfos.values().stream()
                 .filter(envInfo -> envInfo.getCam().getId().equals(camId))
                 .max(Comparator.comparing(EnvInfo::getRecordedAt));
     }
 
+    @Override
     public List<EnvInfo> findAllByCamId(Long camId) {
         return envInfos.values().stream()
                 .filter(envInfo -> envInfo.getCam().getId().equals(camId))

@@ -1,9 +1,6 @@
 package ssafy.age.backend.envinfo.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.BDDMockito.given;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,7 +16,6 @@ import ssafy.age.backend.cam.persistence.Cam;
 import ssafy.age.backend.cam.persistence.CamStatus;
 import ssafy.age.backend.cam.persistence.MemoryCamRepository;
 import ssafy.age.backend.envinfo.persistence.EnvInfo;
-import ssafy.age.backend.envinfo.persistence.EnvInfoRepository;
 import ssafy.age.backend.envinfo.persistence.MemoryEnvInfoRepository;
 import ssafy.age.backend.envinfo.persistence.RecordStatus;
 import ssafy.age.backend.envinfo.web.EnvInfoReceivedDto;
@@ -33,7 +29,6 @@ import ssafy.age.backend.notification.service.FCMService;
 @MockitoSettings(strictness = Strictness.LENIENT)
 class EnvInfoServiceTest {
 
-    @Mock EnvInfoRepository envInfoRepository;
     @Mock FCMService fcmService;
     MemoryMemberRepository fakeMemberRepository = new MemoryMemberRepository();
     MemoryCamRepository fakeCamRepository = new MemoryCamRepository();
@@ -43,17 +38,7 @@ class EnvInfoServiceTest {
 
     @BeforeEach
     void setUp() {
-        envInfoService = new EnvInfoService(envInfoRepository, fakeCamRepository, fcmService);
-        given(envInfoRepository.save(any(EnvInfo.class)))
-                .willAnswer(invocation -> fakeEnvInfoRepository.save(invocation.getArgument(0)));
-        given(envInfoRepository.findLatestByCamId(anyLong()))
-                .willAnswer(
-                        invocation ->
-                                fakeEnvInfoRepository.findLatestByCamId(invocation.getArgument(0)));
-        given(envInfoRepository.findAllByCamId(anyLong()))
-                .willAnswer(
-                        invocation ->
-                                fakeEnvInfoRepository.findAllByCamId(invocation.getArgument(0)));
+        envInfoService = new EnvInfoService(fakeEnvInfoRepository, fakeCamRepository, fcmService);
     }
 
     @DisplayName("EnvInfo를 저장할 수 있다.")
