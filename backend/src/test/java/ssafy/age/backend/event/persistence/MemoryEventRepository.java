@@ -3,6 +3,7 @@ package ssafy.age.backend.event.persistence;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.lang.NonNull;
+import ssafy.age.backend.NotImplementedException;
 import ssafy.age.backend.NotJpaRepository;
 
 @SuppressWarnings({"SpringDataMethodInconsistencyInspection"})
@@ -10,22 +11,22 @@ public class MemoryEventRepository implements EventRepository, NotJpaRepository<
 
     @Override
     public List<Event> findAllByOccurredAtBetween(LocalDateTime start, LocalDateTime end) {
-        return List.of();
+        throw new NotImplementedException();
     }
 
     @Override
     public List<Event> findAllEventsByMemberId(Long memberId) {
-        return List.of();
+        throw new NotImplementedException();
     }
 
     @Override
     public Integer countTodayEventsByMemberId(
             Long memberId, LocalDateTime startOfDay, LocalDateTime endOfDay) {
-        return 0;
+        throw new NotImplementedException();
     }
 
     @Override
     @NonNull public List<Event> findAll() {
-        return List.of();
+        throw new NotImplementedException();
     }
 }
