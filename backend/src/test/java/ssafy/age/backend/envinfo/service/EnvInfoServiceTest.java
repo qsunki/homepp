@@ -16,7 +16,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import ssafy.age.backend.cam.persistence.Cam;
-import ssafy.age.backend.cam.persistence.CamRepository;
 import ssafy.age.backend.cam.persistence.CamStatus;
 import ssafy.age.backend.cam.persistence.MemoryCamRepository;
 import ssafy.age.backend.envinfo.persistence.EnvInfo;
@@ -35,7 +34,6 @@ import ssafy.age.backend.notification.service.FCMService;
 class EnvInfoServiceTest {
 
     @Mock EnvInfoRepository envInfoRepository;
-    @Mock CamRepository camRepository;
     @Mock FCMService fcmService;
     MemoryMemberRepository fakeMemberRepository = new MemoryMemberRepository();
     MemoryCamRepository fakeCamRepository = new MemoryCamRepository();
@@ -45,7 +43,7 @@ class EnvInfoServiceTest {
 
     @BeforeEach
     void setUp() {
-        envInfoService = new EnvInfoService(envInfoRepository, camRepository, fcmService);
+        envInfoService = new EnvInfoService(envInfoRepository, fakeCamRepository, fcmService);
         given(envInfoRepository.save(any(EnvInfo.class)))
                 .willAnswer(invocation -> fakeEnvInfoRepository.save(invocation.getArgument(0)));
         given(envInfoRepository.findLatestByCamId(anyLong()))
@@ -56,10 +54,6 @@ class EnvInfoServiceTest {
                 .willAnswer(
                         invocation ->
                                 fakeEnvInfoRepository.findAllByCamId(invocation.getArgument(0)));
-        given(camRepository.getReferenceById(anyLong()))
-                .willAnswer(
-                        invocation ->
-                                fakeCamRepository.getReferenceById(invocation.getArgument(0)));
     }
 
     @DisplayName("EnvInfo를 저장할 수 있다.")

@@ -7,7 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import ssafy.age.backend.cam.persistence.CamRepository;
+import ssafy.age.backend.cam.persistence.MemoryCamRepository;
 import ssafy.age.backend.event.persistence.MemoryEventRepository;
 import ssafy.age.backend.event.web.EventResponseDto;
 import ssafy.age.backend.member.persistence.MemberRepository;
@@ -17,7 +17,7 @@ class EventServiceTest {
 
     @Mock FCMService fcmService;
     @Mock MemberRepository memberRepository;
-    @Mock CamRepository camRepository;
+    MemoryCamRepository fakeCamRepository;
     MemoryEventRepository fakeEventRepository = new MemoryEventRepository();
 
     EventService eventService;
@@ -25,7 +25,8 @@ class EventServiceTest {
     @BeforeEach
     void setUp() {
         eventService =
-                new EventService(fakeEventRepository, fcmService, memberRepository, camRepository);
+                new EventService(
+                        fakeEventRepository, fcmService, memberRepository, fakeCamRepository);
     }
 
     @DisplayName("NotForJpaRepository 도입 테스트")

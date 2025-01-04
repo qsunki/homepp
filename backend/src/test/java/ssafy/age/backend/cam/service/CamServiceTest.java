@@ -28,7 +28,6 @@ import ssafy.age.backend.util.IPUtil;
 @MockitoSettings(strictness = Strictness.LENIENT)
 class CamServiceTest {
 
-    @Mock CamRepository camRepository;
     @Mock MemberRepository memberRepository;
     @Mock MqttService mqttService;
     @Mock FCMService fcmService;
@@ -43,21 +42,15 @@ class CamServiceTest {
     void setUp() {
         camService =
                 new CamService(
-                        camRepository,
+                        fakeCamRepository,
                         memberRepository,
                         mqttService,
                         fcmService,
                         fileStorage,
                         ipUtil);
-        given(camRepository.findAllByMemberId(anyLong()))
-                .willAnswer(
-                        invocation ->
-                                fakeCamRepository.findCamsByMemberId(invocation.getArgument(0)));
         given(memberRepository.findByEmail(anyString()))
                 .willAnswer(
                         invocation -> fakeMemberRepository.findByEmail(invocation.getArgument(0)));
-        given(camRepository.save(any(Cam.class)))
-                .willAnswer(invocation -> fakeCamRepository.save(invocation.getArgument(0)));
     }
 
     @DisplayName("memberId로 캠 목록을 가져올 수 있다.")
@@ -120,7 +113,7 @@ class CamServiceTest {
         CamResponseDto camResponseDto = camService.createCam(email, clientIP);
 
         // then
-        Cam cam = fakeCamRepository.findCamsByMemberId(memberId).getFirst();
+        Cam cam = fakeCamRepository.findAllByMemberId(memberId).getFirst();
         assertThat(camResponseDto.getCamId()).isEqualTo(cam.getId());
         assertThat(camResponseDto.getName()).isEqualTo("Cam" + cam.getId());
         assertThat(camResponseDto.getThumbnailUrl()).isBlank();
