@@ -4,7 +4,7 @@ import java.util.*;
 import org.springframework.lang.NonNull;
 import ssafy.age.backend.NotJpaRepository;
 
-public class MemoryEnvInfoRepository implements EnvInfoRepository, NotJpaRepository<EnvInfo, Long> {
+public class MemoryEnvInfoRepository implements EnvInfoRepository, NotJpaRepository<EnvInfo> {
 
     private final Map<Long, EnvInfo> envInfos = new HashMap<>();
     private Long sequence = 1L;

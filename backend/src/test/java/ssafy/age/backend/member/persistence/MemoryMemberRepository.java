@@ -6,7 +6,7 @@ import ssafy.age.backend.NotImplementedException;
 import ssafy.age.backend.NotJpaRepository;
 
 @SuppressWarnings({"SpringDataMethodInconsistencyInspection"})
-public class MemoryMemberRepository implements MemberRepository, NotJpaRepository<Member, Long> {
+public class MemoryMemberRepository implements MemberRepository, NotJpaRepository<Member> {
 
     private final Map<Long, Member> members = new HashMap<>();
     private Long sequence = 1L;

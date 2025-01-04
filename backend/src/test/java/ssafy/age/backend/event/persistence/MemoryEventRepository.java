@@ -6,7 +6,7 @@ import org.springframework.lang.NonNull;
 import ssafy.age.backend.NotJpaRepository;
 
 @SuppressWarnings({"SpringDataMethodInconsistencyInspection"})
-public class MemoryEventRepository implements EventRepository, NotJpaRepository<Event, Long> {
+public class MemoryEventRepository implements EventRepository, NotJpaRepository<Event> {
 
     @Override
     public List<Event> findAllByOccurredAtBetween(LocalDateTime start, LocalDateTime end) {

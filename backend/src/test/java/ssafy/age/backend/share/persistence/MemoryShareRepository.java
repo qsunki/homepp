@@ -4,7 +4,7 @@ import java.util.*;
 import org.springframework.lang.NonNull;
 import ssafy.age.backend.NotJpaRepository;
 
-public class MemoryShareRepository implements ShareRepository, NotJpaRepository<Share, Long> {
+public class MemoryShareRepository implements ShareRepository, NotJpaRepository<Share> {
     private final Map<Long, Share> shares = new HashMap<>();
     private Long sequence = 1L;
 

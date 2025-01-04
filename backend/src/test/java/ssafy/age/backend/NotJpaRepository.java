@@ -15,7 +15,7 @@ import org.springframework.data.repository.query.FluentQuery;
 @NonNullApi
 @NoRepositoryBean
 @SuppressWarnings("ALL")
-public interface NotJpaRepository<T, ID> extends JpaRepository<T, ID> {
+public interface NotJpaRepository<T> extends JpaRepository<T, Long> {
     @Override
     default void flush() {
         throw new NotImplementedException();
@@ -37,7 +37,7 @@ public interface NotJpaRepository<T, ID> extends JpaRepository<T, ID> {
     }
 
     @Override
-    default void deleteAllByIdInBatch(Iterable<ID> ids) {
+    default void deleteAllByIdInBatch(Iterable<Long> ids) {
         throw new NotImplementedException();
     }
 
@@ -47,17 +47,17 @@ public interface NotJpaRepository<T, ID> extends JpaRepository<T, ID> {
     }
 
     @Override
-    default T getOne(ID id) {
+    default T getOne(Long id) {
         throw new NotImplementedException();
     }
 
     @Override
-    default T getById(ID id) {
+    default T getById(Long id) {
         throw new NotImplementedException();
     }
 
     @Override
-    default T getReferenceById(ID id) {
+    default T getReferenceById(Long id) {
         throw new NotImplementedException();
     }
 
@@ -82,7 +82,7 @@ public interface NotJpaRepository<T, ID> extends JpaRepository<T, ID> {
     }
 
     @Override
-    default List<T> findAllById(Iterable<ID> ids) {
+    default List<T> findAllById(Iterable<Long> ids) {
         throw new NotImplementedException();
     }
 
@@ -92,12 +92,12 @@ public interface NotJpaRepository<T, ID> extends JpaRepository<T, ID> {
     }
 
     @Override
-    default Optional<T> findById(ID id) {
+    default Optional<T> findById(Long id) {
         throw new NotImplementedException();
     }
 
     @Override
-    default boolean existsById(ID id) {
+    default boolean existsById(Long id) {
         throw new NotImplementedException();
     }
 
@@ -107,7 +107,7 @@ public interface NotJpaRepository<T, ID> extends JpaRepository<T, ID> {
     }
 
     @Override
-    default void deleteById(ID id) {
+    default void deleteById(Long id) {
         throw new NotImplementedException();
     }
 
@@ -117,7 +117,7 @@ public interface NotJpaRepository<T, ID> extends JpaRepository<T, ID> {
     }
 
     @Override
-    default void deleteAllById(Iterable<? extends ID> ids) {
+    default void deleteAllById(Iterable<? extends Long> ids) {
         throw new NotImplementedException();
     }
 

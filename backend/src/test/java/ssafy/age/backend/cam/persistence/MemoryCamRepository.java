@@ -7,7 +7,7 @@ import org.springframework.lang.NonNull;
 import ssafy.age.backend.NotImplementedException;
 import ssafy.age.backend.NotJpaRepository;
 
-public class MemoryCamRepository implements CamRepository, NotJpaRepository<Cam, Long> {
+public class MemoryCamRepository implements CamRepository, NotJpaRepository<Cam> {
     private final Map<Long, Cam> cams = new HashMap<>();
     private Long sequence = 1L;
 
