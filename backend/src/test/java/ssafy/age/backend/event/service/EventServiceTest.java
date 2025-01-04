@@ -10,13 +10,13 @@ import org.mockito.Mock;
 import ssafy.age.backend.cam.persistence.MemoryCamRepository;
 import ssafy.age.backend.event.persistence.MemoryEventRepository;
 import ssafy.age.backend.event.web.EventResponseDto;
-import ssafy.age.backend.member.persistence.MemberRepository;
+import ssafy.age.backend.member.persistence.MemoryMemberRepository;
 import ssafy.age.backend.notification.service.FCMService;
 
 class EventServiceTest {
 
     @Mock FCMService fcmService;
-    @Mock MemberRepository memberRepository;
+    MemoryMemberRepository fakeMemberRepository;
     MemoryCamRepository fakeCamRepository;
     MemoryEventRepository fakeEventRepository = new MemoryEventRepository();
 
@@ -26,7 +26,7 @@ class EventServiceTest {
     void setUp() {
         eventService =
                 new EventService(
-                        fakeEventRepository, fcmService, memberRepository, fakeCamRepository);
+                        fakeEventRepository, fcmService, fakeMemberRepository, fakeCamRepository);
     }
 
     @DisplayName("NotForJpaRepository 도입 테스트")

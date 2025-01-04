@@ -1,39 +1,79 @@
 package ssafy.age.backend.member.persistence;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import org.springframework.lang.NonNull;
+import ssafy.age.backend.NotImplementedException;
+import ssafy.age.backend.NotJpaRepository;
 
-public class MemoryMemberRepository {
+@SuppressWarnings({"SpringDataMethodInconsistencyInspection"})
+public class MemoryMemberRepository implements MemberRepository, NotJpaRepository<Member, Long> {
 
-    private final List<Member> members = new ArrayList<>();
+    private final Map<Long, Member> members = new HashMap<>();
+    private Long sequence = 1L;
 
-    public boolean existsByEmail(String email) {
-        return members.stream().anyMatch(member -> member.getEmail().equals(email));
+    @Override
+    @NonNull public <S extends Member> S save(S member) {
+        if (member.getId() != null) {
+            members.put(member.getId(), member);
+            return member;
+        }
+        while (members.containsKey(sequence)) {
+            sequence++;
+        }
+        member.setId(sequence);
+        members.put(sequence, member);
+        return member;
     }
 
-    public Member save(Member member) {
-        members.add(member);
-        return new MemberStub(
-                (long) members.size(),
-                member.getEmail(),
-                member.getPassword(),
-                member.getPhoneNumber());
-    }
-
+    @Override
     public Optional<Member> findByEmail(String email) {
-        return members.stream().filter(member -> member.getEmail().equals(email)).findFirst();
+        return members.values().stream()
+                .filter(member -> member.getEmail().equals(email))
+                .findFirst();
     }
 
-    public List<Member> findAll() {
-        return members;
+    @Override
+    @NonNull public List<Member> findAll() {
+        return members.values().stream().toList();
     }
 
-    public Optional<Member> findById(Long id) {
-        return members.stream().filter(member -> member.getId().equals(id)).findFirst();
+    @Override
+    @NonNull public Optional<Member> findById(@NonNull Long id) {
+        return Optional.ofNullable(members.get(id));
     }
 
-    public void deleteById(Long memberId) {
-        members.removeIf(member -> member.getId().equals(memberId));
+    @Override
+    public void deleteById(@NonNull Long memberId) {
+        members.remove(memberId);
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return members.values().stream().anyMatch(member -> member.getEmail().equals(email));
+    }
+
+    @Override
+    public boolean existsByPhoneNumber(String phoneNumber) {
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public Optional<Member> findByCamId(Long camId) {
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public Optional<Member> findByVideoId(Long videoId) {
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public Optional<Member> findByEventId(Long eventId) {
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public List<Member> findAllSharedMemberBySharingMember(Member sharingMember) {
+        throw new NotImplementedException();
     }
 }

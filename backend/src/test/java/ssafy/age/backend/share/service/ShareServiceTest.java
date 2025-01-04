@@ -16,7 +16,6 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.Member;
-import ssafy.age.backend.member.persistence.MemberRepository;
 import ssafy.age.backend.member.persistence.MemoryMemberRepository;
 import ssafy.age.backend.notification.service.FCMService;
 import ssafy.age.backend.share.persistence.MemoryShareRepository;
@@ -27,7 +26,6 @@ import ssafy.age.backend.share.web.ShareDto;
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 class ShareServiceTest {
-    @Mock MemberRepository memberRepository;
     @Mock ShareRepository shareRepository;
     @Mock FCMService fcmService;
     MemoryShareRepository fakeShareRepository = new MemoryShareRepository();
@@ -37,15 +35,12 @@ class ShareServiceTest {
 
     @BeforeEach
     void setUp() {
-        shareService = new ShareService(memberRepository, shareRepository, fcmService);
+        shareService = new ShareService(fakeMemberRepository, shareRepository, fcmService);
         given(shareRepository.findAllBySharingMemberEmail(anyString()))
                 .willAnswer(
                         invocation ->
                                 fakeShareRepository.findAllBySharingMemberEmail(
                                         invocation.getArgument(0)));
-        given(memberRepository.findByEmail(anyString()))
-                .willAnswer(
-                        invocation -> fakeMemberRepository.findByEmail(invocation.getArgument(0)));
         given(
                         shareRepository.findBySharingMemberEmailAndSharedMemberEmail(
                                 anyString(), anyString()))
