@@ -29,10 +29,6 @@ public class FCMService {
     private final MemberRepository memberRepository;
     private final VideoRepository videoRepository;
 
-    public List<FCMToken> getAllFCMTokens() {
-        return fcmTokenRepository.findAll();
-    }
-
     public void sendMessageToAll(Video video) {
         List<FCMToken> fcmTokens = fcmTokenRepository.findAll();
         for (FCMToken fcmToken : fcmTokens) {
