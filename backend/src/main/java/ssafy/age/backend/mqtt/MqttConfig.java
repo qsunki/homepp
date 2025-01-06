@@ -1,4 +1,4 @@
-package ssafy.age.backend.config;
+package ssafy.age.backend.mqtt;
 
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;

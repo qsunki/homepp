@@ -1,4 +1,4 @@
-package ssafy.age.backend.config;
+package ssafy.age.backend.webrtc;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
