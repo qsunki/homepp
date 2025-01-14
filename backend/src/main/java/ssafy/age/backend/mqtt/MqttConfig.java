@@ -1,11 +1,15 @@
 package ssafy.age.backend.mqtt;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.integration.annotation.Router;
 import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.integration.annotation.Transformer;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.core.MessageProducer;
 import org.springframework.integration.mqtt.core.DefaultMqttPahoClientFactory;
@@ -13,17 +17,29 @@ import org.springframework.integration.mqtt.core.MqttPahoClientFactory;
 import org.springframework.integration.mqtt.inbound.MqttPahoMessageDrivenChannelAdapter;
 import org.springframework.integration.mqtt.outbound.MqttPahoMessageHandler;
 import org.springframework.integration.mqtt.support.DefaultPahoMessageConverter;
+import org.springframework.integration.mqtt.support.MqttHeaders;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
+import org.springframework.messaging.handler.annotation.Header;
+import ssafy.age.backend.envinfo.web.EnvInfoReceivedDto;
+import ssafy.age.backend.envinfo.web.RecordStatusDto;
+import ssafy.age.backend.event.service.EventDto;
 
 @Configuration
 public class MqttConfig {
 
-    @Value("${mqtt.broker.url}")
-    private String brokerUrl;
+    private final String brokerUrl;
+    private final String[] topics;
+    private final ObjectMapper objectMapper;
 
-    @Value("${mqtt.broker.topics}")
-    private String[] topics;
+    public MqttConfig(
+            ObjectMapper objectMapper,
+            @Value("${mqtt.broker.topics}") String[] topics,
+            @Value("${mqtt.broker.url}") String brokerUrl) {
+        this.objectMapper = objectMapper;
+        this.topics = topics;
+        this.brokerUrl = brokerUrl;
+    }
 
     @Bean
     public MqttPahoClientFactory mqttClientFactory() {
@@ -65,5 +81,65 @@ public class MqttConfig {
         adapter.setQos(1);
         adapter.setOutputChannel(mqttInputChannel());
         return adapter;
+    }
+
+    @Router(inputChannel = "mqttInputChannel")
+    public String router(@Header(MqttHeaders.RECEIVED_TOPIC) String topic) {
+        return switch (topic) {
+            case "server/envInfo" -> "envInfo";
+            case "server/event" -> "event";
+            case "server/status" -> "status";
+            default -> null;
+        };
+    }
+
+    @Bean
+    public MessageChannel envInfo() {
+        return new DirectChannel();
+    }
+
+    @Bean
+    public MessageChannel envInfoDto() {
+        return new DirectChannel();
+    }
+
+    @Bean
+    public MessageChannel event() {
+        return new DirectChannel();
+    }
+
+    @Bean
+    public MessageChannel eventDto() {
+        return new DirectChannel();
+    }
+
+    @Bean
+    public MessageChannel status() {
+        return new DirectChannel();
+    }
+
+    @Bean
+    public MessageChannel statusDto() {
+        return new DirectChannel();
+    }
+
+    @Bean
+    public MessageChannel mqttTempChannel() {
+        return new DirectChannel();
+    }
+
+    @Transformer(inputChannel = "envInfo", outputChannel = "envInfoDto")
+    public EnvInfoReceivedDto envInfoTransformer(String payload) throws JsonProcessingException {
+        return objectMapper.readValue(payload, EnvInfoReceivedDto.class);
+    }
+
+    @Transformer(inputChannel = "event", outputChannel = "eventDto")
+    public EventDto eventTransformer(String payload) throws JsonProcessingException {
+        return objectMapper.readValue(payload, EventDto.class);
+    }
+
+    @Transformer(inputChannel = "status", outputChannel = "statusDto")
+    public RecordStatusDto envStatusTransformer(String payload) throws JsonProcessingException {
+        return objectMapper.readValue(payload, RecordStatusDto.class);
     }
 }
