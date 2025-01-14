@@ -69,12 +69,11 @@ class MqttServiceTest {
     void requestControl() throws JsonProcessingException {
         // given
         ArgumentCaptor<Message<?>> captor = messageArgumentCaptor();
-        MqttControlRequestDto mqttControlRequestDto =
-                new MqttControlRequestDto(Command.START.toString());
+        MqttControlRequestDto mqttControlRequestDto = new MqttControlRequestDto(Command.START);
         String result = objectMapper.writeValueAsString(mqttControlRequestDto);
 
         // when
-        mqttService.requestControl(1L, Command.START.toString());
+        mqttService.requestControl(1L, Command.START);
 
         // then
         verify(mqttOutbound).handleMessage(captor.capture());

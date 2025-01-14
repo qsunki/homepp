@@ -34,7 +34,7 @@ public class MqttService {
         }
     }
 
-    public void requestControl(long camId, String command) {
+    public void requestControl(long camId, Command command) {
         MqttControlRequestDto requestDto = new MqttControlRequestDto(command);
         try {
             String message = objectMapper.writeValueAsString(requestDto);

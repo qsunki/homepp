@@ -101,7 +101,7 @@ public class CamService {
 
     public void controlDetection(Long camId, Long memberId, String command) {
         verifyMemberByCamId(camId, memberId);
-        mqttService.requestControl(camId, command);
+        mqttService.requestControl(camId, Command.valueOf(command.toUpperCase(Locale.ROOT)));
     }
 
     public void verifyMemberByCamId(Long camId, Long memberId) {
