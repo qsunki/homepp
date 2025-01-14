@@ -25,7 +25,7 @@ import ssafy.age.backend.event.service.EventDto;
 import ssafy.age.backend.event.service.EventService;
 
 @SpringBootTest
-class MqttTest {
+class MqttInboundTest {
 
     @Autowired MessageChannel mqttInputChannel;
     @Autowired ObjectMapper objectMapper;
