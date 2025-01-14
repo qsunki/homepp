@@ -15,14 +15,14 @@ import ssafy.age.backend.file.FileStorage;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberStub;
 import ssafy.age.backend.member.persistence.MemoryMemberRepository;
-import ssafy.age.backend.mqtt.MqttService;
+import ssafy.age.backend.mqtt.MqttGateway;
 import ssafy.age.backend.notification.service.FCMService;
 import ssafy.age.backend.util.IPUtil;
 
 @ExtendWith(MockitoExtension.class)
 class CamServiceTest {
 
-    @Mock MqttService mqttService;
+    @Mock MqttGateway mqttGateway;
     @Mock FCMService fcmService;
     @Mock FileStorage fileStorage;
     @Mock IPUtil ipUtil;
@@ -37,7 +37,7 @@ class CamServiceTest {
                 new CamService(
                         fakeCamRepository,
                         fakeMemberRepository,
-                        mqttService,
+                        mqttGateway,
                         fcmService,
                         fileStorage,
                         ipUtil);

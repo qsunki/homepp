@@ -19,7 +19,9 @@ import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
 import ssafy.age.backend.mqtt.Command;
-import ssafy.age.backend.mqtt.MqttService;
+import ssafy.age.backend.mqtt.MqttControlRequestDto;
+import ssafy.age.backend.mqtt.MqttGateway;
+import ssafy.age.backend.mqtt.MqttStreamRequestDto;
 import ssafy.age.backend.notification.service.FCMService;
 import ssafy.age.backend.util.IPUtil;
 
@@ -35,7 +37,7 @@ public class CamService {
 
     private final CamRepository camRepository;
     private final MemberRepository memberRepository;
-    private final MqttService mqttService;
+    private final MqttGateway mqttGateway;
     private final FCMService fcmService;
     private final FileStorage fileStorage;
     private final IPUtil ipUtil;
@@ -84,7 +86,9 @@ public class CamService {
         if (!camRepository.existsById(camId)) {
             throw new CamNotFoundException();
         }
-        mqttService.requestStreaming(camId, key, Command.valueOf(command.toUpperCase(Locale.ROOT)));
+        MqttStreamRequestDto mqttStreamRequestDto =
+                new MqttStreamRequestDto(key, Command.valueOf(command.toUpperCase(Locale.ROOT)));
+        mqttGateway.sendStreamingRequest(mqttStreamRequestDto, camId);
         return new StreamResponseDto(key, command);
     }
 
@@ -101,7 +105,9 @@ public class CamService {
 
     public void controlDetection(Long camId, Long memberId, String command) {
         verifyMemberByCamId(camId, memberId);
-        mqttService.requestControl(camId, Command.valueOf(command.toUpperCase(Locale.ROOT)));
+        MqttControlRequestDto mqttControlRequestDto =
+                new MqttControlRequestDto(Command.valueOf(command.toUpperCase(Locale.ROOT)));
+        mqttGateway.sendControlRequest(mqttControlRequestDto, camId);
     }
 
     public void verifyMemberByCamId(Long camId, Long memberId) {

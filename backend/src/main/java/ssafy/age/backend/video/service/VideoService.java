@@ -24,7 +24,7 @@ import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
 import ssafy.age.backend.mqtt.Command;
 import ssafy.age.backend.mqtt.MqttGateway;
-import ssafy.age.backend.mqtt.MqttService;
+import ssafy.age.backend.mqtt.MqttRecordRequestDto;
 import ssafy.age.backend.notification.service.FCMService;
 import ssafy.age.backend.threat.persistence.Threat;
 import ssafy.age.backend.threat.persistence.ThreatRepository;
@@ -46,14 +46,13 @@ public class VideoService {
     private static final VideoMapper videoMapper = VideoMapper.INSTANCE;
 
     private final VideoRepository videoRepository;
-    private final MqttService mqttService;
+    private final MqttGateway mqttGateway;
     private final FCMService fcmService;
     private final EventRepository eventRepository;
     private final FileStorage fileStorage;
     private final MemberRepository memberRepository;
     private final ThreatRepository threatRepository;
     private final CamRepository camRepository;
-    private final MqttGateway mqttGateway;
 
     @Transactional
     public List<VideoResponseDto> getAllVideos(
@@ -111,13 +110,16 @@ public class VideoService {
     }
 
     public VideoRecordResponseDto recordVideo(Long camId, String key, VideoCommand command) {
+        MqttRecordRequestDto mqttRecordRequestDto;
         if (command == VideoCommand.START) {
             key = UUID.randomUUID().toString();
-            mqttService.requestRecord(camId, key, Command.START);
+            mqttRecordRequestDto = new MqttRecordRequestDto(key, Command.START);
+            mqttGateway.sendRecordRequest(mqttRecordRequestDto, camId);
             return new VideoRecordResponseDto(key);
         }
         // when command == VideoCommand.END
-        mqttService.requestRecord(camId, key, Command.END);
+        mqttRecordRequestDto = new MqttRecordRequestDto(key, Command.END);
+        mqttGateway.sendRecordRequest(mqttRecordRequestDto, camId);
         return new VideoRecordResponseDto(key);
     }
 
