@@ -6,14 +6,14 @@ public enum Command {
     START("start"),
     END("end");
 
-    private final String command;
+    private final String name;
 
-    Command(String command) {
-        this.command = command;
+    Command(String name) {
+        this.name = name;
     }
 
     @JsonValue
-    public String getCommand() {
-        return command;
+    public String getName() {
+        return name;
     }
 }
