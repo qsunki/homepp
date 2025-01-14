@@ -23,6 +23,7 @@ import ssafy.age.backend.member.exception.MemberInvalidAccessException;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemberRepository;
 import ssafy.age.backend.mqtt.Command;
+import ssafy.age.backend.mqtt.MqttGateway;
 import ssafy.age.backend.mqtt.MqttService;
 import ssafy.age.backend.notification.service.FCMService;
 import ssafy.age.backend.threat.persistence.Threat;
@@ -52,6 +53,7 @@ public class VideoService {
     private final MemberRepository memberRepository;
     private final ThreatRepository threatRepository;
     private final CamRepository camRepository;
+    private final MqttGateway mqttGateway;
 
     @Transactional
     public List<VideoResponseDto> getAllVideos(

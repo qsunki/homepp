@@ -128,6 +128,11 @@ public class MqttConfig {
         return new DirectChannel();
     }
 
+    @Bean
+    public MessageChannel gatewayRequest() {
+        return new DirectChannel();
+    }
+
     @Transformer(inputChannel = "envInfo", outputChannel = "envInfoDto")
     public EnvInfoReceivedDto envInfoTransformer(String payload) throws JsonProcessingException {
         return objectMapper.readValue(payload, EnvInfoReceivedDto.class);
@@ -141,5 +146,10 @@ public class MqttConfig {
     @Transformer(inputChannel = "status", outputChannel = "statusDto")
     public RecordStatusDto envStatusTransformer(String payload) throws JsonProcessingException {
         return objectMapper.readValue(payload, RecordStatusDto.class);
+    }
+
+    @Transformer(inputChannel = "gatewayRequest", outputChannel = "mqttOutboundChannel")
+    public String requestTransformer(Object payload) throws JsonProcessingException {
+        return objectMapper.writeValueAsString(payload);
     }
 }
