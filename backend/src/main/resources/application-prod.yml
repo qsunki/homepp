@@ -5,14 +5,18 @@ spring:
     password: ${MYSQL_PASSWORD}
   servlet:
     multipart:
-      max-file-size: 5GB
-      max-request-size: 5GB
+      max-file-size: 15MB
+      max-request-size: 15MB
   jpa:
     hibernate:
       ddl-auto: none
   data:
     redis:
       password: ${REDIS_PASSWORD}
+
+server:
+  tomcat:
+    max-http-form-post-size: 16MB
 
 jwt:
   secret: ${JWT_SECRET}
