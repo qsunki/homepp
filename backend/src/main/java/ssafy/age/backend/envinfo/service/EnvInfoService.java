@@ -26,23 +26,22 @@ public class EnvInfoService {
 
     public void save(EnvInfoReceivedDto envInfoReceivedDto) {
         EnvInfo envInfo = new EnvInfo(
-                envInfoReceivedDto.getRecordedAt(),
-                envInfoReceivedDto.getTemperature(),
-                envInfoReceivedDto.getHumidity(),
-                envInfoReceivedDto.getStatus(),
-                camRepository.getReferenceById(envInfoReceivedDto.getCamId()));
+                envInfoReceivedDto.recordedAt(),
+                envInfoReceivedDto.temperature(),
+                envInfoReceivedDto.humidity(),
+                envInfoReceivedDto.status(),
+                camRepository.getReferenceById(envInfoReceivedDto.camId()));
         log.debug("Saving envInfoReceivedDto: {}", envInfoReceivedDto);
         log.debug("Saving envInfo.cam.id: {}", envInfo.getCam().getId());
         envInfoRepository.save(envInfo);
     }
 
     public void updateStatus(RecordStatusDto recordStatusDto) {
-        EnvInfo envInfo = envInfoRepository
-                .findLatestByCamId(recordStatusDto.getCamId())
-                .orElseThrow(EnvInfoNotFoundException::new);
-        envInfo.setStatus(recordStatusDto.getStatus());
+        EnvInfo envInfo =
+                envInfoRepository.findLatestByCamId(recordStatusDto.camId()).orElseThrow(EnvInfoNotFoundException::new);
+        envInfo.setStatus(recordStatusDto.status());
         envInfoRepository.save(envInfo);
-        fcmService.sendOnOffMessage(String.valueOf(recordStatusDto.getStatus()), recordStatusDto.getCamId());
+        fcmService.sendOnOffMessage(String.valueOf(recordStatusDto.status()), recordStatusDto.camId());
     }
 
     public List<EnvInfoResponseDto> getEnvInfos(Long camId) {

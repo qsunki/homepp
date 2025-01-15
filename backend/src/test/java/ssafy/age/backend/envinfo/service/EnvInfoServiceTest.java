@@ -60,10 +60,10 @@ class EnvInfoServiceTest {
         // then
         List<EnvInfo> envInfos = fakeEnvInfoRepository.findAll();
         assertThat(envInfos).hasSize(1);
-        assertThat(envInfos.getFirst().getRecordedAt()).isEqualTo(envInfoReceivedDto.getRecordedAt());
-        assertThat(envInfos.getFirst().getTemperature()).isEqualTo(envInfoReceivedDto.getTemperature());
-        assertThat(envInfos.getFirst().getHumidity()).isEqualTo(envInfoReceivedDto.getHumidity());
-        assertThat(envInfos.getFirst().getStatus()).isEqualTo(envInfoReceivedDto.getStatus());
+        assertThat(envInfos.getFirst().getRecordedAt()).isEqualTo(envInfoReceivedDto.recordedAt());
+        assertThat(envInfos.getFirst().getTemperature()).isEqualTo(envInfoReceivedDto.temperature());
+        assertThat(envInfos.getFirst().getHumidity()).isEqualTo(envInfoReceivedDto.humidity());
+        assertThat(envInfos.getFirst().getStatus()).isEqualTo(envInfoReceivedDto.status());
         assertThat(envInfos.getFirst().getCam()).isEqualTo(cam);
     }
 

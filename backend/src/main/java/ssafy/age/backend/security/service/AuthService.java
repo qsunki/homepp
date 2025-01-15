@@ -63,14 +63,10 @@ public class AuthService implements UserDetailsService {
         TokenDto token = tokenProvider.generateTokenDto(memberInfoDto);
 
         // 4. Redis에  RefreshToken 저장
-        refreshTokenRepository.save(new RefreshToken(token.getRefreshToken(), member.getId()));
+        refreshTokenRepository.save(new RefreshToken(token.refreshToken(), member.getId()));
 
         // 5. 토큰 발급
-        return TokenDto.builder()
-                .grantType(BEARER_TYPE)
-                .accessToken(token.getAccessToken())
-                .refreshToken(token.getRefreshToken())
-                .build();
+        return token;
     }
 
     @Transactional
@@ -85,28 +81,21 @@ public class AuthService implements UserDetailsService {
         Authentication authentication = tokenProvider.getAuthentication(refreshToken);
         MemberInfoDto memberInfoDto = (MemberInfoDto) authentication.getPrincipal();
 
-        // 3. 새로운 Access Token 생성
-        TokenDto accessToken = tokenProvider.generateTokenDto(memberInfoDto);
-
-        // Token 재발급
-        return TokenDto.builder()
-                .grantType(BEARER_TYPE)
-                .accessToken(accessToken.getAccessToken())
-                .refreshToken(refreshToken)
-                .build();
+        // 3. 새로운 Access Token 생성 & Token 재발급
+        return tokenProvider.generateTokenDto(memberInfoDto);
     }
 
     @Transactional
     public void logout(TokenDto tokenDto) {
         // 유효성 검증
-        tokenProvider.validateToken(tokenDto.getAccessToken());
+        tokenProvider.validateToken(tokenDto.accessToken());
         // 1. Redis에 Refresh Token이 저장되어 있는지 확인
-        Optional<RefreshToken> foundTokenInfo = refreshTokenRepository.findById(tokenDto.getRefreshToken());
+        Optional<RefreshToken> foundTokenInfo = refreshTokenRepository.findById(tokenDto.refreshToken());
 
         if (foundTokenInfo.isEmpty()) {
             throw new TokenNotFoundException();
         } else {
-            refreshTokenRepository.deleteById(tokenDto.getRefreshToken());
+            refreshTokenRepository.deleteById(tokenDto.refreshToken());
         }
     }
 

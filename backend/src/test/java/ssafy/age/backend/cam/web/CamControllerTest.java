@@ -46,7 +46,7 @@ class CamControllerTest {
         CamResponseDto camResponseDto2 = new CamResponseDto(2L, "kitchen", "kitchen url");
         CamResponseDto camResponseDto3 = new CamResponseDto(3L, "bathroom", "bathroom url");
         List<CamResponseDto> camResponseDtos = List.of(camResponseDto1, camResponseDto2, camResponseDto3);
-        given(camService.getCams(memberInfoDto.getMemberId())).willReturn(camResponseDtos);
+        given(camService.getCams(memberInfoDto.memberId())).willReturn(camResponseDtos);
 
         UsernamePasswordAuthenticationToken authentication =
                 UsernamePasswordAuthenticationToken.authenticated(memberInfoDto, null, List.of());

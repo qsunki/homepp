@@ -48,8 +48,8 @@ class AuthServiceTest {
         MemberResponseDto memberResponseDto = authService.joinMember(email, password, phoneNumber);
 
         // then
-        assertThat(memberResponseDto.getEmail()).isEqualTo(email);
-        assertThat(memberResponseDto.getPhoneNumber()).isEqualTo(phoneNumber);
+        assertThat(memberResponseDto.email()).isEqualTo(email);
+        assertThat(memberResponseDto.phoneNumber()).isEqualTo(phoneNumber);
 
         assertThat(fakeMemberRepository.findAll()).hasSize(1);
         assertThat(fakeMemberRepository.existsByEmail(email)).isTrue();

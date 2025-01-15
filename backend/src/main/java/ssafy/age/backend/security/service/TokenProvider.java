@@ -53,12 +53,7 @@ public class TokenProvider {
                 .signWith(key)
                 .compact();
 
-        return TokenDto.builder()
-                .grantType(BEARER_TYPE)
-                .accessToken(accessToken)
-                .accessTokenExpiresIn(accessTokenExp.getTime())
-                .refreshToken(refreshToken)
-                .build();
+        return new TokenDto(BEARER_TYPE, accessToken, refreshToken, accessTokenExp.getTime());
     }
 
     public Authentication getAuthentication(String accessToken) {

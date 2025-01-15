@@ -33,18 +33,18 @@ public class VideoController {
             @RequestParam(required = false) Long camId,
             @RequestParam(required = false) Boolean isThreat,
             @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
-        return videoService.getAllVideos(types, startDate, endDate, camId, isThreat, memberInfoDto.getMemberId());
+        return videoService.getAllVideos(types, startDate, endDate, camId, isThreat, memberInfoDto.memberId());
     }
 
     @GetMapping("/videos/{videoId}")
     public VideoResponseDto getVideoById(
             @PathVariable Long videoId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
-        return videoService.getVideoById(videoId, memberInfoDto.getMemberId());
+        return videoService.getVideoById(videoId, memberInfoDto.memberId());
     }
 
     @DeleteMapping("/videos/{videoId}")
     public void deleteVideo(@PathVariable Long videoId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
-        videoService.deleteVideo(videoId, memberInfoDto.getMemberId());
+        videoService.deleteVideo(videoId, memberInfoDto.memberId());
     }
 
     @GetMapping("/videos/{videoId}/stream")
@@ -77,7 +77,7 @@ public class VideoController {
     @PostMapping("/{camId}/videos/record")
     public VideoRecordResponseDto recordRequest(
             @PathVariable Long camId, @RequestBody VideoRecordRequestDto videoRecordRequestDto) {
-        return videoService.recordVideo(camId, videoRecordRequestDto.getKey(), videoRecordRequestDto.getCommand());
+        return videoService.recordVideo(camId, videoRecordRequestDto.key(), videoRecordRequestDto.command());
     }
 
     @PostMapping("/{camId}/videos")
@@ -92,6 +92,6 @@ public class VideoController {
 
     @PostMapping("/videos/{videoId}/threat")
     public void registerThreat(@PathVariable Long videoId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
-        videoService.registerThreat(videoId, memberInfoDto.getMemberId());
+        videoService.registerThreat(videoId, memberInfoDto.memberId());
     }
 }

@@ -18,21 +18,21 @@ public class EventController {
 
     @GetMapping
     public List<EventResponseDto> getAllEvents(@AuthenticationPrincipal MemberInfoDto memberInfoDto) {
-        return eventService.getAllEvents(memberInfoDto.getMemberId());
+        return eventService.getAllEvents(memberInfoDto.memberId());
     }
 
     @PatchMapping("/{eventId}")
     public void readEvent(@PathVariable Long eventId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
-        eventService.readEvent(eventId, memberInfoDto.getMemberId());
+        eventService.readEvent(eventId, memberInfoDto.memberId());
     }
 
     @DeleteMapping("/{eventId}")
     public void deleteEvent(@PathVariable Long eventId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
-        eventService.deleteEvent(eventId, memberInfoDto.getMemberId());
+        eventService.deleteEvent(eventId, memberInfoDto.memberId());
     }
 
     @GetMapping("/count")
     public Integer countEventsOnToday(@AuthenticationPrincipal MemberInfoDto memberInfoDto) {
-        return eventService.countEventsOnToday(memberInfoDto.getMemberId());
+        return eventService.countEventsOnToday(memberInfoDto.memberId());
     }
 }

@@ -1,12 +1,3 @@
 package ssafy.age.backend.member.web;
 
-import lombok.*;
-
-@Builder
-@Data
-public class TokenDto {
-    private String grantType;
-    private String accessToken;
-    private String refreshToken;
-    private Long accessTokenExpiresIn;
-}
+public record TokenDto(String grantType, String accessToken, String refreshToken, Long accessTokenExpiresIn) {}

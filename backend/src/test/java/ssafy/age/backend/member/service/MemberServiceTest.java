@@ -41,8 +41,8 @@ class MemberServiceTest {
                 memberService.updateMember(updatedPassword, updatedPhoneNumber, member.getId());
 
         // then
-        assertThat(memberResponseDto.getEmail()).isEqualTo(member.getEmail());
-        assertThat(memberResponseDto.getPhoneNumber()).isEqualTo(updatedPhoneNumber);
+        assertThat(memberResponseDto.email()).isEqualTo(member.getEmail());
+        assertThat(memberResponseDto.phoneNumber()).isEqualTo(updatedPhoneNumber);
         assertThat(passwordEncoder.matches(updatedPassword, member.getPassword()))
                 .isTrue();
         assertThat(member.getPhoneNumber()).isEqualTo(updatedPhoneNumber);

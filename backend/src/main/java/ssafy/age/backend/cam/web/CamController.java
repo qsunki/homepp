@@ -25,12 +25,12 @@ public class CamController {
     @GetMapping
     @Operation(summary = "캠 목록 조회", description = "로그인 된 멤버의 모든 캠 목록 조회")
     public List<CamResponseDto> getCams(@AuthenticationPrincipal MemberInfoDto memberInfoDto) {
-        return camService.getCams(memberInfoDto.getMemberId());
+        return camService.getCams(memberInfoDto.memberId());
     }
 
     @GetMapping("/shared")
     public List<CamResponseDto> getCamsShared(@AuthenticationPrincipal MemberInfoDto memberInfoDto) {
-        return camService.getCamsBySharedEmail(memberInfoDto.getMemberId());
+        return camService.getCamsBySharedEmail(memberInfoDto.memberId());
     }
 
     @PostMapping
@@ -48,7 +48,7 @@ public class CamController {
     @GetMapping("/{camId}")
     @Operation(summary = "캠 조회", description = "캠 id를 통해서 정보 조회")
     public CamResponseDto findCamById(@PathVariable Long camId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
-        return camService.findCamById(camId, memberInfoDto.getMemberId());
+        return camService.findCamById(camId, memberInfoDto.memberId());
     }
 
     @CrossOrigin
@@ -58,18 +58,18 @@ public class CamController {
             @PathVariable Long camId,
             @RequestBody CamRequestDto camRequestDto,
             @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
-        return camService.updateCamName(camId, memberInfoDto.getMemberId(), camRequestDto.getName());
+        return camService.updateCamName(camId, memberInfoDto.memberId(), camRequestDto.name());
     }
 
     @DeleteMapping("/{camId}")
     @Operation(summary = "캠 삭제", description = "캠 아이디에 따른 캠 삭제")
     public void deleteCam(@PathVariable Long camId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
-        camService.deleteCam(camId, memberInfoDto.getMemberId());
+        camService.deleteCam(camId, memberInfoDto.memberId());
     }
 
     @PostMapping("/{camId}/stream")
     public StreamResponseDto streamCam(@PathVariable Long camId, @RequestBody StreamRequestDto requestDto) {
-        return camService.streamControl(camId, requestDto.getKey(), requestDto.getCommand());
+        return camService.streamControl(camId, requestDto.key(), requestDto.command());
     }
 
     @GetMapping("/{camId}/thumbnail")
@@ -89,6 +89,6 @@ public class CamController {
             @PathVariable Long camId,
             @RequestBody ControlRequestDto controlRequestDto,
             @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
-        camService.controlDetection(camId, memberInfoDto.getMemberId(), controlRequestDto.getCommand());
+        camService.controlDetection(camId, memberInfoDto.memberId(), controlRequestDto.command());
     }
 }

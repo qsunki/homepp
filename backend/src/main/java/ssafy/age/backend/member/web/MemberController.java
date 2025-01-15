@@ -22,7 +22,7 @@ public class MemberController {
     @GetMapping
     @Operation(summary = "로그인된 사용자 조회", description = "현재 로그인 된 사용자의 이메일 확인")
     public String getMemberEmail(@AuthenticationPrincipal MemberInfoDto memberInfoDto) {
-        return memberInfoDto.getEmail();
+        return memberInfoDto.email();
     }
 
     @PostMapping
@@ -35,13 +35,13 @@ public class MemberController {
     @Operation(summary = "사용자 정보 수정", description = "현재 로그인 된 사용자 정보 수정")
     public MemberResponseDto updateMember(
             @RequestBody MemberUpdateRequestDto requestDto, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
-        return memberService.updateMember(requestDto.password(), requestDto.phoneNumber(), memberInfoDto.getMemberId());
+        return memberService.updateMember(requestDto.password(), requestDto.phoneNumber(), memberInfoDto.memberId());
     }
 
     @DeleteMapping
     @Operation(summary = "회원 탈퇴", description = "현재 로그인 된 회원 탈퇴")
     public void deleteMember(@AuthenticationPrincipal MemberInfoDto memberInfoDto) {
-        memberService.deleteMember(memberInfoDto.getMemberId());
+        memberService.deleteMember(memberInfoDto.memberId());
     }
 
     @GetMapping("/{email}")
@@ -65,13 +65,13 @@ public class MemberController {
     @PostMapping("/login")
     @Operation(summary = "로그인", description = "정상적으로 로그인 시 토큰 발급")
     public TokenDto login(@RequestBody @Valid MemberRequestDto memberRequestDto) {
-        return authService.login(memberRequestDto.getEmail(), memberRequestDto.getPassword());
+        return authService.login(memberRequestDto.email(), memberRequestDto.password());
     }
 
     @PostMapping("/reissue")
     @Operation(summary = "access token 재발급", description = "refresh token 유효하면, access token 재발급")
     public TokenDto reissue(@RequestBody @Valid TokenDto tokenDto) {
-        return authService.reissue(tokenDto.getRefreshToken());
+        return authService.reissue(tokenDto.refreshToken());
     }
 
     @PostMapping("/logout")

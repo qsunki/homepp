@@ -2,17 +2,14 @@ package ssafy.age.backend.video.web;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import lombok.Data;
 
-@Data
-public class VideoResponseDto {
-    private Long videoId;
-    private String camName;
-    private LocalDateTime recordStartedAt;
-    private Boolean isThreat;
-    private Long length;
-    private List<EventDetailDto> events;
-    private String thumbnailUrl;
-    private String downloadUrl;
-    private String streamUrl;
-}
+public record VideoResponseDto(
+        Long videoId,
+        String camName,
+        LocalDateTime recordStartedAt,
+        Boolean isThreat,
+        Long length,
+        List<EventDetailDto> events,
+        String thumbnailUrl,
+        String downloadUrl,
+        String streamUrl) {}

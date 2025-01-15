@@ -88,8 +88,8 @@ class CamServiceTest {
 
         // then
         Cam cam = fakeCamRepository.findAllByMemberId(memberId).getFirst();
-        assertThat(camResponseDto.getCamId()).isEqualTo(cam.getId());
-        assertThat(camResponseDto.getName()).isEqualTo("Cam" + cam.getId());
-        assertThat(camResponseDto.getThumbnailUrl()).isBlank();
+        assertThat(camResponseDto.camId()).isEqualTo(cam.getId());
+        assertThat(camResponseDto.name()).isEqualTo("Cam" + cam.getId());
+        assertThat(camResponseDto.thumbnailUrl()).isBlank();
     }
 }

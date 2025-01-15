@@ -42,7 +42,7 @@ class ShareControllerTest {
         ShareDto shareDto1 = new ShareDto("mother@example.com", "mother");
         ShareDto shareDto2 = new ShareDto("father@example.com", "father");
         List<ShareDto> shareDtos = List.of(shareDto1, shareDto2);
-        given(shareService.getAllShares(memberInfoDto.getEmail())).willReturn(shareDtos);
+        given(shareService.getAllShares(memberInfoDto.email())).willReturn(shareDtos);
 
         UsernamePasswordAuthenticationToken authentication =
                 UsernamePasswordAuthenticationToken.authenticated(memberInfoDto, null, List.of());
@@ -63,7 +63,7 @@ class ShareControllerTest {
         // given
         MemberInfoDto memberInfoDto = new MemberInfoDto(1L, "test@example.com");
         ShareDto shareDto = new ShareDto("sharedMember@example.com", "shared");
-        given(shareService.createShare(memberInfoDto.getEmail(), "sharedMember@example.com", "shared"))
+        given(shareService.createShare(memberInfoDto.email(), "sharedMember@example.com", "shared"))
                 .willReturn(shareDto);
 
         UsernamePasswordAuthenticationToken authentication =
@@ -86,7 +86,7 @@ class ShareControllerTest {
         // given
         MemberInfoDto memberInfoDto = new MemberInfoDto(1L, "test@example.com");
         ShareDto shareDto = new ShareDto("sharedMember@example.com", "shared");
-        given(shareService.updateShare(memberInfoDto.getEmail(), "sharedMember@example.com", "shared"))
+        given(shareService.updateShare(memberInfoDto.email(), "sharedMember@example.com", "shared"))
                 .willReturn(shareDto);
 
         UsernamePasswordAuthenticationToken authentication =
