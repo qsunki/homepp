@@ -10,7 +10,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import ssafy.age.backend.member.persistence.Member;
-import ssafy.age.backend.member.persistence.MemberStub;
 import ssafy.age.backend.member.persistence.MemoryMemberRepository;
 import ssafy.age.backend.member.web.MemberResponseDto;
 
@@ -31,7 +30,7 @@ class MemberServiceTest {
     @Test
     void updateMember() {
         // given
-        Member member = new MemberStub(1L, "test@example.com", "testpassword", "010-0000-0000");
+        Member member = new Member("test@example.com", "testpassword", "010-0000-0000");
         fakeMemberRepository.save(member);
         String updatedPassword = "updatedPassword";
         String updatedPhoneNumber = "010-0000-0001";
@@ -52,7 +51,7 @@ class MemberServiceTest {
     @Test
     void deleteMember() {
         // given
-        Member member = new MemberStub(1L, "test@example.com", "testpassword", "010-0000-0000");
+        Member member = new Member("test@example.com", "testpassword", "010-0000-0000");
         fakeMemberRepository.save(member);
 
         // when

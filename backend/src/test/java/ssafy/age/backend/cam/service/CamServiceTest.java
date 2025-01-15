@@ -13,7 +13,6 @@ import ssafy.age.backend.cam.persistence.*;
 import ssafy.age.backend.cam.web.CamResponseDto;
 import ssafy.age.backend.file.FileStorage;
 import ssafy.age.backend.member.persistence.Member;
-import ssafy.age.backend.member.persistence.MemberStub;
 import ssafy.age.backend.member.persistence.MemoryMemberRepository;
 import ssafy.age.backend.mqtt.MqttGateway;
 import ssafy.age.backend.notification.service.FCMService;
@@ -49,9 +48,8 @@ class CamServiceTest {
     @Test
     void getCams() {
         // given
-        Long memberId = 1L;
-        Member member = new MemberStub(memberId, "test@example.com", "testpassword", "010-0000-0000");
-
+        Member member = new Member("test@example.com", "testpassword", "010-0000-0000");
+        fakeMemberRepository.save(member);
         fakeCamRepository.save(new Cam(
                 "living room", "192.168.0.1", "seoul", CamStatus.REGISTERED, member, "https://example.com/image.jpg"));
         fakeCamRepository.save(new Cam(
@@ -60,7 +58,7 @@ class CamServiceTest {
                 "bed room", "192.168.0.3", "seoul", CamStatus.REGISTERED, member, "https://example.com/image.jpg"));
 
         // when
-        List<CamResponseDto> camResponseDtos = camService.getCams(memberId);
+        List<CamResponseDto> camResponseDtos = camService.getCams(member.getId());
 
         // then
         assertThat(camResponseDtos).hasSize(3);
@@ -71,17 +69,16 @@ class CamServiceTest {
     @Test
     void creatCam() {
         // given
-        Long memberId = 1L;
         String email = "test@example.com";
         String clientIP = "0.0.0.0";
-        Member member = new MemberStub(memberId, email, "testpassword", "010-0000-0000");
+        Member member = new Member(email, "testpassword", "010-0000-0000");
         fakeMemberRepository.save(member);
 
         // when
         CamResponseDto camResponseDto = camService.createCam(email, clientIP);
 
         // then
-        Cam cam = fakeCamRepository.findAllByMemberId(memberId).getFirst();
+        Cam cam = fakeCamRepository.findAllByMemberId(member.getId()).getFirst();
         assertThat(camResponseDto.camId()).isEqualTo(cam.getId());
         assertThat(camResponseDto.name()).isEqualTo("Cam" + cam.getId());
         assertThat(camResponseDto.thumbnailUrl()).isBlank();
