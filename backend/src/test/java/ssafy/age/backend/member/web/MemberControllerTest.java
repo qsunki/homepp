@@ -45,7 +45,7 @@ class MemberControllerTest {
     void joinMember() throws Exception {
         // given
         String email = "test@example.com";
-        String password = "1234";
+        String password = "12345678";
         String phoneNumber = "010-0000-0000";
         MemberJoinRequestDto requestDto = new MemberJoinRequestDto(email, password, phoneNumber);
         MemberResponseDto responseDto = new MemberResponseDto(email, phoneNumber);
