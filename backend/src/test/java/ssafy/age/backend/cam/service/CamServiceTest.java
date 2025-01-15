@@ -52,18 +52,12 @@ class CamServiceTest {
         Long memberId = 1L;
         Member member = new MemberStub(memberId, "test@example.com", "testpassword", "010-0000-0000");
 
-        fakeCamRepository.save(new CamStub(
-                1L,
-                "living room",
-                "192.168.0.1",
-                "seoul",
-                CamStatus.REGISTERED,
-                member,
-                "https://example.com/image.jpg"));
-        fakeCamRepository.save(new CamStub(
-                2L, "kitchen", "192.168.0.2", "seoul", CamStatus.REGISTERED, member, "https://example.com/image.jpg"));
-        fakeCamRepository.save(new CamStub(
-                3L, "bed room", "192.168.0.3", "seoul", CamStatus.REGISTERED, member, "https://example.com/image.jpg"));
+        fakeCamRepository.save(new Cam(
+                "living room", "192.168.0.1", "seoul", CamStatus.REGISTERED, member, "https://example.com/image.jpg"));
+        fakeCamRepository.save(new Cam(
+                "kitchen", "192.168.0.2", "seoul", CamStatus.REGISTERED, member, "https://example.com/image.jpg"));
+        fakeCamRepository.save(new Cam(
+                "bed room", "192.168.0.3", "seoul", CamStatus.REGISTERED, member, "https://example.com/image.jpg"));
 
         // when
         List<CamResponseDto> camResponseDtos = camService.getCams(memberId);
