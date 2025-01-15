@@ -43,7 +43,8 @@ class MemberServiceTest {
         // then
         assertThat(memberResponseDto.getEmail()).isEqualTo(member.getEmail());
         assertThat(memberResponseDto.getPhoneNumber()).isEqualTo(updatedPhoneNumber);
-        assertThat(passwordEncoder.matches(updatedPassword, member.getPassword())).isTrue();
+        assertThat(passwordEncoder.matches(updatedPassword, member.getPassword()))
+                .isTrue();
         assertThat(member.getPhoneNumber()).isEqualTo(updatedPhoneNumber);
     }
 

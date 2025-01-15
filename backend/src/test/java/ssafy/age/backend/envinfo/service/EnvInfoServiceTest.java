@@ -26,7 +26,9 @@ import ssafy.age.backend.notification.service.FCMService;
 @ExtendWith(MockitoExtension.class)
 class EnvInfoServiceTest {
 
-    @Mock FCMService fcmService;
+    @Mock
+    FCMService fcmService;
+
     MemoryMemberRepository fakeMemberRepository = new MemoryMemberRepository();
     MemoryCamRepository fakeCamRepository = new MemoryCamRepository();
     MemoryEnvInfoRepository fakeEnvInfoRepository = new MemoryEnvInfoRepository();
@@ -44,14 +46,8 @@ class EnvInfoServiceTest {
         // given
         Member member = new Member("test@example.com", "testpassword", "010-0000-0000");
         fakeMemberRepository.save(member);
-        Cam cam =
-                new Cam(
-                        "living room",
-                        "192.168.0.1",
-                        "seoul",
-                        CamStatus.REGISTERED,
-                        member,
-                        "https://img.example.com/1");
+        Cam cam = new Cam(
+                "living room", "192.168.0.1", "seoul", CamStatus.REGISTERED, member, "https://img.example.com/1");
         fakeCamRepository.save(cam);
 
         LocalDateTime recordedAt = LocalDateTime.of(2024, 1, 1, 0, 0);
@@ -64,10 +60,8 @@ class EnvInfoServiceTest {
         // then
         List<EnvInfo> envInfos = fakeEnvInfoRepository.findAll();
         assertThat(envInfos).hasSize(1);
-        assertThat(envInfos.getFirst().getRecordedAt())
-                .isEqualTo(envInfoReceivedDto.getRecordedAt());
-        assertThat(envInfos.getFirst().getTemperature())
-                .isEqualTo(envInfoReceivedDto.getTemperature());
+        assertThat(envInfos.getFirst().getRecordedAt()).isEqualTo(envInfoReceivedDto.getRecordedAt());
+        assertThat(envInfos.getFirst().getTemperature()).isEqualTo(envInfoReceivedDto.getTemperature());
         assertThat(envInfos.getFirst().getHumidity()).isEqualTo(envInfoReceivedDto.getHumidity());
         assertThat(envInfos.getFirst().getStatus()).isEqualTo(envInfoReceivedDto.getStatus());
         assertThat(envInfos.getFirst().getCam()).isEqualTo(cam);
@@ -79,21 +73,11 @@ class EnvInfoServiceTest {
         // given
         Member member = new Member("test@example.com", "testpassword", "010-0000-0000");
         fakeMemberRepository.save(member);
-        Cam cam =
-                new Cam(
-                        "living room",
-                        "192.168.0.1",
-                        "seoul",
-                        CamStatus.REGISTERED,
-                        member,
-                        "https://img.example.com/1");
+        Cam cam = new Cam(
+                "living room", "192.168.0.1", "seoul", CamStatus.REGISTERED, member, "https://img.example.com/1");
         fakeCamRepository.save(cam);
-        EnvInfo envInfo1 =
-                new EnvInfo(
-                        LocalDateTime.of(2023, 1, 1, 0, 0), 23.3, 50.0, RecordStatus.OFFLINE, cam);
-        EnvInfo envInfo2 =
-                new EnvInfo(
-                        LocalDateTime.of(2024, 1, 1, 0, 0), 23.3, 50.0, RecordStatus.OFFLINE, cam);
+        EnvInfo envInfo1 = new EnvInfo(LocalDateTime.of(2023, 1, 1, 0, 0), 23.3, 50.0, RecordStatus.OFFLINE, cam);
+        EnvInfo envInfo2 = new EnvInfo(LocalDateTime.of(2024, 1, 1, 0, 0), 23.3, 50.0, RecordStatus.OFFLINE, cam);
         fakeEnvInfoRepository.save(envInfo1);
         fakeEnvInfoRepository.save(envInfo2);
 
@@ -110,43 +94,23 @@ class EnvInfoServiceTest {
         // given
         Member member = new Member("test@example.com", "testpassword", "010-0000-0000");
         fakeMemberRepository.save(member);
-        Cam cam =
-                new Cam(
-                        "living room",
-                        "192.168.0.1",
-                        "seoul",
-                        CamStatus.REGISTERED,
-                        member,
-                        "https://img.example.com/1");
+        Cam cam = new Cam(
+                "living room", "192.168.0.1", "seoul", CamStatus.REGISTERED, member, "https://img.example.com/1");
         fakeCamRepository.save(cam);
-        EnvInfo envInfo1 =
-                new EnvInfo(
-                        LocalDateTime.of(2023, 1, 1, 0, 0), 23.3, 50.0, RecordStatus.OFFLINE, cam);
-        EnvInfo envInfo2 =
-                new EnvInfo(
-                        LocalDateTime.of(2024, 1, 1, 0, 0), 23.3, 50.0, RecordStatus.OFFLINE, cam);
+        EnvInfo envInfo1 = new EnvInfo(LocalDateTime.of(2023, 1, 1, 0, 0), 23.3, 50.0, RecordStatus.OFFLINE, cam);
+        EnvInfo envInfo2 = new EnvInfo(LocalDateTime.of(2024, 1, 1, 0, 0), 23.3, 50.0, RecordStatus.OFFLINE, cam);
         fakeEnvInfoRepository.save(envInfo1);
         fakeEnvInfoRepository.save(envInfo2);
-        EnvInfoResponseDto envInfoResponseDto1 =
-                new EnvInfoResponseDto(
-                        envInfo1.getRecordedAt(),
-                        envInfo1.getTemperature(),
-                        envInfo1.getHumidity(),
-                        envInfo1.getStatus());
-        EnvInfoResponseDto envInfoResponseDto2 =
-                new EnvInfoResponseDto(
-                        envInfo2.getRecordedAt(),
-                        envInfo2.getTemperature(),
-                        envInfo2.getHumidity(),
-                        envInfo2.getStatus());
+        EnvInfoResponseDto envInfoResponseDto1 = new EnvInfoResponseDto(
+                envInfo1.getRecordedAt(), envInfo1.getTemperature(), envInfo1.getHumidity(), envInfo1.getStatus());
+        EnvInfoResponseDto envInfoResponseDto2 = new EnvInfoResponseDto(
+                envInfo2.getRecordedAt(), envInfo2.getTemperature(), envInfo2.getHumidity(), envInfo2.getStatus());
 
         // when
         List<EnvInfoResponseDto> envInfoResponseDtos = envInfoService.getEnvInfos(cam.getId());
 
         // then
-        assertThat(envInfoResponseDtos)
-                .hasSize(2)
-                .containsExactlyInAnyOrder(envInfoResponseDto1, envInfoResponseDto2);
+        assertThat(envInfoResponseDtos).hasSize(2).containsExactlyInAnyOrder(envInfoResponseDto1, envInfoResponseDto2);
     }
 
     @DisplayName("EnvInfo를 가져올 수 있다.")
@@ -155,29 +119,15 @@ class EnvInfoServiceTest {
         // given
         Member member = new Member("test@example.com", "testpassword", "010-0000-0000");
         fakeMemberRepository.save(member);
-        Cam cam =
-                new Cam(
-                        "living room",
-                        "192.168.0.1",
-                        "seoul",
-                        CamStatus.REGISTERED,
-                        member,
-                        "https://img.example.com/1");
+        Cam cam = new Cam(
+                "living room", "192.168.0.1", "seoul", CamStatus.REGISTERED, member, "https://img.example.com/1");
         fakeCamRepository.save(cam);
-        EnvInfo envInfo1 =
-                new EnvInfo(
-                        LocalDateTime.of(2023, 1, 1, 0, 0), 23.3, 50.0, RecordStatus.OFFLINE, cam);
-        EnvInfo envInfo2 =
-                new EnvInfo(
-                        LocalDateTime.of(2024, 1, 1, 0, 0), 23.3, 50.0, RecordStatus.OFFLINE, cam);
+        EnvInfo envInfo1 = new EnvInfo(LocalDateTime.of(2023, 1, 1, 0, 0), 23.3, 50.0, RecordStatus.OFFLINE, cam);
+        EnvInfo envInfo2 = new EnvInfo(LocalDateTime.of(2024, 1, 1, 0, 0), 23.3, 50.0, RecordStatus.OFFLINE, cam);
         fakeEnvInfoRepository.save(envInfo1);
         fakeEnvInfoRepository.save(envInfo2);
-        EnvInfoResponseDto envInfoResponseDto =
-                new EnvInfoResponseDto(
-                        envInfo2.getRecordedAt(),
-                        envInfo2.getTemperature(),
-                        envInfo2.getHumidity(),
-                        envInfo2.getStatus());
+        EnvInfoResponseDto envInfoResponseDto = new EnvInfoResponseDto(
+                envInfo2.getRecordedAt(), envInfo2.getTemperature(), envInfo2.getHumidity(), envInfo2.getStatus());
 
         // when
         EnvInfoResponseDto envInfo = envInfoService.getEnvInfo(cam.getId());

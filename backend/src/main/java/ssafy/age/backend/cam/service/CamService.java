@@ -67,8 +67,7 @@ public class CamService {
 
     @Transactional
     public CamResponseDto createCam(String email, String ip) {
-        Member member =
-                memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
+        Member member = memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
         String region = ipUtil.getRegion(ip);
         Cam cam = camRepository.save(Cam.create(ip, region, member));
         cam.updateName("Cam" + cam.getId());

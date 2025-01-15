@@ -21,11 +21,20 @@ import ssafy.age.backend.video.persistence.VideoRepository;
 
 @DataJpaTest
 class MemberRepositoryTest {
-    @Autowired MemberRepository memberRepository;
-    @Autowired CamRepository camRepository;
-    @Autowired VideoRepository videoRepository;
-    @Autowired EventRepository eventRepository;
-    @Autowired ShareRepository shareRepository;
+    @Autowired
+    MemberRepository memberRepository;
+
+    @Autowired
+    CamRepository camRepository;
+
+    @Autowired
+    VideoRepository videoRepository;
+
+    @Autowired
+    EventRepository eventRepository;
+
+    @Autowired
+    ShareRepository shareRepository;
 
     @DisplayName("camId로 member를 찾을 수 있다.")
     @Test
@@ -33,14 +42,13 @@ class MemberRepositoryTest {
         // given
         Member member = new Member("test@example.com", "password", "010-0000-0000");
         Member savedMember = memberRepository.save(member);
-        Cam cam =
-                new Cam(
-                        "living room",
-                        "192.168.0.1",
-                        "seoul",
-                        CamStatus.REGISTERED,
-                        savedMember,
-                        "https://example.com/image.jpg");
+        Cam cam = new Cam(
+                "living room",
+                "192.168.0.1",
+                "seoul",
+                CamStatus.REGISTERED,
+                savedMember,
+                "https://example.com/image.jpg");
         Cam savedCam = camRepository.save(cam);
 
         // when
@@ -60,14 +68,13 @@ class MemberRepositoryTest {
         Member member = new Member("test@example.com", "password", "010-0000-0000");
         Member savedMember = memberRepository.save(member);
 
-        Cam cam =
-                new Cam(
-                        "living room",
-                        "192.168.0.1",
-                        "seoul",
-                        CamStatus.REGISTERED,
-                        savedMember,
-                        "https://example.com/image.jpg");
+        Cam cam = new Cam(
+                "living room",
+                "192.168.0.1",
+                "seoul",
+                CamStatus.REGISTERED,
+                savedMember,
+                "https://example.com/image.jpg");
         Cam savedCam = camRepository.save(cam);
 
         Video video = new Video(LocalDateTime.of(2024, 1, 1, 0, 0), 100L, savedCam);
@@ -90,14 +97,13 @@ class MemberRepositoryTest {
         Member member = new Member("test@example.com", "password", "010-0000-0000");
         Member savedMember = memberRepository.save(member);
 
-        Cam cam =
-                new Cam(
-                        "living room",
-                        "192.168.0.1",
-                        "seoul",
-                        CamStatus.REGISTERED,
-                        savedMember,
-                        "https://example.com/image.jpg");
+        Cam cam = new Cam(
+                "living room",
+                "192.168.0.1",
+                "seoul",
+                CamStatus.REGISTERED,
+                savedMember,
+                "https://example.com/image.jpg");
         Cam savedCam = camRepository.save(cam);
 
         Event event = new Event(LocalDateTime.of(2024, 1, 2, 0, 0), EventType.FIRE, savedCam);
@@ -130,8 +136,7 @@ class MemberRepositoryTest {
         shareRepository.save(share2);
 
         // when
-        List<Member> members =
-                memberRepository.findAllSharedMemberBySharingMember(savedSharingMember);
+        List<Member> members = memberRepository.findAllSharedMemberBySharingMember(savedSharingMember);
 
         // then
         assertThat(members).hasSize(2);

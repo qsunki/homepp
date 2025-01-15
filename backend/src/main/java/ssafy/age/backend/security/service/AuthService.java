@@ -56,8 +56,7 @@ public class AuthService implements UserDetailsService {
         //    authenticate 메서드가 실행이 될 때 CustomUserDetailsService 에서 만들었던 loadUserByUsername 메서드가 실행됨
         authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
-        Member member =
-                memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
+        Member member = memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
         MemberInfoDto memberInfoDto = new MemberInfoDto(member.getId(), member.getEmail());
 
         // 3. 인증 정보를 기반으로 JWT 토큰 생성
@@ -77,8 +76,7 @@ public class AuthService implements UserDetailsService {
     @Transactional
     public TokenDto reissue(String token) {
         // 1. Redis에 Refresh Token이 저장되어 있는지 확인
-        RefreshToken foundTokenInfo =
-                refreshTokenRepository.findById(token).orElseThrow(TokenNotFoundException::new);
+        RefreshToken foundTokenInfo = refreshTokenRepository.findById(token).orElseThrow(TokenNotFoundException::new);
 
         String refreshToken = foundTokenInfo.getRefreshToken();
         tokenProvider.validateToken(refreshToken);
@@ -103,8 +101,7 @@ public class AuthService implements UserDetailsService {
         // 유효성 검증
         tokenProvider.validateToken(tokenDto.getAccessToken());
         // 1. Redis에 Refresh Token이 저장되어 있는지 확인
-        Optional<RefreshToken> foundTokenInfo =
-                refreshTokenRepository.findById(tokenDto.getRefreshToken());
+        Optional<RefreshToken> foundTokenInfo = refreshTokenRepository.findById(tokenDto.getRefreshToken());
 
         if (foundTokenInfo.isEmpty()) {
             throw new TokenNotFoundException();
@@ -117,10 +114,7 @@ public class AuthService implements UserDetailsService {
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         try {
-            Member member =
-                    memberRepository
-                            .findByEmail(username)
-                            .orElseThrow(MemberNotFoundException::new);
+            Member member = memberRepository.findByEmail(username).orElseThrow(MemberNotFoundException::new);
             return new User(member.getEmail(), member.getPassword(), List.of());
         } catch (Exception e) {
             throw new MemberNotFoundException();

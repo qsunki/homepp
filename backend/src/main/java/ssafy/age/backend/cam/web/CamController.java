@@ -29,8 +29,7 @@ public class CamController {
     }
 
     @GetMapping("/shared")
-    public List<CamResponseDto> getCamsShared(
-            @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+    public List<CamResponseDto> getCamsShared(@AuthenticationPrincipal MemberInfoDto memberInfoDto) {
         return camService.getCamsBySharedEmail(memberInfoDto.getMemberId());
     }
 
@@ -48,8 +47,7 @@ public class CamController {
 
     @GetMapping("/{camId}")
     @Operation(summary = "캠 조회", description = "캠 id를 통해서 정보 조회")
-    public CamResponseDto findCamById(
-            @PathVariable Long camId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+    public CamResponseDto findCamById(@PathVariable Long camId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
         return camService.findCamById(camId, memberInfoDto.getMemberId());
     }
 
@@ -60,20 +58,17 @@ public class CamController {
             @PathVariable Long camId,
             @RequestBody CamRequestDto camRequestDto,
             @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
-        return camService.updateCamName(
-                camId, memberInfoDto.getMemberId(), camRequestDto.getName());
+        return camService.updateCamName(camId, memberInfoDto.getMemberId(), camRequestDto.getName());
     }
 
     @DeleteMapping("/{camId}")
     @Operation(summary = "캠 삭제", description = "캠 아이디에 따른 캠 삭제")
-    public void deleteCam(
-            @PathVariable Long camId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+    public void deleteCam(@PathVariable Long camId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
         camService.deleteCam(camId, memberInfoDto.getMemberId());
     }
 
     @PostMapping("/{camId}/stream")
-    public StreamResponseDto streamCam(
-            @PathVariable Long camId, @RequestBody StreamRequestDto requestDto) {
+    public StreamResponseDto streamCam(@PathVariable Long camId, @RequestBody StreamRequestDto requestDto) {
         return camService.streamControl(camId, requestDto.getKey(), requestDto.getCommand());
     }
 
@@ -94,7 +89,6 @@ public class CamController {
             @PathVariable Long camId,
             @RequestBody ControlRequestDto controlRequestDto,
             @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
-        camService.controlDetection(
-                camId, memberInfoDto.getMemberId(), controlRequestDto.getCommand());
+        camService.controlDetection(camId, memberInfoDto.getMemberId(), controlRequestDto.getCommand());
     }
 }

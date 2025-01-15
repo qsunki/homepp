@@ -32,13 +32,7 @@ public class Cam {
         return new Cam(null, ip, region, CamStatus.REGISTERED, member, null);
     }
 
-    public Cam(
-            String name,
-            String ip,
-            String region,
-            CamStatus status,
-            Member member,
-            String thumbnailUrl) {
+    public Cam(String name, String ip, String region, CamStatus status, Member member, String thumbnailUrl) {
         this.name = name;
         this.ip = ip;
         this.region = region;

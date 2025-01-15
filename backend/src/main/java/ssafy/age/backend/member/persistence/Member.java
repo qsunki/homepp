@@ -21,7 +21,8 @@ public class Member {
     @Column(nullable = false)
     private String password;
 
-    @CreationTimestamp private LocalDateTime createdAt;
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
     @Column(nullable = false)
     private String phoneNumber;

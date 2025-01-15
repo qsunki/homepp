@@ -20,13 +20,13 @@ public class MemoryEventRepository implements EventRepository, NotJpaRepository<
     }
 
     @Override
-    public Integer countTodayEventsByMemberId(
-            Long memberId, LocalDateTime startOfDay, LocalDateTime endOfDay) {
+    public Integer countTodayEventsByMemberId(Long memberId, LocalDateTime startOfDay, LocalDateTime endOfDay) {
         throw new NotImplementedException();
     }
 
     @Override
-    @NonNull public List<Event> findAll() {
+    @NonNull
+    public List<Event> findAll() {
         throw new NotImplementedException();
     }
 }

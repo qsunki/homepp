@@ -40,24 +40,12 @@ public class LoggingAspect {
         String className = joinPoint.getTarget().getClass().getSimpleName();
         Object[] args = joinPoint.getArgs();
 
-        logger.debug(
-                "{}[DEPTH {}] [{}]: [{}] parameters: [{}]",
-                indent,
-                depth,
-                className,
-                methodName,
-                args);
+        logger.debug("{}[DEPTH {}] [{}]: [{}] parameters: [{}]", indent, depth, className, methodName, args);
 
         Object result;
         try {
             result = joinPoint.proceed();
-            logger.debug(
-                    "{}[DEPTH {}] [{}]: [{}] returned: [{}]",
-                    indent,
-                    depth,
-                    className,
-                    methodName,
-                    result);
+            logger.debug("{}[DEPTH {}] [{}]: [{}] returned: [{}]", indent, depth, className, methodName, result);
         } catch (Exception e) {
             logger.error(
                     "{}[DEPTH {}] [{}]: [{}] threw an exception: [{}]",

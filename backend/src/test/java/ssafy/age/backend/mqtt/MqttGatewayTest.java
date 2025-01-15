@@ -20,12 +20,20 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @SpringBootTest
 class MqttGatewayTest {
 
-    @MockitoBean MqttPahoClientFactory mqttClientFactory;
-    @MockitoBean MessageProducer inbound;
-    @MockitoBean MessageHandler mqttOutbound;
-    @Autowired ObjectMapper objectMapper;
+    @MockitoBean
+    MqttPahoClientFactory mqttClientFactory;
 
-    @Autowired MqttGateway mqttGateway;
+    @MockitoBean
+    MessageProducer inbound;
+
+    @MockitoBean
+    MessageHandler mqttOutbound;
+
+    @Autowired
+    ObjectMapper objectMapper;
+
+    @Autowired
+    MqttGateway mqttGateway;
 
     @DisplayName("녹화요청 시 MqttRecordRequestDto 메세지를 보낸다.")
     @Test
@@ -33,8 +41,7 @@ class MqttGatewayTest {
         // given
         ArgumentCaptor<Message<?>> captor = messageArgumentCaptor();
         String randomKey = "random key";
-        MqttRecordRequestDto mqttRecordRequestDto =
-                new MqttRecordRequestDto(randomKey, Command.START);
+        MqttRecordRequestDto mqttRecordRequestDto = new MqttRecordRequestDto(randomKey, Command.START);
         String result = objectMapper.writeValueAsString(mqttRecordRequestDto);
 
         // when
@@ -44,8 +51,7 @@ class MqttGatewayTest {
         verify(mqttOutbound).handleMessage(captor.capture());
         Message<?> message = captor.getValue();
         assertThat(message.getPayload()).isEqualTo(result);
-        assertThat(message.getHeaders().get(MqttHeaders.TOPIC, String.class))
-                .isEqualTo("cams/1/video");
+        assertThat(message.getHeaders().get(MqttHeaders.TOPIC, String.class)).isEqualTo("cams/1/video");
     }
 
     @DisplayName("streaming 요청 시 MqttControlRequestDto 메세지를 보낸다.")
@@ -54,8 +60,7 @@ class MqttGatewayTest {
         // given
         ArgumentCaptor<Message<?>> captor = messageArgumentCaptor();
         String randomKey = "random key";
-        MqttStreamRequestDto mqttStreamRequestDto =
-                new MqttStreamRequestDto(randomKey, Command.START);
+        MqttStreamRequestDto mqttStreamRequestDto = new MqttStreamRequestDto(randomKey, Command.START);
         String result = objectMapper.writeValueAsString(mqttStreamRequestDto);
 
         // when
@@ -65,8 +70,7 @@ class MqttGatewayTest {
         verify(mqttOutbound).handleMessage(captor.capture());
         Message<?> message = captor.getValue();
         assertThat(message.getPayload()).isEqualTo(result);
-        assertThat(message.getHeaders().get(MqttHeaders.TOPIC, String.class))
-                .isEqualTo("cams/1/stream");
+        assertThat(message.getHeaders().get(MqttHeaders.TOPIC, String.class)).isEqualTo("cams/1/stream");
     }
 
     @DisplayName("녹화요청 시 MqttRecordRequestDto 메세지를 보낸다.")
@@ -84,7 +88,6 @@ class MqttGatewayTest {
         verify(mqttOutbound).handleMessage(captor.capture());
         Message<?> message = captor.getValue();
         assertThat(message.getPayload()).isEqualTo(result);
-        assertThat(message.getHeaders().get(MqttHeaders.TOPIC, String.class))
-                .isEqualTo("cams/1/control");
+        assertThat(message.getHeaders().get(MqttHeaders.TOPIC, String.class)).isEqualTo("cams/1/control");
     }
 }

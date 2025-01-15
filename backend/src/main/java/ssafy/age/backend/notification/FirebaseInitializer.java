@@ -19,10 +19,9 @@ public class FirebaseInitializer {
     public void initialize() throws IOException {
         FileInputStream serviceAccount = new FileInputStream("fcmKey.json");
 
-        FirebaseOptions options =
-                FirebaseOptions.builder()
-                        .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                        .build();
+        FirebaseOptions options = FirebaseOptions.builder()
+                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                .build();
 
         FirebaseApp.initializeApp(options);
     }

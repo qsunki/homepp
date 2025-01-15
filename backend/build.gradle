@@ -114,8 +114,6 @@ spotless {
 	}
 
 	java {
-		removeUnusedImports()
-		googleJavaFormat().aosp().reflowLongStrings().skipJavadocFormatting()
-		formatAnnotations()
+		palantirJavaFormat()
 	}
 }

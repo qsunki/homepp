@@ -12,7 +12,8 @@ public class MemoryCamRepository implements CamRepository, NotJpaRepository<Cam>
     private Long sequence = 1L;
 
     @Override
-    @NonNull public <S extends Cam> S save(S cam) {
+    @NonNull
+    public <S extends Cam> S save(S cam) {
         if (cam.getId() != null) {
             cams.put(cam.getId(), cam);
             return cam;
@@ -26,7 +27,8 @@ public class MemoryCamRepository implements CamRepository, NotJpaRepository<Cam>
     }
 
     @Override
-    @NonNull public Cam getReferenceById(@NonNull Long camId) {
+    @NonNull
+    public Cam getReferenceById(@NonNull Long camId) {
         return cams.get(camId);
     }
 

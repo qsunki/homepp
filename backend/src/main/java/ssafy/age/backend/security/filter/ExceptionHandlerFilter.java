@@ -17,8 +17,7 @@ import ssafy.age.backend.security.exception.InvalidTokenException;
 @Component
 public class ExceptionHandlerFilter extends OncePerRequestFilter {
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         try {
             filterChain.doFilter(request, response);
@@ -30,18 +29,14 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
     }
 
     public void setErrorResponse(
-            HttpStatusCode httpStatusCode,
-            HttpServletRequest request,
-            HttpServletResponse response,
-            Throwable e)
+            HttpStatusCode httpStatusCode, HttpServletRequest request, HttpServletResponse response, Throwable e)
             throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
 
         response.setStatus(httpStatusCode.value());
         response.setContentType("application/json; charset=utf-8");
         response.getWriter()
-                .write(
-                        objectMapper.writeValueAsString(
-                                ProblemDetail.forStatusAndDetail(httpStatusCode, e.getMessage())));
+                .write(objectMapper.writeValueAsString(
+                        ProblemDetail.forStatusAndDetail(httpStatusCode, e.getMessage())));
     }
 }

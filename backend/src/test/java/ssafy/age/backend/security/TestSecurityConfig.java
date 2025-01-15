@@ -21,14 +21,11 @@ public class TestSecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(
-                        authorize ->
-                                authorize
-                                        .requestMatchers(
-                                                HttpMethod.POST, "/api/v1/members", "/api/v1/cams")
-                                        .permitAll()
-                                        .anyRequest()
-                                        .authenticated());
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(HttpMethod.POST, "/api/v1/members", "/api/v1/cams")
+                        .permitAll()
+                        .anyRequest()
+                        .authenticated());
         return http.build();
     }
 }

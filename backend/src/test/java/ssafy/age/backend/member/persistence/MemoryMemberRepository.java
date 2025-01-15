@@ -12,7 +12,8 @@ public class MemoryMemberRepository implements MemberRepository, NotJpaRepositor
     private Long sequence = 1L;
 
     @Override
-    @NonNull public <S extends Member> S save(S member) {
+    @NonNull
+    public <S extends Member> S save(S member) {
         if (member.getId() != null) {
             members.put(member.getId(), member);
             return member;
@@ -33,12 +34,14 @@ public class MemoryMemberRepository implements MemberRepository, NotJpaRepositor
     }
 
     @Override
-    @NonNull public List<Member> findAll() {
+    @NonNull
+    public List<Member> findAll() {
         return members.values().stream().toList();
     }
 
     @Override
-    @NonNull public Optional<Member> findById(@NonNull Long id) {
+    @NonNull
+    public Optional<Member> findById(@NonNull Long id) {
         return Optional.ofNullable(members.get(id));
     }
 

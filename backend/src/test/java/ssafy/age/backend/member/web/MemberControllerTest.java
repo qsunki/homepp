@@ -28,11 +28,17 @@ import ssafy.age.backend.security.service.MemberInfoDto;
 @Import(TestSecurityConfig.class)
 class MemberControllerTest {
 
-    @Autowired MockMvc mockMvc;
-    @Autowired ObjectMapper objectMapper;
+    @Autowired
+    MockMvc mockMvc;
 
-    @MockitoBean MemberService memberService;
-    @MockitoBean AuthService authService;
+    @Autowired
+    ObjectMapper objectMapper;
+
+    @MockitoBean
+    MemberService memberService;
+
+    @MockitoBean
+    AuthService authService;
 
     @DisplayName("비회원이 회원가입할 수 있다.")
     @Test
@@ -48,10 +54,9 @@ class MemberControllerTest {
         given(authService.joinMember(email, password, phoneNumber)).willReturn(responseDto);
 
         // when & then
-        mockMvc.perform(
-                        post("/api/v1/members")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(request))
+        mockMvc.perform(post("/api/v1/members")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
                 .andExpect(status().isOk())
                 .andExpect(content().json(response))
                 .andDo(print());
@@ -65,8 +70,7 @@ class MemberControllerTest {
         String email = "current@example.com";
         String updatedPassword = "1234";
         String updatedPhoneNumber = "010-1111-1111";
-        MemberUpdateRequestDto requestDto =
-                new MemberUpdateRequestDto(updatedPassword, updatedPhoneNumber);
+        MemberUpdateRequestDto requestDto = new MemberUpdateRequestDto(updatedPassword, updatedPhoneNumber);
         MemberResponseDto responseDto = new MemberResponseDto(email, updatedPhoneNumber);
         String request = objectMapper.writeValueAsString(requestDto);
         String response = objectMapper.writeValueAsString(responseDto);
@@ -74,15 +78,13 @@ class MemberControllerTest {
                 .willReturn(responseDto);
 
         UsernamePasswordAuthenticationToken authentication =
-                UsernamePasswordAuthenticationToken.authenticated(
-                        new MemberInfoDto(memberId, email), null, List.of());
+                UsernamePasswordAuthenticationToken.authenticated(new MemberInfoDto(memberId, email), null, List.of());
 
         // when & then
-        mockMvc.perform(
-                        patch("/api/v1/members")
-                                .with(authentication(authentication))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(request))
+        mockMvc.perform(patch("/api/v1/members")
+                        .with(authentication(authentication))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
                 .andExpect(status().isOk())
                 .andExpect(content().json(response))
                 .andDo(print());

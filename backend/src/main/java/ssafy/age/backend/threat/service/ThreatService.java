@@ -34,8 +34,7 @@ public class ThreatService {
 
     @PreAuthorize("#email == authentication.principal.email")
     public void readThreat(Long threatId, String email) {
-        Threat threat =
-                threatRepository.findById(threatId).orElseThrow(ThreatNotFoundException::new);
+        Threat threat = threatRepository.findById(threatId).orElseThrow(ThreatNotFoundException::new);
         threat.read();
         threatRepository.save(threat);
     }

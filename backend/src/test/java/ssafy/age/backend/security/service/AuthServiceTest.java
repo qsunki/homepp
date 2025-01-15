@@ -18,9 +18,15 @@ import ssafy.age.backend.security.persistence.RefreshTokenRepository;
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
 
-    @Mock AuthenticationManagerBuilder authenticationManagerBuilder;
-    @Mock TokenProvider tokenProvider;
-    @Mock RefreshTokenRepository refreshTokenRepository;
+    @Mock
+    AuthenticationManagerBuilder authenticationManagerBuilder;
+
+    @Mock
+    TokenProvider tokenProvider;
+
+    @Mock
+    RefreshTokenRepository refreshTokenRepository;
+
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     MemoryMemberRepository fakeMemberRepository = new MemoryMemberRepository();
 
@@ -28,13 +34,12 @@ class AuthServiceTest {
     @Test
     void joinMember() {
         // given
-        AuthService authService =
-                new AuthService(
-                        authenticationManagerBuilder,
-                        fakeMemberRepository,
-                        passwordEncoder,
-                        tokenProvider,
-                        refreshTokenRepository);
+        AuthService authService = new AuthService(
+                authenticationManagerBuilder,
+                fakeMemberRepository,
+                passwordEncoder,
+                tokenProvider,
+                refreshTokenRepository);
         String email = "test@example.com";
         String password = "1234";
         String phoneNumber = "010-0000-0000";

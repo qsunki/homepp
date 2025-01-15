@@ -27,8 +27,7 @@ public class MemberService {
 
     @Transactional
     public MemberResponseDto updateMember(String password, String phoneNumber, Long memberId) {
-        Member member =
-                memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
+        Member member = memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
         String encodedPassword = passwordEncoder.encode(password);
         member.update(encodedPassword, phoneNumber);
         return mapper.toMemberResponseDto(member);

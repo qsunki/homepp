@@ -15,9 +15,14 @@ import ssafy.age.backend.share.persistence.ShareRepository;
 @DataJpaTest
 class CamRepositoryTest {
 
-    @Autowired CamRepository camRepository;
-    @Autowired MemberRepository memberRepository;
-    @Autowired ShareRepository shareRepository;
+    @Autowired
+    CamRepository camRepository;
+
+    @Autowired
+    MemberRepository memberRepository;
+
+    @Autowired
+    ShareRepository shareRepository;
 
     @DisplayName("memberId로 공유받은 cam을 찾을 수 있다.")
     @Test
@@ -28,23 +33,21 @@ class CamRepositoryTest {
         Member sharedMember = new Member("shared@example.com", "password", "010-0000-0001");
         Member savedSharedMember = memberRepository.save(sharedMember);
 
-        Cam cam1 =
-                new Cam(
-                        "living room",
-                        "192.168.0.1",
-                        "seoul",
-                        CamStatus.REGISTERED,
-                        savedSharingMember,
-                        "https://example.com/image.jpg");
+        Cam cam1 = new Cam(
+                "living room",
+                "192.168.0.1",
+                "seoul",
+                CamStatus.REGISTERED,
+                savedSharingMember,
+                "https://example.com/image.jpg");
 
-        Cam cam2 =
-                new Cam(
-                        "kitchen",
-                        "192.168.0.1",
-                        "seoul",
-                        CamStatus.REGISTERED,
-                        savedSharingMember,
-                        "https://example.com/image.jpg");
+        Cam cam2 = new Cam(
+                "kitchen",
+                "192.168.0.1",
+                "seoul",
+                CamStatus.REGISTERED,
+                savedSharingMember,
+                "https://example.com/image.jpg");
         Cam savedCam1 = camRepository.save(cam1);
         Cam savedCam2 = camRepository.save(cam2);
 
@@ -56,8 +59,6 @@ class CamRepositoryTest {
 
         // then
         assertThat(cams).hasSize(2);
-        assertThat(cams)
-                .extracting(Cam::getId)
-                .containsExactlyInAnyOrder(savedCam1.getId(), savedCam2.getId());
+        assertThat(cams).extracting(Cam::getId).containsExactlyInAnyOrder(savedCam1.getId(), savedCam2.getId());
     }
 }

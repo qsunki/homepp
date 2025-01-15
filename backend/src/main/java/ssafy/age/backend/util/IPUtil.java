@@ -42,18 +42,14 @@ public class IPUtil {
     private String getJsonData(String ip) {
         log.debug("key: {}", key);
         try {
-            URI uri =
-                    new URI(
-                            "https://apis.data.go.kr/B551505/whois/ip_address?serviceKey="
-                                    + key
-                                    + "&query="
-                                    + ip
-                                    + "&answer=json");
+            URI uri = new URI("https://apis.data.go.kr/B551505/whois/ip_address?serviceKey="
+                    + key
+                    + "&query="
+                    + ip
+                    + "&answer=json");
             log.debug("uri: {}", uri);
             BufferedReader br =
-                    new BufferedReader(
-                            new InputStreamReader(
-                                    uri.toURL().openStream(), StandardCharsets.UTF_8));
+                    new BufferedReader(new InputStreamReader(uri.toURL().openStream(), StandardCharsets.UTF_8));
             return br.readLine() + "}";
         } catch (Exception e) {
             throw new JsonParsingException(e);

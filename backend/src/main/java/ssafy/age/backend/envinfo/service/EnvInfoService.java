@@ -25,27 +25,24 @@ public class EnvInfoService {
     private final FCMService fcmService;
 
     public void save(EnvInfoReceivedDto envInfoReceivedDto) {
-        EnvInfo envInfo =
-                new EnvInfo(
-                        envInfoReceivedDto.getRecordedAt(),
-                        envInfoReceivedDto.getTemperature(),
-                        envInfoReceivedDto.getHumidity(),
-                        envInfoReceivedDto.getStatus(),
-                        camRepository.getReferenceById(envInfoReceivedDto.getCamId()));
+        EnvInfo envInfo = new EnvInfo(
+                envInfoReceivedDto.getRecordedAt(),
+                envInfoReceivedDto.getTemperature(),
+                envInfoReceivedDto.getHumidity(),
+                envInfoReceivedDto.getStatus(),
+                camRepository.getReferenceById(envInfoReceivedDto.getCamId()));
         log.debug("Saving envInfoReceivedDto: {}", envInfoReceivedDto);
         log.debug("Saving envInfo.cam.id: {}", envInfo.getCam().getId());
         envInfoRepository.save(envInfo);
     }
 
     public void updateStatus(RecordStatusDto recordStatusDto) {
-        EnvInfo envInfo =
-                envInfoRepository
-                        .findLatestByCamId(recordStatusDto.getCamId())
-                        .orElseThrow(EnvInfoNotFoundException::new);
+        EnvInfo envInfo = envInfoRepository
+                .findLatestByCamId(recordStatusDto.getCamId())
+                .orElseThrow(EnvInfoNotFoundException::new);
         envInfo.setStatus(recordStatusDto.getStatus());
         envInfoRepository.save(envInfo);
-        fcmService.sendOnOffMessage(
-                String.valueOf(recordStatusDto.getStatus()), recordStatusDto.getCamId());
+        fcmService.sendOnOffMessage(String.valueOf(recordStatusDto.getStatus()), recordStatusDto.getCamId());
     }
 
     public List<EnvInfoResponseDto> getEnvInfos(Long camId) {
@@ -55,8 +52,6 @@ public class EnvInfoService {
 
     public EnvInfoResponseDto getEnvInfo(Long camId) {
         return envInfoMapper.toEnvInfoResponseDto(
-                envInfoRepository
-                        .findLatestByCamId(camId)
-                        .orElseThrow(EnvInfoNotFoundException::new));
+                envInfoRepository.findLatestByCamId(camId).orElseThrow(EnvInfoNotFoundException::new));
     }
 }

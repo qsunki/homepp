@@ -62,9 +62,7 @@ public class VideoService {
             Long camId,
             Boolean isThreat,
             Long memberId) {
-        List<Video> videos =
-                videoRepository.findVideosByParams(
-                        memberId, types, startDate, endDate, camId, isThreat);
+        List<Video> videos = videoRepository.findVideosByParams(memberId, types, startDate, endDate, camId, isThreat);
         return videos.stream().map(videoMapper::toVideoResponseDto).toList();
     }
 
@@ -85,8 +83,7 @@ public class VideoService {
     }
 
     @Transactional
-    public void saveVideo(
-            Long camId, MultipartFile file, LocalDateTime startTime, LocalDateTime endTime) {
+    public void saveVideo(Long camId, MultipartFile file, LocalDateTime startTime, LocalDateTime endTime) {
         // 비디오 엔티티생성 및 이벤트 연관관계 매핑
         Duration duration = Duration.between(startTime, endTime);
         long videoLength = duration.getSeconds();
@@ -182,8 +179,7 @@ public class VideoService {
     }
 
     public void verifyMemberByVideoId(Long videoId, Long memberId) {
-        Member member =
-                memberRepository.findByVideoId(videoId).orElseThrow(VideoNotFoundException::new);
+        Member member = memberRepository.findByVideoId(videoId).orElseThrow(VideoNotFoundException::new);
         if (!member.getId().equals(memberId)) {
             throw new MemberInvalidAccessException();
         }

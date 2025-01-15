@@ -14,12 +14,11 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Query("SELECT e FROM Event e WHERE e.cam.member.id = :memberId")
     List<Event> findAllEventsByMemberId(@Param("memberId") Long memberId);
 
-    @Query(
-            "SELECT COUNT(e) "
-                    + "FROM Event e "
-                    + "WHERE e.cam.member.id = :memberId "
-                    + "AND e.occurredAt >= :startOfDay "
-                    + "AND e.occurredAt < :endOfDay")
+    @Query("SELECT COUNT(e) "
+            + "FROM Event e "
+            + "WHERE e.cam.member.id = :memberId "
+            + "AND e.occurredAt >= :startOfDay "
+            + "AND e.occurredAt < :endOfDay")
     Integer countTodayEventsByMemberId(
             @Param("memberId") Long memberId,
             @Param("startOfDay") LocalDateTime startOfDay,

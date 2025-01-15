@@ -22,9 +22,15 @@ public class Video {
 
     private Long length;
 
-    @Setter private String streamUrl;
-    @Setter private String downloadUrl;
-    @Setter private String thumbnailUrl;
+    @Setter
+    private String streamUrl;
+
+    @Setter
+    private String downloadUrl;
+
+    @Setter
+    private String thumbnailUrl;
+
     private Boolean isThreat;
 
     @ManyToOne(fetch = FetchType.LAZY)

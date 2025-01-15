@@ -25,10 +25,14 @@ import ssafy.age.backend.share.service.ShareService;
 @Import(TestSecurityConfig.class)
 class ShareControllerTest {
 
-    @Autowired MockMvc mockMvc;
-    @Autowired ObjectMapper objectMapper;
+    @Autowired
+    MockMvc mockMvc;
 
-    @MockitoBean ShareService shareService;
+    @Autowired
+    ObjectMapper objectMapper;
+
+    @MockitoBean
+    ShareService shareService;
 
     @DisplayName("인증된 사용자는 공유 회원 목록을 조회할 수 있다.")
     @Test
@@ -45,10 +49,9 @@ class ShareControllerTest {
         String response = objectMapper.writeValueAsString(shareDtos);
 
         // when & then
-        mockMvc.perform(
-                        get("/api/v1/shared-members")
-                                .with(authentication(authentication))
-                                .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/v1/shared-members")
+                        .with(authentication(authentication))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(response))
                 .andDo(print());
@@ -60,9 +63,7 @@ class ShareControllerTest {
         // given
         MemberInfoDto memberInfoDto = new MemberInfoDto(1L, "test@example.com");
         ShareDto shareDto = new ShareDto("sharedMember@example.com", "shared");
-        given(
-                        shareService.createShare(
-                                memberInfoDto.getEmail(), "sharedMember@example.com", "shared"))
+        given(shareService.createShare(memberInfoDto.getEmail(), "sharedMember@example.com", "shared"))
                 .willReturn(shareDto);
 
         UsernamePasswordAuthenticationToken authentication =
@@ -70,11 +71,10 @@ class ShareControllerTest {
         String response = objectMapper.writeValueAsString(shareDto);
 
         // when & then
-        mockMvc.perform(
-                        post("/api/v1/shared-members")
-                                .with(authentication(authentication))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(shareDto)))
+        mockMvc.perform(post("/api/v1/shared-members")
+                        .with(authentication(authentication))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(shareDto)))
                 .andExpect(status().isOk())
                 .andExpect(content().json(response))
                 .andDo(print());
@@ -86,9 +86,7 @@ class ShareControllerTest {
         // given
         MemberInfoDto memberInfoDto = new MemberInfoDto(1L, "test@example.com");
         ShareDto shareDto = new ShareDto("sharedMember@example.com", "shared");
-        given(
-                        shareService.updateShare(
-                                memberInfoDto.getEmail(), "sharedMember@example.com", "shared"))
+        given(shareService.updateShare(memberInfoDto.getEmail(), "sharedMember@example.com", "shared"))
                 .willReturn(shareDto);
 
         UsernamePasswordAuthenticationToken authentication =
@@ -96,13 +94,10 @@ class ShareControllerTest {
         String response = objectMapper.writeValueAsString(shareDto);
 
         // when & then
-        mockMvc.perform(
-                        patch(
-                                        "/api/v1/shared-members/{sharedMemberEmail}",
-                                        "sharedMember@example.com")
-                                .with(authentication(authentication))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(shareDto)))
+        mockMvc.perform(patch("/api/v1/shared-members/{sharedMemberEmail}", "sharedMember@example.com")
+                        .with(authentication(authentication))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(shareDto)))
                 .andExpect(status().isOk())
                 .andExpect(content().json(response))
                 .andDo(print());
@@ -118,12 +113,9 @@ class ShareControllerTest {
                 UsernamePasswordAuthenticationToken.authenticated(memberInfoDto, null, List.of());
 
         // when & then
-        mockMvc.perform(
-                        delete(
-                                        "/api/v1/shared-members/{sharedMemberEmail}",
-                                        "sharedMember@example.com")
-                                .with(authentication(authentication))
-                                .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(delete("/api/v1/shared-members/{sharedMemberEmail}", "sharedMember@example.com")
+                        .with(authentication(authentication))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
     }

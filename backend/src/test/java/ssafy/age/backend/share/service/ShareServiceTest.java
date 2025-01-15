@@ -20,7 +20,9 @@ import ssafy.age.backend.share.web.ShareDto;
 
 @ExtendWith(MockitoExtension.class)
 class ShareServiceTest {
-    @Mock FCMService fcmService;
+    @Mock
+    FCMService fcmService;
+
     MemoryShareRepository fakeShareRepository = new MemoryShareRepository();
     MemoryMemberRepository fakeMemberRepository = new MemoryMemberRepository();
 
@@ -67,9 +69,7 @@ class ShareServiceTest {
         ShareDto expectedShareDto = new ShareDto(sharedMember.getEmail(), nickname);
 
         // when
-        ShareDto shareDto =
-                shareService.createShare(
-                        sharingMember.getEmail(), sharedMember.getEmail(), nickname);
+        ShareDto shareDto = shareService.createShare(sharingMember.getEmail(), sharedMember.getEmail(), nickname);
 
         // then
         assertThat(shareDto).isEqualTo(expectedShareDto);
@@ -85,10 +85,7 @@ class ShareServiceTest {
         fakeMemberRepository.save(sharingMember);
 
         // when & then
-        assertThatThrownBy(
-                        () ->
-                                shareService.createShare(
-                                        sharingMemberEmail, invalidSharedEmail, "friend"))
+        assertThatThrownBy(() -> shareService.createShare(sharingMemberEmail, invalidSharedEmail, "friend"))
                 .isInstanceOf(MemberNotFoundException.class);
     }
 
@@ -105,15 +102,12 @@ class ShareServiceTest {
 
         // when
         String updatedNickname = "best friend";
-        shareService.updateShare(
-                sharingMember.getEmail(), sharedMember.getEmail(), updatedNickname);
+        shareService.updateShare(sharingMember.getEmail(), sharedMember.getEmail(), updatedNickname);
 
         // then
-        assertThat(
-                        fakeShareRepository
-                                .findBySharingMemberEmailAndSharedMemberEmail(
-                                        sharingMember.getEmail(), sharedMember.getEmail())
-                                .getNickname())
+        assertThat(fakeShareRepository
+                        .findBySharingMemberEmailAndSharedMemberEmail(sharingMember.getEmail(), sharedMember.getEmail())
+                        .getNickname())
                 .isEqualTo(updatedNickname);
     }
 

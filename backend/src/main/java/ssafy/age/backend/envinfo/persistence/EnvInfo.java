@@ -28,12 +28,7 @@ public class EnvInfo {
     @Setter
     private Cam cam;
 
-    public EnvInfo(
-            LocalDateTime recordedAt,
-            Double temperature,
-            Double humidity,
-            RecordStatus status,
-            Cam cam) {
+    public EnvInfo(LocalDateTime recordedAt, Double temperature, Double humidity, RecordStatus status, Cam cam) {
         this.recordedAt = recordedAt;
         this.temperature = temperature;
         this.humidity = humidity;

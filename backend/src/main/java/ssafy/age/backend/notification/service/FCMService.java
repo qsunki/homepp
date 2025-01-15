@@ -39,8 +39,7 @@ public class FCMService {
     @Transactional
     @PreAuthorize("#email == authentication.principal.email")
     public FCMTokenDto save(String token, Long memberId, String email) {
-        Member member =
-                memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
+        Member member = memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
 
         Boolean exist = fcmTokenRepository.existsByTokenAndMember(token, member);
 
@@ -58,27 +57,24 @@ public class FCMService {
         List<FCMToken> fcmTokens = fcmTokenRepository.findByMemberEmail(email);
 
         for (FCMToken fcmToken : fcmTokens) {
-            Message message =
-                    Message.builder()
-                            .setToken(fcmToken.getToken())
-                            .putData("messageType", "register")
-                            .putData("result", "success")
-                            .build();
+            Message message = Message.builder()
+                    .setToken(fcmToken.getToken())
+                    .putData("messageType", "register")
+                    .putData("result", "success")
+                    .build();
             sendMessage(fcmToken, message);
         }
     }
 
     public void sendOnOffMessage(String status, Long camId) {
-        Member member =
-                memberRepository.findByCamId(camId).orElseThrow(MemberNotFoundException::new);
+        Member member = memberRepository.findByCamId(camId).orElseThrow(MemberNotFoundException::new);
         List<FCMToken> fcmTokens = fcmTokenRepository.findByMemberEmail(member.getEmail());
         for (FCMToken fcmToken : fcmTokens) {
-            Message message =
-                    Message.builder()
-                            .setToken(fcmToken.getToken())
-                            .putData("messageType", "onOff")
-                            .putData("status", status)
-                            .build();
+            Message message = Message.builder()
+                    .setToken(fcmToken.getToken())
+                    .putData("messageType", "onOff")
+                    .putData("status", status)
+                    .build();
             sendMessage(fcmToken, message);
         }
     }
@@ -86,38 +82,31 @@ public class FCMService {
     public void sendSharedMessage(String email, String sharedMemberEmail) {
         List<FCMToken> fcmTokens = fcmTokenRepository.findByMemberEmail(sharedMemberEmail);
         for (FCMToken fcmToken : fcmTokens) {
-            Message message =
-                    Message.builder()
-                            .setToken(fcmToken.getToken())
-                            .putData("messageType", "share")
-                            .putData("email", email)
-                            .build();
+            Message message = Message.builder()
+                    .setToken(fcmToken.getToken())
+                    .putData("messageType", "share")
+                    .putData("email", email)
+                    .build();
             sendMessage(fcmToken, message);
         }
     }
 
     @Transactional
     public void sendEventMessage(Event event) {
-        Member member =
-                memberRepository
-                        .findByCamId(event.getCam().getId())
-                        .orElseThrow(MemberNotFoundException::new);
+        Member member = memberRepository.findByCamId(event.getCam().getId()).orElseThrow(MemberNotFoundException::new);
         log.debug("sendEventMessage email : {}", member.getEmail());
         List<FCMToken> fcmTokens = fcmTokenRepository.findByMemberEmail(member.getEmail());
         log.debug("sendEventMessage fcmTokens size : {}", fcmTokens.size());
 
         for (FCMToken fcmToken : fcmTokens) {
-            Message message =
-                    buildEventMessage(fcmToken.getToken(), event, member.getEmail(), "home");
+            Message message = buildEventMessage(fcmToken.getToken(), event, member.getEmail(), "home");
             sendMessage(fcmToken, message);
         }
 
         for (Member sharedMember : memberRepository.findAllSharedMemberBySharingMember(member)) {
-            List<FCMToken> sharedMemberTokens =
-                    fcmTokenRepository.findByMemberEmail(sharedMember.getEmail());
+            List<FCMToken> sharedMemberTokens = fcmTokenRepository.findByMemberEmail(sharedMember.getEmail());
             for (FCMToken fcmToken : sharedMemberTokens) {
-                Message message =
-                        buildEventMessage(fcmToken.getToken(), event, member.getEmail(), "shared");
+                Message message = buildEventMessage(fcmToken.getToken(), event, member.getEmail(), "shared");
                 sendMessage(fcmToken, message);
             }
         }
@@ -162,8 +151,7 @@ public class FCMService {
         } else {
             messageBody += email.split("@")[0] + " 공유받은 캠 ";
         }
-        messageBody +=
-                event.getCam().getName() + " 에서 " + eventType + "감지되었습니다. " + "영상 확인 후 신고 바랍니다.";
+        messageBody += event.getCam().getName() + " 에서 " + eventType + "감지되었습니다. " + "영상 확인 후 신고 바랍니다.";
 
         return Message.builder()
                 .setToken(targetToken)
@@ -196,16 +184,15 @@ public class FCMService {
 
         String messageTitle = video.getCam().getRegion() + types + " 발생";
 
-        String messageBody =
-                "금일 "
-                        + video.getRecordStartedAt().getHour()
-                        + "시 "
-                        + video.getRecordStartedAt().getMinute()
-                        + "분 경 "
-                        + video.getCam().getRegion()
-                        + " 인근 "
-                        + types
-                        + " 발생, 인근 지역 주민들은 주의 바랍니다.";
+        String messageBody = "금일 "
+                + video.getRecordStartedAt().getHour()
+                + "시 "
+                + video.getRecordStartedAt().getMinute()
+                + "분 경 "
+                + video.getCam().getRegion()
+                + " 인근 "
+                + types
+                + " 발생, 인근 지역 주민들은 주의 바랍니다.";
         System.out.println(messageBody);
         return Message.builder()
                 .setToken(targetToken)

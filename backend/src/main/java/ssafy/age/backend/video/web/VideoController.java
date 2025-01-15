@@ -33,8 +33,7 @@ public class VideoController {
             @RequestParam(required = false) Long camId,
             @RequestParam(required = false) Boolean isThreat,
             @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
-        return videoService.getAllVideos(
-                types, startDate, endDate, camId, isThreat, memberInfoDto.getMemberId());
+        return videoService.getAllVideos(types, startDate, endDate, camId, isThreat, memberInfoDto.getMemberId());
     }
 
     @GetMapping("/videos/{videoId}")
@@ -44,14 +43,12 @@ public class VideoController {
     }
 
     @DeleteMapping("/videos/{videoId}")
-    public void deleteVideo(
-            @PathVariable Long videoId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+    public void deleteVideo(@PathVariable Long videoId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
         videoService.deleteVideo(videoId, memberInfoDto.getMemberId());
     }
 
     @GetMapping("/videos/{videoId}/stream")
-    public ResponseEntity<ResourceRegion> streamVideo(
-            @PathVariable Long videoId, @RequestHeader HttpHeaders headers) {
+    public ResponseEntity<ResourceRegion> streamVideo(@PathVariable Long videoId, @RequestHeader HttpHeaders headers) {
         ResourceRegion region = videoService.getVideoResourceRegion(videoId, headers.getRange());
 
         return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
@@ -67,9 +64,7 @@ public class VideoController {
         Resource resource = videoService.getVideoResource(videoId);
         return ResponseEntity.ok()
                 .contentType(VIDEO_TYPE)
-                .header(
-                        HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + resource.getFilename() + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
                 .body(resource);
     }
 
@@ -82,8 +77,7 @@ public class VideoController {
     @PostMapping("/{camId}/videos/record")
     public VideoRecordResponseDto recordRequest(
             @PathVariable Long camId, @RequestBody VideoRecordRequestDto videoRecordRequestDto) {
-        return videoService.recordVideo(
-                camId, videoRecordRequestDto.getKey(), videoRecordRequestDto.getCommand());
+        return videoService.recordVideo(camId, videoRecordRequestDto.getKey(), videoRecordRequestDto.getCommand());
     }
 
     @PostMapping("/{camId}/videos")
@@ -97,8 +91,7 @@ public class VideoController {
     }
 
     @PostMapping("/videos/{videoId}/threat")
-    public void registerThreat(
-            @PathVariable Long videoId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+    public void registerThreat(@PathVariable Long videoId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
         videoService.registerThreat(videoId, memberInfoDto.getMemberId());
     }
 }

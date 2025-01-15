@@ -28,10 +28,14 @@ import ssafy.age.backend.security.service.MemberInfoDto;
 @Import(TestSecurityConfig.class)
 class CamControllerTest {
 
-    @Autowired MockMvc mockMvc;
-    @Autowired ObjectMapper objectMapper;
+    @Autowired
+    MockMvc mockMvc;
 
-    @MockitoBean CamService camService;
+    @Autowired
+    ObjectMapper objectMapper;
+
+    @MockitoBean
+    CamService camService;
 
     @DisplayName("인증된 사용자가 캠 목록을 가져올 수 있다.")
     @Test
@@ -41,8 +45,7 @@ class CamControllerTest {
         CamResponseDto camResponseDto1 = new CamResponseDto(1L, "living room", "living room url");
         CamResponseDto camResponseDto2 = new CamResponseDto(2L, "kitchen", "kitchen url");
         CamResponseDto camResponseDto3 = new CamResponseDto(3L, "bathroom", "bathroom url");
-        List<CamResponseDto> camResponseDtos =
-                List.of(camResponseDto1, camResponseDto2, camResponseDto3);
+        List<CamResponseDto> camResponseDtos = List.of(camResponseDto1, camResponseDto2, camResponseDto3);
         given(camService.getCams(memberInfoDto.getMemberId())).willReturn(camResponseDtos);
 
         UsernamePasswordAuthenticationToken authentication =
@@ -50,10 +53,9 @@ class CamControllerTest {
         String response = objectMapper.writeValueAsString(camResponseDtos);
 
         // when & then
-        mockMvc.perform(
-                        get("/api/v1/cams")
-                                .with(authentication(authentication))
-                                .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/v1/cams")
+                        .with(authentication(authentication))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(response))
                 .andDo(print());
@@ -81,11 +83,10 @@ class CamControllerTest {
         given(camService.createCam(anyString(), anyString())).willReturn(responseDto);
 
         // when & then
-        mockMvc.perform(
-                        post("/api/v1/cams")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(request)
-                                .header("X-Forwarded-For", clientIP))
+        mockMvc.perform(post("/api/v1/cams")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request)
+                        .header("X-Forwarded-For", clientIP))
                 .andExpect(status().isOk())
                 .andExpect(content().json(response))
                 .andDo(print());

@@ -10,7 +10,8 @@ public class MemoryEnvInfoRepository implements EnvInfoRepository, NotJpaReposit
     private Long sequence = 1L;
 
     @Override
-    @NonNull public <S extends EnvInfo> S save(S envInfo) {
+    @NonNull
+    public <S extends EnvInfo> S save(S envInfo) {
         if (envInfo.getId() != null) {
             envInfos.put(envInfo.getId(), envInfo);
             return envInfo;
@@ -24,7 +25,8 @@ public class MemoryEnvInfoRepository implements EnvInfoRepository, NotJpaReposit
     }
 
     @Override
-    @NonNull public List<EnvInfo> findAll() {
+    @NonNull
+    public List<EnvInfo> findAll() {
         return envInfos.values().stream().toList();
     }
 

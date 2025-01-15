@@ -17,7 +17,9 @@ import ssafy.age.backend.notification.service.FCMService;
 @ExtendWith(MockitoExtension.class)
 class EventServiceTest {
 
-    @Mock FCMService fcmService;
+    @Mock
+    FCMService fcmService;
+
     MemoryMemberRepository fakeMemberRepository;
     MemoryCamRepository fakeCamRepository;
     MemoryEventRepository fakeEventRepository = new MemoryEventRepository();
@@ -26,15 +28,12 @@ class EventServiceTest {
 
     @BeforeEach
     void setUp() {
-        eventService =
-                new EventService(
-                        fakeEventRepository, fcmService, fakeMemberRepository, fakeCamRepository);
+        eventService = new EventService(fakeEventRepository, fcmService, fakeMemberRepository, fakeCamRepository);
     }
 
     @DisplayName("NotForJpaRepository 도입 테스트")
     @Test
     void getAllEvents() {
-        assertThatThrownBy(() -> eventService.getAllEvents(1L))
-                .isInstanceOf(NotImplementedException.class);
+        assertThatThrownBy(() -> eventService.getAllEvents(1L)).isInstanceOf(NotImplementedException.class);
     }
 }

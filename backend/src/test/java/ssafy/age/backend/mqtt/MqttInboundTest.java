@@ -27,27 +27,37 @@ import ssafy.age.backend.event.service.EventService;
 @SpringBootTest
 class MqttInboundTest {
 
-    @Autowired MessageChannel mqttInputChannel;
-    @Autowired ObjectMapper objectMapper;
-    @MockitoBean EnvInfoService envInfoService;
-    @MockitoBean EventService eventService;
-    @MockitoBean MqttPahoClientFactory mqttClientFactory;
-    @MockitoBean MessageProducer inbound;
-    @MockitoBean MessageHandler mqttOutbound;
+    @Autowired
+    MessageChannel mqttInputChannel;
+
+    @Autowired
+    ObjectMapper objectMapper;
+
+    @MockitoBean
+    EnvInfoService envInfoService;
+
+    @MockitoBean
+    EventService eventService;
+
+    @MockitoBean
+    MqttPahoClientFactory mqttClientFactory;
+
+    @MockitoBean
+    MessageProducer inbound;
+
+    @MockitoBean
+    MessageHandler mqttOutbound;
 
     @DisplayName("cam에서 envInfo 정보를 받아서 저장한다.")
     @Test
     void saveEnvInfo() throws Exception {
         // given
         EnvInfoReceivedDto envInfoReceivedDto =
-                new EnvInfoReceivedDto(
-                        1L, RecordStatus.OFFLINE, 25.0, 30.0, LocalDateTime.of(2025, 1, 1, 0, 0));
+                new EnvInfoReceivedDto(1L, RecordStatus.OFFLINE, 25.0, 30.0, LocalDateTime.of(2025, 1, 1, 0, 0));
         String payload = objectMapper.writeValueAsString(envInfoReceivedDto);
 
         // when
-        mqttInputChannel.send(
-                new GenericMessage<>(
-                        payload, Map.of(MqttHeaders.RECEIVED_TOPIC, "server/envInfo")));
+        mqttInputChannel.send(new GenericMessage<>(payload, Map.of(MqttHeaders.RECEIVED_TOPIC, "server/envInfo")));
 
         // then
         verify(envInfoService).save(any());
@@ -61,8 +71,7 @@ class MqttInboundTest {
         String payload = objectMapper.writeValueAsString(eventDto);
 
         // when
-        mqttInputChannel.send(
-                new GenericMessage<>(payload, Map.of(MqttHeaders.RECEIVED_TOPIC, "server/event")));
+        mqttInputChannel.send(new GenericMessage<>(payload, Map.of(MqttHeaders.RECEIVED_TOPIC, "server/event")));
 
         // then
         verify(eventService).save(any());
@@ -73,13 +82,11 @@ class MqttInboundTest {
     void updateStatus() throws Exception {
         // given
         EnvInfoReceivedDto envInfoReceivedDto =
-                new EnvInfoReceivedDto(
-                        1L, RecordStatus.OFFLINE, 25.0, 30.0, LocalDateTime.of(2025, 1, 1, 0, 0));
+                new EnvInfoReceivedDto(1L, RecordStatus.OFFLINE, 25.0, 30.0, LocalDateTime.of(2025, 1, 1, 0, 0));
         String payload = objectMapper.writeValueAsString(envInfoReceivedDto);
 
         // when
-        mqttInputChannel.send(
-                new GenericMessage<>(payload, Map.of(MqttHeaders.RECEIVED_TOPIC, "server/status")));
+        mqttInputChannel.send(new GenericMessage<>(payload, Map.of(MqttHeaders.RECEIVED_TOPIC, "server/status")));
 
         // then
         verify(envInfoService).updateStatus(any());

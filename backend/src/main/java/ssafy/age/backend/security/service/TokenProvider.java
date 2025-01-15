@@ -39,21 +39,19 @@ public class TokenProvider {
         // Access Token 생성
         long now = System.currentTimeMillis();
         Date accessTokenExp = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
-        String accessToken =
-                Jwts.builder()
-                        .claim("memberData", memberInfoDto)
-                        .expiration(accessTokenExp)
-                        .signWith(key)
-                        .compact();
+        String accessToken = Jwts.builder()
+                .claim("memberData", memberInfoDto)
+                .expiration(accessTokenExp)
+                .signWith(key)
+                .compact();
 
         // Refresh Token 생성
         Date refreshTokenExp = new Date(now + REFRESH_TOKEN_EXPIRE_TIME);
-        String refreshToken =
-                Jwts.builder()
-                        .claim("memberData", memberInfoDto)
-                        .expiration(refreshTokenExp)
-                        .signWith(key)
-                        .compact();
+        String refreshToken = Jwts.builder()
+                .claim("memberData", memberInfoDto)
+                .expiration(refreshTokenExp)
+                .signWith(key)
+                .compact();
 
         return TokenDto.builder()
                 .grantType(BEARER_TYPE)

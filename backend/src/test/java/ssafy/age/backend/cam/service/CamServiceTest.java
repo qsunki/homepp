@@ -22,10 +22,18 @@ import ssafy.age.backend.util.IPUtil;
 @ExtendWith(MockitoExtension.class)
 class CamServiceTest {
 
-    @Mock MqttGateway mqttGateway;
-    @Mock FCMService fcmService;
-    @Mock FileStorage fileStorage;
-    @Mock IPUtil ipUtil;
+    @Mock
+    MqttGateway mqttGateway;
+
+    @Mock
+    FCMService fcmService;
+
+    @Mock
+    FileStorage fileStorage;
+
+    @Mock
+    IPUtil ipUtil;
+
     MemoryCamRepository fakeCamRepository = new MemoryCamRepository();
     MemoryMemberRepository fakeMemberRepository = new MemoryMemberRepository();
 
@@ -34,13 +42,7 @@ class CamServiceTest {
     @BeforeEach
     void setUp() {
         camService =
-                new CamService(
-                        fakeCamRepository,
-                        fakeMemberRepository,
-                        mqttGateway,
-                        fcmService,
-                        fileStorage,
-                        ipUtil);
+                new CamService(fakeCamRepository, fakeMemberRepository, mqttGateway, fcmService, fileStorage, ipUtil);
     }
 
     @DisplayName("memberId로 캠 목록을 가져올 수 있다.")
@@ -48,45 +50,27 @@ class CamServiceTest {
     void getCams() {
         // given
         Long memberId = 1L;
-        Member member =
-                new MemberStub(memberId, "test@example.com", "testpassword", "010-0000-0000");
+        Member member = new MemberStub(memberId, "test@example.com", "testpassword", "010-0000-0000");
 
-        fakeCamRepository.save(
-                new CamStub(
-                        1L,
-                        "living room",
-                        "192.168.0.1",
-                        "seoul",
-                        CamStatus.REGISTERED,
-                        member,
-                        "https://example.com/image.jpg"));
-        fakeCamRepository.save(
-                new CamStub(
-                        2L,
-                        "kitchen",
-                        "192.168.0.2",
-                        "seoul",
-                        CamStatus.REGISTERED,
-                        member,
-                        "https://example.com/image.jpg"));
-        fakeCamRepository.save(
-                new CamStub(
-                        3L,
-                        "bed room",
-                        "192.168.0.3",
-                        "seoul",
-                        CamStatus.REGISTERED,
-                        member,
-                        "https://example.com/image.jpg"));
+        fakeCamRepository.save(new CamStub(
+                1L,
+                "living room",
+                "192.168.0.1",
+                "seoul",
+                CamStatus.REGISTERED,
+                member,
+                "https://example.com/image.jpg"));
+        fakeCamRepository.save(new CamStub(
+                2L, "kitchen", "192.168.0.2", "seoul", CamStatus.REGISTERED, member, "https://example.com/image.jpg"));
+        fakeCamRepository.save(new CamStub(
+                3L, "bed room", "192.168.0.3", "seoul", CamStatus.REGISTERED, member, "https://example.com/image.jpg"));
 
         // when
         List<CamResponseDto> camResponseDtos = camService.getCams(memberId);
 
         // then
         assertThat(camResponseDtos).hasSize(3);
-        assertThat(camResponseDtos)
-                .extracting("name")
-                .containsExactlyInAnyOrder("living room", "kitchen", "bed room");
+        assertThat(camResponseDtos).extracting("name").containsExactlyInAnyOrder("living room", "kitchen", "bed room");
     }
 
     @DisplayName("이메일로 등록된 회원을 찾아 캠을 생성한다.")

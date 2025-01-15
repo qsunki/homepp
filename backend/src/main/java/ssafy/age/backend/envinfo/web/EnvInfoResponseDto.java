@@ -11,8 +11,7 @@ public class EnvInfoResponseDto {
     Double humidity;
     RecordStatus status;
 
-    public EnvInfoResponseDto(
-            LocalDateTime recordedAt, Double temperature, Double humidity, RecordStatus status) {
+    public EnvInfoResponseDto(LocalDateTime recordedAt, Double temperature, Double humidity, RecordStatus status) {
         this.recordedAt = recordedAt;
         this.temperature = temperature;
         this.humidity = humidity;

@@ -9,7 +9,8 @@ public class MemoryShareRepository implements ShareRepository, NotJpaRepository<
     private Long sequence = 1L;
 
     @Override
-    @NonNull public <S extends Share> S save(S share) {
+    @NonNull
+    public <S extends Share> S save(S share) {
         if (share.getId() != null) {
             shares.put(share.getId(), share);
             return share;
@@ -30,15 +31,10 @@ public class MemoryShareRepository implements ShareRepository, NotJpaRepository<
     }
 
     @Override
-    public Share findBySharingMemberEmailAndSharedMemberEmail(
-            String sharingMemberEmail, String sharedMemberEmail) {
+    public Share findBySharingMemberEmailAndSharedMemberEmail(String sharingMemberEmail, String sharedMemberEmail) {
         return shares.values().stream()
-                .filter(
-                        share ->
-                                share.getSharingMember().getEmail().equals(sharingMemberEmail)
-                                        && share.getSharedMember()
-                                                .getEmail()
-                                                .equals(sharedMemberEmail))
+                .filter(share -> share.getSharingMember().getEmail().equals(sharingMemberEmail)
+                        && share.getSharedMember().getEmail().equals(sharedMemberEmail))
                 .findFirst()
                 .orElseThrow();
     }

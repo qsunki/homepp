@@ -10,9 +10,14 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @SpringBootTest
 class BackendApplicationTests {
 
-    @MockitoBean MqttPahoClientFactory mqttClientFactory;
-    @MockitoBean MessageProducer inbound;
-    @MockitoBean MessageHandler mqttOutbound;
+    @MockitoBean
+    MqttPahoClientFactory mqttClientFactory;
+
+    @MockitoBean
+    MessageProducer inbound;
+
+    @MockitoBean
+    MessageHandler mqttOutbound;
 
     @Test
     void contextLoads() {}

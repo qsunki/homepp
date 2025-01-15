@@ -28,17 +28,14 @@ public class MemberController {
     @PostMapping
     @Operation(summary = "회원 가입", description = "신규 회원 가입")
     public MemberResponseDto joinMember(@RequestBody @Valid MemberJoinRequestDto requestDto) {
-        return authService.joinMember(
-                requestDto.email(), requestDto.password(), requestDto.phoneNumber());
+        return authService.joinMember(requestDto.email(), requestDto.password(), requestDto.phoneNumber());
     }
 
     @PatchMapping
     @Operation(summary = "사용자 정보 수정", description = "현재 로그인 된 사용자 정보 수정")
     public MemberResponseDto updateMember(
-            @RequestBody MemberUpdateRequestDto requestDto,
-            @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
-        return memberService.updateMember(
-                requestDto.password(), requestDto.phoneNumber(), memberInfoDto.getMemberId());
+            @RequestBody MemberUpdateRequestDto requestDto, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
+        return memberService.updateMember(requestDto.password(), requestDto.phoneNumber(), memberInfoDto.getMemberId());
     }
 
     @DeleteMapping

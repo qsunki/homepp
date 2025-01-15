@@ -30,12 +30,8 @@ public class ShareService {
 
     @Transactional
     public ShareDto createShare(String email, String sharedMemberEmail, String nickname) {
-        Member member =
-                memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
-        Member sharedMember =
-                memberRepository
-                        .findByEmail(sharedMemberEmail)
-                        .orElseThrow(MemberNotFoundException::new);
+        Member member = memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
+        Member sharedMember = memberRepository.findByEmail(sharedMemberEmail).orElseThrow(MemberNotFoundException::new);
 
         Share share = new Share(member, sharedMember, nickname);
 
@@ -47,9 +43,7 @@ public class ShareService {
 
     @Transactional
     public ShareDto updateShare(String email, String sharedMemberEmail, String nickname) {
-        Share share =
-                shareRepository.findBySharingMemberEmailAndSharedMemberEmail(
-                        email, sharedMemberEmail);
+        Share share = shareRepository.findBySharingMemberEmailAndSharedMemberEmail(email, sharedMemberEmail);
         share.updateNickname(nickname);
         shareRepository.save(share);
 
@@ -58,9 +52,7 @@ public class ShareService {
 
     @Transactional
     public void deleteShare(String email, String sharedMemberEmail) {
-        Share share =
-                shareRepository.findBySharingMemberEmailAndSharedMemberEmail(
-                        email, sharedMemberEmail);
+        Share share = shareRepository.findBySharingMemberEmailAndSharedMemberEmail(email, sharedMemberEmail);
         shareRepository.delete(share);
     }
 }
