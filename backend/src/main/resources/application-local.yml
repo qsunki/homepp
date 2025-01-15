@@ -1,8 +1,8 @@
 spring:
   datasource:
+    url: jdbc:h2:mem:testdb;MODE=MYSQL
     username: sa
     password:
-    url: jdbc:h2:mem:testdb;MODE=MYSQL
   servlet:
     multipart:
       max-file-size: 15MB
