@@ -48,8 +48,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-integration'
 	implementation 'org.springframework.integration:spring-integration-mqtt:6.3.2'
 
-	implementation 'com.google.guava:guava:33.2.1-jre'
-	implementation 'com.google.firebase:firebase-admin:9.3.0'
+	implementation 'com.google.firebase:firebase-admin:9.4.3'
 
 	// Mapstruct
 	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
