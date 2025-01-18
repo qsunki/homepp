@@ -1,6 +1,8 @@
 package ssafy.age.backend.cam.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.willAnswer;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,6 +10,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ssafy.age.backend.cam.persistence.*;
 import ssafy.age.backend.cam.web.CamResponseDto;
@@ -34,7 +37,9 @@ class CamServiceTest {
     IPUtil ipUtil;
 
     MemoryCamRepository fakeCamRepository = new MemoryCamRepository();
-    MemoryMemberRepository fakeMemberRepository = new MemoryMemberRepository();
+
+    @Spy
+    MemoryMemberRepository fakeMemberRepository;
 
     CamService camService;
 
@@ -105,6 +110,30 @@ class CamServiceTest {
         assertThat(camResponseDtos).extracting(CamResponseDto::camId).containsExactlyInAnyOrder(cam1.getId());
     }
 
+    @DisplayName("cam의 이름을 수정할 수 있다.")
+    @Test
+    void updateCam() {
+        // given
+        Member member = new Member("test@example.com", "testpassword", "010-0000-0000");
+        fakeMemberRepository.save(member);
+        Cam cam = new Cam(
+                "living room", "192.168.0.1", "seoul", CamStatus.REGISTERED, member, "https://example.com/image.jpg");
+        fakeCamRepository.save(cam);
+        String newCamName = "new room";
+        defineFindByCamId();
+
+        // when
+        CamResponseDto camResponseDto = camService.updateCamName(cam.getId(), member.getId(), newCamName);
+
+        // then
+        assertThat(camResponseDto.camId()).isEqualTo(cam.getId());
+        assertThat(camResponseDto.name()).isEqualTo(newCamName);
+        assertThat(fakeCamRepository.findById(cam.getId()))
+                .get()
+                .extracting(Cam::getName)
+                .isEqualTo(newCamName);
+    }
+
     @DisplayName("이메일로 등록된 회원을 찾아 캠을 생성한다.")
     @Test
     void creatCam() {
@@ -122,5 +151,16 @@ class CamServiceTest {
         assertThat(camResponseDto.camId()).isEqualTo(cam.getId());
         assertThat(camResponseDto.name()).isEqualTo("Cam" + cam.getId());
         assertThat(camResponseDto.thumbnailUrl()).isBlank();
+    }
+
+    private void defineFindByCamId() {
+        willAnswer(invocation -> {
+                    Cam foundCam = fakeCamRepository
+                            .findById(invocation.getArgument(0))
+                            .orElseThrow();
+                    return fakeMemberRepository.findById(foundCam.getMember().getId());
+                })
+                .given(fakeMemberRepository)
+                .findByCamId(anyLong());
     }
 }
