@@ -51,6 +51,23 @@ class CamServiceTest {
                 new CamService(fakeCamRepository, fakeMemberRepository, mqttGateway, fcmService, fileStorage, ipUtil);
     }
 
+    @DisplayName("이메일로 등록된 회원을 찾아 캠을 생성한다.")
+    @Test
+    void creatCam() {
+        // given
+        Member member = new Member("test@example.com", "testpassword", "010-0000-0000");
+        fakeMemberRepository.save(member);
+
+        // when
+        CamResponseDto camResponseDto = camService.createCam(member.getEmail(), "0.0.0.0");
+
+        // then
+        Cam cam = fakeCamRepository.findAllByMemberId(member.getId()).getFirst();
+        assertThat(camResponseDto.camId()).isEqualTo(cam.getId());
+        assertThat(camResponseDto.name()).isEqualTo("Cam" + cam.getId());
+        assertThat(camResponseDto.thumbnailUrl()).isBlank();
+    }
+
     @DisplayName("해당 member가 가진 캠 목록을 가져올 수 있다.")
     @Test
     void getCams() {
@@ -163,25 +180,6 @@ class CamServiceTest {
         Long memberId = member.getId();
         assertThatThrownBy(() -> camService.updateCamName(camId, memberId, newCamName))
                 .isInstanceOf(MemberInvalidAccessException.class);
-    }
-
-    @DisplayName("이메일로 등록된 회원을 찾아 캠을 생성한다.")
-    @Test
-    void creatCam() {
-        // given
-        String email = "test@example.com";
-        String clientIP = "0.0.0.0";
-        Member member = new Member(email, "testpassword", "010-0000-0000");
-        fakeMemberRepository.save(member);
-
-        // when
-        CamResponseDto camResponseDto = camService.createCam(email, clientIP);
-
-        // then
-        Cam cam = fakeCamRepository.findAllByMemberId(member.getId()).getFirst();
-        assertThat(camResponseDto.camId()).isEqualTo(cam.getId());
-        assertThat(camResponseDto.name()).isEqualTo("Cam" + cam.getId());
-        assertThat(camResponseDto.thumbnailUrl()).isBlank();
     }
 
     private void defineFindByCamId() {
