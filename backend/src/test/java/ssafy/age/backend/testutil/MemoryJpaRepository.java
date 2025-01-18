@@ -1,4 +1,4 @@
-package ssafy.age.backend.testutils;
+package ssafy.age.backend.testutil;
 
 import java.util.HashMap;
 import java.util.List;

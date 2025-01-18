@@ -1,7 +1,7 @@
 package ssafy.age.backend.envinfo.persistence;
 
 import java.util.*;
-import ssafy.age.backend.testutils.MemoryJpaRepository;
+import ssafy.age.backend.testutil.MemoryJpaRepository;
 
 public class MemoryEnvInfoRepository extends MemoryJpaRepository<EnvInfo> implements EnvInfoRepository {
 

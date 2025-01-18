@@ -2,8 +2,8 @@ package ssafy.age.backend.member.persistence;
 
 import java.util.List;
 import java.util.Optional;
-import ssafy.age.backend.testutils.MemoryJpaRepository;
-import ssafy.age.backend.testutils.NotImplementedException;
+import ssafy.age.backend.testutil.MemoryJpaRepository;
+import ssafy.age.backend.testutil.NotImplementedException;
 
 @SuppressWarnings({"SpringDataMethodInconsistencyInspection"})
 public class MemoryMemberRepository extends MemoryJpaRepository<Member> implements MemberRepository {

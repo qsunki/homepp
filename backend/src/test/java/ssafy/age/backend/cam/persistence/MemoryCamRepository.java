@@ -1,8 +1,8 @@
 package ssafy.age.backend.cam.persistence;
 
 import java.util.List;
-import ssafy.age.backend.testutils.MemoryJpaRepository;
-import ssafy.age.backend.testutils.NotImplementedException;
+import ssafy.age.backend.testutil.MemoryJpaRepository;
+import ssafy.age.backend.testutil.NotImplementedException;
 
 public class MemoryCamRepository extends MemoryJpaRepository<Cam> implements CamRepository {
 

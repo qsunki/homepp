@@ -1,7 +1,7 @@
 package ssafy.age.backend.share.persistence;
 
 import java.util.*;
-import ssafy.age.backend.testutils.MemoryJpaRepository;
+import ssafy.age.backend.testutil.MemoryJpaRepository;
 
 public class MemoryShareRepository extends MemoryJpaRepository<Share> implements ShareRepository {
 
