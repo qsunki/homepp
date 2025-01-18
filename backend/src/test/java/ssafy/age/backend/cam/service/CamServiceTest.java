@@ -1,6 +1,7 @@
 package ssafy.age.backend.cam.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.willAnswer;
 
@@ -15,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ssafy.age.backend.cam.persistence.*;
 import ssafy.age.backend.cam.web.CamResponseDto;
 import ssafy.age.backend.file.FileStorage;
+import ssafy.age.backend.member.exception.MemberInvalidAccessException;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemoryMemberRepository;
 import ssafy.age.backend.mqtt.MqttGateway;
@@ -132,6 +134,35 @@ class CamServiceTest {
                 .get()
                 .extracting(Cam::getName)
                 .isEqualTo(newCamName);
+    }
+
+    @DisplayName("해당 member 소유가 아닌 cam은 수정할 수 없다.")
+    @Test
+    void updateCam_neg() {
+        // given
+        Member member = new Member("test@example.com", "testpassword", "010-0000-0000");
+        Member anotherMember = new Member("test2@example.com", "testpassword", "010-0000-0001");
+        fakeMemberRepository.save(member);
+        fakeMemberRepository.save(anotherMember);
+        Cam camOfMember = new Cam(
+                "living room", "192.168.0.1", "seoul", CamStatus.REGISTERED, member, "https://example.com/image.jpg");
+        Cam camOfAnother = new Cam(
+                "living room",
+                "192.168.0.1",
+                "seoul",
+                CamStatus.REGISTERED,
+                anotherMember,
+                "https://example.com/image.jpg");
+        fakeCamRepository.save(camOfMember);
+        fakeCamRepository.save(camOfAnother);
+        String newCamName = "new room";
+        defineFindByCamId();
+
+        // when & then
+        Long camId = camOfAnother.getId();
+        Long memberId = member.getId();
+        assertThatThrownBy(() -> camService.updateCamName(camId, memberId, newCamName))
+                .isInstanceOf(MemberInvalidAccessException.class);
     }
 
     @DisplayName("이메일로 등록된 회원을 찾아 캠을 생성한다.")
