@@ -44,7 +44,7 @@ class CamServiceTest {
                 new CamService(fakeCamRepository, fakeMemberRepository, mqttGateway, fcmService, fileStorage, ipUtil);
     }
 
-    @DisplayName("memberId로 캠 목록을 가져올 수 있다.")
+    @DisplayName("해당 member가 가진 캠 목록을 가져올 수 있다.")
     @Test
     void getCams() {
         // given
@@ -63,6 +63,44 @@ class CamServiceTest {
         // then
         assertThat(camResponseDtos).hasSize(3);
         assertThat(camResponseDtos).extracting("name").containsExactlyInAnyOrder("living room", "kitchen", "bed room");
+    }
+
+    @DisplayName("해당 member 소유가 아닌 캠은 가져오지 않는다.")
+    @Test
+    void getCams_Neg() {
+        // given
+        Member targetMember = new Member("test@example.com", "testpassword", "010-0000-0000");
+        Member anotherMember = new Member("another@example.com", "testpassword", "010-0000-0001");
+        fakeMemberRepository.save(targetMember);
+        fakeMemberRepository.save(anotherMember);
+        Cam cam1 = fakeCamRepository.save(new Cam(
+                "living room",
+                "192.168.0.1",
+                "seoul",
+                CamStatus.REGISTERED,
+                targetMember,
+                "https://example.com/image.jpg"));
+        fakeCamRepository.save(new Cam(
+                "kitchen",
+                "192.168.0.2",
+                "seoul",
+                CamStatus.REGISTERED,
+                anotherMember,
+                "https://example.com/image.jpg"));
+        fakeCamRepository.save(new Cam(
+                "bed room",
+                "192.168.0.3",
+                "seoul",
+                CamStatus.REGISTERED,
+                anotherMember,
+                "https://example.com/image.jpg"));
+
+        // when
+        List<CamResponseDto> camResponseDtos = camService.getCams(targetMember.getId());
+
+        // then
+        assertThat(camResponseDtos).hasSize(1);
+        assertThat(camResponseDtos).extracting(CamResponseDto::camId).containsExactlyInAnyOrder(cam1.getId());
     }
 
     @DisplayName("이메일로 등록된 회원을 찾아 캠을 생성한다.")
