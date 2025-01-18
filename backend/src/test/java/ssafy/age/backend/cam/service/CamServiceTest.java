@@ -21,6 +21,8 @@ import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemoryMemberRepository;
 import ssafy.age.backend.mqtt.MqttGateway;
 import ssafy.age.backend.notification.service.FCMService;
+import ssafy.age.backend.testutil.CamFixture;
+import ssafy.age.backend.testutil.MemberFixture;
 import ssafy.age.backend.util.IPUtil;
 
 @ExtendWith(MockitoExtension.class)
@@ -55,7 +57,7 @@ class CamServiceTest {
     @Test
     void creatCam() {
         // given
-        Member member = new Member("test@example.com", "testpassword", "010-0000-0000");
+        Member member = MemberFixture.memberOne();
         fakeMemberRepository.save(member);
 
         // when
@@ -72,14 +74,11 @@ class CamServiceTest {
     @Test
     void getCams() {
         // given
-        Member member = new Member("test@example.com", "testpassword", "010-0000-0000");
+        Member member = MemberFixture.memberOne();
         fakeMemberRepository.save(member);
-        Cam cam1 = fakeCamRepository.save(new Cam(
-                "living room", "192.168.0.1", "seoul", CamStatus.REGISTERED, member, "https://example.com/image.jpg"));
-        Cam cam2 = fakeCamRepository.save(new Cam(
-                "kitchen", "192.168.0.2", "seoul", CamStatus.REGISTERED, member, "https://example.com/image.jpg"));
-        Cam cam3 = fakeCamRepository.save(new Cam(
-                "bed room", "192.168.0.3", "seoul", CamStatus.REGISTERED, member, "https://example.com/image.jpg"));
+        Cam cam1 = fakeCamRepository.save(CamFixture.camOne(member));
+        Cam cam2 = fakeCamRepository.save(CamFixture.camTwo(member));
+        Cam cam3 = fakeCamRepository.save(CamFixture.camTree(member));
 
         // when
         List<CamResponseDto> camResponseDtos = camService.getCams(member.getId());
@@ -95,48 +94,29 @@ class CamServiceTest {
     @Test
     void getCams_neg() {
         // given
-        Member targetMember = new Member("test@example.com", "testpassword", "010-0000-0000");
-        Member anotherMember = new Member("another@example.com", "testpassword", "010-0000-0001");
-        fakeMemberRepository.save(targetMember);
-        fakeMemberRepository.save(anotherMember);
-        Cam cam1 = fakeCamRepository.save(new Cam(
-                "living room",
-                "192.168.0.1",
-                "seoul",
-                CamStatus.REGISTERED,
-                targetMember,
-                "https://example.com/image.jpg"));
-        fakeCamRepository.save(new Cam(
-                "kitchen",
-                "192.168.0.2",
-                "seoul",
-                CamStatus.REGISTERED,
-                anotherMember,
-                "https://example.com/image.jpg"));
-        fakeCamRepository.save(new Cam(
-                "bed room",
-                "192.168.0.3",
-                "seoul",
-                CamStatus.REGISTERED,
-                anotherMember,
-                "https://example.com/image.jpg"));
+        Member memberA = MemberFixture.memberOne();
+        Member memberB = MemberFixture.memberTwo();
+        fakeMemberRepository.save(memberA);
+        fakeMemberRepository.save(memberB);
+        Cam camOfMemberA = fakeCamRepository.save(CamFixture.camOne(memberA));
+        fakeCamRepository.save(CamFixture.camTwo(memberB));
+        fakeCamRepository.save(CamFixture.camTree(memberB));
 
         // when
-        List<CamResponseDto> camResponseDtos = camService.getCams(targetMember.getId());
+        List<CamResponseDto> camResponseDtos = camService.getCams(memberA.getId());
 
         // then
         assertThat(camResponseDtos).hasSize(1);
-        assertThat(camResponseDtos).extracting(CamResponseDto::camId).containsExactlyInAnyOrder(cam1.getId());
+        assertThat(camResponseDtos).extracting(CamResponseDto::camId).containsExactlyInAnyOrder(camOfMemberA.getId());
     }
 
     @DisplayName("cam의 이름을 수정할 수 있다.")
     @Test
     void updateCam() {
         // given
-        Member member = new Member("test@example.com", "testpassword", "010-0000-0000");
+        Member member = MemberFixture.memberOne();
         fakeMemberRepository.save(member);
-        Cam cam = new Cam(
-                "living room", "192.168.0.1", "seoul", CamStatus.REGISTERED, member, "https://example.com/image.jpg");
+        Cam cam = CamFixture.camOne(member);
         fakeCamRepository.save(cam);
         String newCamName = "new room";
         defineFindByCamId();
@@ -157,27 +137,20 @@ class CamServiceTest {
     @Test
     void updateCam_neg() {
         // given
-        Member member = new Member("test@example.com", "testpassword", "010-0000-0000");
-        Member anotherMember = new Member("test2@example.com", "testpassword", "010-0000-0001");
-        fakeMemberRepository.save(member);
-        fakeMemberRepository.save(anotherMember);
-        Cam camOfMember = new Cam(
-                "living room", "192.168.0.1", "seoul", CamStatus.REGISTERED, member, "https://example.com/image.jpg");
-        Cam camOfAnother = new Cam(
-                "living room",
-                "192.168.0.1",
-                "seoul",
-                CamStatus.REGISTERED,
-                anotherMember,
-                "https://example.com/image.jpg");
-        fakeCamRepository.save(camOfMember);
-        fakeCamRepository.save(camOfAnother);
+        Member memberA = MemberFixture.memberOne();
+        Member memberB = MemberFixture.memberTwo();
+        fakeMemberRepository.save(memberA);
+        fakeMemberRepository.save(memberB);
+        Cam camOfMemberA = CamFixture.camOne(memberA);
+        Cam camOfMemberB = CamFixture.camTwo(memberB);
+        fakeCamRepository.save(camOfMemberA);
+        fakeCamRepository.save(camOfMemberB);
         String newCamName = "new room";
         defineFindByCamId();
 
         // when & then
-        Long camId = camOfAnother.getId();
-        Long memberId = member.getId();
+        Long camId = camOfMemberB.getId();
+        Long memberId = memberA.getId();
         assertThatThrownBy(() -> camService.updateCamName(camId, memberId, newCamName))
                 .isInstanceOf(MemberInvalidAccessException.class);
     }
