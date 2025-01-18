@@ -1,40 +1,18 @@
 package ssafy.age.backend.cam.persistence;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import org.springframework.lang.NonNull;
-import ssafy.age.backend.NotImplementedException;
-import ssafy.age.backend.NotJpaRepository;
+import ssafy.age.backend.testutils.MemoryJpaRepository;
+import ssafy.age.backend.testutils.NotImplementedException;
 
-public class MemoryCamRepository implements CamRepository, NotJpaRepository<Cam> {
-    private final Map<Long, Cam> cams = new HashMap<>();
-    private Long sequence = 1L;
+public class MemoryCamRepository extends MemoryJpaRepository<Cam> implements CamRepository {
 
-    @Override
-    @NonNull
-    public <S extends Cam> S save(S cam) {
-        if (cam.getId() != null) {
-            cams.put(cam.getId(), cam);
-            return cam;
-        }
-        while (cams.containsKey(sequence)) {
-            sequence++;
-        }
-        cam.setId(sequence);
-        cams.put(sequence, cam);
-        return cam;
-    }
-
-    @Override
-    @NonNull
-    public Cam getReferenceById(@NonNull Long camId) {
-        return cams.get(camId);
+    public MemoryCamRepository() {
+        super(Cam::setId, Cam::getId);
     }
 
     @Override
     public List<Cam> findAllByMemberId(Long memberId) {
-        return cams.values().stream()
+        return store.values().stream()
                 .filter(cam -> cam.getMember().getId().equals(memberId))
                 .toList();
     }

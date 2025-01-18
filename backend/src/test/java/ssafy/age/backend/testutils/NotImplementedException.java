@@ -1,3 +1,3 @@
-package ssafy.age.backend;
+package ssafy.age.backend.testutils;
 
 public class NotImplementedException extends RuntimeException {}

@@ -1,58 +1,27 @@
 package ssafy.age.backend.member.persistence;
 
-import java.util.*;
-import org.springframework.lang.NonNull;
-import ssafy.age.backend.NotImplementedException;
-import ssafy.age.backend.NotJpaRepository;
+import java.util.List;
+import java.util.Optional;
+import ssafy.age.backend.testutils.MemoryJpaRepository;
+import ssafy.age.backend.testutils.NotImplementedException;
 
 @SuppressWarnings({"SpringDataMethodInconsistencyInspection"})
-public class MemoryMemberRepository implements MemberRepository, NotJpaRepository<Member> {
+public class MemoryMemberRepository extends MemoryJpaRepository<Member> implements MemberRepository {
 
-    private final Map<Long, Member> members = new HashMap<>();
-    private Long sequence = 1L;
-
-    @Override
-    @NonNull
-    public <S extends Member> S save(S member) {
-        if (member.getId() != null) {
-            members.put(member.getId(), member);
-            return member;
-        }
-        while (members.containsKey(sequence)) {
-            sequence++;
-        }
-        member.setId(sequence);
-        members.put(sequence, member);
-        return member;
+    public MemoryMemberRepository() {
+        super(Member::setId, Member::getId);
     }
 
     @Override
     public Optional<Member> findByEmail(String email) {
-        return members.values().stream()
+        return store.values().stream()
                 .filter(member -> member.getEmail().equals(email))
                 .findFirst();
     }
 
     @Override
-    @NonNull
-    public List<Member> findAll() {
-        return members.values().stream().toList();
-    }
-
-    @Override
-    @NonNull
-    public Optional<Member> findById(@NonNull Long id) {
-        return Optional.ofNullable(members.get(id));
-    }
-
-    @Override
-    public void deleteById(@NonNull Long memberId) {
-        members.remove(memberId);
-    }
-
-    @Override
     public boolean existsByEmail(String email) {
-        return members.values().stream().anyMatch(member -> member.getEmail().equals(email));
+        return store.values().stream().anyMatch(member -> member.getEmail().equals(email));
     }
 
     @Override
