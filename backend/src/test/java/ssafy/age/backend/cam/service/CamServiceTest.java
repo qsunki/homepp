@@ -50,11 +50,11 @@ class CamServiceTest {
         // given
         Member member = new Member("test@example.com", "testpassword", "010-0000-0000");
         fakeMemberRepository.save(member);
-        fakeCamRepository.save(new Cam(
+        Cam cam1 = fakeCamRepository.save(new Cam(
                 "living room", "192.168.0.1", "seoul", CamStatus.REGISTERED, member, "https://example.com/image.jpg"));
-        fakeCamRepository.save(new Cam(
+        Cam cam2 = fakeCamRepository.save(new Cam(
                 "kitchen", "192.168.0.2", "seoul", CamStatus.REGISTERED, member, "https://example.com/image.jpg"));
-        fakeCamRepository.save(new Cam(
+        Cam cam3 = fakeCamRepository.save(new Cam(
                 "bed room", "192.168.0.3", "seoul", CamStatus.REGISTERED, member, "https://example.com/image.jpg"));
 
         // when
@@ -62,12 +62,14 @@ class CamServiceTest {
 
         // then
         assertThat(camResponseDtos).hasSize(3);
-        assertThat(camResponseDtos).extracting("name").containsExactlyInAnyOrder("living room", "kitchen", "bed room");
+        assertThat(camResponseDtos)
+                .extracting(CamResponseDto::name)
+                .containsExactlyInAnyOrder(cam1.getName(), cam2.getName(), cam3.getName());
     }
 
     @DisplayName("해당 member 소유가 아닌 캠은 가져오지 않는다.")
     @Test
-    void getCams_Neg() {
+    void getCams_neg() {
         // given
         Member targetMember = new Member("test@example.com", "testpassword", "010-0000-0000");
         Member anotherMember = new Member("another@example.com", "testpassword", "010-0000-0001");
