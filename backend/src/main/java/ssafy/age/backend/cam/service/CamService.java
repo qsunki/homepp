@@ -42,29 +42,6 @@ public class CamService {
     private final FileStorage fileStorage;
     private final IPUtil ipUtil;
 
-    public List<CamResponseDto> getCams(Long memberId) {
-        List<Cam> cams = camRepository.findAllByMemberId(memberId);
-        return cams.stream().map(camMapper::toCamResponseDto).toList();
-    }
-
-    public List<CamResponseDto> getCamsBySharedEmail(Long sharedMemberId) {
-        List<Cam> cams = camRepository.findAllSharedCamsByMemberId(sharedMemberId);
-        return cams.stream().map(camMapper::toCamResponseDto).toList();
-    }
-
-    public CamResponseDto updateCamName(Long camId, Long memberId, String name) {
-        verifyMemberByCamId(camId, memberId);
-        Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
-        cam.updateName(name);
-
-        return camMapper.toCamResponseDto(camRepository.save(cam));
-    }
-
-    public void deleteCam(Long camId, Long memberId) {
-        verifyMemberByCamId(camId, memberId);
-        camRepository.deleteById(camId);
-    }
-
     @Transactional
     public CamResponseDto createCam(String email, String ip) {
         Member member = memberRepository.findByEmail(email).orElseThrow(MemberNotFoundException::new);
@@ -75,20 +52,33 @@ public class CamService {
         return camMapper.toCamResponseDto(cam);
     }
 
+    public List<CamResponseDto> getCams(Long memberId) {
+        List<Cam> cams = camRepository.findAllByMemberId(memberId);
+        return cams.stream().map(camMapper::toCamResponseDto).toList();
+    }
+
+    public List<CamResponseDto> getCamsBySharedEmail(Long sharedMemberId) {
+        List<Cam> cams = camRepository.findAllSharedCamsByMemberId(sharedMemberId);
+        return cams.stream().map(camMapper::toCamResponseDto).toList();
+    }
+
     public CamResponseDto findCamById(Long camId, Long memberId) {
-        verifyMemberByCamId(camId, memberId);
+        validateCamOwnership(camId, memberId);
         Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
         return camMapper.toCamResponseDto(cam);
     }
 
-    public StreamResponseDto streamControl(Long camId, String key, String command) {
-        if (!camRepository.existsById(camId)) {
-            throw new CamNotFoundException();
-        }
-        MqttStreamRequestDto mqttStreamRequestDto =
-                new MqttStreamRequestDto(key, Command.valueOf(command.toUpperCase(Locale.ROOT)));
-        mqttGateway.sendStreamingRequest(mqttStreamRequestDto, camId);
-        return new StreamResponseDto(key, command);
+    public CamResponseDto updateCamName(Long camId, Long memberId, String name) {
+        validateCamOwnership(camId, memberId);
+        Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
+        cam.updateName(name);
+
+        return camMapper.toCamResponseDto(camRepository.save(cam));
+    }
+
+    public void deleteCam(Long camId, Long memberId) {
+        validateCamOwnership(camId, memberId);
+        camRepository.deleteById(camId);
     }
 
     @Transactional
@@ -102,14 +92,24 @@ public class CamService {
         return fileStorage.loadCamThumbnailResource(camId);
     }
 
-    public void controlDetection(Long camId, Long memberId, String command) {
-        verifyMemberByCamId(camId, memberId);
+    public void detectionControl(Long camId, Long memberId, String command) {
+        validateCamOwnership(camId, memberId);
         MqttControlRequestDto mqttControlRequestDto =
                 new MqttControlRequestDto(Command.valueOf(command.toUpperCase(Locale.ROOT)));
         mqttGateway.sendControlRequest(mqttControlRequestDto, camId);
     }
 
-    public void verifyMemberByCamId(Long camId, Long memberId) {
+    public StreamResponseDto streamingControl(Long camId, String key, String command) {
+        if (!camRepository.existsById(camId)) {
+            throw new CamNotFoundException();
+        }
+        MqttStreamRequestDto mqttStreamRequestDto =
+                new MqttStreamRequestDto(key, Command.valueOf(command.toUpperCase(Locale.ROOT)));
+        mqttGateway.sendStreamingRequest(mqttStreamRequestDto, camId);
+        return new StreamResponseDto(key, command);
+    }
+
+    public void validateCamOwnership(Long camId, Long memberId) {
         Member member = memberRepository.findByCamId(camId).orElseThrow(CamNotFoundException::new);
         if (!member.getId().equals(memberId)) {
             throw new MemberInvalidAccessException();

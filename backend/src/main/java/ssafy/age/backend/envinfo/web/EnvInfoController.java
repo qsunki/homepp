@@ -19,14 +19,14 @@ public class EnvInfoController {
     @GetMapping("/api/v1/cams/{camId}/envInfos")
     public List<EnvInfoResponseDto> getEnvInfos(
             @PathVariable Long camId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
-        camService.verifyMemberByCamId(camId, memberInfoDto.memberId());
+        camService.validateCamOwnership(camId, memberInfoDto.memberId());
         return envInfoService.getEnvInfos(camId);
     }
 
     @GetMapping("/api/v1/cams/{camId}/envInfo")
     public EnvInfoResponseDto getEnvInfo(
             @PathVariable Long camId, @AuthenticationPrincipal MemberInfoDto memberInfoDto) {
-        camService.verifyMemberByCamId(camId, memberInfoDto.memberId());
+        camService.validateCamOwnership(camId, memberInfoDto.memberId());
         return envInfoService.getEnvInfo(camId);
     }
 }
