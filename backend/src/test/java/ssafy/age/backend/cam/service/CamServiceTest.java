@@ -18,6 +18,7 @@ import ssafy.age.backend.cam.persistence.*;
 import ssafy.age.backend.cam.web.CamResponseDto;
 import ssafy.age.backend.file.FileStorage;
 import ssafy.age.backend.member.exception.MemberInvalidAccessException;
+import ssafy.age.backend.member.exception.MemberNotFoundException;
 import ssafy.age.backend.member.persistence.Member;
 import ssafy.age.backend.member.persistence.MemoryMemberRepository;
 import ssafy.age.backend.mqtt.MqttGateway;
@@ -67,6 +68,17 @@ class CamServiceTest {
         // then
         Cam cam = fakeCamRepository.findById(camResponseDto.camId()).orElseThrow();
         assertThat(camResponseDto).isEqualTo(camMapper.toDto(cam));
+    }
+
+    @DisplayName("이메일로 회원을 찾을 수 없으면 MemberNotFoundException을 던진다.")
+    @Test
+    void createCam_neg() {
+        // given
+        String emailOfNotMember = "test@test.com";
+
+        // when & then
+        assertThatThrownBy(() -> camService.createCam(emailOfNotMember, "0.0.0.0"))
+                .isInstanceOf(MemberNotFoundException.class);
     }
 
     @DisplayName("해당 member가 가진 캠 목록을 가져올 수 있다.")
