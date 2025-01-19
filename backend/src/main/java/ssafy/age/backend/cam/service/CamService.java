@@ -33,8 +33,7 @@ public class CamService {
     private static final String URL_PREFIX = "/api/v1/cams/";
     private static final String THUMBNAIL_SUFFIX = "/thumbnail";
 
-    private static final CamMapper camMapper = CamMapper.INSTANCE;
-
+    private final CamMapper camMapper;
     private final CamRepository camRepository;
     private final MemberRepository memberRepository;
     private final MqttGateway mqttGateway;

@@ -50,8 +50,8 @@ class CamServiceTest {
 
     @BeforeEach
     void setUp() {
-        camService =
-                new CamService(fakeCamRepository, fakeMemberRepository, mqttGateway, fcmService, fileStorage, ipUtil);
+        camService = new CamService(
+                camMapper, fakeCamRepository, fakeMemberRepository, mqttGateway, fcmService, fileStorage, ipUtil);
     }
 
     @DisplayName("이메일로 등록된 회원을 찾아 캠을 생성한다.")
