@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.willAnswer;
+import static org.mockito.Mockito.verify;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -79,6 +80,20 @@ class CamServiceTest {
         // when & then
         assertThatThrownBy(() -> camService.createCam(emailOfNotMember, "0.0.0.0"))
                 .isInstanceOf(MemberNotFoundException.class);
+    }
+
+    @DisplayName("캠 등록 성공 시 캠 소유자에게 fcm 알림을 보낸다.")
+    @Test
+    void createCam_notify() {
+        // given
+        Member member = MemberFixture.memberOne();
+        fakeMemberRepository.save(member);
+
+        // when
+        camService.createCam(member.getEmail(), "0.0.0.0");
+
+        // then
+        verify(fcmService).sendRegisterMessage(member.getEmail());
     }
 
     @DisplayName("해당 member가 가진 캠 목록을 가져올 수 있다.")
