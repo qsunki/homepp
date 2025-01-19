@@ -49,23 +49,23 @@ public class CamService {
         Cam cam = camRepository.save(Cam.create(ip, region, member));
         cam.updateName("Cam" + cam.getId());
         fcmService.sendRegisterMessage(email);
-        return camMapper.toCamResponseDto(cam);
+        return camMapper.toDto(cam);
     }
 
     public List<CamResponseDto> getCams(Long memberId) {
         List<Cam> cams = camRepository.findAllByMemberId(memberId);
-        return cams.stream().map(camMapper::toCamResponseDto).toList();
+        return cams.stream().map(camMapper::toDto).toList();
     }
 
     public List<CamResponseDto> getCamsBySharedEmail(Long sharedMemberId) {
         List<Cam> cams = camRepository.findAllSharedCamsByMemberId(sharedMemberId);
-        return cams.stream().map(camMapper::toCamResponseDto).toList();
+        return cams.stream().map(camMapper::toDto).toList();
     }
 
     public CamResponseDto findCamById(Long camId, Long memberId) {
         validateCamOwnership(camId, memberId);
         Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
-        return camMapper.toCamResponseDto(cam);
+        return camMapper.toDto(cam);
     }
 
     public CamResponseDto updateCamName(Long camId, Long memberId, String name) {
@@ -73,7 +73,7 @@ public class CamService {
         Cam cam = camRepository.findById(camId).orElseThrow(CamNotFoundException::new);
         cam.updateName(name);
 
-        return camMapper.toCamResponseDto(camRepository.save(cam));
+        return camMapper.toDto(camRepository.save(cam));
     }
 
     public void deleteCam(Long camId, Long memberId) {

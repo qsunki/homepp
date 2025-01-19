@@ -66,7 +66,7 @@ class CamServiceTest {
 
         // then
         Cam cam = fakeCamRepository.findAllByMemberId(member.getId()).getFirst();
-        assertThat(camResponseDto).isEqualTo(camMapper.toCamResponseDto(cam));
+        assertThat(camResponseDto).isEqualTo(camMapper.toDto(cam));
     }
 
     @DisplayName("해당 member가 가진 캠 목록을 가져올 수 있다.")
@@ -85,10 +85,7 @@ class CamServiceTest {
         // then
         assertThat(camResponseDtos)
                 .hasSize(3)
-                .containsExactlyInAnyOrder(
-                        camMapper.toCamResponseDto(cam1),
-                        camMapper.toCamResponseDto(cam2),
-                        camMapper.toCamResponseDto(cam3));
+                .containsExactlyInAnyOrder(camMapper.toDto(cam1), camMapper.toDto(cam2), camMapper.toDto(cam3));
     }
 
     @DisplayName("해당 member 소유가 아닌 캠은 가져오지 않는다.")
@@ -107,7 +104,7 @@ class CamServiceTest {
         List<CamResponseDto> camResponseDtos = camService.getCams(memberA.getId());
 
         // then
-        assertThat(camResponseDtos).hasSize(1).containsExactlyInAnyOrder(camMapper.toCamResponseDto(camOfMemberA));
+        assertThat(camResponseDtos).hasSize(1).containsExactlyInAnyOrder(camMapper.toDto(camOfMemberA));
     }
 
     @DisplayName("cam의 이름을 수정할 수 있다.")

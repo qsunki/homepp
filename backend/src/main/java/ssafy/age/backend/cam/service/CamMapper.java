@@ -11,5 +11,5 @@ public interface CamMapper {
     CamMapper INSTANCE = Mappers.getMapper(CamMapper.class);
 
     @Mapping(source = "id", target = "camId")
-    CamResponseDto toCamResponseDto(Cam cam);
+    CamResponseDto toDto(Cam cam);
 }
