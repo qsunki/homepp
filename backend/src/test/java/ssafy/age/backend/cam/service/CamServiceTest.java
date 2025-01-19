@@ -56,7 +56,7 @@ class CamServiceTest {
 
     @DisplayName("이메일로 등록된 회원을 찾아 캠을 생성한다.")
     @Test
-    void creatCam() {
+    void createCam() {
         // given
         Member member = MemberFixture.memberOne();
         fakeMemberRepository.save(member);
@@ -65,7 +65,7 @@ class CamServiceTest {
         CamResponseDto camResponseDto = camService.createCam(member.getEmail(), "0.0.0.0");
 
         // then
-        Cam cam = fakeCamRepository.findAllByMemberId(member.getId()).getFirst();
+        Cam cam = fakeCamRepository.findById(camResponseDto.camId()).orElseThrow();
         assertThat(camResponseDto).isEqualTo(camMapper.toDto(cam));
     }
 
